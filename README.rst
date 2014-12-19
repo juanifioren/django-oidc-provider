@@ -8,6 +8,11 @@ Installation
 
 Install the package using pip.
 
+.. code:: bash
+
+    pip install -e git+https://github.com/juanifioren/django-openid-provider.git#egg=openid_provider
+
+
 Add it to your proyect apps.
 
 .. code:: python
