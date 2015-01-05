@@ -2,6 +2,11 @@
 Django OpenID Provider
 ######################
 
+Important things that you should know:
+
+ - Although OpenID was built on top of OAuth2, this isn't an OAuth2 server. Maybe in a future it will be.
+ - This just cover the ``authorization_code`` flow, no support for ``implicit`` flow at this moment.
+
 ************
 Installation
 ************
@@ -10,7 +15,7 @@ Install the package using pip.
 
 .. code:: bash
 
-    pip install -e git+https://github.com/juanifioren/django-openid-provider.git#egg=openid_provider
+    pip install https://github.com/juanifioren/django-openid-provider/archive/master.zip
 
 
 Add it to your proyect apps.
