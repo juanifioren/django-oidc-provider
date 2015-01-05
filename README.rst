@@ -4,8 +4,9 @@ Django OpenID Provider
 
 Important things that you should know:
 
- - Although OpenID was built on top of OAuth2, this isn't an OAuth2 server. Maybe in a future it will be.
- - This just cover the ``authorization_code`` flow, no support for ``implicit`` flow at this moment.
+- Although OpenID was built on top of OAuth2, this isn't an OAuth2 server. Maybe in a future it will be.
+- This just cover the ``authorization_code`` flow, no support for ``implicit`` flow at this moment.
+- Only support for requesting Claims using Scope Values.
 
 ************
 Installation
