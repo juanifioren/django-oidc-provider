@@ -56,7 +56,7 @@ class AuthorizeError(Exception):
         uri = '{0}?error={1}&error_description={2}'.format(redirect_uri, self.error, description)
 
         # Add state if present.
-        uri = uri + '&state={0}'.format(state) if state else ''
+        uri = uri + ('&state={0}'.format(state) if state else '')
 
         return uri
 
