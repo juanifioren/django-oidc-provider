@@ -18,8 +18,7 @@ class StandardClaims(object):
         except self.__model__.DoesNotExist:
             self.model = self.__model__()
 
-    @property
-    def response_dic(self):
+    def create_response_dic(self):
 
         dic = {}
 

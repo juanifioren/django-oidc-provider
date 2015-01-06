@@ -59,7 +59,7 @@ Then let's create a Client. Start django shell: ``python manage.py shell``.
 .. code:: python
 
     >>> from openid_provider.models import Client
-    >>> c = Client(name='Some Client', client_id='123', client_secret='456', client_type='public', grant_type='authorization_code', response_type='code', _redirect_uris='http://example.com/')
+    >>> c = Client(name='Some Client', client_id='123', client_secret='456', client_type='public', grant_type='authorization_code', response_type='code', redirect_uris=['http://example.com/'])
     >>> from django.contrib.auth.models import User
     >>> c.user = User.objects.all()[0]
     >>> c.save()

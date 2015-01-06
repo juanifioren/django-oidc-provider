@@ -29,24 +29,30 @@ class Client(models.Model):
     client_type = models.CharField(max_length=20, choices=CLIENT_TYPE_CHOICES)
     grant_type = models.CharField(max_length=30, choices=GRANT_TYPE_CHOICES)
     response_type = models.CharField(max_length=30, choices=RESPONSE_TYPE_CHOICES)
-    _redirect_uris = models.TextField()
-    _scope = models.TextField() # TODO: add getter and setter for this.
+    
+    # TODO: Need to be implemented.
+    # The list of scopes the client may request access to.
+    _scope = models.TextField(default='')
+    def scope():
+        def fget(self):
+            return self._scope.split()
+        def fset(self, value):
+            self._scope = ' '.join(value)
+        return locals()
+    scope = property(**scope())
 
-    @property
-    def redirect_uris(self):
-        if self._redirect_uris:
-            return self._redirect_uris.split()
-        return []
+    _redirect_uris = models.TextField(default='')
+    def redirect_uris():
+        def fget(self):
+            return self._redirect_uris.splitlines()
+        def fset(self, value):
+            self._redirect_uris = '\n'.join(value)
+        return locals()
+    redirect_uris = property(**redirect_uris())
 
     @property
     def default_redirect_uri(self):
         return self.redirect_uris[0]
-
-    @property
-    def scope(self):
-        if self._scopes:
-            return self._scopes.split()
-        return []
 
 class Code(models.Model):
 
@@ -64,11 +70,11 @@ class Token(models.Model):
     user = models.ForeignKey(User)
     client = models.ForeignKey(Client)
     access_token = models.CharField(max_length=255, unique=True)
-    _id_token = models.TextField()
     refresh_token = models.CharField(max_length=255, unique=True)
     expires_at = models.DateTimeField()
     scope = models.TextField() # TODO: add getter and setter for this.
 
+    _id_token = models.TextField()
     def id_token():
         def fget(self):
             return json.loads(self._id_token)

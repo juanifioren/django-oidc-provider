@@ -183,7 +183,9 @@ class TokenEndpoint(object):
 
     @classmethod
     def response(self, dic, status=200):
-
+        '''
+        Create and return a response object.
+        '''
         response = JsonResponse(dic, status=status)
         response['Cache-Control'] = 'no-store'
         response['Pragma'] = 'no-cache'
@@ -217,10 +219,12 @@ class UserInfoEndpoint(object):
             raise UserInfoError('invalid_token')
 
     def _get_access_token(self):
+        '''
+        Get the access token using Authorization Request Header Field method.
+        See: http://tools.ietf.org/html/rfc6750#section-2.1
 
-        # Using Authorization Request Header Field
-        # http://tools.ietf.org/html/rfc6750#section-2.1
-
+        Return a string.
+        '''
         auth_header = self.request.META.get('HTTP_AUTHORIZATION', '')
 
         if re.compile('^Bearer\s{1}.+$').match(auth_header):
@@ -231,14 +235,19 @@ class UserInfoEndpoint(object):
         return access_token
 
     def create_response_dic(self):
+        '''
+        Create a diccionary with all the requested claims about the End-User.
+        See: http://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse
 
+        Return a diccionary.
+        '''
         dic = {
             'sub': self.token.id_token.get('sub'),
         }
 
         standard_claims = StandardClaims(self.token.user, self.token.scope.split())
         
-        dic.update(standard_claims.response_dic)
+        dic.update(standard_claims.create_response_dic())
 
         return dic
 

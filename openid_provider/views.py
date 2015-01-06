@@ -5,8 +5,8 @@ from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
 import urllib
-from .lib.errors import *
-from .lib.grants.authorization_code import *
+from openid_provider.lib.errors import *
+from openid_provider.lib.grants.authorization_code import *
 
 
 class AuthorizeView(View):
