@@ -6,7 +6,9 @@ from django.views.decorators.http import require_http_methods
 from django.views.generic import View
 import urllib
 from openid_provider.lib.errors import *
-from openid_provider.lib.grants.authorization_code import *
+from openid_provider.lib.endpoints.authorize import *
+from openid_provider.lib.endpoints.token import *
+from openid_provider.lib.endpoints.userinfo import *
 
 
 class AuthorizeView(View):

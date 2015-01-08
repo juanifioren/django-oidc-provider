@@ -43,17 +43,25 @@ class AuthorizeError(Exception):
         'registration_not_supported': 'The provider does not support use of the registration parameter',
     }
 
-    def __init__(self, redirect_uri, error):
+    def __init__(self, redirect_uri, error, grant_type):
 
         self.error = error
         self.description = self._errors.get(error)
         self.redirect_uri = redirect_uri
+        self.grant_type = grant_type
 
     def create_uri(self, redirect_uri, state):
 
         description = urllib.quote(self.description)
 
-        uri = '{0}?error={1}&error_description={2}'.format(redirect_uri, self.error, description)
+        # See: http://openid.net/specs/openid-connect-core-1_0.html#ImplicitAuthError
+        hash_or_question = '#' if self.grant_type == 'implicit' else '?'
+
+        uri = '{0}{1}error={2}&error_description={3}'.format(
+            redirect_uri,
+            hash_or_question,
+            self.error,
+            description)
 
         # Add state if present.
         uri = uri + ('&state={0}'.format(state) if state else '')

@@ -8,18 +8,13 @@ class Client(models.Model):
 
     CLIENT_TYPE_CHOICES = [
         ('confidential', 'Confidential'),
-        #('public', 'Public'),
-    ]
-
-    GRANT_TYPE_CHOICES = [
-        ('authorization_code', 'Authorization Code Flow'),
-        #('implicit', 'Implicit Flow'),
+        ('public', 'Public'),
     ]
 
     RESPONSE_TYPE_CHOICES = [
-        ('code', 'Authorization Code Flow'),
-        #('id_token', 'Implicit Flow'),
-        #('id_token token', 'Implicit Flow'),
+        ('code', 'code (Authorization Code Flow)'),
+        ('id_token', 'id_token (Implicit Flow)'),
+        ('id_token token', 'id_token token (Implicit Flow)'),
     ]
 
     name = models.CharField(max_length=100, default='')
@@ -27,7 +22,6 @@ class Client(models.Model):
     client_id = models.CharField(max_length=255, unique=True)
     client_secret = models.CharField(max_length=255, unique=True)
     client_type = models.CharField(max_length=20, choices=CLIENT_TYPE_CHOICES)
-    grant_type = models.CharField(max_length=30, choices=GRANT_TYPE_CHOICES)
     response_type = models.CharField(max_length=30, choices=RESPONSE_TYPE_CHOICES)
     
     # TODO: Need to be implemented.
