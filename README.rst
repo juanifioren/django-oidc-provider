@@ -21,7 +21,7 @@ Install the package using pip.
     pip install https://github.com/juanifioren/django-openid-provider/archive/master.zip
 
 
-Add it to your proyect apps.
+Add it to your apps.
 
 .. code:: python
 
@@ -36,7 +36,7 @@ Add it to your proyect apps.
         # ...
     )
 
-Add the provider urls to your proyect.
+Add the provider urls.
 
 .. code:: python
 
@@ -69,6 +69,8 @@ Then let's create a Client. Start django shell: ``python manage.py shell``.
 *******************
 /authorize endpoint
 *******************
+
+Example of an OpenID Authentication Request using the ´´Authorization Code´´ flow.
 
 .. code:: curl
 
