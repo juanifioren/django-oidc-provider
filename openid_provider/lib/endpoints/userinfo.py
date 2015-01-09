@@ -11,7 +11,7 @@ class UserInfoEndpoint(object):
     def __init__(self, request):
 
         self.request = request
-        self.params = Params
+        self.params = Params()
         self._extract_params()
 
     def _extract_params(self):

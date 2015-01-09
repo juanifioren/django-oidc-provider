@@ -34,7 +34,12 @@ class AuthorizeView(View):
                 return HttpResponseRedirect(login_url)
 
         except (ClientIdError, RedirectUriError) as error:
-            return HttpResponse(error.description)
+            data = {
+                'error': error.error,
+                'description': error.description,
+            }
+
+            return render(request, 'openid_provider/error.html', data)
 
         except (AuthorizeError) as error:
             uri = error.create_uri(authorize.params.redirect_uri, authorize.params.state)

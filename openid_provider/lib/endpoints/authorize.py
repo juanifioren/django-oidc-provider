@@ -13,7 +13,7 @@ class AuthorizeEndpoint(object):
 
         self.request = request
 
-        self.params = Params
+        self.params = Params()
 
         # Because in this endpoint we handle both GET
         # and POST request.
@@ -52,22 +52,6 @@ class AuthorizeEndpoint(object):
         '''
         self.params.nonce = self.query_dict.get('nonce', '')
 
-    def is_code_flow(self):
-        '''
-        True if the client is using Authorization Code Flow.
-
-        Return a boolean.
-        '''
-        return self.grant_type == 'authorization_code'
-
-    def is_implicit_flow(self):
-        '''
-        True if the client is using Implicit Flow.
-
-        Return a boolean.
-        '''
-        return self.grant_type == 'implicit'
-
     def validate_params(self):
 
         if not self.params.redirect_uri:
@@ -96,7 +80,7 @@ class AuthorizeEndpoint(object):
         try:
             self.validate_params()
             
-            if self.is_code_flow():
+            if (self.grant_type == 'authorization_code'):
 
                 code = Code()
                 code.user = self.request.user
@@ -107,7 +91,8 @@ class AuthorizeEndpoint(object):
                 code.save()
 
                 uri = self.params.redirect_uri + '?code={0}'.format(code.code)
-            else:
+
+            else: # Implicit Flow
 
                 id_token_dic = create_id_token_dic(
                     self.request.user,

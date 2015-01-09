@@ -3,20 +3,13 @@ import urllib
 
 class RedirectUriError(Exception):
 
-    error = None
+    error = 'Redirect URI Error'
     description = 'The request fails due to a missing, invalid, or mismatching redirection URI (redirect_uri).'
-
 
 class ClientIdError(Exception):
 
-    error = None
+    error = 'Client ID Error'
     description = 'The client identifier (client_id) is missing or invalid.'
-
-class MissingScopeError(Exception):
-
-    error = 'openid scope'
-    description = 'The openid scope value is missing.'
-
 
 class AuthorizeError(Exception):
 
@@ -71,7 +64,6 @@ class AuthorizeError(Exception):
     @property
     def response(self):
         pass
-
 
 class TokenError(Exception):
 
