@@ -7,7 +7,7 @@ Django OpenID Provider
 Important things that you should know:
 
 - Although OpenID was built on top of OAuth2, this isn't an OAuth2 server. Maybe in a future it will be.
-- This cover ``authorization_code`` flow and ``implicit`` flow, NO support for ``hibrid`` flow at this moment.
+- This cover ``authorization_code`` flow and ``implicit`` flow, NO support for ``hybrid`` flow at this moment.
 - Only support for requesting Claims using Scope Values.
 
 ************
@@ -21,7 +21,7 @@ Install the package using pip.
     pip install https://github.com/juanifioren/django-openid-provider/archive/master.zip
 
 
-Add it to your proyect apps.
+Add it to your apps.
 
 .. code:: python
 
@@ -36,7 +36,7 @@ Add it to your proyect apps.
         # ...
     )
 
-Add the provider urls to your proyect.
+Add the provider urls.
 
 .. code:: python
 
@@ -69,6 +69,8 @@ Then let's create a Client. Start django shell: ``python manage.py shell``.
 *******************
 /authorize endpoint
 *******************
+
+Example of an OpenID Authentication Request using the ´´Authorization Code´´ flow.
 
 .. code:: curl
 
