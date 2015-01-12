@@ -54,7 +54,15 @@ class Code(models.Model):
     client = models.ForeignKey(Client)
     code = models.CharField(max_length=255, unique=True)
     expires_at = models.DateTimeField()
-    scope = models.TextField() # TODO: add getter and setter for this.
+    
+    _scope = models.TextField(default='')
+    def scope():
+        def fget(self):
+            return self._scope.split()
+        def fset(self, value):
+            self._scope = ' '.join(value)
+        return locals()
+    scope = property(**scope())
 
     def has_expired(self):
         return timezone.now() >= self.expires_at
@@ -64,9 +72,16 @@ class Token(models.Model):
     user = models.ForeignKey(User)
     client = models.ForeignKey(Client)
     access_token = models.CharField(max_length=255, unique=True)
-    refresh_token = models.CharField(max_length=255, unique=True)
     expires_at = models.DateTimeField()
-    scope = models.TextField() # TODO: add getter and setter for this.
+    
+    _scope = models.TextField(default='')
+    def scope():
+        def fget(self):
+            return self._scope.split()
+        def fset(self, value):
+            self._scope = ' '.join(value)
+        return locals()
+    scope = property(**scope())
 
     _id_token = models.TextField()
     def id_token():

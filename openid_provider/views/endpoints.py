@@ -21,6 +21,10 @@ class AuthorizeView(View):
             authorize.validate_params()
 
             if request.user.is_authenticated():
+
+                # This is for passing scopes into the form.
+                authorize.params.scope_str = ' '.join(authorize.params.scope)
+
                 data = {
                     'params': authorize.params,
                     'client': authorize.client,
@@ -29,7 +33,7 @@ class AuthorizeView(View):
                 return render(request, 'openid_provider/authorize.html', data)
             else:
                 next = urllib.quote(request.get_full_path())
-                login_url = settings.LOGIN_URL + '?next={0}'.format(next)
+                login_url = settings.LOGIN_URL + '?next=' + next
 
                 return HttpResponseRedirect(login_url)
 
@@ -42,7 +46,9 @@ class AuthorizeView(View):
             return render(request, 'openid_provider/error.html', data)
 
         except (AuthorizeError) as error:
-            uri = error.create_uri(authorize.params.redirect_uri, authorize.params.state)
+            uri = error.create_uri(
+                authorize.params.redirect_uri,
+                authorize.params.state)
 
             return HttpResponseRedirect(uri)
 

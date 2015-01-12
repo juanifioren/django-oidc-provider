@@ -41,7 +41,7 @@ class AuthorizeEndpoint(object):
         self.params.client_id = self.query_dict.get('client_id', '')
         self.params.redirect_uri = self.query_dict.get('redirect_uri', '')
         self.params.response_type = self.query_dict.get('response_type', '')
-        self.params.scope = self.query_dict.get('scope', '')
+        self.params.scope = self.query_dict.get('scope', '').split()
         self.params.state = self.query_dict.get('state', '')
 
     def _extract_implicit_params(self):
@@ -57,8 +57,11 @@ class AuthorizeEndpoint(object):
         if not self.params.redirect_uri:
             raise RedirectUriError()
 
-        if not ('openid' in self.params.scope.split()):
-            raise AuthorizeError(self.params.redirect_uri, 'invalid_scope', self.grant_type)
+        if not ('openid' in self.params.scope):
+            raise AuthorizeError(
+                self.params.redirect_uri,
+                'invalid_scope',
+                self.grant_type)
 
         try:
             self.client = Client.objects.get(client_id=self.params.client_id)
@@ -66,8 +69,13 @@ class AuthorizeEndpoint(object):
             if not (self.params.redirect_uri in self.client.redirect_uris):
                 raise RedirectUriError()
 
-            if not (self.grant_type) or not (self.params.response_type == self.client.response_type):
-                raise AuthorizeError(self.params.redirect_uri, 'unsupported_response_type', self.grant_type)
+            if not (self.grant_type) or \
+                not (self.params.response_type == self.client.response_type):
+
+                raise AuthorizeError(
+                    self.params.redirect_uri,
+                    'unsupported_response_type',
+                    self.grant_type)
 
         except Client.DoesNotExist:
             raise ClientIdError()
@@ -75,7 +83,10 @@ class AuthorizeEndpoint(object):
     def create_response_uri(self, allow):
 
         if not allow:
-            raise AuthorizeError(self.params.redirect_uri, 'access_denied', self.grant_type)
+            raise AuthorizeError(
+                self.params.redirect_uri,
+                'access_denied',
+                self.grant_type)
 
         try:
             self.validate_params()
@@ -110,7 +121,7 @@ class AuthorizeEndpoint(object):
 
                 id_token = encode_id_token(id_token_dic, self.client.client_secret)
                 
-                # TODO: Check if response_type is 'id_token token' and
+                # TODO: Check if response_type is 'id_token token' then
                 # add access_token to the fragment.
                 uri = self.params.redirect_uri + \
                     '#token_type={0}&id_token={1}&expires_in={2}'.format(
@@ -118,9 +129,13 @@ class AuthorizeEndpoint(object):
                         id_token,
                         60*10)
         except:
-            raise AuthorizeError(self.params.redirect_uri, 'server_error', self.grant_type)
+            raise AuthorizeError(
+                self.params.redirect_uri,
+                'server_error',
+                self.grant_type)
 
         # Add state if present.
-        uri = uri + ('&state={0}'.format(self.params.state) if self.params.state else '')
+        uri = uri + ('&state={0}'.format(self.params.state)
+            if self.params.state else '')
 
         return uri
