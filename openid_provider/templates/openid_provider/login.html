@@ -27,8 +27,9 @@
 			    	    		<input name="remember" type="checkbox" value="Remember Me"> Remember Me
 			    	    	</label>
 			    	    </div>
-			    	    <input type="hidden" name="next" value="{{ next }}" />
-			    		<input class="btn btn-success btn-block" type="submit" value="OK">
+			    	    <input type="hidden" name="next" value="{% if next %}{{ next }}{% else %}/openid/profile/{% endif %}" />
+
+			    		<input class="btn btn-primary btn-block" type="submit" value="OK">
 			    	</fieldset>
 		      	</form>
 			</div>

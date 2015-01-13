@@ -1,0 +1,51 @@
+{% extends "openid_provider/base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+    
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">{{ object.name }}</h3>
+                </div>
+                <div class="panel-body">
+                    <h4>ID</h4>
+                    <div class="well well-sm">{{ object.client_id }}</div>
+                    <h4>SECRET</h4>
+                    <div class="well well-sm">{{ object.client_secret }}</div>
+
+                    <table class="table table-bordered">
+                    <tr>
+                    <th scope="row">User</th>
+                    <td>{{ object.user.email }}</td>
+                    </tr>
+                    <tr>
+                    <th scope="row">Client Type</th>
+                    <td>{{ object.client_type }}</td>
+                    </tr>
+                    <tr>
+                    <th scope="row">Response Type</th>
+                    <td>{{ object.response_type }}</td>
+                    </tr>
+                    <tr>
+                    <th scope="row">Redirect URIs</th>
+                    <td>{{ object.redirect_uris|join:', ' }} </td>
+                    </tr>
+                    <tr>
+                    <th scope="row">Scopes</th>
+                    <td>{{ object.scope|join:', ' }} </td>
+                    </tr>
+                    </table>
+                    <div class="btn-group btn-group btn-group-justified" role="group">
+                        <a href="{% url 'openid_provider:client_list' %}" class="btn btn-primary"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> Go Back</a>
+                        <a class="btn btn-danger">Delete</a>
+                        <a class="btn btn-success">Edit</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

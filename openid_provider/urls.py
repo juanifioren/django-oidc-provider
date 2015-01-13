@@ -10,9 +10,10 @@ urlpatterns = patterns('',
 	url(r'^token/$', csrf_exempt(endpoints.TokenView.as_view()), name='token'),
 	url(r'^userinfo/$', csrf_exempt(endpoints.userinfo), name='userinfo'),
 
-	url(r'^login/$', 'django.contrib.auth.views.login', name='login'),
-	url(r'^logout/$', 'django.contrib.auth.views.logout', name='logout'),
+	url(r'^login/$', 'django.contrib.auth.views.login', { 'template_name': 'openid_provider/login.html' }, name='login'),
+	url(r'^logout/$', 'django.contrib.auth.views.logout', { 'template_name': 'openid_provider/logout.html' }, name='logout'),
 
-	url(r'^clients/$', clients.ClientListView.as_view(), name='clients'),
+	url(r'^clients/$', clients.ClientListView.as_view(), name='client_list'),
+	url(r'^clients/(?P<pk>[\d]+)/$', clients.ClientDetailView.as_view(), name='client_detail'),
 
 )
