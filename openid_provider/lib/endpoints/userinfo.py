@@ -55,7 +55,7 @@ class UserInfoEndpoint(object):
             'sub': self.token.id_token.get('sub'),
         }
 
-        standard_claims = StandardClaims(self.token.user, self.token.scope.split())
+        standard_claims = StandardClaims(self.token.user, self.token.scope)
         
         dic.update(standard_claims.create_response_dic())
 
