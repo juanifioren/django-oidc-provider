@@ -33,16 +33,12 @@
                     <th scope="row">Redirect URIs</th>
                     <td>{{ object.redirect_uris|join:', ' }} </td>
                     </tr>
-                    <tr>
-                    <th scope="row">Scopes</th>
-                    <td>{{ object.scope|join:', ' }} </td>
-                    </tr>
                     </table>
                     <div class="btn-group btn-group btn-group-justified" role="group">
-                        <a href="{% url 'openid_provider:client_list' %}" class="btn btn-primary"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> Go Back</a>
                         <a class="btn btn-danger">Delete</a>
                         <a class="btn btn-success">Edit</a>
                     </div>
+                    <br><a href="{% url 'openid_provider:client_list' %}"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> Go Back</a>
                 </div>
             </div>
         </div>

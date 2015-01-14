@@ -18,22 +18,10 @@ class Client(models.Model):
     ]
 
     name = models.CharField(max_length=100, default='')
-    user = models.ForeignKey(User)
     client_id = models.CharField(max_length=255, unique=True)
     client_secret = models.CharField(max_length=255, unique=True)
     client_type = models.CharField(max_length=20, choices=CLIENT_TYPE_CHOICES)
     response_type = models.CharField(max_length=30, choices=RESPONSE_TYPE_CHOICES)
-    
-    # TODO: Need to be implemented.
-    # The list of scopes the client may request access to.
-    _scope = models.TextField(default='')
-    def scope():
-        def fget(self):
-            return self._scope.split()
-        def fset(self, value):
-            self._scope = ' '.join(value)
-        return locals()
-    scope = property(**scope())
 
     _redirect_uris = models.TextField(default='')
     def redirect_uris():

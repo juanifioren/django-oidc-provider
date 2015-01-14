@@ -15,5 +15,6 @@ urlpatterns = patterns('',
 
 	url(r'^clients/$', clients.ClientListView.as_view(), name='client_list'),
 	url(r'^clients/(?P<pk>[\d]+)/$', clients.ClientDetailView.as_view(), name='client_detail'),
+	url(r'^clients/create/$', clients.client_create, name='client_create'),
 
 )
