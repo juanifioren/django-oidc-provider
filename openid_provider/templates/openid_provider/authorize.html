@@ -1,47 +1,28 @@
-{% extends "base.html" %}
+<h1>Request for Permission</h1>
 
-{% load i18n %}
+<p>Client <strong>{{ client.name }}</strong> would like to access this information of you ...</p>
 
-{% block content %}
+<form method="post" action="{% url 'openid_provider:authorize' %}">
+	
+	{% csrf_token %}
 
-<div class="row">
-	<div class="col-md-6 col-md-offset-3">
-		<div class="panel panel-default">
-			<div class="panel-heading">
-    			<h3 class="panel-title">Request for Permission</h3>
-  			</div>
-			<div class="panel-body">
-			    <p>Client <strong>{{ client.name }}</strong> would like to access this information of you ...</p>
-			    <form method="post" action="{% url 'openid_provider:authorize' %}">
-					{% csrf_token %}
+	<input name="client_id" type="hidden" value="{{ params.client_id }}" />
+	<input name="redirect_uri" type="hidden" value="{{ params.redirect_uri }}" />
+	<input name="response_type" type="hidden" value="{{ params.response_type }}" />
+	<input name="scope" type="hidden" value="{{ params.scope_str }}" />
+	<input name="state" type="hidden" value="{{ params.state }}" />
 
-					<input name="client_id" type="hidden" value="{{ params.client_id }}" />
-					<input name="redirect_uri" type="hidden" value="{{ params.redirect_uri }}" />
-					<input name="response_type" type="hidden" value="{{ params.response_type }}" />
-					<input name="scope" type="hidden" value="{{ params.scope_str }}" />
-					<input name="state" type="hidden" value="{{ params.state }}" />
+	<ul>
+	{% for scope in params.scope %}
+		{% if scope != 'openid' %}
+		<li>{{ scope | capfirst }}</li>
+		{% endif %}
+    {% endfor %}
+    </ul>
 
-					<ul class="list-group">
-					{% for scope in params.scope %}
-						{% if scope != 'openid' %}
-						<li class="list-group-item">{{ scope | capfirst }}</li>
-						{% endif %}
-				    {% endfor %}
-				    </ul>
+	<input type="submit" value="Decline" />
+	<input name="allow" type="submit" value="Authorize" />
 
-				    <div class="btn-group btn-group-justified" role="group" aria-label="Justified button group">
-						<div class="btn-group" role="group">
-							<input type="submit" class="btn btn-danger" value="Decline" />
-						</div>
-						<div class="btn-group" role="group">
-							<input name="allow" type="submit" class="btn btn-success" value="Authorize" />
-						</div>
-				    </div>
-				    
-				</form>
-			</div>
-		</div>
-	</div>
-</div>
+</form>
 
 {% endblock %}
