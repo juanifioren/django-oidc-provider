@@ -34,7 +34,7 @@ class Client(models.Model):
 
     @property
     def default_redirect_uri(self):
-        return self.redirect_uris[0]
+        return self.redirect_uris[0] if self.redirect_uris else ''
 
 class Code(models.Model):
 
