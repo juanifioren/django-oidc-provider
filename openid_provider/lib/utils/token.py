@@ -24,7 +24,7 @@ def create_id_token_dic(user, iss, aud):
     user_auth_time = time.mktime(user.last_login.timetuple())
 
     dic = {
-        'iss': iss, # TODO: this should not be hardcoded.
+        'iss': iss,
         'sub': user.id,
         'aud': aud,
         'exp': exp_time,
