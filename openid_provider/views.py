@@ -1,4 +1,6 @@
 from django.conf import settings
+from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.contrib.auth.views import redirect_to_login
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
@@ -22,28 +24,27 @@ class AuthorizeView(View):
 
             if request.user.is_authenticated():
 
-                # This is for passing scopes into the form.
+                # This is for printing scopes in the form.
                 authorize.params.scope_str = ' '.join(authorize.params.scope)
 
-                data = {
+                context = {
                     'params': authorize.params,
                     'client': authorize.client,
                 }
 
-                return render(request, 'openid_provider/authorize.html', data)
+                return render(request, 'openid_provider/authorize.html', context)
             else:
-                next = urllib.quote(request.get_full_path())
-                login_url = settings.LOGIN_URL + '?next=' + next
-
-                return HttpResponseRedirect(login_url)
+                path = request.get_full_path()
+                return redirect_to_login(
+                    path, settings.LOGIN_URL, REDIRECT_FIELD_NAME)
 
         except (ClientIdError, RedirectUriError) as error:
-            data = {
+            context = {
                 'error': error.error,
                 'description': error.description,
             }
 
-            return render(request, 'openid_provider/error.html', data)
+            return render(request, 'openid_provider/error.html', context)
 
         except (AuthorizeError) as error:
             uri = error.create_uri(
