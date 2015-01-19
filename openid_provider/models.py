@@ -6,11 +6,6 @@ import json
 
 class Client(models.Model):
 
-    CLIENT_TYPE_CHOICES = [
-        ('confidential', 'Confidential'),
-        ('public', 'Public'),
-    ]
-
     RESPONSE_TYPE_CHOICES = [
         ('code', 'code (Authorization Code Flow)'),
         ('id_token', 'id_token (Implicit Flow)'),
@@ -20,7 +15,6 @@ class Client(models.Model):
     name = models.CharField(max_length=100, default='')
     client_id = models.CharField(max_length=255, unique=True)
     client_secret = models.CharField(max_length=255, unique=True)
-    client_type = models.CharField(max_length=20, choices=CLIENT_TYPE_CHOICES)
     response_type = models.CharField(max_length=30, choices=RESPONSE_TYPE_CHOICES)
 
     _redirect_uris = models.TextField(default='')
