@@ -1,9 +1,11 @@
+import urllib
+
 from django.http import JsonResponse
+
 from openid_provider.lib.errors import *
 from openid_provider.lib.utils.params import *
 from openid_provider.lib.utils.token import *
 from openid_provider.models import *
-import urllib
 
 
 class TokenEndpoint(object):
@@ -53,15 +55,17 @@ class TokenEndpoint(object):
     def create_response_dic(self):
 
         id_token_dic = create_id_token_dic(
-                        self.code.user,
-                        'http://localhost:8000', # TODO: Add this into settings.
-                        self.client.client_id)
+            self.code.user,
+            'http://localhost:8000',  # TODO: Add this into settings.
+            self.client.client_id
+        )
 
         token = create_token(
-                    user=self.code.user,
-                    client=self.code.client,
-                    id_token_dic=id_token_dic,
-                    scope=self.code.scope)
+            user=self.code.user,
+            client=self.code.client,
+            id_token_dic=id_token_dic,
+            scope=self.code.scope
+        )
 
         # Store the token.
         token.save()
@@ -74,7 +78,7 @@ class TokenEndpoint(object):
         dic = {
             'access_token': token.access_token,
             'token_type': 'bearer',
-            'expires_in': 60*60, # TODO: Add this into settings.
+            'expires_in': 60*60,  # TODO: Add this into settings.
             'id_token': id_token,
         }
 
@@ -82,9 +86,9 @@ class TokenEndpoint(object):
 
     @classmethod
     def response(self, dic, status=200):
-        '''
+        """
         Create and return a response object.
-        '''
+        """
         response = JsonResponse(dic, status=status)
         response['Cache-Control'] = 'no-store'
         response['Pragma'] = 'no-cache'

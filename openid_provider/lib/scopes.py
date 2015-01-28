@@ -1,4 +1,5 @@
 from django.utils.translation import ugettext as _
+
 from openid_provider.models import UserInfo
 
 
@@ -32,10 +33,10 @@ class StandardClaims(object):
         return dic
 
     def _scopes_registered(self):
-        '''
+        """
         Return a list that contains all the scopes registered
         in the class.
-        '''
+        """
         scopes = []
 
         for name in self.__class__.__dict__:
@@ -47,9 +48,9 @@ class StandardClaims(object):
         return scopes
 
     def _clean_dic(self, dic):
-        '''
+        """
         Clean recursively all empty or None values inside a dict.
-        '''
+        """
         aux_dic = dic.copy()
         for key, value in dic.iteritems():
 

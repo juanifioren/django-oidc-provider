@@ -1,3 +1,5 @@
+import urllib
+
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.views import redirect_to_login
@@ -6,7 +8,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
-import urllib
+
 from openid_provider.lib.errors import *
 from openid_provider.lib.endpoints.authorize import *
 from openid_provider.lib.endpoints.token import *
@@ -68,6 +70,7 @@ class AuthorizeView(View):
             uri = error.create_uri(authorize.params.redirect_uri, authorize.params.state)
 
             return HttpResponseRedirect(uri)
+
 
 class TokenView(View):
 
