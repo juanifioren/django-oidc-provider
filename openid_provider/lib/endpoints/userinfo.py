@@ -1,9 +1,11 @@
+import re
+
 from django.http import HttpResponse, JsonResponse
+
 from openid_provider.lib.errors import *
 from openid_provider.lib.scopes import *
 from openid_provider.lib.utils.params import *
 from openid_provider.models import *
-import re
 
 
 class UserInfoEndpoint(object):
@@ -21,12 +23,12 @@ class UserInfoEndpoint(object):
         self.params.access_token = self._get_access_token()
 
     def _get_access_token(self):
-        '''
+        """
         Get the access token using Authorization Request Header Field method.
         See: http://tools.ietf.org/html/rfc6750#section-2.1
 
         Return a string.
-        '''
+        """
         auth_header = self.request.META.get('HTTP_AUTHORIZATION', '')
 
         if re.compile('^Bearer\s{1}.+$').match(auth_header):
@@ -45,12 +47,12 @@ class UserInfoEndpoint(object):
             raise UserInfoError('invalid_token')
 
     def create_response_dic(self):
-        '''
+        """
         Create a diccionary with all the requested claims about the End-User.
         See: http://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse
 
         Return a diccionary.
-        '''
+        """
         dic = {
             'sub': self.token.id_token.get('sub'),
         }

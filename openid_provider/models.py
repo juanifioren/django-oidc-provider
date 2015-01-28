@@ -1,7 +1,8 @@
-from django.contrib.auth.models import User
+import json
+
 from django.db import models
 from django.utils import timezone
-import json
+from django.contrib.auth.models import User
 
 
 class Client(models.Model):
@@ -18,6 +19,7 @@ class Client(models.Model):
     response_type = models.CharField(max_length=30, choices=RESPONSE_TYPE_CHOICES)
 
     _redirect_uris = models.TextField(default='')
+
     def redirect_uris():
         def fget(self):
             return self._redirect_uris.splitlines()
@@ -30,6 +32,7 @@ class Client(models.Model):
     def default_redirect_uri(self):
         return self.redirect_uris[0] if self.redirect_uris else ''
 
+
 class Code(models.Model):
 
     user = models.ForeignKey(User)
@@ -38,6 +41,7 @@ class Code(models.Model):
     expires_at = models.DateTimeField()
     
     _scope = models.TextField(default='')
+
     def scope():
         def fget(self):
             return self._scope.split()
@@ -49,6 +53,7 @@ class Code(models.Model):
     def has_expired(self):
         return timezone.now() >= self.expires_at
 
+
 class Token(models.Model):
 
     user = models.ForeignKey(User)
@@ -57,6 +62,7 @@ class Token(models.Model):
     expires_at = models.DateTimeField()
     
     _scope = models.TextField(default='')
+
     def scope():
         def fget(self):
             return self._scope.split()
@@ -66,6 +72,7 @@ class Token(models.Model):
     scope = property(**scope())
 
     _id_token = models.TextField()
+
     def id_token():
         def fget(self):
             return json.loads(self._id_token)
@@ -73,6 +80,7 @@ class Token(models.Model):
             self._id_token = json.dumps(value)
         return locals()
     id_token = property(**id_token())
+
 
 class UserInfo(models.Model):
 

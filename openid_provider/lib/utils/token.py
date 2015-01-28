@@ -1,19 +1,21 @@
-from datetime import timedelta
-from django.utils import timezone
-import jwt
-from openid_provider.models import *
 import time
+import jwt
 import uuid
+
+from datetime import timedelta
+
+from django.utils import timezone
+from openid_provider.models import *
 
 
 def create_id_token_dic(user, iss, aud):
-    '''
+    """
     Receives a user object, iss (issuer) and aud (audience).
     Then creates the id_token dic.
     See: http://openid.net/specs/openid-connect-core-1_0.html#IDToken
 
     Return a dic.
-    '''
+    """
     expires_in = 60*10
 
     now = timezone.now()
@@ -34,22 +36,24 @@ def create_id_token_dic(user, iss, aud):
 
     return dic
 
+
 def encode_id_token(id_token_dic, client_secret):
-    '''
+    """
     Represent the ID Token as a JSON Web Token (JWT).
 
     Return a hash.
-    '''
+    """
     id_token_hash = jwt.encode(id_token_dic, client_secret)
 
     return id_token_hash
 
+
 def create_token(user, client, id_token_dic, scope):
-    '''
+    """
     Create and populate a Token object.
 
     Return a Token object.
-    '''
+    """
     token = Token()
     token.user = user
     token.client = client
@@ -58,7 +62,7 @@ def create_token(user, client, id_token_dic, scope):
     token.id_token = id_token_dic
 
     token.refresh_token = uuid.uuid4().hex
-    token.expires_at = timezone.now() + timedelta(seconds=60*60) # TODO: Add this into settings.
+    token.expires_at = timezone.now() + timedelta(seconds=60*60)  # TODO: Add this into settings.
     token.scope = scope
 
     return token

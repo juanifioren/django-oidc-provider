@@ -50,6 +50,8 @@ Add the provider urls.
 Settings
 ********
 
+Add required variables to your project settings.
+
 .. code:: python
 
     # REQUIRED. Your server provider url.
