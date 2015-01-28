@@ -3,6 +3,7 @@ from openid_provider.lib.errors import *
 from openid_provider.lib.utils.params import *
 from openid_provider.lib.utils.token import *
 from openid_provider.models import *
+from openid_provider import settings
 import urllib
 
 
@@ -54,7 +55,7 @@ class TokenEndpoint(object):
 
         id_token_dic = create_id_token_dic(
                         self.code.user,
-                        'http://localhost:8000', # TODO: Add this into settings.
+                        settings.get('SITE_URL'),
                         self.client.client_id)
 
         token = create_token(

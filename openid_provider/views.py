@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.views import redirect_to_login
 from django.core.urlresolvers import reverse
@@ -11,6 +10,7 @@ from openid_provider.lib.errors import *
 from openid_provider.lib.endpoints.authorize import *
 from openid_provider.lib.endpoints.token import *
 from openid_provider.lib.endpoints.userinfo import *
+from openid_provider import settings
 
 
 class AuthorizeView(View):
@@ -24,7 +24,7 @@ class AuthorizeView(View):
 
             if request.user.is_authenticated():
 
-                # This is for printing scopes in the form.
+                # This is for printing scopes in form.
                 authorize.params.scope_str = ' '.join(authorize.params.scope)
 
                 context = {
@@ -36,7 +36,7 @@ class AuthorizeView(View):
             else:
                 path = request.get_full_path()
                 return redirect_to_login(
-                    path, settings.LOGIN_URL, REDIRECT_FIELD_NAME)
+                    path, settings.get('LOGIN_URL'), REDIRECT_FIELD_NAME)
 
         except (ClientIdError, RedirectUriError) as error:
             context = {
