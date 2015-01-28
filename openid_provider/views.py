@@ -5,7 +5,6 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
-
 from openid_provider.lib.errors import *
 from openid_provider.lib.endpoints.authorize import *
 from openid_provider.lib.endpoints.token import *

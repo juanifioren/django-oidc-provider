@@ -1,12 +1,10 @@
-import urllib
-
 from django.http import JsonResponse
-
 from openid_provider.lib.errors import *
 from openid_provider.lib.utils.params import *
 from openid_provider.lib.utils.token import *
 from openid_provider.models import *
 from openid_provider import settings
+import urllib
 
 
 class TokenEndpoint(object):
@@ -23,7 +21,8 @@ class TokenEndpoint(object):
 
         self.params.client_id = query_dict.get('client_id', '')
         self.params.client_secret = query_dict.get('client_secret', '')
-        self.params.redirect_uri = urllib.unquote(query_dict.get('redirect_uri', ''))
+        self.params.redirect_uri = urllib.unquote(
+            query_dict.get('redirect_uri', ''))
         self.params.grant_type = query_dict.get('grant_type', '')
         self.params.code = query_dict.get('code', '')
         self.params.state = query_dict.get('state', '')
@@ -44,7 +43,8 @@ class TokenEndpoint(object):
 
             self.code = Code.objects.get(code=self.params.code)
 
-            if not (self.code.client == self.client) and not self.code.has_expired():
+            if not (self.code.client == self.client) and \
+               not self.code.has_expired():
                 raise TokenError('invalid_grant')
 
         except Client.DoesNotExist:
@@ -77,7 +77,7 @@ class TokenEndpoint(object):
         dic = {
             'access_token': token.access_token,
             'token_type': 'bearer',
-            'expires_in': 60*60,  # TODO: Add this into settings.
+            'expires_in': settings.get('DOP_TOKEN_EXPIRE'),
             'id_token': id_token,
         }
 

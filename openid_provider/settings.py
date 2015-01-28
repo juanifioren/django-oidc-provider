@@ -1,20 +1,21 @@
 from django.conf import settings
 
 
-class default_settings(object):
-
-	# Here goes all the package default settings.
-
-	LOGIN_URL = None
-
-	SITE_URL = None
+# Here goes all the package default settings.
+default_settings = {
+	'DOP_CODE_EXPIRE': 60*10, # 10 min.
+	'DOP_IDTOKEN_EXPIRE': 60*10, # 10 min.
+	'DOP_TOKEN_EXPIRE': 60*60, # 1 hour.
+	'LOGIN_URL': None,
+	'SITE_URL': None,
+}
 
 def get(name):
 	'''
 	Helper function to use inside the package.
 	'''
 	try:
-		value = getattr(default_settings, name)
+		value = default_settings[name]
 		value = getattr(settings, name)
 	except AttributeError:
 		if value == None:

@@ -54,12 +54,21 @@ Add required variables to your project settings.
 
 .. code:: python
 
-    # REQUIRED. Your server provider url.
+    # REQUIRED.
+
+    # Your server provider url.
     SITE_URL = 'http://localhost:8000'
 
-    # REQUIRED. 
+    # Used to log the user in.
     # See: https://docs.djangoproject.com/en/1.7/ref/settings/#login-url
     LOGIN_URL = '/accounts/login/'
+
+    # OPTIONAL.
+
+    DOP_CODE_EXPIRE = 60*10 # 10 min.
+    DOP_IDTOKEN_EXPIRE = 60*10, # 10 min.
+    DOP_TOKEN_EXPIRE = 60*60 # 1 hour.
+
 
 ********************
 Create User & Client
