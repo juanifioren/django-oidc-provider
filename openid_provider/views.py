@@ -10,10 +10,10 @@ from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
 
-from openid_provider.lib.errors import *
-from openid_provider.lib.endpoints.authorize import *
-from openid_provider.lib.endpoints.token import *
-from openid_provider.lib.endpoints.userinfo import *
+from .lib.errors import *
+from .lib.endpoints.authorize import *
+from .lib.endpoints.token import *
+from .lib.endpoints.userinfo import *
 
 
 class AuthorizeView(View):
