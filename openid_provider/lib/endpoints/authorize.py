@@ -97,7 +97,7 @@ class AuthorizeEndpoint(object):
                 code.user = self.request.user
                 code.client = self.client
                 code.code = uuid.uuid4().hex
-                code.expires_at = timezone.now() + timedelta(seconds=60*10) # TODO: Add this into settings.
+                code.expires_at = timezone.now() + timedelta(seconds=60*10)  # TODO: Add this into settings.
                 code.scope = self.params.scope
                 code.save()
 
