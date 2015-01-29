@@ -46,9 +46,29 @@ Add the provider urls.
         # ...
     )
 
-Finally, add a login view and ensure that has the same url defined in `LOGIN_URL` setting.
+********
+Settings
+********
 
-See: https://docs.djangoproject.com/en/1.7/ref/settings/#login-url
+Add required variables to your project settings.
+
+.. code:: python
+
+    # REQUIRED.
+
+    # Your server provider url.
+    SITE_URL = 'http://localhost:8000'
+
+    # Used to log the user in.
+    # See: https://docs.djangoproject.com/en/1.7/ref/settings/#login-url
+    LOGIN_URL = '/accounts/login/'
+
+    # OPTIONAL.
+
+    DOP_CODE_EXPIRE = 60*10 # 10 min.
+    DOP_IDTOKEN_EXPIRE = 60*10, # 10 min.
+    DOP_TOKEN_EXPIRE = 60*60 # 1 hour.
+
 
 ********************
 Create User & Client
@@ -61,7 +81,7 @@ Then let's create a Client. Start django shell: ``python manage.py shell``.
 .. code:: python
 
     >>> from openid_provider.models import Client
-    >>> c = Client(name='Some Client', client_id='123', client_secret='456', client_type='confidential', response_type='code', redirect_uris=['http://example.com/'])
+    >>> c = Client(name='Some Client', client_id='123', client_secret='456', response_type='code', redirect_uris=['http://example.com/'])
     >>> c.save()
 
 *******************

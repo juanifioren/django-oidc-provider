@@ -4,6 +4,7 @@ import uuid
 
 from datetime import timedelta
 
+from openid_provider import settings
 from django.utils import timezone
 from openid_provider.models import *
 
@@ -16,7 +17,7 @@ def create_id_token_dic(user, iss, aud):
 
     Return a dic.
     """
-    expires_in = 60*10
+    expires_in = settings.get('DOP_IDTOKEN_EXPIRE')
 
     now = timezone.now()
 
@@ -62,7 +63,8 @@ def create_token(user, client, id_token_dic, scope):
     token.id_token = id_token_dic
 
     token.refresh_token = uuid.uuid4().hex
-    token.expires_at = timezone.now() + timedelta(seconds=60*60)  # TODO: Add this into settings.
+    token.expires_at = timezone.now() + timedelta(
+        seconds=settings.get('DOP_TOKEN_EXPIRE'))
     token.scope = scope
 
     return token

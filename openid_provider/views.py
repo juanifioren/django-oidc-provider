@@ -15,6 +15,8 @@ from .lib.endpoints.authorize import *
 from .lib.endpoints.token import *
 from .lib.endpoints.userinfo import *
 
+from openid_provider import settings
+
 
 class AuthorizeView(View):
 
@@ -39,7 +41,7 @@ class AuthorizeView(View):
             else:
                 path = request.get_full_path()
                 return redirect_to_login(
-                    path, settings.LOGIN_URL, REDIRECT_FIELD_NAME)
+                    path, settings.get('LOGIN_URL'), REDIRECT_FIELD_NAME)
 
         except (ClientIdError, RedirectUriError) as error:
             context = {

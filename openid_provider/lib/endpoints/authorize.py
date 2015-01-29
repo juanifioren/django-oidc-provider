@@ -4,6 +4,8 @@ from datetime import timedelta
 
 from django.utils import timezone
 
+from openid_provider import settings
+
 from ..errors import *
 from ..utils.params import *
 from ..utils.token import *
@@ -99,7 +101,8 @@ class AuthorizeEndpoint(object):
                 code.user = self.request.user
                 code.client = self.client
                 code.code = uuid.uuid4().hex
-                code.expires_at = timezone.now() + timedelta(seconds=60*10)  # TODO: Add this into settings.
+                code.expires_at = timezone.now() + timedelta(
+                    seconds=settings.get('DOP_CODE_EXPIRE'))
                 code.scope = self.params.scope
                 code.save()
 
@@ -109,7 +112,7 @@ class AuthorizeEndpoint(object):
 
                 id_token_dic = create_id_token_dic(
                     self.request.user,
-                    'http://localhost:8000',  # TODO: Add this into settings.
+                    settings.get('SITE_URL'),
                     self.client.client_id)
 
                 token = create_token(
@@ -121,14 +124,15 @@ class AuthorizeEndpoint(object):
                 # Store the token.
                 token.save()
 
-                id_token = encode_id_token(id_token_dic, self.client.client_secret)
-                
+                id_token = encode_id_token(
+                    id_token_dic, self.client.client_secret)
+
                 # TODO: Check if response_type is 'id_token token' then
                 # add access_token to the fragment.
                 uri = self.params.redirect_uri + '#token_type={0}&id_token={1}&expires_in={2}'.format(
                     'bearer',
                     id_token,
-                    60*10
+                    60 * 10
                 )
         except:
             raise AuthorizeError(
@@ -137,6 +141,8 @@ class AuthorizeEndpoint(object):
                 self.grant_type)
 
         # Add state if present.
-        uri = uri + ('&state={0}'.format(self.params.state) if self.params.state else '')
+        uri = uri + \
+            ('&state={0}'.format(self.params.state)
+             if self.params.state else '')
 
         return uri
