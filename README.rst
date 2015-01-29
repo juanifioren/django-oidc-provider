@@ -85,11 +85,13 @@ Then let's create a Client. Start django shell: ``python manage.py shell``.
     >>> c = Client(name='Some Client', client_id='123', client_secret='456', response_type='code', redirect_uris=['http://example.com/'])
     >>> c.save()
 
-*******************
-/authorize endpoint
-*******************
+****************
+Server Endpoints
+****************
 
-Example of an OpenID Authentication Request using the ´´Authorization Code´´ flow.
+**/authorize endpoint**
+
+Example of an OpenID Authentication Request using the ``Authorization Code`` flow.
 
 .. code:: curl
 
@@ -98,21 +100,15 @@ Example of an OpenID Authentication Request using the ´´Authorization Code´´
     Cache-Control: no-cache
     Content-Type: application/x-www-form-urlencoded
 
-****
-Code
-****
-
 After the user accepts and authorizes the client application, the server redirects to:
 
 .. code:: curl
 
     http://example.com/?code=5fb3b172913448acadce6b011af1e75e&state=abcdefgh
 
-We extract the ``code`` param and use it to obtain access token.
+The ``code`` param will be use it to obtain access token.
 
-***************
-/token endpoint
-***************
+**/token endpoint**
 
 .. code:: curl
 
@@ -123,12 +119,56 @@ We extract the ``code`` param and use it to obtain access token.
 
     client_id=123&client_secret=456&redirect_uri=http%253A%252F%252Fexample.com%252F&grant_type=authorization_code&code=[CODE]&state=abcdefgh
 
-******************
-/userinfo endpoint
-******************
+**/userinfo endpoint**
 
 .. code:: curl
 
     POST /openid/userinfo/ HTTP/1.1
     Host: localhost:8000
     Authorization: Bearer [ACCESS_TOKEN]
+
+*********
+Templates
+*********
+
+Add your own templates files inside a folder named ``templates/openid_provider/``.
+You can copy the sample html here and edit them with your own styles.
+
+**Authorize Template**
+
+.. code:: html
+    
+    <h1>Request for Permission</h1>
+
+    <p>Client <strong>{{ client.name }}</strong> would like to access this information of you ...</p>
+
+    <form method="post" action="{% url 'openid_provider:authorize' %}">
+        
+        {% csrf_token %}
+
+        {{ hidden_inputs }}
+
+        <ul>
+        {% for scope in params.scope %}
+            <li>{{ scope | capfirst }}</li>
+        {% endfor %}
+        </ul>
+
+        <input name="allow" type="submit" value="Authorize" />
+
+    </form>
+
+    {% endblock %}
+
+**Error Template**
+
+.. code:: html
+    
+    <h3>{{ error }}</h3>
+    <p>{{ description }}</p>
+
+************
+Contributing
+************
+
+We love contributions, so please feel free to fix bugs, improve things, provide documentation. Just submit a Pull Request.
