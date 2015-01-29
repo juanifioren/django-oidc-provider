@@ -84,7 +84,7 @@ class TokenEndpoint(object):
         return dic
 
     @classmethod
-    def response(self, dic, status=200):
+    def response(cls, dic, status=200):
         """
         Create and return a response object.
         """

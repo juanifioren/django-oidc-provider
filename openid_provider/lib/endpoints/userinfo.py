@@ -64,7 +64,7 @@ class UserInfoEndpoint(object):
         return dic
 
     @classmethod
-    def response(self, dic):
+    def response(cls, dic):
 
         response = JsonResponse(dic, status=200)
         response['Cache-Control'] = 'no-store'
@@ -73,7 +73,7 @@ class UserInfoEndpoint(object):
         return response
 
     @classmethod
-    def error_response(self, code, description, status):
+    def error_response(cls, code, description, status):
 
         response = HttpResponse(status=status)
         response['WWW-Authenticate'] = 'error="{0}", error_description="{1}"'.format(code, description)
