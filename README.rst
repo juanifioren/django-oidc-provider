@@ -9,6 +9,7 @@ Important things that you should know:
 - Although OpenID was built on top of OAuth2, this isn't an OAuth2 server. Maybe in a future it will be.
 - This cover ``authorization_code`` flow and ``implicit`` flow, NO support for ``hybrid`` flow at this moment.
 - Only support for requesting Claims using Scope Values.
+- Despite that implementation MUST support TLS. You can make request without using SSL. There is no control on that.
 
 ************
 Installation
