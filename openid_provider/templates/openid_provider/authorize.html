@@ -6,17 +6,11 @@
     
     {% csrf_token %}
 
-    <input name="client_id" type="hidden" value="{{ params.client_id }}" />
-    <input name="redirect_uri" type="hidden" value="{{ params.redirect_uri }}" />
-    <input name="response_type" type="hidden" value="{{ params.response_type }}" />
-    <input name="scope" type="hidden" value="{{ params.scope_str }}" />
-    <input name="state" type="hidden" value="{{ params.state }}" />
+    {{ hidden_inputs }}
 
     <ul>
     {% for scope in params.scope %}
-        {% if scope != 'openid' %}
         <li>{{ scope | capfirst }}</li>
-        {% endif %}
     {% endfor %}
     </ul>
 

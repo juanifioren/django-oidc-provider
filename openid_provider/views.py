@@ -3,6 +3,7 @@ from django.contrib.auth.views import redirect_to_login
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
+from django.template.loader import render_to_string
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
 from openid_provider.lib.errors import *
@@ -23,12 +24,20 @@ class AuthorizeView(View):
 
             if request.user.is_authenticated():
 
-                # This is for printing scopes in form.
-                authorize.params.scope_str = ' '.join(authorize.params.scope)
-
+                # Generate hidden inputs for the form.
                 context = {
                     'params': authorize.params,
+                }
+                hidden_inputs = render_to_string(
+                    'openid_provider/hidden_inputs.html', context)
+
+                # Remove openid from scope list since we don't need to print it.
+                authorize.params.scope.remove('openid')
+
+                context = {
                     'client': authorize.client,
+                    'hidden_inputs': hidden_inputs,
+                    'params': authorize.params,
                 }
 
                 return render(request, 'openid_provider/authorize.html', context)
