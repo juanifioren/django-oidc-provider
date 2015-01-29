@@ -1,14 +1,20 @@
+import urllib
+
+from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.views import redirect_to_login
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect
+
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
-from openid_provider.lib.errors import *
-from openid_provider.lib.endpoints.authorize import *
-from openid_provider.lib.endpoints.token import *
-from openid_provider.lib.endpoints.userinfo import *
+
+from .lib.errors import *
+from .lib.endpoints.authorize import *
+from .lib.endpoints.token import *
+from .lib.endpoints.userinfo import *
+
 from openid_provider import settings
 
 
@@ -23,7 +29,7 @@ class AuthorizeView(View):
 
             if request.user.is_authenticated():
 
-                # This is for printing scopes in form.
+                # This is for printing scopes in the form.
                 authorize.params.scope_str = ' '.join(authorize.params.scope)
 
                 context = {

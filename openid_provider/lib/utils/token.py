@@ -1,10 +1,12 @@
+import time
+import jwt
+import uuid
+
 from datetime import timedelta
+
+from openid_provider import settings
 from django.utils import timezone
 from openid_provider.models import *
-from openid_provider import settings
-import jwt
-import time
-import uuid
 
 
 def create_id_token_dic(user, iss, aud):

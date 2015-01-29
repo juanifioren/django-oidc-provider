@@ -1,10 +1,14 @@
 import re
+from django.http import HttpResponse
 
-from django.http import HttpResponse, JsonResponse
+try:  # JsonResponse is only available in Django > 1.7
+    from django.http import JsonResponse
+except ImportError:
+    from ..utils.http import JsonResponse
 
-from openid_provider.lib.errors import *
-from openid_provider.lib.scopes import *
-from openid_provider.lib.utils.params import *
+from ..errors import *
+from ..scopes import *
+from ..utils.params import *
 from openid_provider.models import *
 
 

@@ -1,11 +1,16 @@
-from datetime import timedelta
-from django.utils import timezone
-from openid_provider.lib.errors import *
-from openid_provider.lib.utils.params import *
-from openid_provider.lib.utils.token import *
-from openid_provider.models import *
-from openid_provider import settings
 import uuid
+
+from datetime import timedelta
+
+from django.utils import timezone
+
+from openid_provider import settings
+
+from ..errors import *
+from ..utils.params import *
+from ..utils.token import *
+
+from openid_provider.models import *
 
 
 class AuthorizeEndpoint(object):
@@ -18,8 +23,7 @@ class AuthorizeEndpoint(object):
 
         # Because in this endpoint we handle both GET
         # and POST request.
-        self.query_dict = (self.request.POST if self.request.method == 'POST'
-                           else self.request.GET)
+        self.query_dict = (self.request.POST if self.request.method == 'POST' else self.request.GET)
 
         self._extract_params()
 
@@ -90,7 +94,7 @@ class AuthorizeEndpoint(object):
 
         try:
             self.validate_params()
-
+            
             if self.grant_type == 'authorization_code':
 
                 code = Code()
