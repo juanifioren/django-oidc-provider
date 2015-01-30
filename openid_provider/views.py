@@ -73,7 +73,9 @@ class AuthorizeView(View):
             return HttpResponseRedirect(uri)
 
         except (AuthorizeError) as error:
-            uri = error.create_uri(authorize.params.redirect_uri, authorize.params.state)
+            uri = error.create_uri(
+                authorize.params.redirect_uri,
+                authorize.params.state)
 
             return HttpResponseRedirect(uri)
 

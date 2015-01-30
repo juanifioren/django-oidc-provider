@@ -1,13 +1,18 @@
 from django.conf import settings
+from openid_provider.lib.claims import AbstractScopeClaims
 
 
 # Here goes all the package default settings.
 default_settings = {
-	'DOP_CODE_EXPIRE': 60*10, # 10 min.
-	'DOP_IDTOKEN_EXPIRE': 60*10, # 10 min.
-	'DOP_TOKEN_EXPIRE': 60*60, # 1 hour.
+	# Required.
 	'LOGIN_URL': None,
 	'SITE_URL': None,
+
+	# Optional.
+	'DOP_CODE_EXPIRE': 60*10,
+	'DOP_EXTRA_SCOPE_CLAIMS': AbstractScopeClaims,
+	'DOP_IDTOKEN_EXPIRE': 60*10,
+	'DOP_TOKEN_EXPIRE': 60*60,
 }
 
 def get(name):

@@ -1,11 +1,11 @@
-import re
-
-from django.http import HttpResponse, JsonResponse
-
+from django.http import HttpResponse
+from django.http import JsonResponse
 from openid_provider.lib.errors import *
-from openid_provider.lib.scopes import *
+from openid_provider.lib.claims import *
 from openid_provider.lib.utils.params import *
 from openid_provider.models import *
+from openid_provider import settings
+import re
 
 
 class UserInfoEndpoint(object):
@@ -57,9 +57,14 @@ class UserInfoEndpoint(object):
             'sub': self.token.id_token.get('sub'),
         }
 
-        standard_claims = StandardClaims(self.token.user, self.token.scope)
-        
+        standard_claims = StandardScopeClaims(self.token.user, self.token.scope)
+
         dic.update(standard_claims.create_response_dic())
+
+        extra_claims = settings.get('DOP_EXTRA_SCOPE_CLAIMS')(
+            self.token.user, self.token.scope)
+
+        dic.update(extra_claims.create_response_dic())
 
         return dic
 

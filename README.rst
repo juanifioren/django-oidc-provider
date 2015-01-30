@@ -7,9 +7,9 @@
 Important things that you should know:
 
 - Although OpenID was built on top of OAuth2, this isn't an OAuth2 server. Maybe in a future it will be.
+- Despite that implementation MUST support TLS. You can make request without using SSL. There is no control on that.
 - This cover ``authorization_code`` flow and ``implicit`` flow, NO support for ``hybrid`` flow at this moment.
 - Only support for requesting Claims using Scope Values.
-- Despite that implementation MUST support TLS. You can make request without using SSL. There is no control on that.
 
 ************
 Installation
@@ -67,6 +67,7 @@ Add required variables to your project settings.
     # OPTIONAL.
 
     DOP_CODE_EXPIRE = 60*10 # 10 min.
+    DOP_EXTRA_SCOPE_CLAIMS = MyAppScopeClaims,
     DOP_IDTOKEN_EXPIRE = 60*10, # 10 min.
     DOP_TOKEN_EXPIRE = 60*60 # 1 hour.
 
@@ -126,6 +127,54 @@ The ``code`` param will be use it to obtain access token.
     POST /openid/userinfo/ HTTP/1.1
     Host: localhost:8000
     Authorization: Bearer [ACCESS_TOKEN]
+
+***************
+Claims & Scopes
+***************
+
+OpenID Connect Clients will use scope values to specify what access privileges are being requested for Access Tokens.
+
+Here you have the standard scopes defined by the protocol.
+http://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims
+
+If you need to add extra scopes specific for your app you can add them using the ``DOP_EXTRA_SCOPE_CLAIMS`` settings variable.
+This class MUST inherit ``AbstractScopeClaims``.
+
+Check out an example:
+
+.. code:: python
+    
+    from openid_provider.lib.claims import AbstractScopeClaims
+
+    class MyAppScopeClaims(AbstractScopeClaims):
+
+        def __init__(self, user, scopes):
+            # Don't forget this.
+            super(StandardScopeClaims, self).__init__(user, scopes)
+
+            # Here you can load models that will be used
+            # in more than one scope for example.
+            try:
+                self.some_model = SomeModel.objects.get(user=self.user)
+            except UserInfo.DoesNotExist:
+                # Create an empty model object.
+                self.some_model = SomeModel()
+
+        def scope_books(self, user):
+
+            # Here you can search books for this user.
+            # Remember that you have "self.some_model" also.
+
+            dic = {
+                'books_readed': books_readed_count,
+            }
+
+            return dic
+
+See how we create our own scopes using the convention ``def scope_<SCOPE_NAME>(self, user):``.
+If a field is empty or ``None`` will be cleaned from the response.
+
+**Don't forget to add your class into your app settings.**
 
 *********
 Templates
