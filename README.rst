@@ -134,7 +134,7 @@ Templates
 Add your own templates files inside a folder named ``templates/openid_provider/``.
 You can copy the sample html here and edit them with your own styles.
 
-**Authorize Template**
+**authorize.html**
 
 .. code:: html
     
@@ -160,7 +160,7 @@ You can copy the sample html here and edit them with your own styles.
 
     {% endblock %}
 
-**Error Template**
+**error.html**
 
 .. code:: html
     
