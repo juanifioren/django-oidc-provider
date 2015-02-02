@@ -102,6 +102,7 @@ class AuthorizeEndpoint(object):
                 code.scope = self.params.scope
                 code.save()
 
+                # Create the response uri.
                 uri = self.params.redirect_uri + '?code={0}'.format(code.code)
 
             else:  # Implicit Flow
@@ -123,13 +124,18 @@ class AuthorizeEndpoint(object):
                 id_token = encode_id_token(
                     id_token_dic, self.client.client_secret)
 
-                # TODO: Check if response_type is 'id_token token' then
+                # Create the response uri.
+                uri = self.params.redirect_uri + \
+                    '#token_type={0}&id_token={1}&expires_in={2}'.format(
+                        'bearer',
+                        id_token,
+                        60 * 10,
+                    )
+
+                # Check if response_type is 'id_token token' then
                 # add access_token to the fragment.
-                uri = self.params.redirect_uri + '#token_type={0}&id_token={1}&expires_in={2}'.format(
-                    'bearer',
-                    id_token,
-                    60 * 10
-                )
+                if self.params.response_type == 'id_token token':
+                    uri += '&access_token={0}'.format(token.access_token)
         except:
             raise AuthorizeError(
                 self.params.redirect_uri,
@@ -137,8 +143,6 @@ class AuthorizeEndpoint(object):
                 self.grant_type)
 
         # Add state if present.
-        uri = uri + \
-            ('&state={0}'.format(self.params.state)
-             if self.params.state else '')
+        uri += ('&state={0}'.format(self.params.state) if self.params.state else '')
 
         return uri
