@@ -16,7 +16,8 @@ class Client(models.Model):
     name = models.CharField(max_length=100, default='')
     client_id = models.CharField(max_length=255, unique=True)
     client_secret = models.CharField(max_length=255, unique=True)
-    response_type = models.CharField(max_length=30, choices=RESPONSE_TYPE_CHOICES)
+    response_type = models.CharField(max_length=30,
+                                     choices=RESPONSE_TYPE_CHOICES)
 
     _redirect_uris = models.TextField(default='')
 
@@ -39,7 +40,7 @@ class Code(models.Model):
     client = models.ForeignKey(Client)
     code = models.CharField(max_length=255, unique=True)
     expires_at = models.DateTimeField()
-    
+
     _scope = models.TextField(default='')
 
     def scope():
@@ -60,7 +61,7 @@ class Token(models.Model):
     client = models.ForeignKey(Client)
     access_token = models.CharField(max_length=255, unique=True)
     expires_at = models.DateTimeField()
-    
+
     _scope = models.TextField(default='')
 
     def scope():
@@ -107,7 +108,7 @@ class UserInfo(models.Model):
     address_region = models.CharField(max_length=255, default='')
     address_postal_code = models.CharField(max_length=255, default='')
     address_country = models.CharField(max_length=255, default='')
-    updated_at = models.DateTimeField()
+    updated_at = models.DateTimeField(auto_now=True)
 
     @property
     def name(self):
