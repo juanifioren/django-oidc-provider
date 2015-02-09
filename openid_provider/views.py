@@ -1,4 +1,3 @@
-from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.views import redirect_to_login
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -10,7 +9,6 @@ from openid_provider.lib.errors import *
 from openid_provider.lib.endpoints.authorize import *
 from openid_provider.lib.endpoints.token import *
 from openid_provider.lib.endpoints.userinfo import *
-from openid_provider import settings
 
 
 class AuthorizeView(View):
