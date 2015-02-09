@@ -43,8 +43,7 @@ class AuthorizeView(View):
                 return render(request, 'openid_provider/authorize.html', context)
             else:
                 path = request.get_full_path()
-                return redirect_to_login(
-                    path, settings.get('LOGIN_URL'), REDIRECT_FIELD_NAME)
+                return redirect_to_login(path)
 
         except (ClientIdError, RedirectUriError) as error:
             context = {
