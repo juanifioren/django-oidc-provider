@@ -8,14 +8,14 @@ with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
-    name='django-openid-provider',
-    version='0.1',
+    name='django-oidc-provider',
+    version='0.0.0',
     packages=['openid_provider'],
     include_package_data=True,
     license='MIT License',
     description='A simple OpenID Connect Provider implementation for Djangonauts.',
     long_description=README,
-    url='http://github.com/juanifioren/django-openid-provider',
+    url='http://github.com/juanifioren/django-oidc-provider',
     author='Juan Ignacio Fiorentino',
     author_email='juanifioren@gmail.com',
     classifiers=[

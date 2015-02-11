@@ -19,7 +19,7 @@ Install the package using pip.
 
 .. code:: bash
     
-    pip install git+https://github.com/juanifioren/django-openid-provider.git#egg=openid_provider
+    pip install git+https://github.com/juanifioren/django-oidc-provider.git#egg=openid_provider
 
 
 Add it to your apps.
@@ -215,6 +215,16 @@ You can copy the sample html here and edit them with your own styles.
     
     <h3>{{ error }}</h3>
     <p>{{ description }}</p>
+
+*************
+Running tests
+*************
+
+Just run them as normal Django tests.
+
+.. code:: bash
+    
+    $ python manage.py test openid_provider
 
 ************
 Contributing

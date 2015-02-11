@@ -1,5 +1,4 @@
 from django.contrib.auth.views import redirect_to_login
-from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
