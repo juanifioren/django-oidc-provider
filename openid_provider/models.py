@@ -97,7 +97,7 @@ class UserInfo(models.Model):
     website = models.URLField(default='')
     email_verified = models.BooleanField(default=False)
     gender = models.CharField(max_length=100, default='')
-    birthdate = models.DateField()
+    birthdate = models.DateField(null=True)
     zoneinfo = models.CharField(max_length=100, default='')
     locale = models.CharField(max_length=100, default='')
     phone_number = models.CharField(max_length=255, default='')
