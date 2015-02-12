@@ -17,14 +17,20 @@ class CodeFlowTestCase(TestCase):
         self.client = create_fake_client(response_type='code')
 
     def _create_authorize_url(self, response_type, scope=['openid', 'email']):
-        url = reverse('openid_provider:authorize')
-        url += '?client_id={0}&response_type={1}&scope={2}' \
-               '&redirect_uri={3}&state=abcdefg'.format(
-                    self.client.client_id,
-                    urllib.quote(response_type),
-                    urllib.quote(' '.join(scope)),
-                    urllib.quote(self.client.default_redirect_uri),
-                )
+        """
+        Generate an OpenID Authentication Request using the fake client data.
+        """
+        path = reverse('openid_provider:authorize')
+
+        query_str = urllib.urlencode({
+            'client_id': self.client.client_id,
+            'response_type': response_type,
+            'redirect_uri': self.client.default_redirect_uri,
+            'scope': ' '.join(scope),
+            'state': 'abcdefg',
+        }).replace('+', '%20')
+
+        url = path + '?' + query_str
 
         return url
 
