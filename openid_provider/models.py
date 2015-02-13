@@ -108,7 +108,7 @@ class UserInfo(models.Model):
     address_region = models.CharField(max_length=255, default='')
     address_postal_code = models.CharField(max_length=255, default='')
     address_country = models.CharField(max_length=255, default='')
-    updated_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True)
 
     @property
     def name(self):
