@@ -1,6 +1,6 @@
 
-.. image:: http://s1.postimg.org/qcm2dtr6n/title.png
-####################################################
+Django-OIDC-Provider
+####################
 
 **This project is in ALFA version and is rapidly changing. DO NOT USE IT FOR PRODUCTION SITES.**
 
