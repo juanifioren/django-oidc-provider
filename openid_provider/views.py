@@ -75,7 +75,6 @@ class AuthorizeView(View):
 
             return HttpResponseRedirect(uri)
 
-
 class TokenView(View):
 
     def post(self, request, *args, **kwargs):

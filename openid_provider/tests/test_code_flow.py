@@ -97,3 +97,14 @@ class CodeFlowTestCase(TestCase):
         except:
             is_next_ok = False
         self.assertEqual(is_next_ok, True)
+
+    def test_authorize_user_consent(self):
+        url = self._create_authorize_url(response_type='code')
+
+        request = self.factory.get(url)
+        # Simulate that the user is logged.
+        request.user = self.user
+
+        response = AuthorizeView.as_view()(request)
+
+        import pdb; pdb.set_trace()
