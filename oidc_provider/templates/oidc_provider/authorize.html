@@ -2,7 +2,7 @@
 
 <p>Client <strong>{{ client.name }}</strong> would like to access this information of you ...</p>
 
-<form method="post" action="{% url 'openid_provider:authorize' %}">
+<form method="post" action="{% url 'oidc_provider:authorize' %}">
     
     {% csrf_token %}
 

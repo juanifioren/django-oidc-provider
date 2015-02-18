@@ -1,5 +1,5 @@
 from django.utils.translation import ugettext as _
-from openid_provider.models import UserInfo
+from oidc_provider.models import UserInfo
 
 
 class AbstractScopeClaims(object):

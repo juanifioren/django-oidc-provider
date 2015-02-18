@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.views.decorators.csrf import csrf_exempt
-from openid_provider.views import *
+from oidc_provider.views import *
 
 
 urlpatterns = patterns('',

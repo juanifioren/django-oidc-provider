@@ -1,5 +1,5 @@
 from django.conf import settings
-from openid_provider.lib.claims import AbstractScopeClaims
+from oidc_provider.lib.claims import AbstractScopeClaims
 
 
 # Here goes all the package default settings.

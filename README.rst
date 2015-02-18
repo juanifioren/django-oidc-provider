@@ -1,5 +1,5 @@
 
-Django-OIDC-Provider
+Django OIDC Provider
 ####################
 
 **This project is in ALFA version and is rapidly changing. DO NOT USE IT FOR PRODUCTION SITES.**
@@ -19,7 +19,7 @@ Install the package using pip.
 
 .. code:: bash
     
-    pip install git+https://github.com/juanifioren/django-oidc-provider.git#egg=openid_provider
+    pip install git+https://github.com/juanifioren/django-oidc-provider.git#egg=oidc_provider
 
 
 Add it to your apps.
@@ -33,7 +33,7 @@ Add it to your apps.
         'django.contrib.sessions',
         'django.contrib.messages',
         'django.contrib.staticfiles',
-        'openid_provider',
+        'oidc_provider',
         # ...
     )
 
@@ -43,7 +43,7 @@ Add the provider urls.
 
     urlpatterns = patterns('',
         # ...
-        url(r'^openid/', include('openid_provider.urls', namespace='openid_provider')),
+        url(r'^openid/', include('oidc_provider.urls', namespace='oidc_provider')),
         # ...
     )
 
@@ -82,7 +82,7 @@ Then let's create a Client. Start django shell: ``python manage.py shell``.
 
 .. code:: python
 
-    >>> from openid_provider.models import Client
+    >>> from oidc_provider.models import Client
     >>> c = Client(name='Some Client', client_id='123', client_secret='456', response_type='code', redirect_uris=['http://example.com/'])
     >>> c.save()
 
@@ -144,7 +144,7 @@ Check out an example:
 
 .. code:: python
     
-    from openid_provider.lib.claims import AbstractScopeClaims
+    from oidc_provider.lib.claims import AbstractScopeClaims
 
     class MyAppScopeClaims(AbstractScopeClaims):
 
@@ -180,7 +180,7 @@ If a field is empty or ``None`` will be cleaned from the response.
 Templates
 *********
 
-Add your own templates files inside a folder named ``templates/openid_provider/``.
+Add your own templates files inside a folder named ``templates/oidc_provider/``.
 You can copy the sample html here and edit them with your own styles.
 
 **authorize.html**
@@ -191,7 +191,7 @@ You can copy the sample html here and edit them with your own styles.
 
     <p>Client <strong>{{ client.name }}</strong> would like to access this information of you ...</p>
 
-    <form method="post" action="{% url 'openid_provider:authorize' %}">
+    <form method="post" action="{% url 'oidc_provider:authorize' %}">
         
         {% csrf_token %}
 
@@ -224,7 +224,7 @@ Just run them as normal Django tests.
 
 .. code:: bash
     
-    $ python manage.py test openid_provider
+    $ python manage.py test oidc_provider
 
 ************
 Contributing

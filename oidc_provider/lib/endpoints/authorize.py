@@ -1,10 +1,10 @@
 from datetime import timedelta
 from django.utils import timezone
-from openid_provider.lib.errors import *
-from openid_provider.lib.utils.params import *
-from openid_provider.lib.utils.token import *
-from openid_provider.models import *
-from openid_provider import settings
+from oidc_provider.lib.errors import *
+from oidc_provider.lib.utils.params import *
+from oidc_provider.lib.utils.token import *
+from oidc_provider.models import *
+from oidc_provider import settings
 import uuid
 
 

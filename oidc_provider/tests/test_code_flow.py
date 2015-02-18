@@ -3,9 +3,9 @@ from django.contrib.auth.models import AnonymousUser
 from django.core.urlresolvers import reverse
 from django.test import RequestFactory
 from django.test import TestCase
-from openid_provider import settings
-from openid_provider.tests.utils import *
-from openid_provider.views import *
+from oidc_provider import settings
+from oidc_provider.tests.utils import *
+from oidc_provider.views import *
 import urllib
 
 
@@ -20,7 +20,7 @@ class CodeFlowTestCase(TestCase):
         """
         Generate an OpenID Authentication Request using the fake client data.
         """
-        path = reverse('openid_provider:authorize')
+        path = reverse('oidc_provider:authorize')
 
         query_str = urllib.urlencode({
             'client_id': self.client.client_id,
@@ -42,7 +42,7 @@ class CodeFlowTestCase(TestCase):
 
         See: https://tools.ietf.org/html/rfc6749#section-4.1.2.1
         """
-        url = reverse('openid_provider:authorize')
+        url = reverse('oidc_provider:authorize')
         request = self.factory.get(url)
 
         response = AuthorizeView.as_view()(request)

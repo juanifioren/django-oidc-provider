@@ -1,7 +1,7 @@
 from datetime import timedelta
 from django.utils import timezone
-from openid_provider.models import *
-from openid_provider import settings
+from oidc_provider.models import *
+from oidc_provider import settings
 import jwt
 import time
 import uuid

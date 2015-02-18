@@ -4,10 +4,10 @@ from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
-from openid_provider.lib.errors import *
-from openid_provider.lib.endpoints.authorize import *
-from openid_provider.lib.endpoints.token import *
-from openid_provider.lib.endpoints.userinfo import *
+from oidc_provider.lib.errors import *
+from oidc_provider.lib.endpoints.authorize import *
+from oidc_provider.lib.endpoints.token import *
+from oidc_provider.lib.endpoints.userinfo import *
 
 
 class AuthorizeView(View):
@@ -26,7 +26,7 @@ class AuthorizeView(View):
                     'params': authorize.params,
                 }
                 hidden_inputs = render_to_string(
-                    'openid_provider/hidden_inputs.html', context)
+                    'oidc_provider/hidden_inputs.html', context)
 
                 # Remove openid from scope list since we don't need to print it.
                 authorize.params.scope.remove('openid')
@@ -37,7 +37,7 @@ class AuthorizeView(View):
                     'params': authorize.params,
                 }
 
-                return render(request, 'openid_provider/authorize.html', context)
+                return render(request, 'oidc_provider/authorize.html', context)
             else:
                 path = request.get_full_path()
                 return redirect_to_login(path)
@@ -48,7 +48,7 @@ class AuthorizeView(View):
                 'description': error.description,
             }
 
-            return render(request, 'openid_provider/error.html', context)
+            return render(request, 'oidc_provider/error.html', context)
 
         except (AuthorizeError) as error:
             uri = error.create_uri(

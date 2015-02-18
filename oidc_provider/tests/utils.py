@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from openid_provider.models import *
+from oidc_provider.models import *
 
 
 def create_fake_user():
