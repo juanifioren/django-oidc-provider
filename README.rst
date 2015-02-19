@@ -8,7 +8,7 @@ OpenID Connect Provider implementation for Django. Read docs for more info. http
 Running tests
 *************
 
-Just run them as normal Django tests.
+You need a Django project properly configured with the package. Then just run tests as normal.
 
 .. code::
     
