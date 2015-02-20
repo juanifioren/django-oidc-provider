@@ -2,7 +2,9 @@
 Django OIDC Provider
 ####################
 
-OpenID Connect Provider implementation for Django. Read docs for more info. https://github.com/juanifioren/django-oidc-provider/wiki
+OpenID Connect Provider implementation for Django.
+
+Read docs for more info. https://github.com/juanifioren/django-oidc-provider/wiki
 
 *************
 Running tests
