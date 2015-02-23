@@ -9,7 +9,7 @@ from oidc_provider.views import *
 import urllib
 
 
-class CodeFlowTestCase(TestCase):
+class AuthorizationCodeFlowTestCase(TestCase):
 
     def setUp(self):
         self.factory = RequestFactory()
@@ -99,7 +99,16 @@ class CodeFlowTestCase(TestCase):
         self.assertEqual(is_next_ok, True)
 
     def test_authorize_user_consent(self):
-        url = self._create_authorize_url(response_type='code')
+        """
+        Once the End-User is authenticated, the Authorization Server MUST
+        obtain an authorization decision before releasing information to
+        the Client.
+
+        See: http://openid.net/specs/openid-connect-core-1_0.html#Consent
+        """
+        response_type = 'code'
+
+        url = self._create_authorize_url(response_type=response_type)
 
         request = self.factory.get(url)
         # Simulate that the user is logged.
@@ -107,4 +116,18 @@ class CodeFlowTestCase(TestCase):
 
         response = AuthorizeView.as_view()(request)
 
-        import pdb; pdb.set_trace()
+        # Check if hidden inputs exists in the form, also
+        # check if their values are valid.
+
+        input_html = '<input name="{0}" type="hidden" value="{1}" />'
+
+        to_check = {
+            'client_id': self.client.client_id,
+            'redirect_uri': self.client.default_redirect_uri,
+            'response_type': response_type,
+        }
+
+        for key, value in to_check.iteritems():
+            is_input_ok = input_html.format(key, value) in response.content
+            self.assertEqual(is_input_ok, True,
+                msg='Hidden input for "'+key+'" fails.')
