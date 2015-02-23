@@ -90,6 +90,11 @@ class UserInfo(models.Model):
     family_name = models.CharField(max_length=255, blank=True, null=True)
     middle_name = models.CharField(max_length=255, blank=True, null=True)
     nickname = models.CharField(max_length=255, blank=True, null=True)
+    gender = models.CharField(max_length=100, default='', blank=True, null=True)
+    birthdate = models.DateField(null=True)
+    zoneinfo = models.CharField(max_length=100, default='', blank=True,
+                                null=True)
+    locale = models.CharField(max_length=100, default='', blank=True, null=True)
     preferred_username = models.CharField(max_length=255, blank=True, null=True)
     profile = models.URLField(default='', null=True, blank=True)
     picture = models.URLField(default='', null=True, blank=True)
