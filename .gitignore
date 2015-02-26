@@ -1,4 +1,5 @@
 __pycache__/
+dist/
 *.py[cod]
 *.egg-info
 .ropeproject
