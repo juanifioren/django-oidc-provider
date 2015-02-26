@@ -18,9 +18,6 @@ setup(
     url='http://github.com/juanifioren/django-oidc-provider',
     author='Juan Ignacio Fiorentino',
     author_email='juanifioren@gmail.com',
-    
-    tests_require=[],
-    
     classifiers=[
         'Environment :: Web Environment',
         'Framework :: Django',
