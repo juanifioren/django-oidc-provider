@@ -70,10 +70,10 @@ LOGIN_URL = '/accounts/login/'
 
 # OPTIONAL SETTINGS.
 
-DOP_CODE_EXPIRE = 60*10 # 10 min.
-DOP_EXTRA_SCOPE_CLAIMS = MyAppScopeClaims,
-DOP_IDTOKEN_EXPIRE = 60*10, # 10 min.
-DOP_TOKEN_EXPIRE = 60*60 # 1 hour.
+OIDC_CODE_EXPIRE = 60*10 # 10 min.
+OIDC_EXTRA_SCOPE_CLAIMS = MyAppScopeClaims,
+OIDC_IDTOKEN_EXPIRE = 60*10, # 10 min.
+OIDC_TOKEN_EXPIRE = 60*60 # 1 hour.
 ```
 
 ## Users And Clients
