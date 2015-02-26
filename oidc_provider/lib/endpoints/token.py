@@ -77,7 +77,7 @@ class TokenEndpoint(object):
         dic = {
             'access_token': token.access_token,
             'token_type': 'bearer',
-            'expires_in': settings.get('DOP_TOKEN_EXPIRE'),
+            'expires_in': settings.get('OIDC_TOKEN_EXPIRE'),
             'id_token': id_token,
         }
 

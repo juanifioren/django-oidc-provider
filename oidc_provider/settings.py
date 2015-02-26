@@ -3,16 +3,17 @@ from oidc_provider.lib.claims import AbstractScopeClaims
 
 
 # Here goes all the package default settings.
+
 default_settings = {
 	# Required.
 	'LOGIN_URL': None,
 	'SITE_URL': None,
 
 	# Optional.
-	'DOP_CODE_EXPIRE': 60*10,
-	'DOP_EXTRA_SCOPE_CLAIMS': AbstractScopeClaims,
-	'DOP_IDTOKEN_EXPIRE': 60*10,
-	'DOP_TOKEN_EXPIRE': 60*60,
+	'OIDC_CODE_EXPIRE': 60*10,
+	'OIDC_EXTRA_SCOPE_CLAIMS': AbstractScopeClaims,
+	'OIDC_IDTOKEN_EXPIRE': 60*10,
+	'OIDC_TOKEN_EXPIRE': 60*60,
 }
 
 def get(name):

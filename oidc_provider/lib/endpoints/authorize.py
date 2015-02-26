@@ -98,7 +98,7 @@ class AuthorizeEndpoint(object):
                 code.client = self.client
                 code.code = uuid.uuid4().hex
                 code.expires_at = timezone.now() + timedelta(
-                    seconds=settings.get('DOP_CODE_EXPIRE'))
+                    seconds=settings.get('OIDC_CODE_EXPIRE'))
                 code.scope = self.params.scope
                 code.save()
 

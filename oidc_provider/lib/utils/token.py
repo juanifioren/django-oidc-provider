@@ -15,7 +15,7 @@ def create_id_token_dic(user, iss, aud):
 
     Return a dic.
     """
-    expires_in = settings.get('DOP_IDTOKEN_EXPIRE')
+    expires_in = settings.get('OIDC_IDTOKEN_EXPIRE')
 
     now = timezone.now()
 
@@ -62,7 +62,7 @@ def create_token(user, client, id_token_dic, scope):
 
     token.refresh_token = uuid.uuid4().hex
     token.expires_at = timezone.now() + timedelta(
-        seconds=settings.get('DOP_TOKEN_EXPIRE'))
+        seconds=settings.get('OIDC_TOKEN_EXPIRE'))
     token.scope = scope
 
     return token
