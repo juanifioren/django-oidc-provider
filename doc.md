@@ -12,12 +12,18 @@ Before getting started there are some important things that you should know:
 
 # Table Of Contents
 
+- [Requirements](#requirements)
 - [Installation](#installation)
 - [Settings](#settings)
 - [Users And Clients](#users-and-clients)
 - [Templates](#templates)
 - [Server Endpoints](#server-endpoints)
 - [Claims And Scopes](#claims-and-scopes)
+
+## Requirements
+
+- Python 2.7.*.
+- Django 1.7.*.
 
 ## Installation
 
@@ -26,7 +32,7 @@ Install the package using pip.
 ```bash
 pip install django-oidc-provider
 # Or latest code from repo.
-pip install git+https://github.com/juanifioren/django-oidc-provider.git#egg=openid_provider
+pip install git+https://github.com/juanifioren/django-oidc-provider.git#egg=oidc_provider
 ```
 
 Add it to your apps.
@@ -39,7 +45,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'openid_provider',
+    'oidc_provider',
     # ...
 )
 ```
@@ -49,7 +55,7 @@ Add the provider urls.
 ```python
 urlpatterns = patterns('',
     # ...
-    url(r'^openid/', include('openid_provider.urls', namespace='openid_provider')),
+    url(r'^openid/', include('oidc_provider.urls', namespace='oidc_provider')),
     # ...
 )
 ```
@@ -70,10 +76,10 @@ LOGIN_URL = '/accounts/login/'
 
 # OPTIONAL SETTINGS.
 
-DOP_CODE_EXPIRE = 60*10 # 10 min.
-DOP_EXTRA_SCOPE_CLAIMS = MyAppScopeClaims,
-DOP_IDTOKEN_EXPIRE = 60*10, # 10 min.
-DOP_TOKEN_EXPIRE = 60*60 # 1 hour.
+OIDC_CODE_EXPIRE = 60*10 # 10 min.
+OIDC_EXTRA_SCOPE_CLAIMS = MyAppScopeClaims,
+OIDC_IDTOKEN_EXPIRE = 60*10, # 10 min.
+OIDC_TOKEN_EXPIRE = 60*60 # 1 hour.
 ```
 
 ## Users And Clients
