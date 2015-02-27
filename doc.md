@@ -26,7 +26,7 @@ Install the package using pip.
 ```bash
 pip install django-oidc-provider
 # Or latest code from repo.
-pip install git+https://github.com/juanifioren/django-oidc-provider.git#egg=openid_provider
+pip install git+https://github.com/juanifioren/django-oidc-provider.git#egg=oidc_provider
 ```
 
 Add it to your apps.
@@ -39,7 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'openid_provider',
+    'oidc_provider',
     # ...
 )
 ```
@@ -49,7 +49,7 @@ Add the provider urls.
 ```python
 urlpatterns = patterns('',
     # ...
-    url(r'^openid/', include('openid_provider.urls', namespace='openid_provider')),
+    url(r'^openid/', include('oidc_provider.urls', namespace='oidc_provider')),
     # ...
 )
 ```
