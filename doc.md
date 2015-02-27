@@ -12,12 +12,18 @@ Before getting started there are some important things that you should know:
 
 # Table Of Contents
 
+- [Requirements](#requirements)
 - [Installation](#installation)
 - [Settings](#settings)
 - [Users And Clients](#users-and-clients)
 - [Templates](#templates)
 - [Server Endpoints](#server-endpoints)
 - [Claims And Scopes](#claims-and-scopes)
+
+## Requirements
+
+- Python 2.7.*.
+- Django 1.7.*.
 
 ## Installation
 
