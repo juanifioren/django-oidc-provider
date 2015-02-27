@@ -69,16 +69,16 @@ urlpatterns = patterns('',
 
 Add required variables to your project settings.
 
-### SITE_URL
+##### SITE_URL
 *REQUIRED.* The OP server url. For example `http://localhost:8000`.
 
-### LOGIN_URL
-*REQUIRED.* Used to log the user in. [Read more in Django docs](https://docs.djangoproject.com/en/1.7/ref/settings/#login-url). Default value is `/accounts/login/`.
+##### LOGIN_URL
+*REQUIRED.* Used to log the user in. [Read more in Django docs](https://docs.djangoproject.com/en/1.7/ref/settings/#login-url). Default is `/accounts/login/`.
 
-### OIDC_CODE_EXPIRE
-*OPTIONAL.* Expressed in seconds. Default value is `60*10`.
+##### OIDC_CODE_EXPIRE
+*OPTIONAL.* Expressed in seconds. Default is `60*10`.
 
-### OIDC_EXTRA_SCOPE_CLAIMS
+##### OIDC_EXTRA_SCOPE_CLAIMS
 *OPTIONAL.* Used to add extra scopes specific for your app. This class MUST inherit ``AbstractScopeClaims``.
 
 OpenID Connect Clients will use scope values to specify what access privileges are being requested for Access Tokens.
@@ -121,11 +121,11 @@ See how we create our own scopes using the convention:
 
 If a field is empty or ``None`` will be cleaned from the response.
 
-### OIDC_IDTOKEN_EXPIRE
-*OPTIONAL.* Expressed in seconds. Default value is `60*10`.
+##### OIDC_IDTOKEN_EXPIRE
+*OPTIONAL.* Expressed in seconds. Default is `60*10`.
 
-### OIDC_TOKEN_EXPIRE
-*OPTIONAL.* Expressed in seconds. Default value is `60*60`.
+##### OIDC_TOKEN_EXPIRE
+*OPTIONAL.* Token object expiration after been created. Expressed in seconds. Default is `60*60`.
 
 ## Users And Clients
 
