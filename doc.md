@@ -15,10 +15,15 @@ Before getting started there are some important things that you should know:
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Settings](#settings)
+    - [SITE_URL](#site_url)
+    - [LOGIN_URL](#login_url)
+    - [OIDC_CODE_EXPIRE](#oidc_code_expire)
+    - [OIDC_EXTRA_SCOPE_CLAIMS](#)
+    - [OIDC_IDTOKEN_EXPIRE](#)
+    - [OIDC_TOKEN_EXPIRE](#)
 - [Users And Clients](#users-and-clients)
 - [Templates](#templates)
 - [Server Endpoints](#server-endpoints)
-- [Claims And Scopes](#claims-and-scopes)
 
 ## Requirements
 
@@ -64,23 +69,63 @@ urlpatterns = patterns('',
 
 Add required variables to your project settings.
 
+### SITE_URL
+*REQUIRED.* The OP server url. For example `http://localhost:8000`.
+
+### LOGIN_URL
+*REQUIRED.* Used to log the user in. [Read more in Django docs](https://docs.djangoproject.com/en/1.7/ref/settings/#login-url). Default value is `/accounts/login/`.
+
+### OIDC_CODE_EXPIRE
+*OPTIONAL.* Expressed in seconds. Default value is `60*10`.
+
+### OIDC_EXTRA_SCOPE_CLAIMS
+*OPTIONAL.* Used to add extra scopes specific for your app. This class MUST inherit ``AbstractScopeClaims``.
+
+OpenID Connect Clients will use scope values to specify what access privileges are being requested for Access Tokens.
+
+[Here](http://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims) you have the standard scopes defined by the protocol.
+
+Check out an example:
+
 ```python
-# REQUIRED SETTINGS.
+from oidc_provider.lib.claims import AbstractScopeClaims
 
-# Your server provider url.
-SITE_URL = 'http://localhost:8000'
+class MyAppScopeClaims(AbstractScopeClaims):
 
-# Used to log the user in.
-# See: https://docs.djangoproject.com/en/1.7/ref/settings/#login-url
-LOGIN_URL = '/accounts/login/'
+    def __init__(self, user, scopes):
+        # Don't forget this.
+        super(StandardScopeClaims, self).__init__(user, scopes)
 
-# OPTIONAL SETTINGS.
+        # Here you can load models that will be used
+        # in more than one scope for example.
+        try:
+            self.some_model = SomeModel.objects.get(user=self.user)
+        except UserInfo.DoesNotExist:
+            # Create an empty model object.
+            self.some_model = SomeModel()
 
-OIDC_CODE_EXPIRE = 60*10 # 10 min.
-OIDC_EXTRA_SCOPE_CLAIMS = MyAppScopeClaims,
-OIDC_IDTOKEN_EXPIRE = 60*10, # 10 min.
-OIDC_TOKEN_EXPIRE = 60*60 # 1 hour.
+    def scope_books(self, user):
+
+        # Here you can search books for this user.
+
+        dic = {
+            'books_readed': books_readed_count,
+        }
+
+        return dic
 ```
+
+See how we create our own scopes using the convention:
+
+``def scope_<SCOPE_NAME>(self, user):``
+
+If a field is empty or ``None`` will be cleaned from the response.
+
+### OIDC_IDTOKEN_EXPIRE
+*OPTIONAL.* Expressed in seconds. Default value is `60*10`.
+
+### OIDC_TOKEN_EXPIRE
+*OPTIONAL.* Expressed in seconds. Default value is `60*60`.
 
 ## Users And Clients
 
@@ -179,52 +224,3 @@ POST /openid/userinfo/ HTTP/1.1
 Host: localhost:8000
 Authorization: Bearer [ACCESS_TOKEN]
 ```
-
-## Claims And Scopes
-
-OpenID Connect Clients will use scope values to specify what access privileges are being requested for Access Tokens.
-
-Here you have the standard scopes defined by the protocol.
-http://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims
-
-If you need to add extra scopes specific for your app you can add them using the ``DOP_EXTRA_SCOPE_CLAIMS`` settings variable.
-This class MUST inherit ``AbstractScopeClaims``.
-
-Check out an example:
-
-```python
-from openid_provider.lib.claims import AbstractScopeClaims
-
-class MyAppScopeClaims(AbstractScopeClaims):
-
-    def __init__(self, user, scopes):
-        # Don't forget this.
-        super(StandardScopeClaims, self).__init__(user, scopes)
-
-        # Here you can load models that will be used
-        # in more than one scope for example.
-        try:
-            self.some_model = SomeModel.objects.get(user=self.user)
-        except UserInfo.DoesNotExist:
-            # Create an empty model object.
-            self.some_model = SomeModel()
-
-    def scope_books(self, user):
-
-        # Here you can search books for this user.
-        # Remember that you have "self.some_model" also.
-
-        dic = {
-            'books_readed': books_readed_count,
-        }
-
-        return dic
-```
-
-See how we create our own scopes using the convention:
-
-``def scope_<SCOPE_NAME>(self, user):``
-
-If a field is empty or ``None`` will be cleaned from the response.
-
-**Don't forget to add your class into your app settings.**
