@@ -7,7 +7,7 @@ Django OIDC Provider can help you providing out of the box all the endpoints, da
 Before getting started there are some important things that you should know:
 * Although OpenID was built on top of OAuth2, this isn't an OAuth2 server. Maybe in a future it will be.
 * Despite that implementation MUST support TLS. You can make request without using SSL. There is no control on that.
-* This cover authorization_code flow and implicit flow, NO support for hybrid flow at this moment.
+* This cover `Authorization Code` flow and `Implicit` flow, NO support for `Hybrid` flow at this moment.
 * Only support for requesting Claims using Scope Values.
 
 # Table Of Contents
@@ -70,16 +70,16 @@ urlpatterns = patterns('',
 Add required variables to your project settings.
 
 ##### SITE_URL
-*REQUIRED.* The OP server url. For example `http://localhost:8000`.
+REQUIRED. The OP server url. For example `http://localhost:8000`.
 
 ##### LOGIN_URL
-*REQUIRED.* Used to log the user in. [Read more in Django docs](https://docs.djangoproject.com/en/1.7/ref/settings/#login-url). Default is `/accounts/login/`.
+REQUIRED. Used to log the user in. [Read more in Django docs](https://docs.djangoproject.com/en/1.7/ref/settings/#login-url). Default is `/accounts/login/`.
 
 ##### OIDC_CODE_EXPIRE
-*OPTIONAL.* Expressed in seconds. Default is `60*10`.
+OPTIONAL. Expressed in seconds. Default is `60*10`.
 
 ##### OIDC_EXTRA_SCOPE_CLAIMS
-*OPTIONAL.* Used to add extra scopes specific for your app. This class MUST inherit ``AbstractScopeClaims``.
+OPTIONAL. Used to add extra scopes specific for your app. This class MUST inherit ``AbstractScopeClaims``.
 
 OpenID Connect Clients will use scope values to specify what access privileges are being requested for Access Tokens.
 
@@ -122,10 +122,10 @@ See how we create our own scopes using the convention:
 If a field is empty or ``None`` will be cleaned from the response.
 
 ##### OIDC_IDTOKEN_EXPIRE
-*OPTIONAL.* Expressed in seconds. Default is `60*10`.
+OPTIONAL. Expressed in seconds. Default is `60*10`.
 
 ##### OIDC_TOKEN_EXPIRE
-*OPTIONAL.* Token object expiration after been created. Expressed in seconds. Default is `60*60`.
+OPTIONAL. Token object expiration after been created. Expressed in seconds. Default is `60*60`.
 
 ## Users And Clients
 
