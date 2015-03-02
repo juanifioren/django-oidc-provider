@@ -20,6 +20,7 @@ Before getting started there are some important things that you should know:
     - [OIDC_CODE_EXPIRE](#oidc_code_expire)
     - [OIDC_EXTRA_SCOPE_CLAIMS](#oidc_extra_scope_claims)
     - [OIDC_IDTOKEN_EXPIRE](#oidc_idtoken_expire)
+    - [OIDC_IDTOKEN_SUB_GENERATOR](#oidc_idtoken_sub_generator)
     - [OIDC_TOKEN_EXPIRE](#oidc_token_expire)
 - [Users And Clients](#users-and-clients)
 - [Templates](#templates)
@@ -73,10 +74,12 @@ Add required variables to your project settings.
 REQUIRED. The OP server url. For example `http://localhost:8000`.
 
 ##### LOGIN_URL
-REQUIRED. Used to log the user in. [Read more in Django docs](https://docs.djangoproject.com/en/1.7/ref/settings/#login-url). Default is `/accounts/login/`.
+REQUIRED. Used to log the user in. [Read more in Django docs](https://docs.djangoproject.com/en/1.7/ref/settings/#login-url).
+Default is `/accounts/login/`.
 
 ##### OIDC_CODE_EXPIRE
-OPTIONAL. Expressed in seconds. Default is `60*10`.
+OPTIONAL. Expressed in seconds.
+Default is `60*10`.
 
 ##### OIDC_EXTRA_SCOPE_CLAIMS
 OPTIONAL. Used to add extra scopes specific for your app. This class MUST inherit ``AbstractScopeClaims``.
@@ -122,10 +125,21 @@ See how we create our own scopes using the convention:
 If a field is empty or ``None`` will be cleaned from the response.
 
 ##### OIDC_IDTOKEN_EXPIRE
-OPTIONAL. Expressed in seconds. Default is `60*10`.
+OPTIONAL. Expressed in seconds.
+Default is `60*10`.
+
+##### OIDC_IDTOKEN_SUB_GENERATOR
+OPTIONAL. Subject Identifier. A locally unique and never reassigned identifier within the Issuer for the End-User, which is intended to be consumed by the Client.
+Is a function that receives both `user` and `client` objects. Default is:
+```python
+def default_sub_generator(user, client):
+
+    return user.id
+```
 
 ##### OIDC_TOKEN_EXPIRE
-OPTIONAL. Token object expiration after been created. Expressed in seconds. Default is `60*60`.
+OPTIONAL. Token object expiration after been created. Expressed in seconds.
+Default is `60*60`.
 
 ## Users And Clients
 
