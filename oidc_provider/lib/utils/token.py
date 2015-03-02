@@ -1,13 +1,15 @@
 from datetime import timedelta
-from django.utils import timezone
-from oidc_provider.models import *
-from oidc_provider import settings
-import jwt
 import time
 import uuid
 
+from django.utils import timezone
+import jwt
 
-def create_id_token_dic(user, iss, aud):
+from oidc_provider.models import *
+from oidc_provider import settings
+
+
+def create_id_token(iss, sub, aud, auth_time):
     """
     Receives a user object, iss (issuer) and aud (audience).
     Then creates the id_token dic.
@@ -22,11 +24,11 @@ def create_id_token_dic(user, iss, aud):
     # Convert datetimes into timestamps.
     iat_time = time.mktime(now.timetuple())
     exp_time = time.mktime((now + timedelta(seconds=expires_in)).timetuple())
-    user_auth_time = time.mktime(user.last_login.timetuple())
+    user_auth_time = time.mktime(auth_time.timetuple())
 
     dic = {
         'iss': iss,
-        'sub': user.id,
+        'sub': sub,
         'aud': aud,
         'exp': exp_time,
         'iat': iat_time,

@@ -1,10 +1,12 @@
+import urllib
+
 from django.http import JsonResponse
+
 from oidc_provider.lib.errors import *
 from oidc_provider.lib.utils.params import *
 from oidc_provider.lib.utils.token import *
 from oidc_provider.models import *
 from oidc_provider import settings
-import urllib
 
 
 class TokenEndpoint(object):
@@ -55,10 +57,15 @@ class TokenEndpoint(object):
 
     def create_response_dic(self):
 
-        id_token_dic = create_id_token_dic(
-            self.code.user,
-            settings.get('SITE_URL'),
-            self.client.client_id)
+        sub = settings.get('OIDC_IDTOKEN_SUB_GENERATOR')(
+            user=self.code.user,
+            client=self.client)
+
+        id_token_dic = create_id_token(
+            iss=settings.get('SITE_URL'),
+            sub=sub,
+            aud=self.client.client_id,
+            auth_time=self.code.user.last_login)
 
         token = create_token(
             user=self.code.user,
