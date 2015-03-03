@@ -132,7 +132,7 @@ Default is `60*10`.
 OPTIONAL. Subject Identifier. A locally unique and never reassigned identifier within the Issuer for the End-User, which is intended to be consumed by the Client.
 Is a function that receives both `user` and `client` objects. Default is:
 ```python
-def default_sub_generator(user, client):
+def default_sub_generator(user):
 
     return user.id
 ```

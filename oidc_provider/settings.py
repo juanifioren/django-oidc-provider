@@ -3,7 +3,7 @@ from django.conf import settings
 from oidc_provider.lib.claims import AbstractScopeClaims
 
 
-def default_sub_generator(user, client):
+def default_sub_generator(user):
 
     return user.id
 

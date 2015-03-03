@@ -58,8 +58,7 @@ class TokenEndpoint(object):
     def create_response_dic(self):
 
         sub = settings.get('OIDC_IDTOKEN_SUB_GENERATOR')(
-            user=self.code.user,
-            client=self.client)
+            user=self.code.user)
 
         id_token_dic = create_id_token(
             iss=settings.get('SITE_URL'),
