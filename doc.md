@@ -1,3 +1,5 @@
+![OpenID Connect](http://wiki.openid.net/f/openid-logo-wordmark.png)
+
 # Welcome to the Docs!
 
 Django OIDC Provider can help you providing out of the box all the endpoints, data and logic needed to add OpenID Connect capabilities to your Django projects.
@@ -75,10 +77,12 @@ REQUIRED. The OP server url. For example `http://localhost:8000`.
 
 ##### LOGIN_URL
 REQUIRED. Used to log the user in. [Read more in Django docs](https://docs.djangoproject.com/en/1.7/ref/settings/#login-url).
+
 Default is `/accounts/login/`.
 
 ##### OIDC_CODE_EXPIRE
 OPTIONAL. Expressed in seconds.
+
 Default is `60*10`.
 
 ##### OIDC_EXTRA_SCOPE_CLAIMS
@@ -88,7 +92,7 @@ OpenID Connect Clients will use scope values to specify what access privileges a
 
 [Here](http://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims) you have the standard scopes defined by the protocol.
 
-Check out an example:
+Check out an example of how to implement it:
 
 ```python
 from oidc_provider.lib.claims import AbstractScopeClaims
@@ -126,11 +130,15 @@ If a field is empty or ``None`` will be cleaned from the response.
 
 ##### OIDC_IDTOKEN_EXPIRE
 OPTIONAL. Expressed in seconds.
+
 Default is `60*10`.
 
 ##### OIDC_IDTOKEN_SUB_GENERATOR
 OPTIONAL. Subject Identifier. A locally unique and never reassigned identifier within the Issuer for the End-User, which is intended to be consumed by the Client.
-Is a function that receives both `user` and `client` objects. Default is:
+
+Is just a function that receives both `user` and `client` objects, returns a string.
+
+Default is:
 ```python
 def default_sub_generator(user):
 
@@ -139,6 +147,7 @@ def default_sub_generator(user):
 
 ##### OIDC_TOKEN_EXPIRE
 OPTIONAL. Token object expiration after been created. Expressed in seconds.
+
 Default is `60*60`.
 
 ## Users And Clients
