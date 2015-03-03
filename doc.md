@@ -1,3 +1,5 @@
+![OpenID Connect](http://wiki.openid.net/f/openid-logo-wordmark.png)
+
 # Welcome to the Docs!
 
 Django OIDC Provider can help you providing out of the box all the endpoints, data and logic needed to add OpenID Connect capabilities to your Django projects.
@@ -90,7 +92,7 @@ OpenID Connect Clients will use scope values to specify what access privileges a
 
 [Here](http://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims) you have the standard scopes defined by the protocol.
 
-Check out an example:
+Check out an example of how to implement it:
 
 ```python
 from oidc_provider.lib.claims import AbstractScopeClaims
