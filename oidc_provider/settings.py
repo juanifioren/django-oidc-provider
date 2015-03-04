@@ -1,26 +1,61 @@
 from django.conf import settings
 
-from oidc_provider.lib.claims import AbstractScopeClaims
 
+class DefaultSettings(object):
 
-def default_sub_generator(user):
+    @property
+    def LOGIN_URL(self):
+        """
+        REQUIRED.
+        """
+        return None
 
-    return user.id
+    @property
+    def SITE_URL(self):
+        """
+        REQUIRED.
+        """
+        return None
 
+    @property
+    def OIDC_CODE_EXPIRE(self):
+        """
+        OPTIONAL.
+        """
+        return 60*10
 
-# Here goes all the package default settings.
-default_settings = {
-    # Required.
-    'LOGIN_URL': None,
-    'SITE_URL': None,
+    @property
+    def OIDC_EXTRA_SCOPE_CLAIMS(self):
+        """
+        OPTIONAL.
+        """
+        from oidc_provider.lib.claims import AbstractScopeClaims
 
-    # Optional.
-    'OIDC_CODE_EXPIRE': 60*10,
-    'OIDC_EXTRA_SCOPE_CLAIMS': AbstractScopeClaims,
-    'OIDC_IDTOKEN_EXPIRE': 60*10,
-    'OIDC_IDTOKEN_SUB_GENERATOR': default_sub_generator,
-    'OIDC_TOKEN_EXPIRE': 60*60,
-}
+        return AbstractScopeClaims
+
+    @property
+    def OIDC_IDTOKEN_EXPIRE(self):
+        """
+        OPTIONAL.
+        """
+        return 60*10
+
+    @property
+    def OIDC_IDTOKEN_SUB_GENERATOR(self):
+        """
+        OPTIONAL.
+        """
+        def default_sub_generator(user):
+            return user.id
+
+        return default_sub_generator
+
+    @property
+    def OIDC_TOKEN_EXPIRE(self):
+        """
+        OPTIONAL.
+        """
+        return 60*60
 
 
 def get(name):
@@ -28,7 +63,7 @@ def get(name):
     Helper function to use inside the package.
     '''
     try:
-        value = default_settings[name]
+        value = getattr(DefaultSettings(), name)
         value = getattr(settings, name)
     except AttributeError:
         if value == None:
