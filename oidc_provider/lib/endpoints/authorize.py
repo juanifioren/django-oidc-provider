@@ -1,11 +1,13 @@
 from datetime import timedelta
+import uuid
+
 from django.utils import timezone
+
 from oidc_provider.lib.errors import *
 from oidc_provider.lib.utils.params import *
 from oidc_provider.lib.utils.token import *
 from oidc_provider.models import *
 from oidc_provider import settings
-import uuid
 
 
 class AuthorizeEndpoint(object):

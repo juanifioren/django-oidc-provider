@@ -4,10 +4,12 @@ from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
-from oidc_provider.lib.errors import *
+
 from oidc_provider.lib.endpoints.authorize import *
+from oidc_provider.lib.endpoints.discovery import *
 from oidc_provider.lib.endpoints.token import *
 from oidc_provider.lib.endpoints.userinfo import *
+from oidc_provider.lib.errors import *
 
 
 class AuthorizeView(View):
@@ -75,6 +77,7 @@ class AuthorizeView(View):
 
             return HttpResponseRedirect(uri)
 
+
 class TokenView(View):
 
     def post(self, request, *args, **kwargs):
@@ -90,6 +93,7 @@ class TokenView(View):
 
         except (TokenError) as error:
             return TokenEndpoint.response(error.create_dict(), status=400)
+
 
 @require_http_methods(['GET', 'POST'])
 def userinfo(request):
@@ -108,3 +112,12 @@ def userinfo(request):
             error.code,
             error.description,
             error.status)
+
+
+class ProviderInfoView(View):
+
+    def get(self, request, *args, **kwargs):
+
+        dic = ProviderInfoEndpoint.create_response_dic()
+
+        return JsonResponse(dic)

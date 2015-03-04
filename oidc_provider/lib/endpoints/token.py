@@ -3,6 +3,7 @@ import urllib
 from django.http import JsonResponse
 
 from oidc_provider.lib.errors import *
+from oidc_provider.lib.utils.common import get_issuer
 from oidc_provider.lib.utils.params import *
 from oidc_provider.lib.utils.token import *
 from oidc_provider.models import *
@@ -61,7 +62,7 @@ class TokenEndpoint(object):
             user=self.code.user)
 
         id_token_dic = create_id_token(
-            iss=settings.get('SITE_URL'),
+            iss=get_issuer(),
             sub=sub,
             aud=self.client.client_id,
             auth_time=self.code.user.last_login)

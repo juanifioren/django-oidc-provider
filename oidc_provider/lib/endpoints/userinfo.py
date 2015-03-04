@@ -1,11 +1,13 @@
+import re
+
 from django.http import HttpResponse
 from django.http import JsonResponse
+
 from oidc_provider.lib.errors import *
 from oidc_provider.lib.claims import *
 from oidc_provider.lib.utils.params import *
 from oidc_provider.models import *
 from oidc_provider import settings
-import re
 
 
 class UserInfoEndpoint(object):
