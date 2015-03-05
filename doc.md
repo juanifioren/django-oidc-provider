@@ -136,7 +136,7 @@ Default is `60*10`.
 ##### OIDC_IDTOKEN_SUB_GENERATOR
 OPTIONAL. Subject Identifier. A locally unique and never reassigned identifier within the Issuer for the End-User, which is intended to be consumed by the Client.
 
-Is just a function that receives both `user` and `client` objects, returns a string.
+Is just a function that receives a `user` object. Returns a unique string for the given user.
 
 Default is:
 ```python
