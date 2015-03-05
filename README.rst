@@ -6,6 +6,8 @@ Django OIDC Provider can help you providing out of the box all the endpoints, da
 
 Read docs for more info. https://github.com/juanifioren/django-oidc-provider/blob/master/doc.md
 
+See changelog here. https://github.com/juanifioren/django-oidc-provider/blob/master/CHANGELOG.md
+
 *************
 Running tests
 *************
