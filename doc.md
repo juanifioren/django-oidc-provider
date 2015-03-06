@@ -99,12 +99,11 @@ from oidc_provider.lib.claims import AbstractScopeClaims
 
 class MyAppScopeClaims(AbstractScopeClaims):
 
-    def __init__(self, user, scopes):
-        # Don't forget this.
-        super(StandardScopeClaims, self).__init__(user, scopes)
-
+    def setup(self):
         # Here you can load models that will be used
         # in more than one scope for example.
+        # print self.user
+        # print self.scopes
         try:
             self.some_model = SomeModel.objects.get(user=self.user)
         except UserInfo.DoesNotExist:

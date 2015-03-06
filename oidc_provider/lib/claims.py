@@ -8,6 +8,11 @@ class AbstractScopeClaims(object):
         self.user = user
         self.scopes = scopes
 
+        self.setup()
+
+    def setup(self):
+        pass
+
     def create_response_dic(self):
         """
         Generate the dic that will be jsonify. Checking scopes given vs
@@ -61,9 +66,7 @@ class StandardScopeClaims(AbstractScopeClaims):
     See: http://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
     """
 
-    def __init__(self, user, scopes):
-        super(StandardScopeClaims, self).__init__(user, scopes)
-
+    def setup(self):
         try:
             self.userinfo = UserInfo.objects.get(user=self.user)
         except UserInfo.DoesNotExist:
