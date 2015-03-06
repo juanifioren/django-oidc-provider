@@ -57,13 +57,14 @@ class DefaultSettings(object):
         """
         return 60*60
 
+default_settings = DefaultSettings()
 
 def get(name):
     '''
     Helper function to use inside the package.
     '''
     try:
-        value = getattr(DefaultSettings(), name)
+        value = getattr(default_settings, name)
         value = getattr(settings, name)
     except AttributeError:
         if value == None:
