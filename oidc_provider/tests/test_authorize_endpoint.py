@@ -13,6 +13,10 @@ from oidc_provider.views import *
 
 
 class AuthorizationCodeFlowTestCase(TestCase):
+    """
+    An Authentication Request is an OAuth 2.0 Authorization Request that
+    requests that the End-User be authenticated by the Authorization Server.
+    """
 
     def setUp(self):
         self.factory = RequestFactory()
@@ -194,10 +198,8 @@ class AuthorizationCodeFlowTestCase(TestCase):
         code = (response['Location'].split('code='))[1].split('&')[0]
         try:
             code = Code.objects.get(code=code)
-            if (code.client == self.client) or (code.user == self.user):
-                is_code_ok = True
-            else:
-                is_code_ok = False
+            is_code_ok = (code.client == self.client) and \
+                         (code.user == self.user)
         except:
             is_code_ok = False
         self.assertEqual(is_code_ok, True,
@@ -207,3 +209,10 @@ class AuthorizationCodeFlowTestCase(TestCase):
         state = (response['Location'].split('state='))[1].split('&')[0]
         self.assertEqual(state == self.state, True,
             msg='State change or is missing.')
+
+
+class AuthorizationImplicitFlowTestCase(TestCase):
+    """
+    TODO.
+    """
+    pass
