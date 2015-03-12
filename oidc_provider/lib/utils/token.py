@@ -68,3 +68,20 @@ def create_token(user, client, id_token_dic, scope):
     token.scope = scope
 
     return token
+
+
+def create_code(user, client, scope):
+    """
+    Create and populate a Code object.
+
+    Return a Code object.
+    """
+    code = Code()
+    code.user = user
+    code.client = client
+    code.code = uuid.uuid4().hex
+    code.expires_at = timezone.now() + timedelta(
+        seconds=settings.get('OIDC_CODE_EXPIRE'))
+    code.scope = scope
+
+    return code

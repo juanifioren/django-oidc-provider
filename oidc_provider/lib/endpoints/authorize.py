@@ -95,13 +95,11 @@ class AuthorizeEndpoint(object):
 
             if self.grant_type == 'authorization_code':
 
-                code = Code()
-                code.user = self.request.user
-                code.client = self.client
-                code.code = uuid.uuid4().hex
-                code.expires_at = timezone.now() + timedelta(
-                    seconds=settings.get('OIDC_CODE_EXPIRE'))
-                code.scope = self.params.scope
+                code = create_code(
+                    user=self.request.user,
+                    client=self.client,
+                    scope=self.params.scope)
+                
                 code.save()
 
                 # Create the response uri.
