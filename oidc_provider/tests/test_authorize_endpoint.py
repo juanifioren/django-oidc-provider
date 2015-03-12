@@ -1,4 +1,5 @@
 import urllib
+import uuid
 
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.models import AnonymousUser
@@ -160,7 +161,6 @@ class AuthorizationCodeFlowTestCase(TestCase):
         by adding them as query parameters to the redirect_uri.
         """
         response_type = 'code'
-        scope = 'openid email'
 
         url = reverse('oidc_provider:authorize')
 
@@ -168,7 +168,7 @@ class AuthorizationCodeFlowTestCase(TestCase):
             'client_id': self.client.client_id,
             'redirect_uri': self.client.default_redirect_uri,
             'response_type': response_type,
-            'scope': scope,
+            'scope': 'openid email',
             'state': self.state,
         }
 
