@@ -9,8 +9,11 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-oidc-provider',
-    version='0.0.0',
-    packages=['oidc_provider'],
+    version='0.0.1',
+    packages=[
+        'oidc_provider', 'oidc_provider/lib', 'oidc_provider/lib/endpoints',
+        'oidc_provider/lib/utils', 'oidc_provider/tests',
+    ],
     include_package_data=True,
     license='MIT License',
     description='OpenID Connect Provider implementation for Django.',
