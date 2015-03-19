@@ -71,7 +71,7 @@ class AuthorizationCodeFlowTestCase(TestCase):
         query_exists = 'error=' in response['Location']
         self.assertEqual(query_exists, True)
 
-    def test_codeflow_user_not_logged(self):
+    def test_user_not_logged(self):
         """
         The Authorization Server attempts to Authenticate the End-User by
         redirecting to the login view.
@@ -106,7 +106,7 @@ class AuthorizationCodeFlowTestCase(TestCase):
             is_next_ok = False
         self.assertEqual(is_next_ok, True)
 
-    def test_codeflow_user_consent_inputs(self):
+    def test_user_consent_inputs(self):
         """
         Once the End-User is authenticated, the Authorization Server MUST
         obtain an authorization decision before releasing information to
@@ -148,7 +148,7 @@ class AuthorizationCodeFlowTestCase(TestCase):
             self.assertEqual(is_input_ok, True,
                 msg='Hidden input for "'+key+'" fails.')
 
-    def test_codeflow_user_consent_response(self):
+    def test_user_consent_response(self):
         """
         First,
         if the user denied the consent we must ensure that
