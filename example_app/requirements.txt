@@ -1,0 +1,2 @@
+django==1.7.7
+django-oidc-provider==0.0.1
