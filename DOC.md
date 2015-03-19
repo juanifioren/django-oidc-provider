@@ -19,6 +19,7 @@ Before getting started there are some important things that you should know:
 - [Settings](#settings)
     - [SITE_URL](#site_url)
     - [LOGIN_URL](#login_url)
+    - [OIDC_AFTER_USERLOGIN_HOOK](#oidc_after_userlogin_hook)
     - [OIDC_CODE_EXPIRE](#oidc_code_expire)
     - [OIDC_EXTRA_SCOPE_CLAIMS](#oidc_extra_scope_claims)
     - [OIDC_IDTOKEN_EXPIRE](#oidc_idtoken_expire)
@@ -79,6 +80,20 @@ REQUIRED. The OP server url. For example `http://localhost:8000`.
 REQUIRED. Used to log the user in. [Read more in Django docs](https://docs.djangoproject.com/en/1.7/ref/settings/#login-url).
 
 Default is `/accounts/login/`.
+
+##### OIDC_AFTER_USERLOGIN_HOOK
+OPTIONAL. Provide a way to plug into the process after the user has logged in, typically to perform some business logic.
+
+Default is:
+```python
+def default_hook_func(request, user, client):
+    return None
+```
+
+Return `None` if you want to continue with the flow.
+
+The typical situation will be checking some state of the user or maybe redirect him somewhere.
+With request you have access to all OIDC parameters. Remember that if you redirect the user to another place then you need to take him back to the authorize endpoint (use `request.get_full_path()` as the value for a "next" parameter).
 
 ##### OIDC_CODE_EXPIRE
 OPTIONAL. Expressed in seconds.

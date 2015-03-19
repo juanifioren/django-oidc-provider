@@ -22,6 +22,12 @@ class AuthorizeView(View):
             authorize.validate_params()
 
             if request.user.is_authenticated():
+                # Check if there's a hook setted.
+                hook_resp = settings.get('OIDC_AFTER_USERLOGIN_HOOK')(
+                    request=request, user=request.user,
+                    client=authorize.client)
+                if hook_resp:
+                    return hook_resp
 
                 # Generate hidden inputs for the form.
                 context = {
@@ -30,7 +36,8 @@ class AuthorizeView(View):
                 hidden_inputs = render_to_string(
                     'oidc_provider/hidden_inputs.html', context)
 
-                # Remove openid from scope list since we don't need to print it.
+                # Remove `openid` from scope list
+                # since we don't need to print it.
                 authorize.params.scope.remove('openid')
 
                 context = {

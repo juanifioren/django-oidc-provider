@@ -18,6 +18,16 @@ class DefaultSettings(object):
         return None
 
     @property
+    def OIDC_AFTER_USERLOGIN_HOOK(self):
+        """
+        OPTIONAL.
+        """
+        def default_hook_func(request, user, client):
+            return None
+
+        return default_hook_func
+
+    @property
     def OIDC_CODE_EXPIRE(self):
         """
         OPTIONAL.
