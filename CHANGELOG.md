@@ -7,6 +7,9 @@ All notable changes to this project will be documented in this file.
 ##### Added
 - Setting OIDC_AFTER_USERLOGIN_HOOK.
 
+##### Fixed
+- Tests failing because an incorrect tag in one template.
+
 ### [0.0.1] - 2015-03-13
 
 ##### Added
