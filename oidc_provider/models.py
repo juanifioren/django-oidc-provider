@@ -5,6 +5,15 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 
+def scope_property():
+    def fget(self):
+        return self._scope.split()
+    def fset(self, value):
+        self._scope = ' '.join(value)
+
+    return locals()
+
+
 class Client(models.Model):
 
     RESPONSE_TYPE_CHOICES = [
@@ -42,14 +51,7 @@ class Code(models.Model):
     expires_at = models.DateTimeField()
 
     _scope = models.TextField(default='')
-
-    def scope():
-        def fget(self):
-            return self._scope.split()
-        def fset(self, value):
-            self._scope = ' '.join(value)
-        return locals()
-    scope = property(**scope())
+    scope = property(**scope_property())
 
     def has_expired(self):
         return timezone.now() >= self.expires_at
@@ -63,14 +65,7 @@ class Token(models.Model):
     expires_at = models.DateTimeField()
 
     _scope = models.TextField(default='')
-
-    def scope():
-        def fget(self):
-            return self._scope.split()
-        def fset(self, value):
-            self._scope = ' '.join(value)
-        return locals()
-    scope = property(**scope())
+    scope = property(**scope_property())
 
     _id_token = models.TextField()
 
