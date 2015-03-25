@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [0.0.2] - 2015-03-26
+
 ##### Added
 - Setting OIDC_AFTER_USERLOGIN_HOOK.
 
