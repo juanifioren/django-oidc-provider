@@ -1,10 +1,11 @@
-![OpenID Connect](http://wiki.openid.net/f/openid-logo-wordmark.png)
-
 # Welcome to the Docs!
 
 Django OIDC Provider can help you providing out of the box all the endpoints, data and logic needed to add OpenID Connect capabilities to your Django projects.
 
+
 **This project is still in DEVELOPMENT and is rapidly changing. DO NOT USE IT FOR PRODUCTION SITES, unless you know what you do.**
+
+****************************************
 
 Before getting started there are some important things that you should know:
 * Although OpenID was built on top of OAuth2, this isn't an OAuth2 server. Maybe in a future it will be.
@@ -28,6 +29,7 @@ Before getting started there are some important things that you should know:
 - [Users And Clients](#users-and-clients)
 - [Templates](#templates)
 - [Server Endpoints](#server-endpoints)
+- [Running Tests](#running-tests)
 
 ## Requirements
 
@@ -35,6 +37,8 @@ Before getting started there are some important things that you should know:
 - Django 1.7.*.
 
 ## Installation
+
+If you want to get started fast see our [Example App](https://github.com/juanifioren/django-oidc-provider/tree/master/example_app) folder.
 
 Install the package using pip.
 
@@ -260,4 +264,12 @@ Content-Type: application/x-www-form-urlencoded
 POST /openid/userinfo/ HTTP/1.1
 Host: localhost:8000
 Authorization: Bearer [ACCESS_TOKEN]
+```
+
+## Running Tests
+
+You need a Django project properly configured with the package. Then just run tests as normal.
+
+```bash
+$ python manage.py test oidc_provider
 ```

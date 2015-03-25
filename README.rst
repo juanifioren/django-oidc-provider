@@ -12,16 +12,6 @@ See changelog here.
 
 https://github.com/juanifioren/django-oidc-provider/blob/master/CHANGELOG.md
 
-*************
-Running tests
-*************
-
-You need a Django project properly configured with the package. Then just run tests as normal.
-
-.. code::
-    
-    $ python manage.py test oidc_provider
-
 ************
 Contributing
 ************
