@@ -1,5 +1,3 @@
-![OpenID Connect](http://wiki.openid.net/f/openid-logo-wordmark.png)
-
 # Welcome to the Docs!
 
 Django OIDC Provider can help you providing out of the box all the endpoints, data and logic needed to add OpenID Connect capabilities to your Django projects.
@@ -35,6 +33,8 @@ Before getting started there are some important things that you should know:
 - Django 1.7.*.
 
 ## Installation
+
+If you want to get started fast see our [Example App](https://github.com/juanifioren/django-oidc-provider/tree/master/example_app) folder.
 
 Install the package using pip.
 
