@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+##### Added
+- Normalize gender field in UserInfo.
+
 ### [0.0.2] - 2015-03-26
 
 ##### Added
