@@ -80,12 +80,17 @@ class Token(models.Model):
 
 class UserInfo(models.Model):
 
+    GENDER_CHOICES = [
+        ('F', 'Female'),
+        ('M', 'Male'),
+    ]
+
     user = models.OneToOneField(User, primary_key=True)
     given_name = models.CharField(max_length=255, blank=True, null=True)
     family_name = models.CharField(max_length=255, blank=True, null=True)
     middle_name = models.CharField(max_length=255, blank=True, null=True)
     nickname = models.CharField(max_length=255, blank=True, null=True)
-    gender = models.CharField(max_length=100, default='', blank=True, null=True)
+    gender = models.CharField(max_length=100, choices=GENDER_CHOICES, null=True)
     birthdate = models.DateField(null=True)
     zoneinfo = models.CharField(max_length=100, default='', blank=True,
                                 null=True)
