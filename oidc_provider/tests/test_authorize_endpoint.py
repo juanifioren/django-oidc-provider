@@ -15,8 +15,7 @@ from oidc_provider.views import *
 
 class AuthorizationCodeFlowTestCase(TestCase):
     """
-    An Authentication Request is an OAuth 2.0 Authorization Request that
-    requests that the End-User be authenticated by the Authorization Server.
+    Test cases for Authorize Endpoint using Authorization Code Flow.
     """
 
     def setUp(self):
@@ -114,14 +113,11 @@ class AuthorizationCodeFlowTestCase(TestCase):
 
         See: http://openid.net/specs/openid-connect-core-1_0.html#Consent
         """
-        response_type = 'code'
-        state = 'openid email'
-
         query_str = urllib.urlencode({
             'client_id': self.client.client_id,
-            'response_type': response_type,
+            'response_type': 'code',
             'redirect_uri': self.client.default_redirect_uri,
-            'scope': state,
+            'scope': 'openid email',
             'state': self.state,
         }).replace('+', '%20')
 
@@ -131,7 +127,11 @@ class AuthorizationCodeFlowTestCase(TestCase):
         # Simulate that the user is logged.
         request.user = self.user
 
-        response = AuthorizeView.as_view()(request)
+        # Remove the hook, because we want to test default behaviour.
+        OIDC_AFTER_USERLOGIN_HOOK = settings.default_settings.OIDC_AFTER_USERLOGIN_HOOK
+        with self.settings(
+            OIDC_AFTER_USERLOGIN_HOOK=OIDC_AFTER_USERLOGIN_HOOK):
+            response = AuthorizeView.as_view()(request)
 
         # Check if hidden inputs exists in the form,
         # also if their values are valid.
@@ -140,7 +140,7 @@ class AuthorizationCodeFlowTestCase(TestCase):
         to_check = {
             'client_id': self.client.client_id,
             'redirect_uri': self.client.default_redirect_uri,
-            'response_type': response_type,
+            'response_type': 'code',
         }
 
         for key, value in to_check.iteritems():
@@ -213,6 +213,29 @@ class AuthorizationCodeFlowTestCase(TestCase):
 
 class AuthorizationImplicitFlowTestCase(TestCase):
     """
-    TODO.
+    Test cases for Authorize Endpoint using Implicit Flow.
     """
-    pass
+    
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.user = create_fake_user()
+        self.client = create_fake_client(response_type='id_token token')
+        self.state = uuid.uuid4().hex
+
+    # TODO
+    def test_something(self):
+        query_str = urllib.urlencode({
+            'client_id': self.client.client_id,
+            'response_type': 'id_token token',
+            'redirect_uri': self.client.default_redirect_uri,
+            'scope': 'openid email',
+            'state': self.state,
+        }).replace('+', '%20')
+
+        url = reverse('oidc_provider:authorize') + '#' + query_str
+
+        request = self.factory.get(url)
+        # Simulate that the user is logged.
+        request.user = self.user
+
+        response = AuthorizeView.as_view()(request)
