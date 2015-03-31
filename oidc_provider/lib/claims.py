@@ -56,7 +56,7 @@ class AbstractScopeClaims(object):
             if not value:
                 del aux_dic[key]
             elif type(value) is dict:
-                aux_dic[key] = clean_dic(value)
+                aux_dic[key] = self._clean_dic(value)
 
         return aux_dic
 
