@@ -7,6 +7,9 @@ All notable changes to this project will be documented in this file.
 ##### Added
 - Normalize gender field in UserInfo.
 
+##### Fixed
+- Important bug in claims response.
+
 ### [0.0.2] - 2015-03-26
 
 ##### Added
