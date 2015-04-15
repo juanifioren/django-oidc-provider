@@ -103,7 +103,6 @@ class UserInfo(models.Model):
     locale = models.CharField(max_length=100, blank=True, null=True)
     phone_number = models.CharField(max_length=255, blank=True, null=True)
     phone_number_verified = models.NullBooleanField(default=False)
-    address_formatted = models.CharField(max_length=255, blank=True, null=True)
     address_street_address = models.CharField(max_length=255, blank=True,
                                               null=True)
     address_locality = models.CharField(max_length=255, blank=True, null=True)
@@ -122,3 +121,15 @@ class UserInfo(models.Model):
                 name = name + ' ' + self.family_name
 
         return name
+
+    @property
+    def address_formatted(self):
+        formatted = ', '.join([
+            self.address_street_address,
+            self.address_locality,
+            self.address_country])
+
+        if formatted.startswith(', '):
+            formatted = formatted[2:]
+        if formatted.endswith(', '):
+            formatted = formatted[:-2]
