@@ -7,6 +7,9 @@ All notable changes to this project will be documented in this file.
 ##### Added
 - Normalize gender field in UserInfo.
 
+##### Changed
+- Make address_formatted a property inside UserInfo.
+
 ##### Fixed
 - Important bug in claims response.
 
