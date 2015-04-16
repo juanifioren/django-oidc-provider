@@ -125,7 +125,7 @@ class MyAppScopeClaims(AbstractScopeClaims):
         # print self.scopes
         try:
             self.some_model = SomeModel.objects.get(user=self.user)
-        except UserInfo.DoesNotExist:
+        except SomeModel.DoesNotExist:
             # Create an empty model object.
             self.some_model = SomeModel()
 
