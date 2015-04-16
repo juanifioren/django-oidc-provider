@@ -216,8 +216,6 @@ You can copy the sample html here and edit them with your own styles.
     <input name="allow" type="submit" value="Authorize" />
 
 </form>
-
-{% endblock %}
 ```
 
 **error.html**
