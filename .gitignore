@@ -4,3 +4,4 @@ dist/
 *.py[cod]
 *.egg-info
 .ropeproject
+.idea
