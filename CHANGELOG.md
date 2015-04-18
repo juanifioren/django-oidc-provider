@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+##### Fixed
+- Important bug with id_token when using implicit flow.
+
 ### [0.0.3] - 2015-04-15
 
 ##### Added
