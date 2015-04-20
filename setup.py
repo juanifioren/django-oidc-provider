@@ -34,6 +34,6 @@ setup(
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
     install_requires=[
-        'pyjwt==0.3.1',
+        'pyjwt==1.1.0',
     ],
 )
