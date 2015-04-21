@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ##### Fixed
 - Important bug with id_token when using implicit flow.
 - Validate Code expiration in Auth Code Flow.
+- Validate Access Token expiration in UserInfo endpoint.
 
 ### [0.0.3] - 2015-04-15
 
