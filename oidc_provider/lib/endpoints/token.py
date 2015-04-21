@@ -13,13 +13,11 @@ from oidc_provider import settings
 class TokenEndpoint(object):
 
     def __init__(self, request):
-
         self.request = request
         self.params = Params()
         self._extract_params()
 
     def _extract_params(self):
-
         query_dict = self.request.POST
 
         self.params.client_id = query_dict.get('client_id', '')
@@ -31,7 +29,6 @@ class TokenEndpoint(object):
         self.params.state = query_dict.get('state', '')
 
     def validate_params(self):
-        
         if not (self.params.grant_type == 'authorization_code'):
             raise TokenError('unsupported_grant_type')
 
@@ -46,8 +43,8 @@ class TokenEndpoint(object):
 
             self.code = Code.objects.get(code=self.params.code)
 
-            if not (self.code.client == self.client) and \
-               not self.code.has_expired():
+            if not (self.code.client == self.client) \
+               or self.code.has_expired():
                 raise TokenError('invalid_grant')
 
         except Client.DoesNotExist:
@@ -57,7 +54,6 @@ class TokenEndpoint(object):
             raise TokenError('invalid_grant')
 
     def create_response_dic(self):
-
         sub = settings.get('OIDC_IDTOKEN_SUB_GENERATOR')(
             user=self.code.user)
 
