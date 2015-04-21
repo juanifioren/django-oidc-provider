@@ -5,15 +5,6 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 
-def scope_property():
-    def fget(self):
-        return self._scope.split()
-    def fset(self, value):
-        self._scope = ' '.join(value)
-
-    return locals()
-
-
 class Client(models.Model):
 
     RESPONSE_TYPE_CHOICES = [
@@ -43,32 +34,36 @@ class Client(models.Model):
         return self.redirect_uris[0] if self.redirect_uris else ''
 
 
-class Code(models.Model):
+class BaseCodeTokenModel(models.Model):
 
     user = models.ForeignKey(User)
     client = models.ForeignKey(Client)
-    code = models.CharField(max_length=255, unique=True)
     expires_at = models.DateTimeField()
-
     _scope = models.TextField(default='')
-    scope = property(**scope_property())
+    def scope():
+        def fget(self):
+            return self._scope.split()
+        def fset(self, value):
+            self._scope = ' '.join(value)
+        return locals()
+    scope = property(**scope())
 
     def has_expired(self):
         return timezone.now() >= self.expires_at
 
+    class Meta:
+        abstract = True
 
-class Token(models.Model):
 
-    user = models.ForeignKey(User)
-    client = models.ForeignKey(Client)
+class Code(BaseCodeTokenModel):
+
+    code = models.CharField(max_length=255, unique=True)
+
+
+class Token(BaseCodeTokenModel):
+
     access_token = models.CharField(max_length=255, unique=True)
-    expires_at = models.DateTimeField()
-
-    _scope = models.TextField(default='')
-    scope = property(**scope_property())
-
     _id_token = models.TextField()
-
     def id_token():
         def fget(self):
             return json.loads(self._id_token)
