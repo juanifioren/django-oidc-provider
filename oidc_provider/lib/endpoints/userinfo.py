@@ -45,6 +45,9 @@ class UserInfoEndpoint(object):
         try:
             self.token = Token.objects.get(access_token=self.params.access_token)
 
+            if self.token.has_expired():
+                raise UserInfoError('invalid_token')
+
         except Token.DoesNotExist:
             raise UserInfoError('invalid_token')
 
