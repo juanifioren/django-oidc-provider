@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+#### Added
+- Initial migrations.
+
 ##### Fixed
 - Important bug with id_token when using implicit flow.
 - Validate Code expiration in Auth Code Flow.
