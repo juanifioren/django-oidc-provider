@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import Client, Code, Token, UserInfo
+
+from oidc_provider.models import Client, Code, Token, UserInfo
+
 
 admin.site.register(Client)
 admin.site.register(Code)
