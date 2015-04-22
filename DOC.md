@@ -271,3 +271,7 @@ You need a Django project properly configured with the package. Then just run te
 ```bash
 $ python manage.py test oidc_provider
 ```
+
+This provider was tested (and fully works) with these OIDC Clients:
+- [Drupal OpenID Connect](https://www.drupal.org/project/openid_connect)
+- [Passport OpenID Connect](https://github.com/jaredhanson/passport-openidconnect) (for NodeJS)
