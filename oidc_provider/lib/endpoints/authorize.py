@@ -4,7 +4,6 @@ import uuid
 from django.utils import timezone
 
 from oidc_provider.lib.errors import *
-from oidc_provider.lib.utils.common import get_issuer
 from oidc_provider.lib.utils.params import *
 from oidc_provider.lib.utils.token import *
 from oidc_provider.models import *
@@ -95,7 +94,6 @@ class AuthorizeEndpoint(object):
             self.validate_params()
 
             if self.grant_type == 'authorization_code':
-
                 code = create_code(
                     user=self.request.user,
                     client=self.client,
@@ -107,16 +105,9 @@ class AuthorizeEndpoint(object):
                 uri = self.params.redirect_uri + '?code={0}'.format(code.code)
 
             else:  # Implicit Flow
-
-                # TODO refactor since it's the same as the token endpoint
-                sub = settings.get('OIDC_IDTOKEN_SUB_GENERATOR')(
-                    user=self.request.user)
-
                 id_token_dic = create_id_token(
-                    iss=get_issuer(),
-                    sub=sub,
-                    aud=self.client.client_id,
-                    auth_time=self.request.user.last_login)
+                    user=self.request.user,
+                    aud=self.client.client_id)
 
                 token = create_token(
                     user=self.request.user,
