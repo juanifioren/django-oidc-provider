@@ -11,7 +11,7 @@ $ virtualenv project_env
 $ source project_env/bin/activate
 
 $ git clone https://github.com/juanifioren/django-oidc-provider.git
-$ cd django-oidc-provider/example_app
+$ cd django-oidc-provider/example_project
 $ pip install -r requirements.txt
 ```
 
