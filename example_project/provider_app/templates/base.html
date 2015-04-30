@@ -4,11 +4,11 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bootstrap 101 Template</title>
+    <title>OpenID Provider</title>
 
     <!-- Bootstrap -->
     <link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.4/cerulean/bootstrap.min.css" rel="stylesheet">
-    <style type="text/css">body{padding-top:20px;padding-bottom:20px}.footer,.header,.marketing{padding-right:15px;padding-left:15px}.header{padding-bottom:20px;border-bottom:1px solid #e5e5e5}.header h3{margin-top:0;margin-bottom:0;line-height:40px}.footer{padding-top:19px;color:#777;border-top:1px solid #e5e5e5}@media (min-width:768px){.container{max-width:730px}}.container-narrow>hr{margin:30px 0}.jumbotron{text-align:center;border-bottom:1px solid #e5e5e5}.jumbotron .btn{padding:14px 24px;font-size:21px}.marketing{margin:40px 0}.marketing p+h4{margin-top:28px}@media screen and (min-width:768px){.footer,.header,.marketing{padding-right:0;padding-left:0}.header{margin-bottom:30px}.jumbotron{border-bottom:0}}</style>
+    <style type="text/css">body{padding-top:20px;padding-bottom:20px}.footer,.header,.marketing{padding-right:15px;padding-left:15px}.header{padding-bottom:20px;border-bottom:1px solid #e5e5e5}.header h3{margin-top:0;margin-bottom:0;line-height:40px}.footer{padding-top:19px;color:#777;border-top:1px solid #e5e5e5}@media (min-width:768px){.container{max-width:730px}}.container-narrow>hr{margin:30px 0}.jumbotron{border-bottom:1px solid #e5e5e5}.jumbotron .btn{padding:14px 24px;font-size:21px}.marketing{margin:40px 0}.marketing p+h4{margin-top:28px}@media screen and (min-width:768px){.footer,.header,.marketing{padding-right:0;padding-left:0}.header{margin-bottom:30px}.jumbotron{border-bottom:0}}</style>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -22,10 +22,10 @@
       <div class="header clearfix">
         <nav>
           <ul class="nav nav-pills pull-right">
-            <li role="presentation"><a href="#">Home</a></li>
+            <li role="presentation"><a href="{% url 'home' %}">Home</a></li>
             {% if user.is_authenticated %}
             <li role="presentation"><a href="#">{{ user.email }}</a></li>
-            <li role="presentation"><a href="#">Logout</a></li>
+            <li role="presentation"><a href="{% url 'logout' %}">Logout</a></li>
             {% else %}
             <li role="presentation"><a href="{% url 'login' %}">Login</a></li>
             {% endif %}
