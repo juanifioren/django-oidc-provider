@@ -181,9 +181,9 @@ class AuthorizationCodeFlowTestCase(TestCase):
         # Because user doesn't allow app, SHOULD exists an error parameter
         # in the query.
         self.assertEqual('error=' in response['Location'], True,
-            msg='error param is missing.')
+            msg='error param is missing in query.')
         self.assertEqual('access_denied' in response['Location'], True,
-            msg='access_denied param is missing.')
+            msg='"access_denied" code is missing in query.')
 
         # Simulate user authorization.
         post_data['allow'] = 'Accept' # Should be the value of the button.
