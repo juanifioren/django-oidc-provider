@@ -13,13 +13,11 @@ from oidc_provider import settings
 class UserInfoEndpoint(object):
 
     def __init__(self, request):
-
         self.request = request
         self.params = Params()
         self._extract_params()
 
     def _extract_params(self):
-
         # TODO: Maybe add other ways of passing access token
         # http://tools.ietf.org/html/rfc6750#section-2
         self.params.access_token = self._get_access_token()
@@ -41,12 +39,14 @@ class UserInfoEndpoint(object):
         return access_token
 
     def validate_params(self):
-        
         try:
             self.token = Token.objects.get(access_token=self.params.access_token)
 
             if self.token.has_expired():
                 raise UserInfoError('invalid_token')
+
+            if not ('openid' in self.token.scope):
+                raise UserInfoError('insufficient_scope')
 
         except Token.DoesNotExist:
             raise UserInfoError('invalid_token')
@@ -75,7 +75,6 @@ class UserInfoEndpoint(object):
 
     @classmethod
     def response(cls, dic):
-
         response = JsonResponse(dic, status=200)
         response['Cache-Control'] = 'no-store'
         response['Pragma'] = 'no-cache'
@@ -84,7 +83,6 @@ class UserInfoEndpoint(object):
 
     @classmethod
     def error_response(cls, code, description, status):
-
         response = HttpResponse(status=status)
         response['WWW-Authenticate'] = 'error="{0}", error_description="{1}"'.format(code, description)
 
