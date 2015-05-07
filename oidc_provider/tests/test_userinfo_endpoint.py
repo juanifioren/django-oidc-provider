@@ -76,3 +76,19 @@ class UserInfoTestCase(TestCase):
         except KeyError:
             is_header_field_ok = False
         self.assertEqual(is_header_field_ok, True)
+
+    def test_response_with_invalid_scope(self):
+        token = self._create_token()
+
+        token.scope = ['otherone']
+        token.save()
+
+        response = self._post_request(token.access_token)
+
+        self.assertEqual(response.status_code, 403)
+
+        try:
+            is_header_field_ok = 'insufficient_scope' in response['WWW-Authenticate']
+        except KeyError:
+            is_header_field_ok = False
+        self.assertEqual(is_header_field_ok, True)
