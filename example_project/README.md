@@ -21,3 +21,7 @@ Run your provider.
 $ python manage.py migrate
 $ python manage.py runserver
 ```
+
+Open your browser and go to `http://localhost:8000`. Voilà!
+
+[<img title="django-oidc-provider" src="http://i.imgur.com/h4gv4s1.gif" width="100%" />](https://github.com/juanifioren/meteor-coffee-boilerplate)
