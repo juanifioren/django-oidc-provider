@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+#### Fixed
+- Validation of scope in UserInfo endpoint.
+
 ### [0.0.4] - 2015-04-22
 
 #### Added
