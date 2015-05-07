@@ -2,6 +2,7 @@ import json
 from urllib import urlencode
 import uuid
 
+from django.core.urlresolvers import reverse
 from django.test import RequestFactory
 from django.test import TestCase
 
