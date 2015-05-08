@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [0.0.5] - 2015-05-09
+
+#### Added
+- Support for Django 1.8.
+
 #### Fixed
 - Validation of scope in UserInfo endpoint.
 
