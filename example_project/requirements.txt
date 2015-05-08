@@ -1,2 +1,2 @@
 django==1.8
-django-oidc-provider==0.0.4.1
+django-oidc-provider==0.0.5
