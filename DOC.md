@@ -46,6 +46,8 @@ Install the package using pip.
 pip install django-oidc-provider
 # Or latest code from repo.
 pip install git+https://github.com/juanifioren/django-oidc-provider.git#egg=oidc_provider
+# Or if working from a local repo
+pip install git+./#egg=oidc_provider
 ```
 
 Add it to your apps.
