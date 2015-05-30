@@ -21,6 +21,12 @@ class Client(models.Model):
 
     _redirect_uris = models.TextField(default='')
 
+    def __str__(self):
+        return self.name
+
+    def __unicode__(self):
+        return self.__str__()
+    
     def redirect_uris():
         def fget(self):
             return self._redirect_uris.splitlines()
@@ -40,6 +46,7 @@ class BaseCodeTokenModel(models.Model):
     client = models.ForeignKey(Client)
     expires_at = models.DateTimeField()
     _scope = models.TextField(default='')
+
     def scope():
         def fget(self):
             return self._scope.split()
@@ -51,6 +58,12 @@ class BaseCodeTokenModel(models.Model):
     def has_expired(self):
         return timezone.now() >= self.expires_at
 
+    def __str__(self):
+        return "%s - %s (%s)" % (self.client, self.user, self.expires_at)
+
+    def __unicode__(self):
+        return self.__str__()
+    
     class Meta:
         abstract = True
 
