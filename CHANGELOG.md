@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+#### Added
+- Better naming for models in the admin.
+
 ### [0.0.5] - 2015-05-09
 
 #### Added
