@@ -9,7 +9,7 @@ env:
   - DJANGO=Django==1.8
 
 install:
-  - pip install -q $DJANGO
+  - pip install $DJANGO
 
 script:
   - PYTHONPATH=$PYTHONPATH:$PWD django-admin.py test oidc_provider --settings=oidc_provider.tests.test_settings
