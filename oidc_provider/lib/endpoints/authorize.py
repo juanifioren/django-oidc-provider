@@ -1,13 +1,11 @@
-from datetime import timedelta
-import uuid
-
-from django.utils import timezone
+import logging
 
 from oidc_provider.lib.errors import *
 from oidc_provider.lib.utils.params import *
 from oidc_provider.lib.utils.token import *
 from oidc_provider.models import *
-from oidc_provider import settings
+
+logger = logging.getLogger(__name__)
 
 
 class AuthorizeEndpoint(object):
@@ -134,6 +132,10 @@ class AuthorizeEndpoint(object):
                 if self.params.response_type == 'id_token token':
                     uri += '&access_token={0}'.format(token.access_token)
         except:
+            logger.error('Authorization server error, grant_type: %s' %self.grant_type, extra={
+                'redirect_uri': self.redirect_uri,
+                'state': self.params.state
+            })
             raise AuthorizeError(
                 self.params.redirect_uri,
                 'server_error',

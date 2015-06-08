@@ -33,6 +33,10 @@ setup(
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
+    tests_require=[
+        'pyjwt==1.1.0'
+    ],
+
     install_requires=[
         'pyjwt==1.1.0',
     ],
