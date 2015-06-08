@@ -1,30 +1,22 @@
 import urllib
 
-try:  # JsonResponse is only available in Django > 1.7
-    from django.http import JsonResponse
-except ImportError:
-    from ..utils.http import JsonResponse
-    
-from openid_provider import settings
+from django.http import JsonResponse
 
-from ..utils.http import JsonResponse
-from ..errors import *
-from ..utils.params import *
-from ..utils.token import *
-
-from openid_provider.models import *
+from oidc_provider.lib.errors import *
+from oidc_provider.lib.utils.params import *
+from oidc_provider.lib.utils.token import *
+from oidc_provider.models import *
+from oidc_provider import settings
 
 
 class TokenEndpoint(object):
 
     def __init__(self, request):
-
         self.request = request
         self.params = Params()
         self._extract_params()
 
     def _extract_params(self):
-
         query_dict = self.request.POST
 
         self.params.client_id = query_dict.get('client_id', '')
@@ -36,7 +28,6 @@ class TokenEndpoint(object):
         self.params.state = query_dict.get('state', '')
 
     def validate_params(self):
-        
         if not (self.params.grant_type == 'authorization_code'):
             raise TokenError('unsupported_grant_type')
 
@@ -51,8 +42,8 @@ class TokenEndpoint(object):
 
             self.code = Code.objects.get(code=self.params.code)
 
-            if not (self.code.client == self.client) and \
-               not self.code.has_expired():
+            if not (self.code.client == self.client) \
+               or self.code.has_expired():
                 raise TokenError('invalid_grant')
 
         except Client.DoesNotExist:
@@ -62,11 +53,9 @@ class TokenEndpoint(object):
             raise TokenError('invalid_grant')
 
     def create_response_dic(self):
-
-        id_token_dic = create_id_token_dic(
-            self.code.user,
-            settings.get('SITE_URL'),
-            self.client.client_id)
+        id_token_dic = create_id_token(
+            user=self.code.user,
+            aud=self.client.client_id)
 
         token = create_token(
             user=self.code.user,
@@ -85,14 +74,14 @@ class TokenEndpoint(object):
         dic = {
             'access_token': token.access_token,
             'token_type': 'bearer',
-            'expires_in': settings.get('DOP_TOKEN_EXPIRE'),
+            'expires_in': settings.get('OIDC_TOKEN_EXPIRE'),
             'id_token': id_token,
         }
 
         return dic
 
     @classmethod
-    def response(self, dic, status=200):
+    def response(cls, dic, status=200):
         """
         Create and return a response object.
         """

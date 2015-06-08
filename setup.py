@@ -8,14 +8,17 @@ with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
-    name='django-openid-provider',
-    version='0.1',
-    packages=['openid_provider'],
+    name='django-oidc-provider',
+    version='0.0.5',
+    packages=[
+        'oidc_provider', 'oidc_provider/lib', 'oidc_provider/lib/endpoints',
+        'oidc_provider/lib/utils', 'oidc_provider/tests', 'oidc_provider/migrations',
+    ],
     include_package_data=True,
     license='MIT License',
-    description='A simple OpenID Connect Provider implementation for Djangonauts.',
+    description='OpenID Connect Provider implementation for Django.',
     long_description=README,
-    url='http://github.com/juanifioren/django-openid-provider',
+    url='http://github.com/juanifioren/django-oidc-provider',
     author='Juan Ignacio Fiorentino',
     author_email='juanifioren@gmail.com',
     classifiers=[
@@ -31,6 +34,6 @@ setup(
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
     install_requires=[
-        'pyjwt==0.3.1',
+        'pyjwt==1.1.0',
     ],
 )

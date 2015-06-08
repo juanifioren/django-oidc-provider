@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Request for Permission</h3>
+  </div>
+  <div class="panel-body">
+    <p>Client <strong>{{ client.name }}</strong> would like to access this information of you ...</p>
+
+    <form method="post" action="{% url 'oidc_provider:authorize' %}">
+
+      {% csrf_token %}
+
+      {{ hidden_inputs }}
+
+      <ul>
+      {% for scope in params.scope %}
+          <li>{{ scope | capfirst }}</li>
+      {% endfor %}
+      </ul>
+
+      <input name="allow" class="btn btn-primary btn-lg btn-block" type="submit" value="Authorize" />
+
+    </form>
+  </div>
+</div>
+
+{% endblock %}

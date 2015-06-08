@@ -1,3 +1,3 @@
 include LICENSE
 include README.rst
-recursive-include openid_provider/templates *
+recursive-include oidc_provider/templates *

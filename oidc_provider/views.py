@@ -1,21 +1,15 @@
-import urllib
-
-from django.conf import settings
-from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.views import redirect_to_login
-from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseRedirect
-
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
+from django.template.loader import render_to_string
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
 
-from .lib.errors import *
-from .lib.endpoints.authorize import *
-from .lib.endpoints.token import *
-from .lib.endpoints.userinfo import *
-
-from openid_provider import settings
+from oidc_provider.lib.endpoints.authorize import *
+from oidc_provider.lib.endpoints.discovery import *
+from oidc_provider.lib.endpoints.token import *
+from oidc_provider.lib.endpoints.userinfo import *
+from oidc_provider.lib.errors import *
 
 
 class AuthorizeView(View):
@@ -28,20 +22,34 @@ class AuthorizeView(View):
             authorize.validate_params()
 
             if request.user.is_authenticated():
+                # Check if there's a hook setted.
+                hook_resp = settings.get('OIDC_AFTER_USERLOGIN_HOOK')(
+                    request=request, user=request.user,
+                    client=authorize.client)
+                if hook_resp:
+                    return hook_resp
 
-                # This is for printing scopes in the form.
-                authorize.params.scope_str = ' '.join(authorize.params.scope)
-
+                # Generate hidden inputs for the form.
                 context = {
                     'params': authorize.params,
+                }
+                hidden_inputs = render_to_string(
+                    'oidc_provider/hidden_inputs.html', context)
+
+                # Remove `openid` from scope list
+                # since we don't need to print it.
+                authorize.params.scope.remove('openid')
+
+                context = {
                     'client': authorize.client,
+                    'hidden_inputs': hidden_inputs,
+                    'params': authorize.params,
                 }
 
-                return render(request, 'openid_provider/authorize.html', context)
+                return render(request, 'oidc_provider/authorize.html', context)
             else:
                 path = request.get_full_path()
-                return redirect_to_login(
-                    path, settings.get('LOGIN_URL'), REDIRECT_FIELD_NAME)
+                return redirect_to_login(path)
 
         except (ClientIdError, RedirectUriError) as error:
             context = {
@@ -49,7 +57,7 @@ class AuthorizeView(View):
                 'description': error.description,
             }
 
-            return render(request, 'openid_provider/error.html', context)
+            return render(request, 'oidc_provider/error.html', context)
 
         except (AuthorizeError) as error:
             uri = error.create_uri(
@@ -70,7 +78,9 @@ class AuthorizeView(View):
             return HttpResponseRedirect(uri)
 
         except (AuthorizeError) as error:
-            uri = error.create_uri(authorize.params.redirect_uri, authorize.params.state)
+            uri = error.create_uri(
+                authorize.params.redirect_uri,
+                authorize.params.state)
 
             return HttpResponseRedirect(uri)
 
@@ -91,6 +101,7 @@ class TokenView(View):
         except (TokenError) as error:
             return TokenEndpoint.response(error.create_dict(), status=400)
 
+
 @require_http_methods(['GET', 'POST'])
 def userinfo(request):
 
@@ -108,3 +119,12 @@ def userinfo(request):
             error.code,
             error.description,
             error.status)
+
+
+class ProviderInfoView(View):
+
+    def get(self, request, *args, **kwargs):
+
+        dic = ProviderInfoEndpoint.create_response_dic()
+
+        return JsonResponse(dic)

@@ -1,16 +1,13 @@
-import uuid
-
 from datetime import timedelta
+import uuid
 
 from django.utils import timezone
 
-from openid_provider import settings
-
-from ..errors import *
-from ..utils.params import *
-from ..utils.token import *
-
-from openid_provider.models import *
+from oidc_provider.lib.errors import *
+from oidc_provider.lib.utils.params import *
+from oidc_provider.lib.utils.token import *
+from oidc_provider.models import *
+from oidc_provider import settings
 
 
 class AuthorizeEndpoint(object):
@@ -23,7 +20,8 @@ class AuthorizeEndpoint(object):
 
         # Because in this endpoint we handle both GET
         # and POST request.
-        self.query_dict = (self.request.POST if self.request.method == 'POST' else self.request.GET)
+        self.query_dict = (self.request.POST if self.request.method == 'POST'
+                           else self.request.GET)
 
         self._extract_params()
 
@@ -94,26 +92,22 @@ class AuthorizeEndpoint(object):
 
         try:
             self.validate_params()
-            
-            if self.grant_type == 'authorization_code':
 
-                code = Code()
-                code.user = self.request.user
-                code.client = self.client
-                code.code = uuid.uuid4().hex
-                code.expires_at = timezone.now() + timedelta(
-                    seconds=settings.get('DOP_CODE_EXPIRE'))
-                code.scope = self.params.scope
+            if self.grant_type == 'authorization_code':
+                code = create_code(
+                    user=self.request.user,
+                    client=self.client,
+                    scope=self.params.scope)
+                
                 code.save()
 
+                # Create the response uri.
                 uri = self.params.redirect_uri + '?code={0}'.format(code.code)
 
             else:  # Implicit Flow
-
-                id_token_dic = create_id_token_dic(
-                    self.request.user,
-                    settings.get('SITE_URL'),
-                    self.client.client_id)
+                id_token_dic = create_id_token(
+                    user=self.request.user,
+                    aud=self.client.client_id)
 
                 token = create_token(
                     user=self.request.user,
@@ -127,13 +121,18 @@ class AuthorizeEndpoint(object):
                 id_token = encode_id_token(
                     id_token_dic, self.client.client_secret)
 
-                # TODO: Check if response_type is 'id_token token' then
+                # Create the response uri.
+                uri = self.params.redirect_uri + \
+                    '#token_type={0}&id_token={1}&expires_in={2}'.format(
+                        'bearer',
+                        id_token,
+                        60 * 10,
+                    )
+
+                # Check if response_type is 'id_token token' then
                 # add access_token to the fragment.
-                uri = self.params.redirect_uri + '#token_type={0}&id_token={1}&expires_in={2}'.format(
-                    'bearer',
-                    id_token,
-                    60 * 10
-                )
+                if self.params.response_type == 'id_token token':
+                    uri += '&access_token={0}'.format(token.access_token)
         except:
             raise AuthorizeError(
                 self.params.redirect_uri,
@@ -141,8 +140,6 @@ class AuthorizeEndpoint(object):
                 self.grant_type)
 
         # Add state if present.
-        uri = uri + \
-            ('&state={0}'.format(self.params.state)
-             if self.params.state else '')
+        uri += ('&state={0}'.format(self.params.state) if self.params.state else '')
 
         return uri

@@ -1,27 +1,23 @@
 import re
+
 from django.http import HttpResponse
+from django.http import JsonResponse
 
-try:  # JsonResponse is only available in Django > 1.7
-    from django.http import JsonResponse
-except ImportError:
-    from ..utils.http import JsonResponse
-
-from ..errors import *
-from ..scopes import *
-from ..utils.params import *
-from openid_provider.models import *
+from oidc_provider.lib.errors import *
+from oidc_provider.lib.claims import *
+from oidc_provider.lib.utils.params import *
+from oidc_provider.models import *
+from oidc_provider import settings
 
 
 class UserInfoEndpoint(object):
 
     def __init__(self, request):
-
         self.request = request
         self.params = Params()
         self._extract_params()
 
     def _extract_params(self):
-
         # TODO: Maybe add other ways of passing access token
         # http://tools.ietf.org/html/rfc6750#section-2
         self.params.access_token = self._get_access_token()
@@ -43,9 +39,14 @@ class UserInfoEndpoint(object):
         return access_token
 
     def validate_params(self):
-        
         try:
             self.token = Token.objects.get(access_token=self.params.access_token)
+
+            if self.token.has_expired():
+                raise UserInfoError('invalid_token')
+
+            if not ('openid' in self.token.scope):
+                raise UserInfoError('insufficient_scope')
 
         except Token.DoesNotExist:
             raise UserInfoError('invalid_token')
@@ -61,15 +62,19 @@ class UserInfoEndpoint(object):
             'sub': self.token.id_token.get('sub'),
         }
 
-        standard_claims = StandardClaims(self.token.user, self.token.scope)
-        
+        standard_claims = StandardScopeClaims(self.token.user, self.token.scope)
+
         dic.update(standard_claims.create_response_dic())
+
+        extra_claims = settings.get('OIDC_EXTRA_SCOPE_CLAIMS')(
+            self.token.user, self.token.scope)
+
+        dic.update(extra_claims.create_response_dic())
 
         return dic
 
     @classmethod
-    def response(self, dic):
-
+    def response(cls, dic):
         response = JsonResponse(dic, status=200)
         response['Cache-Control'] = 'no-store'
         response['Pragma'] = 'no-cache'
@@ -77,8 +82,7 @@ class UserInfoEndpoint(object):
         return response
 
     @classmethod
-    def error_response(self, code, description, status):
-
+    def error_response(cls, code, description, status):
         response = HttpResponse(status=status)
         response['WWW-Authenticate'] = 'error="{0}", error_description="{1}"'.format(code, description)
 

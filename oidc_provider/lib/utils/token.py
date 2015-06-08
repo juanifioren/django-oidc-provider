@@ -1,38 +1,43 @@
+from datetime import timedelta
 import time
-import jwt
 import uuid
 
-from datetime import timedelta
-
-from openid_provider import settings
 from django.utils import timezone
-from openid_provider.models import *
+import jwt
+
+from oidc_provider.lib.utils.common import get_issuer
+from oidc_provider.models import *
+from oidc_provider import settings
 
 
-def create_id_token_dic(user, iss, aud):
+def create_id_token(user, aud):
     """
-    Receives a user object, iss (issuer) and aud (audience).
-    Then creates the id_token dic.
+    Receives a user object and aud (audience).
+    Then creates the id_token dictionary.
     See: http://openid.net/specs/openid-connect-core-1_0.html#IDToken
 
     Return a dic.
     """
-    expires_in = settings.get('DOP_IDTOKEN_EXPIRE')
+    sub = settings.get('OIDC_IDTOKEN_SUB_GENERATOR')(
+        user=user)
+
+    expires_in = settings.get('OIDC_IDTOKEN_EXPIRE')
 
     now = timezone.now()
-
     # Convert datetimes into timestamps.
     iat_time = time.mktime(now.timetuple())
     exp_time = time.mktime((now + timedelta(seconds=expires_in)).timetuple())
-    user_auth_time = time.mktime(user.last_login.timetuple())
+
+    user_auth_time = user.last_login or user.date_joined
+    auth_time = time.mktime(user_auth_time.timetuple())
 
     dic = {
-        'iss': iss,
-        'sub': user.id,
+        'iss': get_issuer(),
+        'sub': sub,
         'aud': aud,
         'exp': exp_time,
         'iat': iat_time,
-        'auth_time': user_auth_time,
+        'auth_time': auth_time,
     }
 
     return dic
@@ -64,7 +69,24 @@ def create_token(user, client, id_token_dic, scope):
 
     token.refresh_token = uuid.uuid4().hex
     token.expires_at = timezone.now() + timedelta(
-        seconds=settings.get('DOP_TOKEN_EXPIRE'))
+        seconds=settings.get('OIDC_TOKEN_EXPIRE'))
     token.scope = scope
 
     return token
+
+
+def create_code(user, client, scope):
+    """
+    Create and populate a Code object.
+
+    Return a Code object.
+    """
+    code = Code()
+    code.user = user
+    code.client = client
+    code.code = uuid.uuid4().hex
+    code.expires_at = timezone.now() + timedelta(
+        seconds=settings.get('OIDC_CODE_EXPIRE'))
+    code.scope = scope
+
+    return code
