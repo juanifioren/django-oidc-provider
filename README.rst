@@ -1,7 +1,7 @@
 
 Django OIDC Provider
 ####################
-.. image:: https://api.travis-ci.org/juanifioren/django-openid-provider.png?branch=master
+.. image:: https://travis-ci.org/juanifioren/django-oidc-provider.svg?branch=master
     :alt: Build Status
     :target: http://travis-ci.org/juanifioren/django-oidc-provider
 
