@@ -5,6 +5,9 @@ Django OIDC Provider
     :alt: Build Status
     :target: http://travis-ci.org/juanifioren/django-oidc-provider
 
+.. image:: https://img.shields.io/pypi/dm/django-oidc-provider.svg
+        :target: https://pypi.python.org/pypi/django-oidc-provider
+
 
 Django OIDC Provider can help you providing out of the box all the endpoints, data and logic needed to add OpenID Connect capabilities to your Django projects.
 
