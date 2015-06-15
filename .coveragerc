@@ -1,8 +1,0 @@
-[run]
-omit =
-    tests/*
-    example_project/*
-    .tox/*
-    setup.py
-    *.egg/*
-    */__main__.py
