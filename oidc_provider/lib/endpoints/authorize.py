@@ -82,8 +82,6 @@ class AuthorizeEndpoint(object):
 
     def create_response_uri(self):
         try:
-            self.validate_params()
-
             if self.grant_type == 'authorization_code':
                 code = create_code(
                     user=self.request.user,
@@ -95,7 +93,7 @@ class AuthorizeEndpoint(object):
                 # Create the response uri.
                 uri = self.params.redirect_uri + '?code={0}'.format(code.code)
 
-            else:  # Implicit Flow
+            elif self.grant_type == 'implicit':
                 id_token_dic = create_id_token(
                     user=self.request.user,
                     aud=self.client.client_id)

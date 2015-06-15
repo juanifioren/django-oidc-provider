@@ -73,6 +73,8 @@ class AuthorizeView(View):
         allow = True if request.POST.get('allow') else False
 
         try:
+            authorize.validate_params()
+            
             if not allow:
                 raise AuthorizeError(authorize.params.redirect_uri,
                                      'access_denied',
