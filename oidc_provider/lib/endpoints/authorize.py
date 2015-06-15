@@ -80,14 +80,7 @@ class AuthorizeEndpoint(object):
         except Client.DoesNotExist:
             raise ClientIdError()
 
-    def create_response_uri(self, allow):
-
-        if not allow:
-            raise AuthorizeError(
-                self.params.redirect_uri,
-                'access_denied',
-                self.grant_type)
-
+    def create_response_uri(self):
         try:
             self.validate_params()
 
