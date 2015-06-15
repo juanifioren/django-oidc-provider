@@ -18,49 +18,17 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 )
 
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-
-    'formatters': {
-        'simple': {
-            'format': '%(asctime)s %(process)d [%(levelname)s] %(name)s Line: %(lineno)s id: %(process)d : %(message)s'
-        }
-    },
-
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse',
-        }
-    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'filters': ['require_debug_false'],
-            'formatter': 'simple',
         },
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler',
-            'formatter': 'simple',
-        },
-        "debug_file_handler": {
-            "class": "logging.handlers.RotatingFileHandler",
-            "level": "DEBUG",
-            "formatter": "simple",
-            'filename': 'debug.log',
-            'formatter': 'simple',
-            "maxBytes": 10485760,
-            "backupCount": 20,
-            "encoding": "utf8"
-        }
     },
-
     'loggers': {
         'oidc_provider': {
-            'handlers': ['console', 'debug_file_handler'],
+            'handlers': ['console'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG'),
         },
     },
