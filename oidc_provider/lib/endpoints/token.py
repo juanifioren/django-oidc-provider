@@ -28,7 +28,7 @@ class TokenEndpoint(object):
 
         self.params.client_id = query_dict.get('client_id', '')
         self.params.client_secret = query_dict.get('client_secret', '')
-        self.params.redirect_uri = urllib.unquote(
+        self.params.redirect_uri = urllib.parse.unquote(
             query_dict.get('redirect_uri', ''))
         self.params.grant_type = query_dict.get('grant_type', '')
         self.params.code = query_dict.get('code', '')
