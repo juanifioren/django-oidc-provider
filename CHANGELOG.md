@@ -4,20 +4,28 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
-#### Added
+### [0.0.6] - 2015-06-16
+
+##### Added
 - Better naming for models in the admin.
+
+##### Changed
+- Now tests run without the need of a project configured.
+
+##### Fixed
+- Error when returning address_formatted claim.
 
 ### [0.0.5] - 2015-05-09
 
-#### Added
+##### Added
 - Support for Django 1.8.
 
-#### Fixed
+##### Fixed
 - Validation of scope in UserInfo endpoint.
 
 ### [0.0.4] - 2015-04-22
 
-#### Added
+##### Added
 - Initial migrations.
 
 ##### Fixed

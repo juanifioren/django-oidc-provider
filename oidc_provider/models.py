@@ -133,9 +133,9 @@ class UserInfo(models.Model):
     @property
     def address_formatted(self):
         formatted = ', '.join([
-            self.address_street_address,
-            self.address_locality,
-            self.address_country])
+            self.address_street_address or '',
+            self.address_locality or '',
+            self.address_country or ''])
 
         if formatted.startswith(', '):
             formatted = formatted[2:]
