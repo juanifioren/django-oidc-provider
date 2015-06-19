@@ -107,7 +107,9 @@ OPTIONAL. Expressed in seconds.
 Default is `60*10`.
 
 ##### OIDC_EXTRA_SCOPE_CLAIMS
-OPTIONAL. Used to add extra scopes specific for your app. This class MUST inherit ``AbstractScopeClaims``.
+OPTIONAL. A string with the location of your class. Default is `oidc_provider.lib.claims.AbstractScopeClaims`.
+
+Used to add extra scopes specific for your app. This class MUST inherit ``AbstractScopeClaims``.
 
 OpenID Connect Clients will use scope values to specify what access privileges are being requested for Access Tokens.
 
