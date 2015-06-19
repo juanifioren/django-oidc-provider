@@ -92,10 +92,10 @@ def get(name, import_str=False):
     try:
         value = getattr(default_settings, name)
         value = getattr(settings, name)
-        if import_str:
-            value = import_from_str(value)
     except AttributeError:
         if value == None:
             raise Exception('You must set ' + name + ' in your settings.')
+
+    value = import_from_str(value) if import_str else value
 
     return value
