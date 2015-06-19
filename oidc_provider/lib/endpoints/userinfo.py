@@ -1,4 +1,5 @@
 import re
+import logging
 
 from django.http import HttpResponse
 from django.http import JsonResponse
@@ -8,6 +9,9 @@ from oidc_provider.lib.claims import *
 from oidc_provider.lib.utils.params import *
 from oidc_provider.models import *
 from oidc_provider import settings
+
+
+logger = logging.getLogger(__name__)
 
 
 class UserInfoEndpoint(object):
@@ -43,12 +47,15 @@ class UserInfoEndpoint(object):
             self.token = Token.objects.get(access_token=self.params.access_token)
 
             if self.token.has_expired():
+                logger.error('[UserInfo] Token has expired: %s', self.params.access_token)
                 raise UserInfoError('invalid_token')
 
             if not ('openid' in self.token.scope):
+                logger.error('[UserInfo] Missing openid scope.')
                 raise UserInfoError('insufficient_scope')
 
         except Token.DoesNotExist:
+            logger.error('[UserInfo] Token does not exist: %s', self.params.access_token)
             raise UserInfoError('invalid_token')
 
     def create_response_dic(self):

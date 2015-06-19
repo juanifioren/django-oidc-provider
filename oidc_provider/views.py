@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth.views import redirect_to_login
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
@@ -10,6 +12,9 @@ from oidc_provider.lib.endpoints.discovery import *
 from oidc_provider.lib.endpoints.token import *
 from oidc_provider.lib.endpoints.userinfo import *
 from oidc_provider.lib.errors import *
+
+
+logger = logging.getLogger(__name__)
 
 
 class AuthorizeView(View):

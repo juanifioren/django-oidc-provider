@@ -9,7 +9,9 @@ from oidc_provider.lib.utils.token import *
 from oidc_provider.models import *
 from oidc_provider import settings
 
+
 logger = logging.getLogger(__name__)
+
 
 class TokenEndpoint(object):
 
@@ -17,11 +19,6 @@ class TokenEndpoint(object):
         self.request = request
         self.params = Params()
         self._extract_params()
-
-        logger.debug('Request %s', self.request)
-        logger.debug('TokenEndPoint request.POST --> : %s', self.request.POST)
-        logger.debug('TokenEndpoint request.GET --> : %s', self.request.GET)
-        logger.debug('TokenEndPoint extract_params --> : %s', self.params.__dict__)
 
     def _extract_params(self):
         query_dict = self.request.POST
@@ -36,31 +33,35 @@ class TokenEndpoint(object):
 
     def validate_params(self):
         if not (self.params.grant_type == 'authorization_code'):
-            logger.error('Unsupported grant type: --> : %s', self.params.grant_type)
+            logger.error('[Token] Invalid grant type: %s', self.params.grant_type)
             raise TokenError('unsupported_grant_type')
 
         try:
             self.client = Client.objects.get(client_id=self.params.client_id)
 
             if not (self.client.client_secret == self.params.client_secret):
-                logger.error('Invalid client, client secret -->: %s', self.params.client_secret)
+                logger.error('[Token] Invalid client secret: client %s do not have secret %s',
+                             self.client.client_id, self.client.client_secret)
                 raise TokenError('invalid_client')
 
             if not (self.params.redirect_uri in self.client.redirect_uris):
-                logger.error('Invalid client, redirect_uri --> : %s', self.params.redirect_uri)
+                logger.error('[Token] Invalid redirect uri: %s', self.params.redirect_uri)
                 raise TokenError('invalid_client')
 
             self.code = Code.objects.get(code=self.params.code)
 
             if not (self.code.client == self.client) \
                or self.code.has_expired():
-                logger.error('Invalid grant, code client --> %s', self.code.client)
+                logger.error('[Token] Invalid code: invalid client or code has expired',
+                             self.params.redirect_uri)
                 raise TokenError('invalid_grant')
 
         except Client.DoesNotExist:
+            logger.error('[Token] Client does not exist: %s', self.params.client_id)
             raise TokenError('invalid_client')
 
         except Code.DoesNotExist:
+            logger.error('[Token] Code does not exist: %s', self.params.code)
             raise TokenError('invalid_grant')
 
     def create_response_dic(self):
@@ -88,7 +89,7 @@ class TokenEndpoint(object):
             'expires_in': settings.get('OIDC_TOKEN_EXPIRE'),
             'id_token': id_token,
         }
-        logger.debug('Response dictionary --> : %s', dic)
+
         return dic
 
     @classmethod
@@ -99,7 +100,5 @@ class TokenEndpoint(object):
         response = JsonResponse(dic, status=status)
         response['Cache-Control'] = 'no-store'
         response['Pragma'] = 'no-cache'
-
-        logger.debug('JSON Response --> : %s', response.__dict__)
 
         return response

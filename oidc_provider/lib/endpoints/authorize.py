@@ -5,6 +5,7 @@ from oidc_provider.lib.utils.params import *
 from oidc_provider.lib.utils.token import *
 from oidc_provider.models import *
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -56,9 +57,11 @@ class AuthorizeEndpoint(object):
     def validate_params(self):
 
         if not self.params.redirect_uri:
+            logger.error('[Authorize] Missing redirect uri.')
             raise RedirectUriError()
 
         if not ('openid' in self.params.scope):
+            logger.error('[Authorize] Missing openid scope.')
             raise AuthorizeError(
                 self.params.redirect_uri,
                 'invalid_scope',
@@ -68,16 +71,18 @@ class AuthorizeEndpoint(object):
             self.client = Client.objects.get(client_id=self.params.client_id)
 
             if not (self.params.redirect_uri in self.client.redirect_uris):
+                logger.error('[Authorize] Invalid redirect uri: %s', self.params.redirect_uri)
                 raise RedirectUriError()
 
             if not self.grant_type or not (self.params.response_type == self.client.response_type):
-
+                logger.error('[Authorize] Invalid response type: %s', self.params.response_type)
                 raise AuthorizeError(
                     self.params.redirect_uri,
                     'unsupported_response_type',
                     self.grant_type)
 
         except Client.DoesNotExist:
+            logger.error('[Authorize] Invalid client identifier: %s', self.params.client_id)
             raise ClientIdError()
 
     def create_response_uri(self):
@@ -122,11 +127,8 @@ class AuthorizeEndpoint(object):
                 # add access_token to the fragment.
                 if self.params.response_type == 'id_token token':
                     uri += '&access_token={0}'.format(token.access_token)
-        except:
-            logger.error('Authorization server error, grant_type: %s' %self.grant_type, extra={
-                'redirect_uri': self.redirect_uri,
-                'state': self.params.state
-            })
+        except Exception as error:
+            logger.error('[Authorize] Error when trying to create response uri: %s', error)
             raise AuthorizeError(
                 self.params.redirect_uri,
                 'server_error',
