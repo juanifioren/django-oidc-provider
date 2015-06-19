@@ -66,7 +66,7 @@ class UserInfoEndpoint(object):
 
         dic.update(standard_claims.create_response_dic())
 
-        extra_claims = settings.get('OIDC_EXTRA_SCOPE_CLAIMS')(
+        extra_claims = settings.get('OIDC_EXTRA_SCOPE_CLAIMS', import_str=True)(
             self.token.user, self.token.scope)
 
         dic.update(extra_claims.create_response_dic())

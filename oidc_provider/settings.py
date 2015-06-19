@@ -1,3 +1,5 @@
+import importlib
+
 from django.conf import settings
 
 
@@ -39,9 +41,7 @@ class DefaultSettings(object):
         """
         OPTIONAL.
         """
-        from oidc_provider.lib.claims import AbstractScopeClaims
-
-        return AbstractScopeClaims
+        return 'oidc_provider.lib.claims.AbstractScopeClaims'
 
     @property
     def OIDC_IDTOKEN_EXPIRE(self):
@@ -67,15 +67,33 @@ class DefaultSettings(object):
         """
         return 60*60
 
+
 default_settings = DefaultSettings()
 
-def get(name):
-    '''
+
+def import_from_str(value):
+    """
+    Attempt to import a class from a string representation.
+    """
+    try:
+        parts = value.split('.')
+        module_path, class_name = '.'.join(parts[:-1]), parts[-1]
+        module = importlib.import_module(module_path)
+        return getattr(module, class_name)
+    except ImportError as e:
+        msg = 'Could not import %s for settings. %s: %s.' % (value, e.__class__.__name__, e)
+        raise ImportError(msg)
+
+
+def get(name, import_str=False):
+    """
     Helper function to use inside the package.
-    '''
+    """
     try:
         value = getattr(default_settings, name)
         value = getattr(settings, name)
+        if import_str:
+            value = import_from_str(value)
     except AttributeError:
         if value == None:
             raise Exception('You must set ' + name + ' in your settings.')
