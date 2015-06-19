@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+##### Changed
+- Now OIDC_EXTRA_SCOPE_CLAIMS must be a string, to be lazy imported.
+
 ### [0.0.6] - 2015-06-16
 
 ##### Added
