@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+##### Added
+- Way of remember user consent and skipt it (OIDC_USER_CONSENT_ENABLE).
+- Setting OIDC_USER_CONSENT_EXPIRE.
+
 ##### Changed
 - Now OIDC_EXTRA_SCOPE_CLAIMS must be a string, to be lazy imported.
 
