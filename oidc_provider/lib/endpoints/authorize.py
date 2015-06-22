@@ -1,4 +1,7 @@
+from datetime import timedelta
 import logging
+
+from django.utils import timezone
 
 from oidc_provider.lib.errors import *
 from oidc_provider.lib.utils.params import *
@@ -12,7 +15,6 @@ logger = logging.getLogger(__name__)
 class AuthorizeEndpoint(object):
 
     def __init__(self, request):
-
         self.request = request
 
         self.params = Params()
@@ -138,3 +140,42 @@ class AuthorizeEndpoint(object):
         uri += ('&state={0}'.format(self.params.state) if self.params.state else '')
 
         return uri
+
+    def set_client_user_consent(self):
+        """
+        Save the user consent given to a specific client.
+
+        Return None.
+        """
+        expires_at = timezone.now() + timedelta(
+            days=settings.get('OIDC_USER_CONSENT_EXPIRE'))
+
+        uc, created = UserConsent.objects.get_or_create(
+            user=self.request.user,
+            client=self.client,
+            defaults={'expires_at': expires_at})
+        uc.scope = self.params.scope
+
+        # Rewrite expires_at if object already exists.
+        if not created:
+            uc.expires_at = expires_at
+
+        uc.save()
+
+    def client_has_user_consent(self):
+        """
+        Check if already exists user consent for some client.
+
+        Return bool.
+        """
+        value = False
+        try:
+            uc = UserConsent.objects.get(user=self.request.user,
+                                         client=self.client)
+            if (set(self.params.scope).issubset(uc.scope)) and \
+               not (uc.has_expired()):
+                value = True
+        except UserConsent.DoesNotExist:
+            pass
+
+        return value

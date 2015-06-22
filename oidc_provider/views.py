@@ -34,6 +34,12 @@ class AuthorizeView(View):
                 if hook_resp:
                     return hook_resp
 
+                if settings.get('OIDC_USER_CONSENT_ENABLE'):
+                    # Check if user previously give consent.
+                    if authorize.client_has_user_consent():
+                        uri = authorize.create_response_uri()
+                        return HttpResponseRedirect(uri)
+
                 # Generate hidden inputs for the form.
                 context = {
                     'params': authorize.params,
@@ -85,8 +91,10 @@ class AuthorizeView(View):
                                      'access_denied',
                                      authorize.grant_type)
 
-            uri = authorize.create_response_uri()
+            # Save the user consent given to the client.
+            authorize.set_client_user_consent()
 
+            uri = authorize.create_response_uri()
             return HttpResponseRedirect(uri)
 
         except (AuthorizeError) as error:
