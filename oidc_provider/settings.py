@@ -67,6 +67,19 @@ class DefaultSettings(object):
         """
         return 60*60
 
+    @property
+    def OIDC_USER_CONSENT_ENABLE(self):
+        """
+        OPTIONAL.
+        """
+        return True
+
+    @property
+    def OIDC_USER_CONSENT_EXPIRE(self):
+        """
+        OPTIONAL.
+        """
+        return 30*3
 
 default_settings = DefaultSettings()
 
