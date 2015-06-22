@@ -59,7 +59,7 @@ class BaseCodeTokenModel(models.Model):
         return timezone.now() >= self.expires_at
 
     def __str__(self):
-        return "%s - %s (%s)" % (self.client, self.user, self.expires_at)
+        return "%s - %s (%s)" % (self.client, self.user.email, self.expires_at)
 
     def __unicode__(self):
         return self.__str__()
@@ -141,3 +141,8 @@ class UserInfo(models.Model):
             formatted = formatted[2:]
         if formatted.endswith(', '):
             formatted = formatted[:-2]
+
+
+class UserConsent(BaseCodeTokenModel):
+
+    pass
