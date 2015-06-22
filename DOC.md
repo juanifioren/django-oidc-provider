@@ -26,6 +26,8 @@ Before getting started there are some important things that you should know:
     - [OIDC_IDTOKEN_EXPIRE](#oidc_idtoken_expire)
     - [OIDC_IDTOKEN_SUB_GENERATOR](#oidc_idtoken_sub_generator)
     - [OIDC_TOKEN_EXPIRE](#oidc_token_expire)
+    - [OIDC_USER_CONSENT_ENABLE](#oidc_user_consent_enable)
+    - [OIDC_USER_CONSENT_EXPIRE](#oidc_user_consent_expire)
 - [Users And Clients](#users-and-clients)
 - [Templates](#templates)
 - [Server Endpoints](#server-endpoints)
@@ -80,12 +82,14 @@ urlpatterns = patterns('',
 Add required variables to your project settings.
 
 ##### SITE_URL
-REQUIRED. The OP server url. For example `http://localhost:8000`.
+REQUIRED. The OP server url.
+
+`str`. For example `http://localhost:8000`.
 
 ##### LOGIN_URL
 REQUIRED. Used to log the user in. [Read more in Django docs](https://docs.djangoproject.com/en/1.7/ref/settings/#login-url).
 
-Default is `/accounts/login/`.
+`str`. Default is `/accounts/login/`.
 
 ##### OIDC_AFTER_USERLOGIN_HOOK
 OPTIONAL. Provide a way to plug into the process after the user has logged in, typically to perform some business logic.
@@ -102,9 +106,9 @@ The typical situation will be checking some state of the user or maybe redirect 
 With request you have access to all OIDC parameters. Remember that if you redirect the user to another place then you need to take him back to the authorize endpoint (use `request.get_full_path()` as the value for a "next" parameter).
 
 ##### OIDC_CODE_EXPIRE
-OPTIONAL. Expressed in seconds.
+OPTIONAL.
 
-Default is `60*10`.
+`int`. Expressed in seconds. Default is `60*10`.
 
 ##### OIDC_EXTRA_SCOPE_CLAIMS
 OPTIONAL. A string with the location of your class. Default is `oidc_provider.lib.claims.AbstractScopeClaims`.
@@ -151,9 +155,9 @@ See how we create our own scopes using the convention:
 If a field is empty or ``None`` will be cleaned from the response.
 
 ##### OIDC_IDTOKEN_EXPIRE
-OPTIONAL. Expressed in seconds.
+OPTIONAL.
 
-Default is `60*10`.
+`bool`. Expressed in seconds. Default is `60*10`.
 
 ##### OIDC_IDTOKEN_SUB_GENERATOR
 OPTIONAL. Subject Identifier. A locally unique and never reassigned identifier within the Issuer for the End-User, which is intended to be consumed by the Client.
@@ -168,9 +172,19 @@ def default_sub_generator(user):
 ```
 
 ##### OIDC_TOKEN_EXPIRE
-OPTIONAL. Token object expiration after been created. Expressed in seconds.
+OPTIONAL. Token object expiration after been created.
 
-Default is `60*60`.
+`int`. Expressed in seconds. Default is `60*60`.
+
+##### OIDC_USER_CONSENT_ENABLE
+OPTIONAL. If enabled, the Server will save the user consent given to a specific client, so that user won't be prompted for the same authorization multiple times.
+
+`bool`. Default is `True`.
+
+##### OIDC_USER_CONSENT_EXPIRE
+OPTIONAL. User consent expiration after been granted.
+
+`int`. Expressed in days. Default is `30*3`.
 
 ## Users And Clients
 
