@@ -194,14 +194,9 @@ class AuthorizationCodeFlowTestCase(TestCase):
 
         response = AuthorizeView.as_view()(request)
 
-        # Validate the code returned by the OP.
-        code = (response['Location'].split('code='))[1].split('&')[0]
-        try:
-            code = Code.objects.get(code=code)
-            is_code_ok = (code.client == self.client) and \
-                         (code.user == self.user)
-        except:
-            is_code_ok = False
+        is_code_ok = is_code_valid(url=response['Location'],
+                                   user=self.user,
+                                   client=self.client)
         self.assertEqual(is_code_ok, True,
             msg='Code returned is invalid.')
 
@@ -209,6 +204,57 @@ class AuthorizationCodeFlowTestCase(TestCase):
         state = (response['Location'].split('state='))[1].split('&')[0]
         self.assertEqual(state == self.state, True,
             msg='State change or is missing.')
+
+    def test_user_consent_skipped(self):
+        """
+        If users previously gave consent to some client (for a specific
+        list of scopes) and because they might be prompted for the same
+        authorization multiple times, the server skip it.
+        """
+        post_data = {
+            'client_id': self.client.client_id,
+            'redirect_uri': self.client.default_redirect_uri,
+            'response_type': 'code',
+            'scope': 'openid email',
+            'state': self.state,
+            'allow': 'Accept',
+        }
+
+        request = self.factory.post(reverse('oidc_provider:authorize'),
+                                    data=post_data)
+        # Simulate that the user is logged.
+        request.user = self.user
+
+        response = AuthorizeView.as_view()(request)
+
+        is_code_ok = is_code_valid(url=response['Location'],
+                                   user=self.user,
+                                   client=self.client)
+        self.assertEqual(is_code_ok, True,
+            msg='Code returned is invalid.')
+
+        del post_data['allow']
+        query_str = urllib.urlencode(post_data).replace('+', '%20')
+
+        url = reverse('oidc_provider:authorize') + '?' + query_str
+
+        request = self.factory.get(url)
+        # Simulate that the user is logged.
+        request.user = self.user
+
+        # Ensure user consent skip is enabled.
+        OIDC_AFTER_USERLOGIN_HOOK = settings.default_settings.OIDC_AFTER_USERLOGIN_HOOK
+        OIDC_USER_CONSENT_ENABLE = settings.default_settings.OIDC_USER_CONSENT_ENABLE
+        with self.settings(
+            OIDC_AFTER_USERLOGIN_HOOK=OIDC_AFTER_USERLOGIN_HOOK,
+            OIDC_USER_CONSENT_ENABLE=OIDC_USER_CONSENT_ENABLE):
+            response = AuthorizeView.as_view()(request)
+
+        is_code_ok = is_code_valid(url=response['Location'],
+                                   user=self.user,
+                                   client=self.client)
+        self.assertEqual(is_code_ok, True,
+            msg='Code returned is invalid or missing.')
 
 
 class AuthorizationImplicitFlowTestCase(TestCase):
