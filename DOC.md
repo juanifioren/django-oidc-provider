@@ -171,20 +171,20 @@ def default_sub_generator(user):
     return user.id
 ```
 
-##### OIDC_TOKEN_EXPIRE
-OPTIONAL. Token object expiration after been created.
-
-`int`. Expressed in seconds. Default is `60*60`.
-
-##### OIDC_USER_CONSENT_ENABLE
+##### OIDC_SKIP_CONSENT_ENABLE
 OPTIONAL. If enabled, the Server will save the user consent given to a specific client, so that user won't be prompted for the same authorization multiple times.
 
 `bool`. Default is `True`.
 
-##### OIDC_USER_CONSENT_EXPIRE
+##### OIDC_SKIP_CONSENT_EXPIRE
 OPTIONAL. User consent expiration after been granted.
 
 `int`. Expressed in days. Default is `30*3`.
+
+##### OIDC_TOKEN_EXPIRE
+OPTIONAL. Token object expiration after been created.
+
+`int`. Expressed in seconds. Default is `60*60`.
 
 ## Users And Clients
 
