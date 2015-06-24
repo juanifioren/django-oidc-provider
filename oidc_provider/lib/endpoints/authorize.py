@@ -148,7 +148,7 @@ class AuthorizeEndpoint(object):
         Return None.
         """
         expires_at = timezone.now() + timedelta(
-            days=settings.get('OIDC_USER_CONSENT_EXPIRE'))
+            days=settings.get('OIDC_SKIP_CONSENT_EXPIRE'))
 
         uc, created = UserConsent.objects.get_or_create(
             user=self.request.user,

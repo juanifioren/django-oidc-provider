@@ -244,10 +244,10 @@ class AuthorizationCodeFlowTestCase(TestCase):
 
         # Ensure user consent skip is enabled.
         OIDC_AFTER_USERLOGIN_HOOK = settings.default_settings.OIDC_AFTER_USERLOGIN_HOOK
-        OIDC_USER_CONSENT_ENABLE = settings.default_settings.OIDC_USER_CONSENT_ENABLE
+        OIDC_SKIP_CONSENT_ENABLE = settings.default_settings.OIDC_SKIP_CONSENT_ENABLE
         with self.settings(
             OIDC_AFTER_USERLOGIN_HOOK=OIDC_AFTER_USERLOGIN_HOOK,
-            OIDC_USER_CONSENT_ENABLE=OIDC_USER_CONSENT_ENABLE):
+            OIDC_SKIP_CONSENT_ENABLE=OIDC_SKIP_CONSENT_ENABLE):
             response = AuthorizeView.as_view()(request)
 
         is_code_ok = is_code_valid(url=response['Location'],

@@ -3,7 +3,7 @@
 Django OIDC Provider can help you providing out of the box all the endpoints, data and logic needed to add OpenID Connect capabilities to your Django projects.
 
 
-**This project is still in DEVELOPMENT and is rapidly changing. DO NOT USE IT FOR PRODUCTION SITES, unless you know what you do.**
+**This project is still in DEVELOPMENT and is rapidly changing.**
 
 ****************************************
 
@@ -25,9 +25,9 @@ Before getting started there are some important things that you should know:
     - [OIDC_EXTRA_SCOPE_CLAIMS](#oidc_extra_scope_claims)
     - [OIDC_IDTOKEN_EXPIRE](#oidc_idtoken_expire)
     - [OIDC_IDTOKEN_SUB_GENERATOR](#oidc_idtoken_sub_generator)
+    - [OIDC_SKIP_CONSENT_ENABLE](#oidc_skip_consent_enable)
+    - [OIDC_SKIP_CONSENT_EXPIRE](#oidc_skip_consent_expire)
     - [OIDC_TOKEN_EXPIRE](#oidc_token_expire)
-    - [OIDC_USER_CONSENT_ENABLE](#oidc_user_consent_enable)
-    - [OIDC_USER_CONSENT_EXPIRE](#oidc_user_consent_expire)
 - [Users And Clients](#users-and-clients)
 - [Templates](#templates)
 - [Server Endpoints](#server-endpoints)
@@ -35,8 +35,8 @@ Before getting started there are some important things that you should know:
 
 ## Requirements
 
-- Python 2.7.*.
-- Django 1.7.*.
+- Python: `2.7.*`
+- Django: `1.7.*` `1.8.*`
 
 ## Installation
 
