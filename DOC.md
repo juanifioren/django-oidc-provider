@@ -157,7 +157,7 @@ If a field is empty or ``None`` will be cleaned from the response.
 ##### OIDC_IDTOKEN_EXPIRE
 OPTIONAL.
 
-`bool`. Expressed in seconds. Default is `60*10`.
+`int`. Expressed in seconds. Default is `60*10`.
 
 ##### OIDC_IDTOKEN_SUB_GENERATOR
 OPTIONAL. Subject Identifier. A locally unique and never reassigned identifier within the Issuer for the End-User, which is intended to be consumed by the Client.
