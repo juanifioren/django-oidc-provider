@@ -79,7 +79,7 @@ class AuthorizeError(Exception):
 
     def create_uri(self, redirect_uri, state):
 
-        description = urllib.quote(self.description)
+        description = urllib.parse.quote(self.description)
 
         # See:
         # http://openid.net/specs/openid-connect-core-1_0.html#ImplicitAuthError
