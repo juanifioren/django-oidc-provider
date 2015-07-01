@@ -1,4 +1,7 @@
-import urllib
+try:
+    from urllib import unquote, urlencode
+except ImportError:
+    from urllib.parse import unquote, urlencode
 import uuid
 
 from django.contrib.auth import REDIRECT_FIELD_NAME
@@ -49,7 +52,7 @@ class AuthorizationCodeFlowTestCase(TestCase):
         See: http://openid.net/specs/openid-connect-core-1_0.html#AuthError
         """
         # Create an authorize request with an unsupported response_type.
-        query_str = urllib.urlencode({
+        query_str = urlencode({
             'client_id': self.client.client_id,
             'response_type': 'something_wrong',
             'redirect_uri': self.client.default_redirect_uri,
@@ -77,7 +80,7 @@ class AuthorizationCodeFlowTestCase(TestCase):
 
         See: http://openid.net/specs/openid-connect-core-1_0.html#Authenticates
         """
-        query_str = urllib.urlencode({
+        query_str = urlencode({
             'client_id': self.client.client_id,
             'response_type': 'code',
             'redirect_uri': self.client.default_redirect_uri,
@@ -99,7 +102,7 @@ class AuthorizationCodeFlowTestCase(TestCase):
         # Check if the login will redirect to a valid url.
         try:
             next_value = response['Location'].split(REDIRECT_FIELD_NAME + '=')[1]
-            next_url = urllib.unquote(next_value)
+            next_url = unquote(next_value)
             is_next_ok = next_url == url
         except:
             is_next_ok = False
@@ -113,7 +116,7 @@ class AuthorizationCodeFlowTestCase(TestCase):
 
         See: http://openid.net/specs/openid-connect-core-1_0.html#Consent
         """
-        query_str = urllib.urlencode({
+        query_str = urlencode({
             'client_id': self.client.client_id,
             'response_type': 'code',
             'redirect_uri': self.client.default_redirect_uri,
@@ -234,7 +237,7 @@ class AuthorizationCodeFlowTestCase(TestCase):
             msg='Code returned is invalid.')
 
         del post_data['allow']
-        query_str = urllib.urlencode(post_data).replace('+', '%20')
+        query_str = urlencode(post_data).replace('+', '%20')
 
         url = reverse('oidc_provider:authorize') + '?' + query_str
 
