@@ -1,8 +1,8 @@
 import json
 try:
-    from urllib import urlencode
-except ImportError:
     from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
 import uuid
 
 from django.core.urlresolvers import reverse

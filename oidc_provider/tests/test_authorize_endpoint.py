@@ -1,7 +1,7 @@
 try:
-    from urllib import unquote, urlencode
-except ImportError:
     from urllib.parse import unquote, urlencode
+except ImportError:
+    from urllib import unquote, urlencode
 import uuid
 
 from django.contrib.auth import REDIRECT_FIELD_NAME
@@ -146,7 +146,7 @@ class AuthorizationCodeFlowTestCase(TestCase):
             'response_type': 'code',
         }
 
-        for key, value in to_check.iteritems():
+        for key, value in iter(to_check.items()):
             is_input_ok = input_html.format(key, value) in response.content
             self.assertEqual(is_input_ok, True,
                 msg='Hidden input for "'+key+'" fails.')

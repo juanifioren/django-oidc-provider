@@ -1,4 +1,7 @@
-import urllib
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
 
 
 class RedirectUriError(Exception):
@@ -71,15 +74,13 @@ class AuthorizeError(Exception):
     }
 
     def __init__(self, redirect_uri, error, grant_type):
-
         self.error = error
         self.description = self._errors.get(error)
         self.redirect_uri = redirect_uri
         self.grant_type = grant_type
 
     def create_uri(self, redirect_uri, state):
-
-        description = urllib.quote(self.description)
+        description = quote(self.description)
 
         # See:
         # http://openid.net/specs/openid-connect-core-1_0.html#ImplicitAuthError
@@ -128,12 +129,10 @@ class TokenError(Exception):
     }
 
     def __init__(self, error):
-
         self.error = error
         self.description = self._errors.get(error)
 
     def create_dict(self):
-
         dic = {
             'error': self.error,
             'error_description': self.description,

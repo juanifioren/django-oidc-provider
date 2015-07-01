@@ -51,7 +51,7 @@ class AbstractScopeClaims(object):
         Clean recursively all empty or None values inside a dict.
         """
         aux_dic = dic.copy()
-        for key, value in dic.iteritems():
+        for key, value in iter(dic.items()):
 
             if not value:
                 del aux_dic[key]
