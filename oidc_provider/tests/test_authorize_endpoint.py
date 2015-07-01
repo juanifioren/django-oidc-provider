@@ -255,33 +255,3 @@ class AuthorizationCodeFlowTestCase(TestCase):
                                    client=self.client)
         self.assertEqual(is_code_ok, True,
             msg='Code returned is invalid or missing.')
-
-
-class AuthorizationImplicitFlowTestCase(TestCase):
-    """
-    Test cases for Authorize Endpoint using Implicit Flow.
-    """
-    
-    def setUp(self):
-        self.factory = RequestFactory()
-        self.user = create_fake_user()
-        self.client = create_fake_client(response_type='id_token token')
-        self.state = uuid.uuid4().hex
-
-    # TODO
-    def test_something(self):
-        query_str = urllib.urlencode({
-            'client_id': self.client.client_id,
-            'response_type': 'id_token token',
-            'redirect_uri': self.client.default_redirect_uri,
-            'scope': 'openid email',
-            'state': self.state,
-        }).replace('+', '%20')
-
-        url = reverse('oidc_provider:authorize') + '#' + query_str
-
-        request = self.factory.get(url)
-        # Simulate that the user is logged.
-        request.user = self.user
-
-        response = AuthorizeView.as_view()(request)
