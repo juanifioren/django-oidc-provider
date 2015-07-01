@@ -49,7 +49,7 @@ def encode_id_token(id_token_dic, client_secret):
 
     Return a hash.
     """
-    id_token_hash = jwt.encode(id_token_dic, client_secret)
+    id_token_hash = jwt.encode(id_token_dic, client_secret).decode('utf-8')
 
     return id_token_hash
 

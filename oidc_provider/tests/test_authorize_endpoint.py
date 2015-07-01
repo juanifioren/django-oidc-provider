@@ -147,7 +147,7 @@ class AuthorizationCodeFlowTestCase(TestCase):
         }
 
         for key, value in iter(to_check.items()):
-            is_input_ok = input_html.format(key, value) in response.content
+            is_input_ok = input_html.format(key, value) in response.content.decode('utf-8')
             self.assertEqual(is_input_ok, True,
                 msg='Hidden input for "'+key+'" fails.')
 
