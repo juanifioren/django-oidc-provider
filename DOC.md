@@ -35,8 +35,8 @@ Before getting started there are some important things that you should know:
 
 ## Requirements
 
-- Python: `2.7.*`
-- Django: `1.7.*` `1.8.*`
+- Python: `2.7` `3.4`
+- Django: `1.7` `1.8`
 
 ## Installation
 

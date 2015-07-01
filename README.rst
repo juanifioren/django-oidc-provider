@@ -13,6 +13,8 @@ Django OIDC Provider
 
 Django OIDC Provider can help you providing out of the box all the endpoints, data and logic needed to add OpenID Connect capabilities to your Django projects.
 
+Support for Python 3 and 2. Also latest versions of django.
+
 Read latest docs for more info.
 
 https://github.com/juanifioren/django-oidc-provider/blob/master/DOC.md
