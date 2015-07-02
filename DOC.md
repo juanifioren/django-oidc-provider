@@ -40,7 +40,7 @@ Before getting started there are some important things that you should know:
 
 ## Installation
 
-If you want to get started fast see our [Example Project](https://github.com/juanifioren/django-oidc-provider/tree/master/example_project) folder.
+If you want to get started fast see our [example project](https://github.com/juanifioren/django-oidc-provider/tree/master/example_project) folder.
 
 Install the package using pip.
 
@@ -284,11 +284,13 @@ Authorization: Bearer [ACCESS_TOKEN]
 
 ## Running Tests
 
-You need a Django project properly configured with the package. Then just run tests as normal.
+You need a Django project properly configured with the package, check out the [example project](https://github.com/juanifioren/django-oidc-provider/tree/master/example_project). Then just run tests as normal.
 
 ```bash
 $ python manage.py test oidc_provider
 ```
+
+Also tests run on every commit to the project, we use [travis](https://travis-ci.org/juanifioren/django-oidc-provider/) for this.
 
 This provider was tested (and fully works) with these OIDC Clients:
 - [Drupal OpenID Connect](https://www.drupal.org/project/openid_connect)
