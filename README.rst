@@ -15,13 +15,9 @@ Django OIDC Provider can help you providing out of the box all the endpoints, da
 
 Support for Python 3 and 2. Also latest versions of django.
 
-Read latest docs for more info.
+Read docs for more info.
 
-https://github.com/juanifioren/django-oidc-provider/blob/master/DOC.md
-
-Or see docs for your specific package version. Replace vX.X.X.
-
-https://github.com/juanifioren/django-oidc-provider/blob/vX.X.X/DOC.md
+https://github.com/juanifioren/django-oidc-provider/blob/v0.0.6/DOC.md
 
 See changelog here.
 
