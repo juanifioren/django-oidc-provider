@@ -1,6 +1,8 @@
 
 Django OIDC Provider
 ####################
+.. image:: https://img.shields.io/pypi/pyversions/django-oidc-provider.svg
+
 .. image:: https://img.shields.io/pypi/v/django-oidc-provider.svg
     :target: https://pypi.python.org/pypi/django-oidc-provider
 
