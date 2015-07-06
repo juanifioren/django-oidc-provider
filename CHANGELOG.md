@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [0.0.7] - 2015-07-06
+
 ##### Added
 - Support for Python 3.
 - Way of remember user consent and skipt it (OIDC_SKIP_CONSENT_ENABLE).
