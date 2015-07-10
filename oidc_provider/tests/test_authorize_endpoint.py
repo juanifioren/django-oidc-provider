@@ -258,3 +258,26 @@ class AuthorizationCodeFlowTestCase(TestCase):
                                    client=self.client)
         self.assertEqual(is_code_ok, True,
             msg='Code returned is invalid or missing.')
+
+    def test_response_uri_is_properly_constructed(self):
+        post_data = {
+            'client_id': self.client.client_id,
+            'redirect_uri': self.client.default_redirect_uri + "?redirect_state=xyz",
+            'response_type': 'code',
+            'scope': 'openid email',
+            'state': self.state,
+            'allow': 'Accept',
+        }
+
+        request = self.factory.post(reverse('oidc_provider:authorize'),
+                                    data=post_data)
+        # Simulate that the user is logged.
+        request.user = self.user
+
+        response = AuthorizeView.as_view()(request)
+
+        is_code_ok = is_code_valid(url=response['Location'],
+                                   user=self.user,
+                                   client=self.client)
+        self.assertEqual(is_code_ok, True,
+                         msg='Code returned is invalid.')
