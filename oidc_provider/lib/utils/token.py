@@ -10,7 +10,7 @@ from oidc_provider.models import *
 from oidc_provider import settings
 
 
-def create_id_token(user, aud):
+def create_id_token(user, aud, nonce=None):
     """
     Receives a user object and aud (audience).
     Then creates the id_token dictionary.
@@ -39,6 +39,9 @@ def create_id_token(user, aud):
         'iat': iat_time,
         'auth_time': auth_time,
     }
+
+    if nonce:
+        dic['nonce'] = nonce
 
     return dic
 
