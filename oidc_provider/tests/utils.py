@@ -1,4 +1,8 @@
 from django.contrib.auth.models import User
+try:
+    from urlparse import parse_qs, urlsplit
+except ImportError:
+    from urllib.parse import parse_qs, urlsplit
 from oidc_provider.models import *
 
 
@@ -40,7 +44,9 @@ def is_code_valid(url, user, client):
     Check if the code inside the url is valid.
     """
     try:
-        code = (url.split('code='))[1].split('&')[0]
+        parsed = urlsplit(url)
+        params = parse_qs(parsed.query)
+        code = params['code'][0]
         code = Code.objects.get(code=code)
         is_code_ok = (code.client == client) and \
                      (code.user == user)
