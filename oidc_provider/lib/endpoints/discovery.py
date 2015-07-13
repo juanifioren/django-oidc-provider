@@ -22,8 +22,7 @@ class ProviderInfoEndpoint(object):
         types_supported = [x[0] for x in Client.RESPONSE_TYPE_CHOICES]
         dic['response_types_supported'] = types_supported
 
-        # TODO:
-        #dic['jwks_uri'] = None
+        dic['jwks_uri'] = SITE_URL + reverse('oidc_provider:jwks')
 
         # See: http://openid.net/specs/openid-connect-core-1_0.html#SubjectIDTypes
         dic['subject_types_supported'] = ['public']
