@@ -5,7 +5,7 @@ import uuid
 from django.utils import timezone
 import jwt
 
-from oidc_provider.lib.utils.common import get_issuer
+from oidc_provider.lib.utils.common import get_issuer, get_rsa_key
 from oidc_provider.models import *
 from oidc_provider import settings
 
@@ -18,8 +18,7 @@ def create_id_token(user, aud):
 
     Return a dic.
     """
-    sub = settings.get('OIDC_IDTOKEN_SUB_GENERATOR')(
-        user=user)
+    sub = settings.get('OIDC_IDTOKEN_SUB_GENERATOR')(user=user)
 
     expires_in = settings.get('OIDC_IDTOKEN_EXPIRE')
 
@@ -43,15 +42,13 @@ def create_id_token(user, aud):
     return dic
 
 
-def encode_id_token(id_token_dic, client_secret):
+def encode_id_token(dic):
     """
     Represent the ID Token as a JSON Web Token (JWT).
 
     Return a hash.
     """
-    id_token_hash = jwt.encode(id_token_dic, client_secret).decode('utf-8')
-
-    return id_token_hash
+    return jwt.encode(dic, get_rsa_key(), algorithm='RS256').decode('utf-8')
 
 
 def create_token(user, client, id_token_dic, scope):
