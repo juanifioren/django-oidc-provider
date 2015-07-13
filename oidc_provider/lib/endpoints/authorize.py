@@ -114,14 +114,11 @@ class AuthorizeEndpoint(object):
                 # Store the token.
                 token.save()
 
-                id_token = encode_id_token(
-                    id_token_dic, self.client.client_secret)
-
                 # Create the response uri.
                 uri = self.params.redirect_uri + \
                     '#token_type={0}&id_token={1}&expires_in={2}'.format(
                         'bearer',
-                        id_token,
+                        encode_id_token(id_token_dic),
                         60 * 10,
                     )
 

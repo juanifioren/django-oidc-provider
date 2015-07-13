@@ -84,13 +84,11 @@ class TokenEndpoint(object):
         # We don't need to store the code anymore.
         self.code.delete()
 
-        id_token = encode_id_token(id_token_dic, self.client.client_secret)
-
         dic = {
             'access_token': token.access_token,
             'token_type': 'bearer',
             'expires_in': settings.get('OIDC_TOKEN_EXPIRE'),
-            'id_token': id_token,
+            'id_token': encode_id_token(id_token_dic),
         }
 
         return dic
