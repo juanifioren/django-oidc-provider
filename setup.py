@@ -37,11 +37,13 @@ setup(
     ],
     tests_require=[
         'pycrypto==2.6.1',
+        'pyjwkest==1.0.1',
         'pyjwt==1.3.0',
     ],
 
     install_requires=[
         'pycrypto==2.6.1',
+        'pyjwkest==1.0.1',
         'pyjwt==1.3.0',
     ],
 )
