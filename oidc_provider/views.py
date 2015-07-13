@@ -1,17 +1,21 @@
 import logging
 
+from Crypto.PublicKey import RSA
 from django.contrib.auth.views import redirect_to_login
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
+from hashlib import md5
+from jwkest import long_to_base64
 
 from oidc_provider.lib.endpoints.authorize import *
 from oidc_provider.lib.endpoints.discovery import *
 from oidc_provider.lib.endpoints.token import *
 from oidc_provider.lib.endpoints.userinfo import *
 from oidc_provider.lib.errors import *
+from oidc_provider.lib.utils.common import get_rsa_key
 
 
 logger = logging.getLogger(__name__)
@@ -146,5 +150,25 @@ class ProviderInfoView(View):
     def get(self, request, *args, **kwargs):
 
         dic = ProviderInfoEndpoint.create_response_dic()
+
+        return JsonResponse(dic)
+
+
+class JwksView(View):
+
+    def get(self, request, *args, **kwargs):
+        dic = dict(keys=[])
+
+        key = get_rsa_key()
+        public_key  = RSA.importKey(key).publickey()
+
+        dic['keys'].append({
+            'kty': 'RSA',
+            'alg': 'RS256',
+            'use': 'sig',
+            'kid': md5(key).hexdigest(),
+            'n': long_to_base64(public_key.n),
+            'e': long_to_base64(public_key.e),
+        })
 
         return JsonResponse(dic)
