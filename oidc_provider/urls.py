@@ -10,5 +10,6 @@ urlpatterns = patterns('',
     url(r'^userinfo/$', csrf_exempt(userinfo), name='userinfo'),
 
     url(r'^\.well-known/openid-configuration/$', ProviderInfoView.as_view(), name='provider_info'),
+    url(r'^jwks/$', JwksView.as_view(), name='jwks'),
 
 )
