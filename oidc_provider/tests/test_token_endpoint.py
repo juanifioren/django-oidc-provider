@@ -9,6 +9,8 @@ from django.core.urlresolvers import reverse
 from django.test import RequestFactory
 from django.test import TestCase
 
+import jwt
+
 from oidc_provider.lib.utils.token import *
 from oidc_provider.tests.utils import *
 from oidc_provider.views import *
@@ -123,3 +125,32 @@ class TokenTestCase(TestCase):
                 msg='"error" key should exists in response.')
         self.assertEqual(response_dic.get('error') == 'invalid_client', True,
                 msg='"error" key value should be "invalid_client".')
+
+    def test_token_contains_nonce_if_provided(self):
+        """
+        If present in the Authentication Request, Authorization Servers MUST
+        include a nonce Claim in the ID Token with the Claim Value being the
+        nonce value sent in the Authentication Request.
+
+        See http://openid.net/specs/openid-connect-core-1_0.html#IDToken
+        """
+
+        code = self._create_code()
+
+        post_data = {
+            'client_id': self.client.client_id,
+            'client_secret': self.client.client_secret,
+            'redirect_uri': self.client.default_redirect_uri,
+            'grant_type': 'authorization_code',
+            'code': code.code,
+            'state': self.state,
+            'nonce': 'thisisanonce'
+        }
+
+        response = self._post_request(post_data)
+
+        response_dic = json.loads(response.content.decode('utf-8'))
+        id_token = jwt.decode(response_dic['id_token'],
+                              options={'verify_signature': False, 'verify_aud': False})
+
+        self.assertEqual(id_token['nonce'], 'thisisanonce')

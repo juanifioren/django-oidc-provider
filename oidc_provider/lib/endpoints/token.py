@@ -33,6 +33,7 @@ class TokenEndpoint(object):
         self.params.grant_type = query_dict.get('grant_type', '')
         self.params.code = query_dict.get('code', '')
         self.params.state = query_dict.get('state', '')
+        self.params.nonce = query_dict.get('nonce', '')
 
     def validate_params(self):
         if not (self.params.grant_type == 'authorization_code'):
@@ -70,7 +71,9 @@ class TokenEndpoint(object):
     def create_response_dic(self):
         id_token_dic = create_id_token(
             user=self.code.user,
-            aud=self.client.client_id)
+            aud=self.client.client_id,
+            nonce=self.params.nonce,
+        )
 
         token = create_token(
             user=self.code.user,

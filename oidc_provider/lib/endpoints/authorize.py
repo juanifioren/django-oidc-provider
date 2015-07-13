@@ -2,6 +2,11 @@ from datetime import timedelta
 import logging
 
 from django.utils import timezone
+try:
+    from urllib import urlencode
+    from urlparse import urlsplit, parse_qs, urlunsplit
+except ImportError:
+    from urllib.parse import urlsplit, parse_qs, urlunsplit, urlencode
 
 from oidc_provider.lib.errors import *
 from oidc_provider.lib.utils.params import *
@@ -72,7 +77,9 @@ class AuthorizeEndpoint(object):
         try:
             self.client = Client.objects.get(client_id=self.params.client_id)
 
-            if not (self.params.redirect_uri in self.client.redirect_uris):
+            clean_redirect_uri = urlsplit(self.params.redirect_uri)
+            clean_redirect_uri = urlunsplit(clean_redirect_uri._replace(query=''))
+            if not (clean_redirect_uri in self.client.redirect_uris):
                 logger.error('[Authorize] Invalid redirect uri: %s', self.params.redirect_uri)
                 raise RedirectUriError()
 
@@ -88,6 +95,10 @@ class AuthorizeEndpoint(object):
             raise ClientIdError()
 
     def create_response_uri(self):
+        uri = urlsplit(self.params.redirect_uri)
+        query_params = parse_qs(uri.query)
+        query_fragment = parse_qs(uri.fragment)
+
         try:
             if self.grant_type == 'authorization_code':
                 code = create_code(
@@ -97,8 +108,8 @@ class AuthorizeEndpoint(object):
                 
                 code.save()
 
-                # Create the response uri.
-                uri = self.params.redirect_uri + '?code={0}'.format(code.code)
+                query_params['code'] = code.code
+                query_params['state'] = self.params.state if self.params.state else ''
 
             elif self.grant_type == 'implicit':
                 id_token_dic = create_id_token(
@@ -114,18 +125,17 @@ class AuthorizeEndpoint(object):
                 # Store the token.
                 token.save()
 
-                # Create the response uri.
-                uri = self.params.redirect_uri + \
-                    '#token_type={0}&id_token={1}&expires_in={2}'.format(
-                        'bearer',
-                        encode_id_token(id_token_dic),
-                        60 * 10,
-                    )
+                query_fragment['token_type'] = 'bearer'
+                query_fragment['id_token'] = encode_id_token(id_token_dic)
+                query_fragment['expires_in'] = 60 * 10
 
                 # Check if response_type is 'id_token token' then
                 # add access_token to the fragment.
                 if self.params.response_type == 'id_token token':
-                    uri += '&access_token={0}'.format(token.access_token)
+                    query_fragment['access_token'] = token.access_token
+
+                query_fragment['state'] = self.params.state if self.params.state else ''
+
         except Exception as error:
             logger.error('[Authorize] Error when trying to create response uri: %s', error)
             raise AuthorizeError(
@@ -133,10 +143,10 @@ class AuthorizeEndpoint(object):
                 'server_error',
                 self.grant_type)
 
-        # Add state if present.
-        uri += ('&state={0}'.format(self.params.state) if self.params.state else '')
+        uri = uri._replace(query=urlencode(query_params, doseq=True))
+        uri = uri._replace(fragment=urlencode(query_fragment, doseq=True))
 
-        return uri
+        return urlunsplit(uri)
 
     def set_client_user_consent(self):
         """
