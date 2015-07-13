@@ -36,10 +36,12 @@ setup(
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
     tests_require=[
-        'pyjwt==1.3.0'
+        'pycrypto==2.6.1',
+        'pyjwt==1.3.0',
     ],
 
     install_requires=[
+        'pycrypto==2.6.1',
         'pyjwt==1.3.0',
     ],
 )
