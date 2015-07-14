@@ -76,3 +76,4 @@ LOGIN_REDIRECT_URL = '/'
 # OIDC Provider settings.
 
 SITE_URL = 'http://localhost:8000'
+OIDC_RSA_KEY_FOLDER = BASE_DIR

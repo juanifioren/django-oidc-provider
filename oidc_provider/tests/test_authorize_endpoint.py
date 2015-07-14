@@ -12,7 +12,7 @@ from django.test import TestCase
 
 from oidc_provider import settings
 from oidc_provider.models import *
-from oidc_provider.tests.utils import *
+from oidc_provider.tests.app.utils import *
 from oidc_provider.views import *
 
 

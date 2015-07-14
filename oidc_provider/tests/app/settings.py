@@ -1,6 +1,7 @@
 import os
 from datetime import timedelta
 
+
 DEBUG = False
 
 DATABASES = {
@@ -45,9 +46,9 @@ INSTALLED_APPS = (
     'oidc_provider',
 )
 
-SECRET_KEY = 'secret-for-test-secret-top-secret'
+SECRET_KEY = 'this-is-top-secret'
 
-ROOT_URLCONF = 'oidc_provider.tests.test_urls'
+ROOT_URLCONF = 'oidc_provider.tests.app.urls'
 
 TEMPLATE_DIRS = (
     "oidc_provider/tests/templates",
@@ -56,3 +57,4 @@ TEMPLATE_DIRS = (
 # OIDC Provider settings.
 
 SITE_URL = 'http://localhost:8000'
+OIDC_RSA_KEY_FOLDER = os.path.dirname(__file__)
