@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from oidc_provider.lib.utils.token import *
 from oidc_provider.models import *
-from oidc_provider.tests.utils import *
+from oidc_provider.tests.app.utils import *
 from oidc_provider.views import userinfo
 
 
