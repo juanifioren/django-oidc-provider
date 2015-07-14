@@ -1,12 +1,12 @@
 from datetime import timedelta
 import logging
-
-from django.utils import timezone
 try:
     from urllib import urlencode
     from urlparse import urlsplit, parse_qs, urlunsplit
 except ImportError:
     from urllib.parse import urlsplit, parse_qs, urlunsplit, urlencode
+
+from django.utils import timezone
 
 from oidc_provider.lib.errors import *
 from oidc_provider.lib.utils.params import *
