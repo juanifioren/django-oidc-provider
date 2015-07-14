@@ -21,7 +21,7 @@ def get_rsa_key():
     """
     Load the rsa key previously created with `creatersakey` command.
     """
-    file_path = django_settings.BASE_DIR + '/OIDC_RSA_KEY.pem'
+    file_path = settings.get('OIDC_RSA_KEY_FOLDER') + '/OIDC_RSA_KEY.pem'
     with open(file_path, 'r') as f:
         key = f.read()
 

@@ -8,21 +8,22 @@ class DefaultSettings(object):
     @property
     def LOGIN_URL(self):
         """
-        REQUIRED.
+        REQUIRED. Used to log the user in.
         """
         return None
 
     @property
     def SITE_URL(self):
         """
-        REQUIRED.
+        REQUIRED. The OP server url.
         """
         return None
 
     @property
     def OIDC_AFTER_USERLOGIN_HOOK(self):
         """
-        OPTIONAL.
+        OPTIONAL.  Provide a way to plug into the process after
+        the user has logged in, typically to perform some business logic.
         """
         def default_hook_func(request, user, client):
             return None
@@ -32,28 +33,31 @@ class DefaultSettings(object):
     @property
     def OIDC_CODE_EXPIRE(self):
         """
-        OPTIONAL.
+        OPTIONAL. Code expiration time expressed in seconds.
         """
         return 60*10
 
     @property
     def OIDC_EXTRA_SCOPE_CLAIMS(self):
         """
-        OPTIONAL.
+        OPTIONAL. A string with the location of your class.
+        Used to add extra scopes specific for your app. 
         """
         return 'oidc_provider.lib.claims.AbstractScopeClaims'
 
     @property
     def OIDC_IDTOKEN_EXPIRE(self):
         """
-        OPTIONAL.
+        OPTIONAL. Id token expiration time expressed in seconds.
         """
         return 60*10
 
     @property
     def OIDC_IDTOKEN_SUB_GENERATOR(self):
         """
-        OPTIONAL.
+        OPTIONAL. Subject Identifier. A locally unique and never
+        reassigned identifier within the Issuer for the End-User,
+        which is intended to be consumed by the Client.
         """
         def default_sub_generator(user):
             return user.id
@@ -61,23 +65,33 @@ class DefaultSettings(object):
         return default_sub_generator
 
     @property
+    def OIDC_RSA_KEY_FOLDER(self):
+        """
+        REQUIRED.
+        """
+        return None
+
+    @property
     def OIDC_SKIP_CONSENT_ENABLE(self):
         """
-        OPTIONAL.
+        OPTIONAL. If enabled, the Server will save the user consent
+        given to a specific client, so that user won't be prompted for
+        the same authorization multiple times.
         """
         return True
 
     @property
     def OIDC_SKIP_CONSENT_EXPIRE(self):
         """
-        OPTIONAL.
+        OPTIONAL. User consent expiration after been granted.
         """
         return 30*3
 
     @property
     def OIDC_TOKEN_EXPIRE(self):
         """
-        OPTIONAL.
+        OPTIONAL. Token object expiration after been created.
+        Expressed in seconds.
         """
         return 60*60
 
