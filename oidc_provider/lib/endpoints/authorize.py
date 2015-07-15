@@ -36,7 +36,6 @@ class AuthorizeEndpoint(object):
             self.grant_type = 'authorization_code'
         elif self.params.response_type in ['id_token', 'id_token token']:
             self.grant_type = 'implicit'
-            self._extract_implicit_params()
         else:
             self.grant_type = None
 
