@@ -96,7 +96,8 @@ class AuthorizeEndpoint(object):
                 code = create_code(
                     user=self.request.user,
                     client=self.client,
-                    scope=self.params.scope)
+                    scope=self.params.scope,
+                    nonce=self.params.nonce)
                 
                 code.save()
 
