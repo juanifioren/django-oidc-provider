@@ -78,7 +78,7 @@ def create_token(user, client, id_token_dic, scope):
     return token
 
 
-def create_code(user, client, scope):
+def create_code(user, client, scope, nonce):
     """
     Create and populate a Code object.
 
@@ -91,5 +91,6 @@ def create_code(user, client, scope):
     code.expires_at = timezone.now() + timedelta(
         seconds=settings.get('OIDC_CODE_EXPIRE'))
     code.scope = scope
+    code.nonce = nonce
 
     return code
