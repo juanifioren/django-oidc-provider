@@ -25,11 +25,11 @@ def create_id_token(user, aud, nonce=None):
 
     now = timezone.now()
     # Convert datetimes into timestamps.
-    iat_time = time.mktime(now.timetuple())
-    exp_time = time.mktime((now + timedelta(seconds=expires_in)).timetuple())
+    iat_time = int(time.mktime(now.timetuple()))
+    exp_time = int(time.mktime((now + timedelta(seconds=expires_in)).timetuple()))
 
     user_auth_time = user.last_login or user.date_joined
-    auth_time = time.mktime(user_auth_time.timetuple())
+    auth_time = int(time.mktime(user_auth_time.timetuple()))
 
     dic = {
         'iss': get_issuer(),

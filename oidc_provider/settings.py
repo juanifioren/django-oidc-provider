@@ -56,7 +56,7 @@ class DefaultSettings(object):
         OPTIONAL.
         """
         def default_sub_generator(user):
-            return user.id
+            return str(user.id)
 
         return default_sub_generator
 
