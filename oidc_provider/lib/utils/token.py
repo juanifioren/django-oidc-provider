@@ -10,7 +10,7 @@ from oidc_provider.models import *
 from oidc_provider import settings
 
 
-def create_id_token(user, aud, nonce=None):
+def create_id_token(user, aud, nonce):
     """
     Receives a user object and aud (audience).
     Then creates the id_token dictionary.
@@ -18,16 +18,14 @@ def create_id_token(user, aud, nonce=None):
 
     Return a dic.
     """
-    sub = settings.get('OIDC_IDTOKEN_SUB_GENERATOR')(
-        user=user)
+    sub = settings.get('OIDC_IDTOKEN_SUB_GENERATOR')(user=user)
 
     expires_in = settings.get('OIDC_IDTOKEN_EXPIRE')
 
-    now = timezone.now()
     # Convert datetimes into timestamps.
+    now = timezone.now()
     iat_time = int(time.mktime(now.timetuple()))
     exp_time = int(time.mktime((now + timedelta(seconds=expires_in)).timetuple()))
-
     user_auth_time = user.last_login or user.date_joined
     auth_time = int(time.mktime(user_auth_time.timetuple()))
 

@@ -106,7 +106,8 @@ class AuthorizeEndpoint(object):
             elif self.grant_type == 'implicit':
                 id_token_dic = create_id_token(
                     user=self.request.user,
-                    aud=self.client.client_id)
+                    aud=self.client.client_id,
+                    nonce=self.params.nonce)
 
                 token = create_token(
                     user=self.request.user,
