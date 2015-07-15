@@ -52,13 +52,6 @@ class AuthorizeEndpoint(object):
         self.params.response_type = self.query_dict.get('response_type', '')
         self.params.scope = self.query_dict.get('scope', '').split()
         self.params.state = self.query_dict.get('state', '')
-
-    def _extract_implicit_params(self):
-        """
-        Get specific params used by the Implicit Flow.
-
-        See: http://openid.net/specs/openid-connect-core-1_0.html#ImplicitAuthRequest
-        """
         self.params.nonce = self.query_dict.get('nonce', '')
 
     def validate_params(self):
