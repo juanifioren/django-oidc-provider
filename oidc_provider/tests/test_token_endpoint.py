@@ -52,7 +52,9 @@ class TokenTestCase(TestCase):
         code = create_code(
             user=self.user,
             client=self.client,
-            scope=['openid', 'email'])
+            scope=['openid', 'email'],
+            nonce='thisisanonce'
+        )
         code.save()
 
         return code
@@ -144,7 +146,6 @@ class TokenTestCase(TestCase):
             'grant_type': 'authorization_code',
             'code': code.code,
             'state': self.state,
-            'nonce': 'thisisanonce'
         }
 
         response = self._post_request(post_data)

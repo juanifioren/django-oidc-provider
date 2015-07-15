@@ -52,6 +52,7 @@ class AuthorizeEndpoint(object):
         self.params.response_type = self.query_dict.get('response_type', '')
         self.params.scope = self.query_dict.get('scope', '').split()
         self.params.state = self.query_dict.get('state', '')
+        self.params.nonce = self.query_dict.get('nonce', '')
 
     def _extract_implicit_params(self):
         """
@@ -104,7 +105,8 @@ class AuthorizeEndpoint(object):
                 code = create_code(
                     user=self.request.user,
                     client=self.client,
-                    scope=self.params.scope)
+                    scope=self.params.scope,
+                    nonce=self.params.nonce)
                 
                 code.save()
 

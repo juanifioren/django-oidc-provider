@@ -71,6 +71,7 @@ class BaseCodeTokenModel(models.Model):
 class Code(BaseCodeTokenModel):
 
     code = models.CharField(max_length=255, unique=True)
+    nonce = models.CharField(max_length=255)
 
 
 class Token(BaseCodeTokenModel):
