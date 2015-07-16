@@ -22,7 +22,8 @@ class UserInfoTestCase(TestCase):
         """
         Generate a valid token.
         """
-        id_token_dic = create_id_token(self.user, self.client.client_id)
+        id_token_dic = create_id_token(self.user,
+                                       self.client.client_id, FAKE_NONCE)
 
         token = create_token(
             user=self.user,

@@ -52,7 +52,8 @@ class TokenTestCase(TestCase):
         code = create_code(
             user=self.user,
             client=self.client,
-            scope=['openid', 'email'])
+            scope=['openid', 'email'],
+            nonce=FAKE_NONCE)
         code.save()
 
         return code
@@ -126,7 +127,7 @@ class TokenTestCase(TestCase):
         self.assertEqual(response_dic.get('error') == 'invalid_client', True,
                 msg='"error" key value should be "invalid_client".')
 
-    def test_token_contains_nonce_if_provided(self):
+    def test_access_token_contains_nonce(self):
         """
         If present in the Authentication Request, Authorization Servers MUST
         include a nonce Claim in the ID Token with the Claim Value being the
@@ -134,7 +135,6 @@ class TokenTestCase(TestCase):
 
         See http://openid.net/specs/openid-connect-core-1_0.html#IDToken
         """
-
         code = self._create_code()
 
         post_data = {
@@ -144,7 +144,6 @@ class TokenTestCase(TestCase):
             'grant_type': 'authorization_code',
             'code': code.code,
             'state': self.state,
-            'nonce': 'thisisanonce'
         }
 
         response = self._post_request(post_data)
@@ -153,4 +152,4 @@ class TokenTestCase(TestCase):
         id_token = jwt.decode(response_dic['id_token'],
                               options={'verify_signature': False, 'verify_aud': False})
 
-        self.assertEqual(id_token['nonce'], 'thisisanonce')
+        self.assertEqual(id_token['nonce'], FAKE_NONCE)
