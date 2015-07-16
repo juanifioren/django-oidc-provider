@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+##### Fixed
+- Nonce support for both Code and Implicit flow.
+
 ### [0.0.7] - 2015-07-06
 
 ##### Added
