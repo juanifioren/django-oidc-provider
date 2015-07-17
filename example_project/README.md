@@ -23,6 +23,7 @@ Run your provider.
 
 ```bash
 $ python manage.py migrate
+$ python manage.py creatersakey
 $ python manage.py runserver
 ```
 
