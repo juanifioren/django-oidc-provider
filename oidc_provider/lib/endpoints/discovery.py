@@ -24,6 +24,8 @@ class ProviderInfoEndpoint(object):
 
         dic['jwks_uri'] = SITE_URL + reverse('oidc_provider:jwks')
 
+        dic['id_token_signing_alg_values_supported'] = ['RS256']
+
         # See: http://openid.net/specs/openid-connect-core-1_0.html#SubjectIDTypes
         dic['subject_types_supported'] = ['public']
 
