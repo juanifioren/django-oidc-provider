@@ -12,7 +12,8 @@ setup(
     version='0.1.0',
     packages=[
         'oidc_provider', 'oidc_provider/lib', 'oidc_provider/lib/endpoints',
-        'oidc_provider/lib/utils', 'oidc_provider/tests', 'oidc_provider/migrations',
+        'oidc_provider/lib/utils', 'oidc_provider/tests', 'oidc_provider/tests/app',
+        'oidc_provider/migrations',
     ],
     include_package_data=True,
     license='MIT License',

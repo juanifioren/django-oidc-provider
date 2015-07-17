@@ -1,3 +1,4 @@
 include LICENSE
 include README.rst
 recursive-include oidc_provider/templates *
+recursive-include oidc_provider/tests/templates *
