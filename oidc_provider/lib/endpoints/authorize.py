@@ -36,7 +36,6 @@ class AuthorizeEndpoint(object):
             self.grant_type = 'authorization_code'
         elif self.params.response_type in ['id_token', 'id_token token']:
             self.grant_type = 'implicit'
-            self._extract_implicit_params()
         else:
             self.grant_type = None
 
@@ -52,13 +51,6 @@ class AuthorizeEndpoint(object):
         self.params.response_type = self.query_dict.get('response_type', '')
         self.params.scope = self.query_dict.get('scope', '').split()
         self.params.state = self.query_dict.get('state', '')
-
-    def _extract_implicit_params(self):
-        """
-        Get specific params used by the Implicit Flow.
-
-        See: http://openid.net/specs/openid-connect-core-1_0.html#ImplicitAuthRequest
-        """
         self.params.nonce = self.query_dict.get('nonce', '')
 
     def validate_params(self):
@@ -104,7 +96,8 @@ class AuthorizeEndpoint(object):
                 code = create_code(
                     user=self.request.user,
                     client=self.client,
-                    scope=self.params.scope)
+                    scope=self.params.scope,
+                    nonce=self.params.nonce)
                 
                 code.save()
 
@@ -114,7 +107,8 @@ class AuthorizeEndpoint(object):
             elif self.grant_type == 'implicit':
                 id_token_dic = create_id_token(
                     user=self.request.user,
-                    aud=self.client.client_id)
+                    aud=self.client.client_id,
+                    nonce=self.params.nonce)
 
                 token = create_token(
                     user=self.request.user,

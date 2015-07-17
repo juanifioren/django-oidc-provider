@@ -6,6 +6,8 @@ except ImportError:
 from oidc_provider.models import *
 
 
+FAKE_NONCE = 'cb584e44c43ed6bd0bc2d9c7e242837d'  
+
 def create_fake_user():
     """
     Create a test user.

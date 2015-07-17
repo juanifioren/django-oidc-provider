@@ -60,7 +60,7 @@ class DefaultSettings(object):
         which is intended to be consumed by the Client.
         """
         def default_sub_generator(user):
-            return user.id
+            return str(user.id)
 
         return default_sub_generator
 

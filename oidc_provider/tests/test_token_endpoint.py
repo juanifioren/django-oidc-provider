@@ -27,7 +27,21 @@ class TokenTestCase(TestCase):
         self.factory = RequestFactory()
         self.user = create_fake_user()
         self.client = create_fake_client(response_type='code')
-        self.state = uuid.uuid4().hex
+
+    def _post_data(self, code):
+        """
+        All the data that will be POSTed to the Token Endpoint.
+        """
+        post_data = {
+            'client_id': self.client.client_id,
+            'client_secret': self.client.client_secret,
+            'redirect_uri': self.client.default_redirect_uri,
+            'grant_type': 'authorization_code',
+            'code': code,
+            'state': uuid.uuid4().hex,
+        }
+
+        return post_data
 
     def _post_request(self, post_data):
         """
@@ -52,7 +66,8 @@ class TokenTestCase(TestCase):
         code = create_code(
             user=self.user,
             client=self.client,
-            scope=['openid', 'email'])
+            scope=['openid', 'email'],
+            nonce=FAKE_NONCE)
         code.save()
 
         return code
@@ -94,14 +109,8 @@ class TokenTestCase(TestCase):
         code = self._create_code()
 
         # Test a valid request to the token endpoint.
-        post_data = {
-            'client_id': self.client.client_id,
-            'client_secret': self.client.client_secret,
-            'redirect_uri': self.client.default_redirect_uri,
-            'grant_type': 'authorization_code',
-            'code': code.code,
-            'state': self.state,
-        }
+        post_data = self._post_data(code=code.code)
+
         response = self._post_request(post_data)
         response_dic = json.loads(response.content.decode('utf-8'))
 
@@ -126,7 +135,7 @@ class TokenTestCase(TestCase):
         self.assertEqual(response_dic.get('error') == 'invalid_client', True,
                 msg='"error" key value should be "invalid_client".')
 
-    def test_token_contains_nonce_if_provided(self):
+    def test_access_token_contains_nonce(self):
         """
         If present in the Authentication Request, Authorization Servers MUST
         include a nonce Claim in the ID Token with the Claim Value being the
@@ -134,18 +143,9 @@ class TokenTestCase(TestCase):
 
         See http://openid.net/specs/openid-connect-core-1_0.html#IDToken
         """
-
         code = self._create_code()
 
-        post_data = {
-            'client_id': self.client.client_id,
-            'client_secret': self.client.client_secret,
-            'redirect_uri': self.client.default_redirect_uri,
-            'grant_type': 'authorization_code',
-            'code': code.code,
-            'state': self.state,
-            'nonce': 'thisisanonce'
-        }
+        post_data = self._post_data(code=code.code)
 
         response = self._post_request(post_data)
 
@@ -153,4 +153,23 @@ class TokenTestCase(TestCase):
         id_token = jwt.decode(response_dic['id_token'],
                               options={'verify_signature': False, 'verify_aud': False})
 
-        self.assertEqual(id_token['nonce'], 'thisisanonce')
+        self.assertEqual(id_token['nonce'], FAKE_NONCE)
+
+    def test_access_token_not_contains_nonce(self):
+        """
+        If the client does not supply a nonce parameter, it SHOULD not be
+        included in the `id_token`.
+        """
+        code = self._create_code()
+        code.nonce = ''
+        code.save()
+
+        post_data = self._post_data(code=code.code)
+
+        response = self._post_request(post_data)
+
+        response_dic = json.loads(response.content.decode('utf-8'))
+        id_token = jwt.decode(response_dic['id_token'],
+                              options={'verify_signature': False, 'verify_aud': False})
+
+        self.assertEqual(id_token.get('nonce'), None)
