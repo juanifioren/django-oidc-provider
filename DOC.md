@@ -25,6 +25,7 @@ Before getting started there are some important things that you should know:
     - [OIDC_EXTRA_SCOPE_CLAIMS](#oidc_extra_scope_claims)
     - [OIDC_IDTOKEN_EXPIRE](#oidc_idtoken_expire)
     - [OIDC_IDTOKEN_SUB_GENERATOR](#oidc_idtoken_sub_generator)
+    - [OIDC_RSA_KEY_FOLDER](#oidc_rsa_key_folder)
     - [OIDC_SKIP_CONSENT_ENABLE](#oidc_skip_consent_enable)
     - [OIDC_SKIP_CONSENT_EXPIRE](#oidc_skip_consent_expire)
     - [OIDC_TOKEN_EXPIRE](#oidc_token_expire)
@@ -77,9 +78,27 @@ urlpatterns = patterns('',
 )
 ```
 
-## Settings
+Generate server RSA key and run migrations (if you don't).
+
+```bash
+python manage.py creatersakey
+python manage.py migrate
+```
 
 Add required variables to your project settings.
+
+```python
+# You maybe have this on top of your settings.py
+import os
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+
+
+SITE_URL = 'http://localhost:8000'
+LOGIN_URL = '/accounts/login/'
+OIDC_RSA_KEY_FOLDER = BASE_DIR
+```
+
+## Settings
 
 ##### SITE_URL
 REQUIRED. The OP server url.
@@ -170,6 +189,9 @@ def default_sub_generator(user):
 
     return user.id
 ```
+
+##### OIDC_RSA_KEY_FOLDER
+REQUIRED. Path of the folder where `OIDC_RSA_KEY.pem` lives. This RSA key can be easily created using `python manage.py creatersakey` command.
 
 ##### OIDC_SKIP_CONSENT_ENABLE
 OPTIONAL. If enabled, the Server will save the user consent given to a specific client, so that user won't be prompted for the same authorization multiple times.
