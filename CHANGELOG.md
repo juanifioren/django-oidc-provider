@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [0.1.0] - 2015-07-17
+
+##### Added
+- Now id tokens are signed/encrypted with RS256.
+- Command for easily generate random RSA key.
+- Jwks uri to discovery endpoint.
+- id_token_signing_alg_values_supported to discovery endpoint.
+
 ##### Fixed
 - Nonce support for both Code and Implicit flow.
 
