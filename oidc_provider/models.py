@@ -2,7 +2,7 @@ import json
 
 from django.db import models
 from django.utils import timezone
-from django.contrib.auth.models import User
+from django.conf import settings
 
 
 class Client(models.Model):
@@ -42,7 +42,7 @@ class Client(models.Model):
 
 class BaseCodeTokenModel(models.Model):
 
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
     client = models.ForeignKey(Client)
     expires_at = models.DateTimeField()
     _scope = models.TextField(default='')
@@ -94,7 +94,7 @@ class UserInfo(models.Model):
         ('M', 'Male'),
     ]
 
-    user = models.OneToOneField(User, primary_key=True)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, primary_key=True)
     given_name = models.CharField(max_length=255, blank=True, null=True)
     family_name = models.CharField(max_length=255, blank=True, null=True)
     middle_name = models.CharField(max_length=255, blank=True, null=True)
