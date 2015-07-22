@@ -5,10 +5,11 @@ except ImportError:
     from urllib import urlencode
 import uuid
 
+from Crypto.PublicKey import RSA
 from django.core.urlresolvers import reverse
 from django.test import RequestFactory
 from django.test import TestCase
-
+from jwkest import base64_to_long
 import jwt
 
 from oidc_provider.lib.utils.token import *
@@ -140,6 +141,8 @@ class TokenTestCase(TestCase):
         If present in the Authentication Request, Authorization Servers MUST
         include a nonce Claim in the ID Token with the Claim Value being the
         nonce value sent in the Authentication Request.
+        If the client does not supply a nonce parameter, it SHOULD not be
+        included in the `id_token`.
 
         See http://openid.net/specs/openid-connect-core-1_0.html#IDToken
         """
@@ -155,21 +158,42 @@ class TokenTestCase(TestCase):
 
         self.assertEqual(id_token['nonce'], FAKE_NONCE)
 
-    def test_access_token_not_contains_nonce(self):
-        """
-        If the client does not supply a nonce parameter, it SHOULD not be
-        included in the `id_token`.
-        """
-        code = self._create_code()
+        # Client does not supply a nonce parameter.
         code.nonce = ''
         code.save()
 
-        post_data = self._post_data(code=code.code)
-
         response = self._post_request(post_data)
-
         response_dic = json.loads(response.content.decode('utf-8'))
+
         id_token = jwt.decode(response_dic['id_token'],
                               options={'verify_signature': False, 'verify_aud': False})
 
         self.assertEqual(id_token.get('nonce'), None)
+
+    def test_idtoken_sign_validation(self):
+        """
+        We MUST validate the signature of the ID Token according to JWS
+        using the algorithm specified in the alg Header Parameter of
+        the JOSE Header.
+        """
+        # Get public key from discovery.
+        request = self.factory.get(reverse('oidc_provider:jwks'))
+        response = JwksView.as_view()(request)
+        response_dic = json.loads(response.content.decode('utf-8'))
+        # Construct PEM key from exponent and modulus.
+        key_e = long(base64_to_long(response_dic['keys'][0]['e']))
+        key_n = base64_to_long(response_dic['keys'][0]['n'])
+        KEY = RSA.construct((key_n, key_e)).exportKey('PEM')
+
+        self.assertEqual(response_dic['keys'][0]['alg'] == 'RS256', True,
+            msg='Key from jwks_uri MUST have alg "RS256".')
+
+        code = self._create_code()
+
+        post_data = self._post_data(code=code.code)
+
+        response = self._post_request(post_data)
+        response_dic = json.loads(response.content.decode('utf-8'))
+
+        id_token = jwt.decode(response_dic['id_token'], KEY,
+            algorithm='RS256', audience=str(self.client.client_id))
