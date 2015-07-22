@@ -131,10 +131,7 @@ class AuthorizationCodeFlowTestCase(TestCase):
         request.user = self.user
 
         # Remove the hook, because we want to test default behaviour.
-        OIDC_AFTER_USERLOGIN_HOOK = settings.default_settings.OIDC_AFTER_USERLOGIN_HOOK
-        with self.settings(
-            OIDC_AFTER_USERLOGIN_HOOK=OIDC_AFTER_USERLOGIN_HOOK):
-            response = AuthorizeView.as_view()(request)
+        response = AuthorizeView.as_view()(request)
 
         # Check if hidden inputs exists in the form,
         # also if their values are valid.
@@ -246,12 +243,7 @@ class AuthorizationCodeFlowTestCase(TestCase):
         request.user = self.user
 
         # Ensure user consent skip is enabled.
-        OIDC_AFTER_USERLOGIN_HOOK = settings.default_settings.OIDC_AFTER_USERLOGIN_HOOK
-        OIDC_SKIP_CONSENT_ENABLE = settings.default_settings.OIDC_SKIP_CONSENT_ENABLE
-        with self.settings(
-            OIDC_AFTER_USERLOGIN_HOOK=OIDC_AFTER_USERLOGIN_HOOK,
-            OIDC_SKIP_CONSENT_ENABLE=OIDC_SKIP_CONSENT_ENABLE):
-            response = AuthorizeView.as_view()(request)
+        response = AuthorizeView.as_view()(request)
 
         is_code_ok = is_code_valid(url=response['Location'],
                                    user=self.user,
