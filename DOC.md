@@ -309,7 +309,7 @@ Authorization: Bearer [ACCESS_TOKEN]
 You need a Django project properly configured with the package, check out the [example project](https://github.com/juanifioren/django-oidc-provider/tree/master/example_project). Then just run tests as normal.
 
 ```bash
-$ python manage.py test oidc_provider
+$ python manage.py test --settings oidc_provider.tests.app.settings oidc_provider
 ```
 
 Also tests run on every commit to the project, we use [travis](https://travis-ci.org/juanifioren/django-oidc-provider/) for this.
