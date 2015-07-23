@@ -181,7 +181,11 @@ class TokenTestCase(TestCase):
         response = JwksView.as_view()(request)
         response_dic = json.loads(response.content.decode('utf-8'))
         # Construct PEM key from exponent and modulus.
-        key_e = long(base64_to_long(response_dic['keys'][0]['e']))
+        try:
+            key_e = base64_to_long(response_dic['keys'][0]['e'])
+            key_e = long(key_e)
+        except NameError:
+            key_e = int(key_e) # Python 3 support.
         key_n = base64_to_long(response_dic['keys'][0]['n'])
         KEY = RSA.construct((key_n, key_e)).exportKey('PEM')
 
