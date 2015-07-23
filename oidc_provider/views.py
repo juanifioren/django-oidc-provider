@@ -159,7 +159,7 @@ class JwksView(View):
     def get(self, request, *args, **kwargs):
         dic = dict(keys=[])
 
-        key = get_rsa_key()
+        key = get_rsa_key().encode('utf-8')
         public_key  = RSA.importKey(key).publickey()
 
         dic['keys'].append({
