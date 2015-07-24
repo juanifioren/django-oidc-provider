@@ -1,7 +1,7 @@
 import logging
 
 from Crypto.PublicKey import RSA
-from django.contrib.auth.views import redirect_to_login
+from django.contrib.auth.views import redirect_to_login, logout
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
@@ -172,3 +172,9 @@ class JwksView(View):
         })
 
         return JsonResponse(dic)
+
+
+class LogoutView(View):
+    def get(self, request, *args, **kwargs):
+        # We should actually verify if the requested redirect URI is safe
+        return logout(request, next_page=request.GET.get('post_logout_redirect_uri'))
