@@ -4,4 +4,5 @@ dist/
 *.py[cod]
 *.egg-info
 .ropeproject
+.tox
 src/
