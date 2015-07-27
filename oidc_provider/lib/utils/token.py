@@ -2,8 +2,10 @@ from datetime import timedelta
 import time
 import uuid
 
+from Crypto.PublicKey.RSA import importKey
 from django.utils import timezone
-import jwt
+from jwkest.jwk import RSAKey
+from jwkest.jws import JWS
 
 from oidc_provider.lib.utils.common import get_issuer, get_rsa_key
 from oidc_provider.models import *
@@ -44,13 +46,17 @@ def create_id_token(user, aud, nonce):
     return dic
 
 
-def encode_id_token(dic):
+def encode_id_token(payload):
     """
     Represent the ID Token as a JSON Web Token (JWT).
 
     Return a hash.
     """
-    return jwt.encode(dic, get_rsa_key(), algorithm='RS256').decode('utf-8')
+    keys = [ RSAKey(key=importKey(get_rsa_key())) ]
+    _jws = JWS(payload, alg='RS256')
+    _jwt = _jws.sign_compact(keys)
+
+    return _jwt
 
 
 def create_token(user, client, id_token_dic, scope):
