@@ -8,5 +8,7 @@ env:
 install:
   - pip install -q Django==$DJANGO --use-mirrors
   - pip install -e .
+  - pip uninstall --yes pyjwkest
+  - pip install https://github.com/juanifioren/pyjwkest/archive/patch-1.zip
 script:
   - PYTHONPATH=$PYTHONPATH:$PWD django-admin.py test oidc_provider --settings=oidc_provider.tests.app.settings
