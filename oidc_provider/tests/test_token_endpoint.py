@@ -5,12 +5,12 @@ except ImportError:
     from urllib import urlencode
 import uuid
 
-from Crypto.PublicKey import RSA
 from django.core.urlresolvers import reverse
 from django.test import RequestFactory
 from django.test import TestCase
-from jwkest import base64_to_long
-import jwt
+from jwkest.jwk import KEYS
+from jwkest.jws import JWS
+from jwkest.jwt import JWT
 
 from oidc_provider.lib.utils.token import *
 from oidc_provider.tests.app.utils import *
@@ -153,10 +153,9 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
 
         response_dic = json.loads(response.content.decode('utf-8'))
-        id_token = jwt.decode(response_dic['id_token'],
-                              options={'verify_signature': False, 'verify_aud': False})
+        id_token = JWT().unpack(response_dic['id_token']).payload()
 
-        self.assertEqual(id_token['nonce'], FAKE_NONCE)
+        self.assertEqual(id_token.get('nonce'), FAKE_NONCE)
 
         # Client does not supply a nonce parameter.
         code.nonce = ''
@@ -165,8 +164,7 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
         response_dic = json.loads(response.content.decode('utf-8'))
 
-        id_token = jwt.decode(response_dic['id_token'],
-                              options={'verify_signature': False, 'verify_aud': False})
+        id_token = JWT().unpack(response_dic['id_token']).payload()
 
         self.assertEqual(id_token.get('nonce'), None)
 
@@ -179,18 +177,10 @@ class TokenTestCase(TestCase):
         # Get public key from discovery.
         request = self.factory.get(reverse('oidc_provider:jwks'))
         response = JwksView.as_view()(request)
-        response_dic = json.loads(response.content.decode('utf-8'))
-        # Construct PEM key from exponent and modulus.
-        try:
-            key_e = base64_to_long(response_dic['keys'][0]['e'].encode('utf-8'))
-            key_e = long(key_e)
-        except NameError:
-            key_e = int(key_e) # Python 3 support.
-        key_n = base64_to_long(response_dic['keys'][0]['n'].encode('utf-8'))
-        KEY = RSA.construct((key_n, key_e)).exportKey('PEM')
-
-        self.assertEqual(response_dic['keys'][0]['alg'] == 'RS256', True,
-            msg='Key from jwks_uri MUST have alg "RS256".')
+        jwks_dic = json.loads(response.content.decode('utf-8'))
+        SIGKEYS = KEYS()
+        SIGKEYS.load_dict(jwks_dic)
+        RSAKEYS = [ k for k in SIGKEYS if k.kty == 'RSA' ]
 
         code = self._create_code()
 
@@ -199,5 +189,4 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
         response_dic = json.loads(response.content.decode('utf-8'))
 
-        id_token = jwt.decode(response_dic['id_token'], KEY,
-            algorithm='RS256', audience=str(self.client.client_id))
+        id_token = JWS().verify_compact(response_dic['id_token'], RSAKEYS)
