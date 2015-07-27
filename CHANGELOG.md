@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+##### Added
+- Sending access_token as query string parameter in UserInfo Endpoint.
+
 ##### Changed
 - Use models setting instead of User.
 
