@@ -29,6 +29,7 @@ class UserInfoEndpoint(object):
     def _get_access_token(self):
         """
         Get the access token using Authorization Request Header Field method.
+        Or try getting via GET.
         See: http://tools.ietf.org/html/rfc6750#section-2.1
 
         Return a string.
@@ -38,7 +39,7 @@ class UserInfoEndpoint(object):
         if re.compile('^Bearer\s{1}.+$').match(auth_header):
             access_token = auth_header.split()[1]
         else:
-            access_token = ''
+            access_token = self.request.GET.get('access_token', '')
 
         return access_token
 

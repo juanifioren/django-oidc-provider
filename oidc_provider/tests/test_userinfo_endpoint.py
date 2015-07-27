@@ -1,4 +1,8 @@
 from datetime import timedelta
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
 
 from django.core.urlresolvers import reverse
 from django.test import RequestFactory
@@ -93,3 +97,20 @@ class UserInfoTestCase(TestCase):
         except KeyError:
             is_header_field_ok = False
         self.assertEqual(is_header_field_ok, True)
+
+    def test_accesstoken_query_string_parameter(self):
+        """
+        Make a GET request to the UserInfo Endpoint by sending access_token
+        as query string parameter.
+        """
+        token = self._create_token()
+
+        url = reverse('oidc_provider:userinfo') + '?' + urlencode({
+            'access_token': token.access_token,
+        })
+
+        request = self.factory.get(url)
+        response = userinfo(request)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(bool(response.content), True)
