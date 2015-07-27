@@ -306,7 +306,13 @@ Authorization: Bearer [ACCESS_TOKEN]
 
 ## Running Tests
 
-You need a Django project properly configured with the package, check out the [example project](https://github.com/juanifioren/django-oidc-provider/tree/master/example_project). Then just run tests as normal.
+Use [tox](https://pypi.python.org/pypi/tox) for running tests in each of the environments:
+
+```bash
+$ tox
+```
+
+If you have a Django project properly configured with the package. Then just run tests as normal.
 
 ```bash
 $ python manage.py test --settings oidc_provider.tests.app.settings oidc_provider
