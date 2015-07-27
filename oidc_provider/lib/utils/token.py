@@ -34,14 +34,14 @@ def create_id_token(user, aud, nonce):
     dic = {
         'iss': get_issuer(),
         'sub': sub,
-        'aud': aud,
+        'aud': str(aud),
         'exp': exp_time,
         'iat': iat_time,
         'auth_time': auth_time,
     }
 
     if nonce:
-        dic['nonce'] = nonce
+        dic['nonce'] = str(nonce)
 
     return dic
 
@@ -56,7 +56,7 @@ def encode_id_token(payload):
     _jws = JWS(payload, alg='RS256')
     _jwt = _jws.sign_compact(keys)
 
-    return _jwt
+    return _jwt.decode('utf-8')
 
 
 def create_token(user, client, id_token_dic, scope):
