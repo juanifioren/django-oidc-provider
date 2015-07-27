@@ -7,6 +7,9 @@ All notable changes to this project will be documented in this file.
 ##### Changed
 - Use models setting instead of User.
 
+##### Fixed
+- In python 2: "aud" and "nonce" parameters didn't appear in id_token.
+
 ### [0.1.0] - 2015-07-17
 
 ##### Added
