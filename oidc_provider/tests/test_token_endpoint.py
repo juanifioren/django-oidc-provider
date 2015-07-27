@@ -153,7 +153,7 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
 
         response_dic = json.loads(response.content.decode('utf-8'))
-        id_token = JWT().unpack(response_dic['id_token']).payload()
+        id_token = JWT().unpack(response_dic['id_token'].encode('utf-8')).payload()
 
         self.assertEqual(id_token.get('nonce'), FAKE_NONCE)
 
@@ -164,7 +164,7 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
         response_dic = json.loads(response.content.decode('utf-8'))
 
-        id_token = JWT().unpack(response_dic['id_token']).payload()
+        id_token = JWT().unpack(response_dic['id_token'].encode('utf-8')).payload()
 
         self.assertEqual(id_token.get('nonce'), None)
 
@@ -189,4 +189,4 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
         response_dic = json.loads(response.content.decode('utf-8'))
 
-        id_token = JWS().verify_compact(response_dic['id_token'], RSAKEYS)
+        id_token = JWS().verify_compact(response_dic['id_token'].encode('utf-8'), RSAKEYS)
