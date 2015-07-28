@@ -22,13 +22,7 @@ class AuthorizeEndpoint(object):
 
     def __init__(self, request):
         self.request = request
-
         self.params = Params()
-
-        # Because in this endpoint we handle both GET
-        # and POST request.
-        self.query_dict = (self.request.POST if self.request.method == 'POST'
-                           else self.request.GET)
 
         self._extract_params()
 
@@ -47,12 +41,17 @@ class AuthorizeEndpoint(object):
 
         See: http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
         """
-        self.params.client_id = self.query_dict.get('client_id', '')
-        self.params.redirect_uri = self.query_dict.get('redirect_uri', '')
-        self.params.response_type = self.query_dict.get('response_type', '')
-        self.params.scope = self.query_dict.get('scope', '').split()
-        self.params.state = self.query_dict.get('state', '')
-        self.params.nonce = self.query_dict.get('nonce', '')
+        # Because in this endpoint we handle both GET
+        # and POST request.
+        query_dict = (self.request.POST if self.request.method == 'POST'
+                      else self.request.GET)
+
+        self.params.client_id = query_dict.get('client_id', '')
+        self.params.redirect_uri = query_dict.get('redirect_uri', '')
+        self.params.response_type = query_dict.get('response_type', '')
+        self.params.scope = query_dict.get('scope', '').split()
+        self.params.state = query_dict.get('state', '')
+        self.params.nonce = query_dict.get('nonce', '')
 
     def validate_params(self):
 
