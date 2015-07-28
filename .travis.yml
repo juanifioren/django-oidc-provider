@@ -6,7 +6,7 @@ env:
   - DJANGO=1.7
   - DJANGO=1.8
 install:
-  - pip install -q Django==$DJANGO --use-mirrors
+  - pip install -q django==$DJANGO
   - pip install -e .
 script:
   - PYTHONPATH=$PYTHONPATH:$PWD django-admin.py test oidc_provider --settings=oidc_provider.tests.app.settings

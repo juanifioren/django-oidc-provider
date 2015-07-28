@@ -130,7 +130,6 @@ class AuthorizationCodeFlowTestCase(TestCase):
         # Simulate that the user is logged.
         request.user = self.user
 
-        # Remove the hook, because we want to test default behaviour.
         response = AuthorizeView.as_view()(request)
 
         # Check if hidden inputs exists in the form,
@@ -273,3 +272,27 @@ class AuthorizationCodeFlowTestCase(TestCase):
                                    client=self.client)
         self.assertEqual(is_code_ok, True,
                          msg='Code returned is invalid.')
+
+    def test_scope_with_plus(self):
+        """
+        In query string, scope use `+` instead of the space url-encoded.
+        """
+        scope_test = 'openid email profile'
+
+        query_str = urlencode({
+            'client_id': self.client.client_id,
+            'response_type': 'code',
+            'redirect_uri': self.client.default_redirect_uri,
+            'scope': scope_test,
+            'state': self.state,
+        })
+
+        url = reverse('oidc_provider:authorize') + '?' + query_str
+
+        request = self.factory.get(url)
+        # Simulate that the user is logged.
+        request.user = self.user
+
+        response = AuthorizeView.as_view()(request)
+
+        self.assertEqual(scope_test in response.content.decode('utf-8'), True)
