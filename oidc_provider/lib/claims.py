@@ -53,7 +53,7 @@ class AbstractScopeClaims(object):
         aux_dic = dic.copy()
         for key, value in iter(dic.items()):
 
-            if not value:
+            if value is None or value == '':
                 del aux_dic[key]
             elif type(value) is dict:
                 aux_dic[key] = self._clean_dic(value)
