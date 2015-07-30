@@ -191,7 +191,9 @@ def default_sub_generator(user):
 ```
 
 ##### OIDC_RSA_KEY_FOLDER
-REQUIRED. Path of the folder where `OIDC_RSA_KEY.pem` lives. This RSA key can be easily created using `python manage.py creatersakey` command.
+REQUIRED. Path of the folder where `OIDC_RSA_KEY.pem` lives. Used to sign/encrypt `id_token`. The package will automatically generate a public key and expose it in the `jwks_uri` endpoint.
+
+You can easily create it using `python manage.py creatersakey` command.
 
 ##### OIDC_SKIP_CONSENT_ENABLE
 OPTIONAL. If enabled, the Server will save the user consent given to a specific client, so that user won't be prompted for the same authorization multiple times.
