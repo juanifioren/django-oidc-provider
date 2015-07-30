@@ -1,4 +1,6 @@
+from base64 import b64decode
 import logging
+import re
 try:
     from urllib.parse import unquote
 except ImportError:
@@ -24,15 +26,38 @@ class TokenEndpoint(object):
         self._extract_params()
 
     def _extract_params(self):
-        query_dict = self.request.POST
+        client_id, client_secret = self._extract_client_auth()
 
-        self.params.client_id = query_dict.get('client_id', '')
-        self.params.client_secret = query_dict.get('client_secret', '')
+        self.params.client_id = client_id
+        self.params.client_secret = client_secret
         self.params.redirect_uri = unquote(
-            query_dict.get('redirect_uri', ''))
-        self.params.grant_type = query_dict.get('grant_type', '')
-        self.params.code = query_dict.get('code', '')
-        self.params.state = query_dict.get('state', '')
+            self.request.POST.get('redirect_uri', ''))
+        self.params.grant_type = self.request.POST.get('grant_type', '')
+        self.params.code = self.request.POST.get('code', '')
+        self.params.state = self.request.POST.get('state', '')
+
+    def _extract_client_auth(self):
+        """
+        Get client credentials using HTTP Basic Authentication method.
+        Or try getting parameters via POST.
+        See: http://tools.ietf.org/html/rfc6750#section-2.1
+
+        Return a string.
+        """
+        auth_header = self.request.META.get('HTTP_AUTHORIZATION', '')
+
+        if re.compile('^Basic\s{1}.+$').match(auth_header):
+            b64_user_pass = auth_header.split()[1]
+            try:
+                user_pass = b64decode(b64_user_pass).decode('utf-8').split(':')
+                client_id, client_secret = tuple(user_pass)
+            except:
+                client_id = client_secret = ''
+        else:
+            client_id = self.request.POST.get('client_id', '')
+            client_secret = self.request.POST.get('client_secret', '')
+
+        return (client_id, client_secret)
 
     def validate_params(self):
         if not (self.params.grant_type == 'authorization_code'):
