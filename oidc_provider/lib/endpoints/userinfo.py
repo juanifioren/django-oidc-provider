@@ -1,5 +1,5 @@
-import re
 import logging
+import re
 
 from django.http import HttpResponse
 from django.http import JsonResponse

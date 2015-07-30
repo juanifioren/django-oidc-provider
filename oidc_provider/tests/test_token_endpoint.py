@@ -1,3 +1,4 @@
+from base64 import b64encode
 import json
 try:
     from urllib.parse import urlencode
@@ -44,7 +45,7 @@ class TokenTestCase(TestCase):
 
         return post_data
 
-    def _post_request(self, post_data):
+    def _post_request(self, post_data, extras={}):
         """
         Makes a request to the token endpoint by sending the
         `post_data` parameters using the 'application/x-www-form-urlencoded'
@@ -54,7 +55,8 @@ class TokenTestCase(TestCase):
 
         request = self.factory.post(url,
             data=urlencode(post_data),
-            content_type='application/x-www-form-urlencoded')
+            content_type='application/x-www-form-urlencoded',
+            **extras)
 
         response = TokenView.as_view()(request)
 
@@ -113,12 +115,10 @@ class TokenTestCase(TestCase):
         post_data = self._post_data(code=code.code)
 
         response = self._post_request(post_data)
-        response_dic = json.loads(response.content.decode('utf-8'))
 
-        self.assertEqual('access_token' in response_dic, True,
-                msg='"access_token" key is missing in response.')
-        self.assertEqual('error' in response_dic, False,
-                msg='"error" key should not exists in response.')
+        self.assertEqual('invalid_client' in response.content.decode('utf-8'),
+                False,
+                msg='Client authentication fails using request-body credentials.')
 
         # Now, test with an invalid client_id.
         invalid_data = post_data.copy()
@@ -129,12 +129,32 @@ class TokenTestCase(TestCase):
         invalid_data['code'] = code.code
 
         response = self._post_request(invalid_data)
-        response_dic = json.loads(response.content.decode('utf-8'))
 
-        self.assertEqual('error' in response_dic, True,
-                msg='"error" key should exists in response.')
-        self.assertEqual(response_dic.get('error') == 'invalid_client', True,
-                msg='"error" key value should be "invalid_client".')
+        self.assertEqual('invalid_client' in response.content.decode('utf-8'),
+                True,
+                msg='Client authentication success with an invalid "client_id".')
+
+        # Now, test using HTTP Basic Authentication method.
+        basicauth_data = post_data.copy()
+
+        # Create another grant code.
+        code = self._create_code()
+        basicauth_data['code'] = code.code
+
+        del basicauth_data['client_id']
+        del basicauth_data['client_secret']
+
+        # Generate HTTP Basic Auth header with id and secret.
+        user_pass = self.client.client_id + ':' + self.client.client_secret
+        auth_header = b'Basic ' + b64encode(user_pass.encode('utf-8'))
+        response = self._post_request(basicauth_data, {
+                       'HTTP_AUTHORIZATION': auth_header.decode('utf-8'),
+                   })
+        response.content.decode('utf-8')
+
+        self.assertEqual('invalid_client' in response.content.decode('utf-8'),
+                False,
+                msg='Client authentication fails using HTTP Basic Auth.')
 
     def test_access_token_contains_nonce(self):
         """
