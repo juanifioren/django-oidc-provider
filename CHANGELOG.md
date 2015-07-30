@@ -4,8 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [0.1.1] - 2015-07-31
+
 ##### Added
 - Sending access_token as query string parameter in UserInfo Endpoint.
+- Support HTTP Basic client authentication.
 
 ##### Changed
 - Use models setting instead of User.
