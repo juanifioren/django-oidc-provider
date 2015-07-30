@@ -181,13 +181,13 @@ OPTIONAL.
 ##### OIDC_IDTOKEN_SUB_GENERATOR
 OPTIONAL. Subject Identifier. A locally unique and never reassigned identifier within the Issuer for the End-User, which is intended to be consumed by the Client.
 
-Is just a function that receives a `user` object. Returns a unique string for the given user.
+Is just a function that receives a `user` object. Returns a unique `string` for the given user.
 
 Default is:
 ```python
 def default_sub_generator(user):
 
-    return user.id
+    return str(user.id)
 ```
 
 ##### OIDC_RSA_KEY_FOLDER
