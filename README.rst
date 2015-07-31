@@ -43,5 +43,5 @@ We love contributions, so please feel free to fix bugs, improve things, provide 
 
 * Fork the project.
 * Make your feature addition or bug fix.
-* Add tests for it inside :code:`oidc_provider/tests`. Then run all (read docs for how to test in all envs) and ensure everything is OK. 
+* Add tests for it inside :code:`oidc_provider/tests`. Then run all and ensure everything is OK (read docs for how to test in all envs). 
 * Send pull request to the specific version branch, for example :code:`v0.1.x`.
