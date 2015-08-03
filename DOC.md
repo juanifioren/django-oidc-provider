@@ -308,7 +308,7 @@ Authorization: Bearer [ACCESS_TOKEN]
 
 ## Running Tests
 
-Use [tox](https://pypi.python.org/pypi/tox) for running tests in each of the environments:
+Use [tox](https://pypi.python.org/pypi/tox) for running tests in each of the environments, also to run coverage among:
 
 ```bash
 $ tox
