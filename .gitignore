@@ -5,4 +5,5 @@ dist/
 *.egg-info
 .ropeproject
 .tox
+.coverage
 src/
