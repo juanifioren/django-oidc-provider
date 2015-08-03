@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [0.1.2] - 2015-08-04
+
 ##### Added
 - Add token_endpoint_auth_methods_supported to discovery.
 
