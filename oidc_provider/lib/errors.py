@@ -97,10 +97,6 @@ class AuthorizeError(Exception):
 
         return uri
 
-    @property
-    def response(self):
-        pass
-
 
 class TokenError(Exception):
 
