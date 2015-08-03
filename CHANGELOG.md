@@ -7,6 +7,9 @@ All notable changes to this project will be documented in this file.
 ##### Added
 - Add token_endpoint_auth_methods_supported to discovery.
 
+##### Fixed
+- Missing commands folder in setup file.
+
 ### [0.1.1] - 2015-07-31
 
 ##### Added
