@@ -3,17 +3,13 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
-# Quick-start development settings - unsuitable for production
+SECRET_KEY = 'c14d549c574e4d8cf162404ef0b04598'
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'waw%j=vza!vc1^eyosw%#_!gg96%zb7sp*+!owkutue4i(sm91'
+DEBUG = False
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+TEMPLATE_DEBUG = False
 
-TEMPLATE_DEBUG = True
-
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -50,7 +46,7 @@ WSGI_APPLICATION = 'provider_app.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': os.path.join(BASE_DIR, 'DATABASE.sqlite3'),
     }
 }
 
@@ -70,10 +66,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+
+
+# Custom settings
 
 LOGIN_REDIRECT_URL = '/'
 
-# OIDC Provider settings.
+
+# OIDC Provider settings
 
 SITE_URL = 'http://localhost:8000'
 OIDC_RSA_KEY_FOLDER = BASE_DIR
