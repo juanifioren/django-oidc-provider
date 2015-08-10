@@ -35,6 +35,13 @@ See changelog here.
 
 https://github.com/juanifioren/django-oidc-provider/blob/master/CHANGELOG.md
 
+****************
+Examples running
+****************
+
+* Example OIDC provider by *Juan Ignacio Fiorentino*. (`view site <http://openid.juanifioren.com/>`_)
+* BAID by *Government of Buenos Aires City*. (`view site <https://id.buenosaires.gob.ar/accounts/profile/>`_)
+
 ************
 Contributing
 ************
