@@ -58,3 +58,4 @@ TEMPLATE_DIRS = (
 
 SITE_URL = 'http://localhost:8000'
 OIDC_RSA_KEY_FOLDER = os.path.dirname(__file__)
+OIDC_USERINFO = 'oidc_provider.tests.app.utils.FakeUserInfo'
