@@ -1,11 +1,20 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load i18n %}
+{% load staticfiles %}
 
 {% block content %}
-
-<div class="jumbotron">
-  <h1>Welcome!</h1>
-  <p class="lead">Django OIDC Provider can help you providing out of the box all the endpoints, data and logic needed to add OpenID Connect capabilities to your Django projects.</p>
-  <p><a class="btn btn-lg btn-success" href="https://github.com/juanifioren/django-oidc-provider" role="button">View on Github</a></p>
-</div>
+    
+    <div class="hero">
+        <div class="ui stackable page grid">
+            <div class="five wide column">
+                <center><img class="ui image" src="{% static 'img/oidc.png' %}"></center>
+            </div>
+            <div class="eleven wide column">
+                <h1>Welcome!</h1>
+                <p>This package help you providing all the endpoints, data and logic needed to add <u>OpenID Connect</u> capabilities to your Django projects.</p>
+                <a href="https://github.com/juanifioren/django-oidc-provider" target="_BLANK" class="ui labeled icon blue large button"><i class="github alternate icon"></i> View on Github</a>
+            </div>
+        </div>
+    </div>
 
 {% endblock %}
