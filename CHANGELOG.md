@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+##### Fixed
+- ID token does NOT contain kid.
+
 ### [0.1.2] - 2015-08-04
 
 ##### Added
