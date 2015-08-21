@@ -32,8 +32,17 @@
     
     {% block content %}{% endblock %}
 
+    <div class="ui stackable page grid">
+        <div class="column">
+            <div class="ui right aligned secondary segment">
+                Developed by <a href="https://github.com/juanifioren">Juan Ignacio Fiorentino</a>.
+            </div>
+        </div>
+    </div>
+
     <script src="{% static 'js/jquery.js' %}"></script>
     <script src="{% static 'js/semantic.js' %}"></script>
+    <script type="text/javascript">$(function() {setInterval(function() {$('#viewongithub').transition('tada')}, 5000);});</script>
 
 </body>
 </html>
