@@ -1,0 +1,35 @@
+@import url(http://fonts.googleapis.com/css?family=Roboto:300,400,900);
+
+html {
+	font-size: 16px;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    height: auto;
+}
+
+#page-title {
+	font-weight: 900;
+}
+
+.hero {
+	background-color: #59426B;
+	background-image: url(http://momentjs.com/static/img/bg.png);
+	color: #ffffff;
+	margin-bottom: 30px;
+	padding: 100px 0px 60px 0;
+	text-shadow: 1px 1px 2px rgba(34, 34, 34, 0.5);
+}
+
+.hero h1 {
+	font-size: 55px;
+	font-weight: 900;
+}
+
+.hero p {
+	color: #e0e0e0;
+	font-size: 24px;
+	font-weight: 300;
+}
