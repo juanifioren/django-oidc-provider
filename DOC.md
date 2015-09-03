@@ -43,7 +43,7 @@ Before getting started there are some important things that you should know:
 
 ## Installation
 
-If you want to get started fast see our [example project](https://github.com/juanifioren/django-oidc-provider/tree/master/example_project) folder.
+If you want to get started fast see our `/example_project` folder.
 
 Install the package using pip.
 
