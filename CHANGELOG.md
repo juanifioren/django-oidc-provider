@@ -2,7 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
-### [Unreleased]
+### [0.2.0] - 2015-09-25
+
+##### Changed
+- UserInfo model was removed. Now you can add your own model using OIDC_USERINFO setting.
 
 ##### Fixed
 - ID token does NOT contain kid.
