@@ -77,6 +77,7 @@ class Code(BaseCodeTokenModel):
 class Token(BaseCodeTokenModel):
 
     access_token = models.CharField(max_length=255, unique=True)
+    refresh_token = models.CharField(max_length=255, unique=True, null=True)
     _id_token = models.TextField()
     def id_token():
         def fget(self):
