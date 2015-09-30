@@ -163,9 +163,8 @@ class TokenEndpoint(object):
         # Store the token.
         token.save()
 
-        # We don't need to store the code anymore.
-        self.token.refresh_token = None
-        self.token.save()
+        # Forget the old token.
+        self.token.delete()
 
         dic = {
             'access_token': token.access_token,

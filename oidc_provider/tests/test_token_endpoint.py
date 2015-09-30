@@ -100,6 +100,13 @@ class TokenTestCase(TestCase):
         SIGKEYS.load_dict(jwks_dic)
         return SIGKEYS
 
+    def _get_userinfo(self, access_token):
+        url = reverse('oidc_provider:userinfo')
+        request = self.factory.get(url)
+        request.META['HTTP_AUTHORIZATION'] = 'Bearer ' + access_token
+
+        return userinfo(request)
+
     @override_settings(OIDC_TOKEN_EXPIRE=720)
     def test_authorization_code(self):
         """
@@ -169,6 +176,10 @@ class TokenTestCase(TestCase):
         post_data = self._refresh_token_post_data(response_dic1['refresh_token'])
         response = self._post_request(post_data)
         self.assertIn('invalid_grant', response.content.decode('utf-8'))
+
+        # Old access token is invalidated
+        self.assertEqual(self._get_userinfo(response_dic1['access_token']).status_code, 401)
+        self.assertEqual(self._get_userinfo(response_dic2['access_token']).status_code, 200)
 
         # Empty refresh token is invalid
         post_data = self._refresh_token_post_data('')
