@@ -35,6 +35,8 @@ class TokenEndpoint(object):
         self.params.grant_type = self.request.POST.get('grant_type', '')
         self.params.code = self.request.POST.get('code', '')
         self.params.state = self.request.POST.get('state', '')
+        self.params.scope = self.request.POST.get('scope', '')
+        self.params.refresh_token = self.request.POST.get('refresh_token', '')
 
     def _extract_client_auth(self):
         """
@@ -60,23 +62,29 @@ class TokenEndpoint(object):
         return (client_id, client_secret)
 
     def validate_params(self):
-        if not (self.params.grant_type == 'authorization_code'):
-            logger.error('[Token] Invalid grant type: %s', self.params.grant_type)
-            raise TokenError('unsupported_grant_type')
-
         try:
             self.client = Client.objects.get(client_id=self.params.client_id)
 
-            if not (self.client.client_secret == self.params.client_secret):
-                logger.error('[Token] Invalid client secret: client %s do not have secret %s',
-                             self.client.client_id, self.client.client_secret)
-                raise TokenError('invalid_client')
+        except Client.DoesNotExist:
+            logger.error('[Token] Client does not exist: %s', self.params.client_id)
+            raise TokenError('invalid_client')
 
+        if not (self.client.client_secret == self.params.client_secret):
+            logger.error('[Token] Invalid client secret: client %s do not have secret %s',
+                         self.client.client_id, self.client.client_secret)
+            raise TokenError('invalid_client')
+
+        if self.params.grant_type == 'authorization_code':
             if not (self.params.redirect_uri in self.client.redirect_uris):
                 logger.error('[Token] Invalid redirect uri: %s', self.params.redirect_uri)
                 raise TokenError('invalid_client')
 
-            self.code = Code.objects.get(code=self.params.code)
+            try:
+                self.code = Code.objects.get(code=self.params.code)
+
+            except Code.DoesNotExist:
+                logger.error('[Token] Code does not exist: %s', self.params.code)
+                raise TokenError('invalid_grant')
 
             if not (self.code.client == self.client) \
                or self.code.has_expired():
@@ -84,15 +92,33 @@ class TokenEndpoint(object):
                              self.params.redirect_uri)
                 raise TokenError('invalid_grant')
 
-        except Client.DoesNotExist:
-            logger.error('[Token] Client does not exist: %s', self.params.client_id)
-            raise TokenError('invalid_client')
+        elif self.params.grant_type == 'refresh_token':
+            if not self.params.refresh_token:
+                logger.error('[Token] Missing refresh token')
+                raise TokenError('invalid_grant')
 
-        except Code.DoesNotExist:
-            logger.error('[Token] Code does not exist: %s', self.params.code)
-            raise TokenError('invalid_grant')
+            try:
+                self.token = Token.objects.get(refresh_token=self.params.refresh_token,
+                                               client=self.client)
+
+            except Token.DoesNotExist:
+                logger.error('[Token] Refresh token does not exist: %s', self.params.refresh_token)
+                raise TokenError('invalid_grant')
+
+        else:
+            logger.error('[Token] Invalid grant type: %s', self.params.grant_type)
+            raise TokenError('unsupported_grant_type')
 
     def create_response_dic(self):
+        if self.params.grant_type == 'authorization_code':
+            return self.create_code_response_dic()
+        elif self.params.grant_type == 'refresh_token':
+            return self.create_refresh_response_dic()
+        else:
+            # Should have already been catched by validate_params
+            raise RuntimeError('Invalid grant type')
+
+    def create_code_response_dic(self):
         id_token_dic = create_id_token(
             user=self.code.user,
             aud=self.client.client_id,
@@ -113,6 +139,36 @@ class TokenEndpoint(object):
 
         dic = {
             'access_token': token.access_token,
+            'refresh_token': token.refresh_token,
+            'token_type': 'bearer',
+            'expires_in': settings.get('OIDC_TOKEN_EXPIRE'),
+            'id_token': encode_id_token(id_token_dic),
+        }
+
+        return dic
+
+    def create_refresh_response_dic(self):
+        id_token_dic = create_id_token(
+            user=self.token.user,
+            aud=self.client.client_id,
+            nonce=None,
+        )
+
+        token = create_token(
+            user=self.token.user,
+            client=self.token.client,
+            id_token_dic=id_token_dic,
+            scope=self.token.scope)
+
+        # Store the token.
+        token.save()
+
+        # Forget the old token.
+        self.token.delete()
+
+        dic = {
+            'access_token': token.access_token,
+            'refresh_token': token.refresh_token,
             'token_type': 'bearer',
             'expires_in': settings.get('OIDC_TOKEN_EXPIRE'),
             'id_token': encode_id_token(id_token_dic),
