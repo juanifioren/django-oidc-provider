@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+### [Unreleased]
+
+##### Added
+- Refresh token flow.
+
+##### Changed
+- Upgrade pyjwkest to version >= 1.0.3.
+
 ### [0.2.0] - 2015-09-25
 
 ##### Changed
