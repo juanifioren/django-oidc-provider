@@ -37,10 +37,10 @@ setup(
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
     tests_require=[
-        'pyjwkest==1.0.1',
+        'pyjwkest>=1.0.3,<1.1',
     ],
 
     install_requires=[
-        'pyjwkest==1.0.1',
+        'pyjwkest>=1.0.3,<1.1',
     ],
 )

@@ -56,9 +56,7 @@ def encode_id_token(payload):
     key_string = get_rsa_key().encode('utf-8')
     keys = [ RSAKey(key=importKey(key_string), kid=md5(key_string).hexdigest()) ]
     _jws = JWS(payload, alg='RS256')
-    _jwt = _jws.sign_compact(keys)
-
-    return _jwt.decode('utf-8')
+    return _jws.sign_compact(keys)
 
 
 def create_token(user, client, id_token_dic, scope):
