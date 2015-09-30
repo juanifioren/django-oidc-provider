@@ -38,6 +38,7 @@ setup(
     ],
     tests_require=[
         'pyjwkest==1.0.1',
+        'mock==1.3.0',
     ],
 
     install_requires=[

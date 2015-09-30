@@ -7,7 +7,7 @@ except ImportError:
 import uuid
 
 from django.core.urlresolvers import reverse
-from django.test import RequestFactory
+from django.test import RequestFactory, override_settings
 from django.test import TestCase
 from jwkest.jwk import KEYS
 from jwkest.jws import JWS
@@ -16,6 +16,7 @@ from jwkest.jwt import JWT
 from oidc_provider.lib.utils.token import *
 from oidc_provider.tests.app.utils import *
 from oidc_provider.views import *
+from mock import patch
 
 
 class TokenTestCase(TestCase):
@@ -30,7 +31,7 @@ class TokenTestCase(TestCase):
         self.user = create_fake_user()
         self.client = create_fake_client(response_type='code')
 
-    def _post_data(self, code):
+    def _auth_code_post_data(self, code):
         """
         All the data that will be POSTed to the Token Endpoint.
         """
@@ -41,6 +42,19 @@ class TokenTestCase(TestCase):
             'grant_type': 'authorization_code',
             'code': code,
             'state': uuid.uuid4().hex,
+        }
+
+        return post_data
+
+    def _refresh_token_post_data(self, refresh_token):
+        """
+        All the data that will be POSTed to the Token Endpoint.
+        """
+        post_data = {
+            'client_id': self.client.client_id,
+            'client_secret': self.client.client_secret,
+            'grant_type': 'refresh_token',
+            'refresh_token': refresh_token,
         }
 
         return post_data
@@ -74,6 +88,98 @@ class TokenTestCase(TestCase):
         code.save()
 
         return code
+
+    def _get_keys(self):
+        """
+        Get public key from discovery.
+        """
+        request = self.factory.get(reverse('oidc_provider:jwks'))
+        response = JwksView.as_view()(request)
+        jwks_dic = json.loads(response.content.decode('utf-8'))
+        SIGKEYS = KEYS()
+        SIGKEYS.load_dict(jwks_dic)
+        return SIGKEYS
+
+    @override_settings(OIDC_TOKEN_EXPIRE=720)
+    def test_authorization_code(self):
+        """
+        We MUST validate the signature of the ID Token according to JWS
+        using the algorithm specified in the alg Header Parameter of
+        the JOSE Header.
+        """
+        SIGKEYS = self._get_keys()
+        code = self._create_code()
+
+        post_data = self._auth_code_post_data(code=code.code)
+
+        response = self._post_request(post_data)
+        response_dic = json.loads(response.content.decode('utf-8'))
+
+        id_token = JWS().verify_compact(response_dic['id_token'].encode('utf-8'), SIGKEYS)
+
+        token = Token.objects.get(user=self.user)
+        self.assertEqual(response_dic['access_token'], token.access_token)
+        self.assertEqual(response_dic['refresh_token'], token.refresh_token)
+        self.assertEqual(response_dic['token_type'], 'bearer')
+        self.assertEqual(response_dic['expires_in'], 720)
+        self.assertEqual(id_token['sub'], str(self.user.id))
+        self.assertEqual(id_token['aud'], self.client.client_id)
+
+    def test_refresh_token(self):
+        """
+        A request to the Token Endpoint can also use a Refresh Token
+        by using the grant_type value refresh_token, as described in
+        Section 6 of OAuth 2.0 [RFC6749].
+        """
+        SIGKEYS = self._get_keys()
+
+        # Retrieve refresh token
+        code = self._create_code()
+        post_data = self._auth_code_post_data(code=code.code)
+        real_now = timezone.now
+        with patch('oidc_provider.lib.utils.token.timezone.now') as now:
+            now.return_value = real_now()
+            response = self._post_request(post_data)
+
+        response_dic1 = json.loads(response.content.decode('utf-8'))
+        id_token1 = JWS().verify_compact(response_dic1['id_token'].encode('utf-8'), SIGKEYS)
+
+        # Use refresh token to obtain new token
+        post_data = self._refresh_token_post_data(response_dic1['refresh_token'])
+        with patch('oidc_provider.lib.utils.token.timezone.now') as now:
+            now.return_value = real_now() + timedelta(minutes=10)
+            response = self._post_request(post_data)
+
+        response_dic2 = json.loads(response.content.decode('utf-8'))
+        id_token2 = JWS().verify_compact(response_dic2['id_token'].encode('utf-8'), SIGKEYS)
+
+        self.assertNotEqual(response_dic1['id_token'], response_dic2['id_token'])
+        self.assertNotEqual(response_dic1['access_token'], response_dic2['access_token'])
+        self.assertNotEqual(response_dic1['refresh_token'], response_dic2['refresh_token'])
+
+        # http://openid.net/specs/openid-connect-core-1_0.html#rfc.section.12.2
+        self.assertEqual(id_token1['iss'], id_token2['iss'])
+        self.assertEqual(id_token1['sub'], id_token2['sub'])
+        self.assertNotEqual(id_token1['iat'], id_token2['iat'])
+        self.assertEqual(id_token1['aud'], id_token2['aud'])
+        self.assertEqual(id_token1['auth_time'], id_token2['auth_time'])
+        self.assertEqual(id_token1.get('azp'), id_token2.get('azp'))
+
+        # Refresh token can't be reused
+        post_data = self._refresh_token_post_data(response_dic1['refresh_token'])
+        response = self._post_request(post_data)
+        self.assertIn('invalid_grant', response.content.decode('utf-8'))
+
+        # Empty refresh token is invalid
+        post_data = self._refresh_token_post_data('')
+        response = self._post_request(post_data)
+        self.assertIn('invalid_grant', response.content.decode('utf-8'))
+
+        # No refresh token is invalid
+        post_data = self._refresh_token_post_data('')
+        del post_data['refresh_token']
+        response = self._post_request(post_data)
+        self.assertIn('invalid_grant', response.content.decode('utf-8'))
 
     def test_request_methods(self):
         """
@@ -112,7 +218,7 @@ class TokenTestCase(TestCase):
         code = self._create_code()
 
         # Test a valid request to the token endpoint.
-        post_data = self._post_data(code=code.code)
+        post_data = self._auth_code_post_data(code=code.code)
 
         response = self._post_request(post_data)
 
@@ -168,7 +274,7 @@ class TokenTestCase(TestCase):
         """
         code = self._create_code()
 
-        post_data = self._post_data(code=code.code)
+        post_data = self._auth_code_post_data(code=code.code)
 
         response = self._post_request(post_data)
 
@@ -194,17 +300,12 @@ class TokenTestCase(TestCase):
         using the algorithm specified in the alg Header Parameter of
         the JOSE Header.
         """
-        # Get public key from discovery.
-        request = self.factory.get(reverse('oidc_provider:jwks'))
-        response = JwksView.as_view()(request)
-        jwks_dic = json.loads(response.content.decode('utf-8'))
-        SIGKEYS = KEYS()
-        SIGKEYS.load_dict(jwks_dic)
+        SIGKEYS = self._get_keys()
         RSAKEYS = [ k for k in SIGKEYS if k.kty == 'RSA' ]
 
         code = self._create_code()
 
-        post_data = self._post_data(code=code.code)
+        post_data = self._auth_code_post_data(code=code.code)
 
         response = self._post_request(post_data)
         response_dic = json.loads(response.content.decode('utf-8'))
