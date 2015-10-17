@@ -15,4 +15,4 @@ class Command(BaseCommand):
                 f.write(key.exportKey('PEM'))
             self.stdout.write('RSA key successfully created at: ' + file_path)
         except Exception as e:
-            self.stdout.write('Something goes wrong: ' + e.message)
+            self.stdout.write('Something goes wrong: {0}'.format(e))
