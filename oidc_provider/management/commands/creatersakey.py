@@ -11,7 +11,7 @@ class Command(BaseCommand):
         try:
             key = RSA.generate(1024)
             file_path = settings.BASE_DIR + '/OIDC_RSA_KEY.pem'
-            with open(file_path, 'w') as f:
+            with open(file_path, 'wb') as f:
                 f.write(key.exportKey('PEM'))
             self.stdout.write('RSA key successfully created at: ' + file_path)
         except Exception as e:
