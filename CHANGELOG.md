@@ -8,7 +8,11 @@ All notable changes to this project will be documented in this file.
 - Refresh token flow.
 
 ##### Changed
-- Upgrade pyjwkest to version >= 1.0.3.
+- Upgrade pyjwkest to version >= 1.0.6.
+
+##### Fixed
+- Unicode error in Client model.
+- Bug when updating pyjwkest version.
 
 ### [0.2.0] - 2015-09-25
 
