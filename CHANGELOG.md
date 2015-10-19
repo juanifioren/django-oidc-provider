@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 
 ##### Fixed
 - Unicode error in Client model.
+- creatersakey command in Python 3.x.
 - Bug when updating pyjwkest version.
 
 ### [0.2.0] - 2015-09-25
