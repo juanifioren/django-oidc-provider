@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [0.2.1] - 2015-10-21
+
 ##### Added
 - Refresh token flow.
 
@@ -12,7 +14,7 @@ All notable changes to this project will be documented in this file.
 
 ##### Fixed
 - Unicode error in Client model.
-- creatersakey command in Python 3.x.
+- Bug in creatersakey command (when using Python 3).
 - Bug when updating pyjwkest version.
 
 ### [0.2.0] - 2015-09-25
