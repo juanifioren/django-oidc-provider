@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [0.2.1] - 2015-10-21
+
+##### Added
+- Refresh token flow.
+
+##### Changed
+- Upgrade pyjwkest to version >= 1.0.6.
+
+##### Fixed
+- Unicode error in Client model.
+- Bug in creatersakey command (when using Python 3).
+- Bug when updating pyjwkest version.
+
+### [0.2.0] - 2015-09-25
+
+##### Changed
+- UserInfo model was removed. Now you can add your own model using OIDC_USERINFO setting.
+
 ##### Fixed
 - ID token does NOT contain kid.
 

@@ -22,7 +22,7 @@ class Client(models.Model):
     _redirect_uris = models.TextField(default='')
 
     def __str__(self):
-        return self.name
+        return u'%s'.format(self.name)
 
     def __unicode__(self):
         return self.__str__()
@@ -59,7 +59,7 @@ class BaseCodeTokenModel(models.Model):
         return timezone.now() >= self.expires_at
 
     def __str__(self):
-        return "%s - %s (%s)" % (self.client, self.user.email, self.expires_at)
+        return u'%s - %s (%s)'.format(self.client, self.user.email, self.expires_at)
 
     def __unicode__(self):
         return self.__str__()
@@ -77,6 +77,7 @@ class Code(BaseCodeTokenModel):
 class Token(BaseCodeTokenModel):
 
     access_token = models.CharField(max_length=255, unique=True)
+    refresh_token = models.CharField(max_length=255, unique=True, null=True)
     _id_token = models.TextField()
     def id_token():
         def fget(self):
