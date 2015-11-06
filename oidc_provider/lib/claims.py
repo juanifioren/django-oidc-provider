@@ -67,12 +67,14 @@ class StandardScopeClaims(AbstractScopeClaims):
     """
 
     def setup(self):
-        try:
-            self.userinfo = UserInfo.objects.get(user=self.user)
-        except UserInfo.DoesNotExist:
+        # Note: commented this out because it doesn't work with Python 2.7
+        #try:
+        #    self.userinfo = UserInfo.objects.get(user=self.user)
+        #except UserInfo.DoesNotExist:
             # Create an empty model object.
-            self.userinfo = UserInfo()
-
+        #    self.userinfo = UserInfo()
+        self.userinfo = UserInfo()
+        
     def scope_profile(self, user):
         dic = {
             'name': self.userinfo.name,
