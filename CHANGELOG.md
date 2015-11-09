@@ -28,6 +28,8 @@ All notable changes to this project will be documented in this file.
 ##### Fixed
 - ID token does NOT contain kid.
 
+=======
+>>>>>>> origin/v0.2.x
 ### [0.1.2] - 2015-08-04
 
 ##### Added
