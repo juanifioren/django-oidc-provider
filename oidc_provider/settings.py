@@ -94,7 +94,24 @@ class DefaultSettings(object):
         Expressed in seconds.
         """
         return 60*60
-
+    
+    @property
+    def REGISTRATION_ENDPOINT_ENABLED(self):
+        """
+        OPTIONAL. True if dynamic client registration endpoint is enabled
+        https://openid.net/specs/openid-connect-registration-1_0.html#ClientRegistration
+        """
+        return True
+     
+    @property
+    def REGISTRATION_ENDPOINT_REQ_TOKEN(self):
+        """
+        OPTIONAL. True if client registration requires bearer (access) token.
+        False if clients can be dynamically registered without authentication
+        http://tools.ietf.org/html/rfc6750#section-2.1
+        """
+        return True
+        
     @property
     def OIDC_USERINFO(self):
         """
