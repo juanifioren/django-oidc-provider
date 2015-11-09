@@ -1,3 +1,4 @@
+import code
 try:
     from urllib.parse import quote
 except ImportError:
@@ -156,6 +157,30 @@ class UserInfoError(Exception):
 
     def __init__(self, code):
 
+        self.code = code
+        error_tuple = self._errors.get(code, ('', ''))
+        self.description = error_tuple[0]
+        self.status = error_tuple[1]
+
+class RegisterError(Exception):
+    _errors = {
+    # https://openid.net/specs/openid-connect-registration-1_0.html#RegistrationError 
+    # https://tools.ietf.org/html/rfc6749#section-5.2
+            'invalid_request': (
+            'The request is otherwise malformed', 400
+        ),   
+            'invalid_token': (
+            'The access token provided is expired, revoked, malformed, '
+            'or invalid for other reasons', 401
+        ),
+            'insufficient_scope': (
+            'The request requires higher privileges than provided by '
+            'the access token', 403
+        ),             
+    }
+    
+    def __init__(self, code):
+        
         self.code = code
         error_tuple = self._errors.get(code, ('', ''))
         self.description = error_tuple[0]

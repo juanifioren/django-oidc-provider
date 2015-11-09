@@ -14,8 +14,10 @@ from jwkest import long_to_base64
 from oidc_provider.lib.endpoints.authorize import *
 from oidc_provider.lib.endpoints.token import *
 from oidc_provider.lib.endpoints.userinfo import *
+
 from oidc_provider.lib.errors import *
 from oidc_provider.lib.utils.common import get_issuer, get_rsa_key
+from oidc_provider.lib.endpoints.register import RegisterEndpoint
 
 
 logger = logging.getLogger(__name__)
@@ -201,3 +203,21 @@ class LogoutView(View):
     def get(self, request, *args, **kwargs):
         # We should actually verify if the requested redirect URI is safe
         return logout(request, next_page=request.GET.get('post_logout_redirect_uri'))
+
+
+class RegisterView(View):
+    def post(self, request, *args, **kwargs):
+        
+        register = RegisterEndpoint(request)
+        
+        try:
+            register.validate_params()
+            dic = register.create_response_dic()
+            return register.response(dic)
+        
+        except (RegisterError) as error:
+            return RegisterEndpoint.error_response(
+            error.code,
+            error.description,
+            error.status)
+        
