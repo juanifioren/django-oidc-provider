@@ -29,3 +29,10 @@ def get_rsa_key():
         raise IOError('We could not find your key file on: ' + file_path)
 
     return key
+
+
+class DefaultUserInfo(object):
+
+    @classmethod
+    def get_by_user(cls, user):
+        return None

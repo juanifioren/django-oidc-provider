@@ -29,7 +29,7 @@ Support for Python 3 and 2. Also latest versions of django.
 
 Read docs for more info.
 
-https://github.com/juanifioren/django-oidc-provider/blob/v0.1.2/DOC.md
+https://github.com/juanifioren/django-oidc-provider/blob/v0.2.1/DOC.md
 
 See changelog here.
 
@@ -39,8 +39,8 @@ https://github.com/juanifioren/django-oidc-provider/blob/master/CHANGELOG.md
 Examples running
 ****************
 
-* Example OIDC provider by *Juan Ignacio Fiorentino*. (`view site <http://openid.juanifioren.com/>`_)
-* BAID by *Government of Buenos Aires City*. (`view site <https://id.buenosaires.gob.ar/accounts/profile/>`_)
+* **BAID** by Government of Buenos Aires City. (`view site <https://id.buenosaires.gob.ar/>`_)
+* **Example OIDC provider** by Juan Ignacio Fiorentino. (`view site <http://openid.juanifioren.com/>`_)
 
 ************
 Contributing
@@ -51,4 +51,4 @@ We love contributions, so please feel free to fix bugs, improve things, provide 
 * Fork the project.
 * Make your feature addition or bug fix.
 * Add tests for it inside :code:`oidc_provider/tests`. Then run all and ensure everything is OK (read docs for how to test in all envs). 
-* Send pull request to the specific version branch, for example :code:`v0.1.x`.
+* Send pull request to the specific version branch.

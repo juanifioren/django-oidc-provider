@@ -191,8 +191,8 @@ class JwksView(View):
             'alg': 'RS256',
             'use': 'sig',
             'kid': md5(key).hexdigest(),
-            'n': long_to_base64(public_key.n).decode('utf-8'),
-            'e': long_to_base64(public_key.e).decode('utf-8'),
+            'n': long_to_base64(public_key.n),
+            'e': long_to_base64(public_key.e),
         })
 
         return JsonResponse(dic)

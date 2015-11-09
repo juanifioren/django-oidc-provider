@@ -29,8 +29,10 @@ Before getting started there are some important things that you should know:
     - [OIDC_SKIP_CONSENT_ENABLE](#oidc_skip_consent_enable)
     - [OIDC_SKIP_CONSENT_EXPIRE](#oidc_skip_consent_expire)
     - [OIDC_TOKEN_EXPIRE](#oidc_token_expire)
+    - [OIDC_USERINFO](#oidc_userinfo)
 - [Users And Clients](#users-and-clients)
 - [Templates](#templates)
+- [Standard Claims](#standard-claims)
 - [Server Endpoints](#server-endpoints)
 - [Running Tests](#running-tests)
 
@@ -41,7 +43,7 @@ Before getting started there are some important things that you should know:
 
 ## Installation
 
-If you want to get started fast see our [example project](https://github.com/juanifioren/django-oidc-provider/tree/master/example_project) folder.
+If you want to get started fast see our `/example_project` folder.
 
 Install the package using pip.
 
@@ -212,6 +214,9 @@ OPTIONAL. Token object expiration after been created.
 
 `int`. Expressed in seconds. Default is `60*60`.
 
+##### OIDC_USERINFO
+OPTIONAL. A string with the location of your class. Read [standard claims](#standard-claims) section.
+
 ## Users And Clients
 
 User and client creation it's up to you. This is because is out of the scope in the core implementation of OIDC.
@@ -267,6 +272,67 @@ You can copy the sample html here and edit them with your own styles.
 ```html
 <h3>{{ error }}</h3>
 <p>{{ description }}</p>
+```
+
+## Standard Claims
+
+This subset of OpenID Connect defines a set of standard Claims. They are returned in the UserInfo Response.
+
+The package comes with a setting called `OIDC_USERINFO`, basically it refers to a class that MUST have a class-method named `get_by_user`, this will be called with a Django `User` instance and returns an object with all the claims of the user as attributes.
+
+List of all the attributes grouped by scopes:
+
+| profile            | email          | phone                 | address                |
+| ------------------ | -------------- | --------------------- | ---------------------- |
+| name               | email          | phone_number          | address_formatted      |
+| given_name         | email_verified | phone_number_verified | address_street_address |
+| family_name        |                |                       | address_locality       |
+| middle_name        |                |                       | address_region         |
+| nickname           |                |                       | address_postal_code    |
+| preferred_username |                |                       | address_country        |
+| profile            |                |                       |                        |
+| picture            |                |                       |                        |
+| website            |                |                       |                        |
+| gender             |                |                       |                        |
+| birthdate          |                |                       |                        |
+| zoneinfo           |                |                       |                        |
+| locale             |                |                       |                        |
+| updated_at         |                |                       |                        |
+
+Example using a django model:
+
+```python
+from django.conf import settings
+from django.db import models
+
+
+class UserInfo(models.Model):
+
+    GENDER_CHOICES = [
+        ('F', 'Female'),
+        ('M', 'Male'),
+    ]
+
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, primary_key=True)
+    
+    given_name = models.CharField(max_length=255, blank=True, null=True)
+    family_name = models.CharField(max_length=255, blank=True, null=True)
+    gender = models.CharField(max_length=100, choices=GENDER_CHOICES, null=True)
+    birthdate = models.DateField(null=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True)
+
+    email_verified = models.NullBooleanField(default=False)
+
+    phone_number = models.CharField(max_length=255, blank=True, null=True)
+    phone_number_verified = models.NullBooleanField(default=False)
+
+    address_locality = models.CharField(max_length=255, blank=True, null=True)
+    address_country = models.CharField(max_length=255, blank=True, null=True)
+
+    @classmethod
+    def get_by_user(cls, user):
+        return cls.objects.get(user=user)
+
 ```
 
 ## Server Endpoints

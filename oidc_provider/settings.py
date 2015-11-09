@@ -112,6 +112,14 @@ class DefaultSettings(object):
         """
         return True
         
+    @property
+    def OIDC_USERINFO(self):
+        """
+        OPTIONAL. A string with the location of your class.
+        Used to add extra scopes specific for your app. 
+        """
+        return 'oidc_provider.lib.utils.common.DefaultUserInfo'
+
 default_settings = DefaultSettings()
 
 

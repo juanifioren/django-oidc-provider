@@ -6,6 +6,7 @@ from oidc_provider.tests.app.utils import *
 
 
 class UserInfoTestCase(TestCase):
+
     def setUp(self):
         self.user = create_fake_user()
         self.url = reverse('oidc_provider:logout')
@@ -27,4 +28,3 @@ class UserInfoTestCase(TestCase):
         self.assertGreater(len(self.client.session.keys()), 0)
         self.client.get(self.url)
         self.assertEqual(len(self.client.session.keys()), 0)
-

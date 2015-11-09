@@ -22,7 +22,7 @@ class UserInfoTestCase(TestCase):
         self.user = create_fake_user()
         self.client = create_fake_client(response_type='code')
 
-    def _create_token(self):
+    def _create_token(self, extra_scope=[]):
         """
         Generate a valid token.
         """
@@ -33,7 +33,7 @@ class UserInfoTestCase(TestCase):
             user=self.user,
             client=self.client,
             id_token_dic=id_token_dic,
-            scope=['openid', 'email'])
+            scope=['openid', 'email'] + extra_scope)
         token.save()
 
         return token
@@ -114,3 +114,25 @@ class UserInfoTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(bool(response.content), True)
+
+    def test_user_claims_in_response(self):
+        token = self._create_token(extra_scope=['profile'])
+        response = self._post_request(token.access_token)
+        response_dic = json.loads(response.content.decode('utf-8'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(bool(response.content), True)
+        self.assertEqual('given_name' in response_dic, True,
+            msg='"given_name" claim should be in response.')
+        self.assertEqual('profile' in response_dic, False,
+            msg='"profile" claim should not be in response.')
+
+        # Now adding `address` scope.
+        token = self._create_token(extra_scope=['profile', 'address'])
+        response = self._post_request(token.access_token)
+        response_dic = json.loads(response.content.decode('utf-8'))
+
+        self.assertEqual('address' in response_dic, True,
+            msg='"address" claim should be in response.')
+        self.assertEqual('country' in response_dic['address'], True,
+            msg='"country" claim should be in response.')

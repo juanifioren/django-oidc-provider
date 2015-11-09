@@ -8,6 +8,7 @@ from oidc_provider.models import *
 
 FAKE_NONCE = 'cb584e44c43ed6bd0bc2d9c7e242837d'  
 
+
 def create_fake_user():
     """
     Create a test user.
@@ -22,6 +23,7 @@ def create_fake_user():
     user.save()
 
     return user
+
 
 def create_fake_client(response_type):
     """
@@ -41,6 +43,7 @@ def create_fake_client(response_type):
 
     return client
 
+
 def is_code_valid(url, user, client):
     """
     Check if the code inside the url is valid.
@@ -56,3 +59,23 @@ def is_code_valid(url, user, client):
         is_code_ok = False
 
     return is_code_ok
+
+
+class FakeUserInfo(object):
+
+    given_name = 'John'
+    family_name = 'Doe'
+    nickname = 'johndoe'
+    website = 'http://johndoe.com'
+
+    phone_number = '+49-89-636-48018'
+    phone_number_verified = True
+
+    address_street_address = 'Evergreen 742'
+    address_locality = 'Glendive'
+    address_region = 'Montana'
+    address_country = 'United States'
+
+    @classmethod
+    def get_by_user(cls, user):
+        return cls()

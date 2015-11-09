@@ -1,11 +1,49 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load i18n %}
+{% load staticfiles %}
 
 {% block content %}
+    
+    <div class="hero">
+        <div class="ui stackable page grid">
+            <div class="five wide column">
+                <center><img class="ui image" src="{% static 'img/oidc.png' %}"></center>
+            </div>
+            <div class="eleven wide column">
+                <h1>Single Sign On. Easily!</h1>
+                <p>This package help you providing all the endpoints, data and logic needed to add <u>OpenID Connect</u> capabilities to your Django projects.</p>
+                <a id="viewongithub" href="https://github.com/juanifioren/django-oidc-provider" target="_BLANK" class="ui labeled icon blue large button"><i class="github alternate icon"></i> View on Github</a>
+                <div class="ui pointing inverted black left label" style="font-family: Consolas, monaco, monospace;">$ pip install django-oidc-provider</div>
+            </div>
+        </div>
+    </div>
 
-<div class="jumbotron">
-  <h1>Welcome!</h1>
-  <p class="lead">Django OIDC Provider can help you providing out of the box all the endpoints, data and logic needed to add OpenID Connect capabilities to your Django projects.</p>
-  <p><a class="btn btn-lg btn-success" href="https://github.com/juanifioren/django-oidc-provider" role="button">View on Github</a></p>
-</div>
+    <div class="ui stackable page grid">
+        <div class="eight wide column">
+            <h2 class="ui icon header">
+                <i class="circular users icon"></i>
+                <div class="content">Control Your Online Identity
+                    <div class="sub header">By being a provider you can centralize your user accounts in one place. <br>Sign in with a single click to thousands of websites without ever needing to create another username and password.</div>
+                </div>
+            </h2>
+        </div>
+        <div class="eight wide column">
+            <h2 class="ui icon header">
+                <i class="circular protect icon"></i>
+                <div class="content">Security matters
+                    <div class="sub header">OpenID Connect builds on top of OAuth2. <br>Public-key-encryption-based authentication for increasing security. <br>Your user passwords are never shared with any websites.</div>
+                </div>
+            </h2>
+        </div>
+        <div class="ten wide centered column" style="margin:30px auto">
+            <div class="ui center aligned segment">
+                <h1 class="ui header">Join with them</h1>
+                <div class="ui section divider"></div>
+                <i class="disabled google massive icon"></i>
+                <i class="disabled paypal massive icon"></i>
+                <i class="disabled windows massive icon"></i>
+            </div>
+        </div>
+    </div>
 
 {% endblock %}

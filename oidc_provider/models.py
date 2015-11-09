@@ -22,7 +22,7 @@ class Client(models.Model):
     _redirect_uris = models.TextField(default='')
 
     def __str__(self):
-        return self.name
+        return u'%s'.format(self.name)
 
     def __unicode__(self):
         return self.__str__()
@@ -59,7 +59,7 @@ class BaseCodeTokenModel(models.Model):
         return timezone.now() >= self.expires_at
 
     def __str__(self):
-        return "%s - %s (%s)" % (self.client, self.user.email, self.expires_at)
+        return u'%s - %s (%s)'.format(self.client, self.user.email, self.expires_at)
 
     def __unicode__(self):
         return self.__str__()
@@ -77,6 +77,7 @@ class Code(BaseCodeTokenModel):
 class Token(BaseCodeTokenModel):
 
     access_token = models.CharField(max_length=255, unique=True)
+    refresh_token = models.CharField(max_length=255, unique=True, null=True)
     _id_token = models.TextField()
     def id_token():
         def fget(self):
@@ -85,63 +86,6 @@ class Token(BaseCodeTokenModel):
             self._id_token = json.dumps(value)
         return locals()
     id_token = property(**id_token())
-
-
-class UserInfo(models.Model):
-
-    GENDER_CHOICES = [
-        ('F', 'Female'),
-        ('M', 'Male'),
-    ]
-
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, primary_key=True)
-    given_name = models.CharField(max_length=255, blank=True, null=True)
-    family_name = models.CharField(max_length=255, blank=True, null=True)
-    middle_name = models.CharField(max_length=255, blank=True, null=True)
-    nickname = models.CharField(max_length=255, blank=True, null=True)
-    gender = models.CharField(max_length=100, choices=GENDER_CHOICES, null=True)
-    birthdate = models.DateField(null=True)
-    zoneinfo = models.CharField(max_length=100, default='', blank=True,
-                                null=True)
-    locale = models.CharField(max_length=100, default='', blank=True, null=True)
-    preferred_username = models.CharField(max_length=255, blank=True, null=True)
-    profile = models.URLField(default='', null=True, blank=True)
-    picture = models.URLField(default='', null=True, blank=True)
-    website = models.URLField(default='', null=True, blank=True)
-    email_verified = models.NullBooleanField(default=False)
-    locale = models.CharField(max_length=100, blank=True, null=True)
-    phone_number = models.CharField(max_length=255, blank=True, null=True)
-    phone_number_verified = models.NullBooleanField(default=False)
-    address_street_address = models.CharField(max_length=255, blank=True,
-                                              null=True)
-    address_locality = models.CharField(max_length=255, blank=True, null=True)
-    address_region = models.CharField(max_length=255, blank=True, null=True)
-    address_postal_code = models.CharField(max_length=255, blank=True,
-                                           null=True)
-    address_country = models.CharField(max_length=255, blank=True, null=True)
-    updated_at = models.DateTimeField(auto_now=True, null=True)
-
-    @property
-    def name(self):
-        name = ''
-        if self.given_name:
-            name = self.given_name
-            if self.family_name:
-                name = name + ' ' + self.family_name
-
-        return name
-
-    @property
-    def address_formatted(self):
-        formatted = ', '.join([
-            self.address_street_address or '',
-            self.address_locality or '',
-            self.address_country or ''])
-
-        if formatted.startswith(', '):
-            formatted = formatted[2:]
-        if formatted.endswith(', '):
-            formatted = formatted[:-2]
 
 
 class UserConsent(BaseCodeTokenModel):
