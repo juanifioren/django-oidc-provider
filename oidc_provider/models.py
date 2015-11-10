@@ -89,5 +89,5 @@ class Token(BaseCodeTokenModel):
 
 
 class UserConsent(BaseCodeTokenModel):
-
-    pass
+    class Meta:
+        unique_together = ('user', 'client')
