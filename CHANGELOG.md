@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+##### Added
+- Make user and client unique on UserConsent model.
+
 ##### Fixed
 - String format error in models.
 
