@@ -1,7 +1,17 @@
 from django.conf import settings as django_settings
 from django.core.urlresolvers import reverse
+from django.http import HttpResponse
 
 from oidc_provider import settings
+
+
+def redirect(uri):
+    """
+    Custom Response object for redirecting to a Non-HTTP url scheme.
+    """
+    response = HttpResponse('', status=302)
+    response['Location'] = uri
+    return response
 
 
 def get_issuer():

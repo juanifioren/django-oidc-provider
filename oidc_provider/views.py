@@ -3,7 +3,7 @@ import logging
 from Crypto.PublicKey import RSA
 from django.contrib.auth.views import redirect_to_login, logout
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_http_methods
@@ -15,7 +15,7 @@ from oidc_provider.lib.endpoints.authorize import *
 from oidc_provider.lib.endpoints.token import *
 from oidc_provider.lib.endpoints.userinfo import *
 from oidc_provider.lib.errors import *
-from oidc_provider.lib.utils.common import get_issuer, get_rsa_key
+from oidc_provider.lib.utils.common import redirect, get_issuer, get_rsa_key
 
 
 logger = logging.getLogger(__name__)
@@ -42,7 +42,7 @@ class AuthorizeView(View):
                     # Check if user previously give consent.
                     if authorize.client_has_user_consent():
                         uri = authorize.create_response_uri()
-                        return HttpResponseRedirect(uri)
+                        return redirect(uri)
 
                 # Generate hidden inputs for the form.
                 context = {
@@ -79,7 +79,7 @@ class AuthorizeView(View):
                 authorize.params.redirect_uri,
                 authorize.params.state)
 
-            return HttpResponseRedirect(uri)
+            return redirect(uri)
 
     def post(self, request, *args, **kwargs):
 
@@ -99,14 +99,15 @@ class AuthorizeView(View):
             authorize.set_client_user_consent()
 
             uri = authorize.create_response_uri()
-            return HttpResponseRedirect(uri)
+
+            return redirect(uri)
 
         except (AuthorizeError) as error:
             uri = error.create_uri(
                 authorize.params.redirect_uri,
                 authorize.params.state)
 
-            return HttpResponseRedirect(uri)
+            return redirect(uri)
 
 
 class TokenView(View):
