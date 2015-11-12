@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ##### Fixed
 - String format error in models.
+- Redirect to non http urls fail (for Mobile Apps).
 
 ### [0.2.1] - 2015-10-21
 
