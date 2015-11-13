@@ -35,6 +35,7 @@ Before getting started there are some important things that you should know:
 - [Standard Claims](#standard-claims)
 - [Server Endpoints](#server-endpoints)
 - [Running Tests](#running-tests)
+- [Relying Parties](#relying-parties)
 
 ## Requirements
 
@@ -390,6 +391,9 @@ $ python manage.py test --settings oidc_provider.tests.app.settings oidc_provide
 
 Also tests run on every commit to the project, we use [travis](https://travis-ci.org/juanifioren/django-oidc-provider/) for this.
 
+## Relying Parties
+
 This provider was tested (and fully works) with these OIDC Clients:
 - [Drupal OpenID Connect](https://www.drupal.org/project/openid_connect)
 - [Passport OpenID Connect](https://github.com/jaredhanson/passport-openidconnect) (for NodeJS)
+- [OIDCAndroidLib](https://github.com/kalemontes/OIDCAndroidLib) (for Android)
