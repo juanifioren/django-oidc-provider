@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 ##### Added
 - Make user and client unique on UserConsent model.
+- Support for URL's without end slash.
+
+##### Changed
+- Upgrade pyjwkest to version 1.0.8.
 
 ##### Fixed
 - String format error in models.
