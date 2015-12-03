@@ -122,7 +122,7 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
         response_dic = json.loads(response.content.decode('utf-8'))
 
-        id_token = JWS().verify_compact(response_dic['id_token'].encode('utf-8'), SIGKEYS, allow_none=True)
+        id_token = JWS().verify_compact(response_dic['id_token'].encode('utf-8'), SIGKEYS)
 
         token = Token.objects.get(user=self.user)
         self.assertEqual(response_dic['access_token'], token.access_token)
@@ -149,7 +149,7 @@ class TokenTestCase(TestCase):
             response = self._post_request(post_data)
 
         response_dic1 = json.loads(response.content.decode('utf-8'))
-        id_token1 = JWS().verify_compact(response_dic1['id_token'].encode('utf-8'), SIGKEYS, allow_none=True)
+        id_token1 = JWS().verify_compact(response_dic1['id_token'].encode('utf-8'), SIGKEYS)
 
         # Use refresh token to obtain new token
         post_data = self._refresh_token_post_data(response_dic1['refresh_token'])
@@ -158,7 +158,7 @@ class TokenTestCase(TestCase):
             response = self._post_request(post_data)
 
         response_dic2 = json.loads(response.content.decode('utf-8'))
-        id_token2 = JWS().verify_compact(response_dic2['id_token'].encode('utf-8'), SIGKEYS, allow_none=True)
+        id_token2 = JWS().verify_compact(response_dic2['id_token'].encode('utf-8'), SIGKEYS)
 
         self.assertNotEqual(response_dic1['id_token'], response_dic2['id_token'])
         self.assertNotEqual(response_dic1['access_token'], response_dic2['access_token'])
@@ -321,4 +321,4 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
         response_dic = json.loads(response.content.decode('utf-8'))
 
-        id_token = JWS().verify_compact(response_dic['id_token'].encode('utf-8'), RSAKEYS, allow_none=True)
+        id_token = JWS().verify_compact(response_dic['id_token'].encode('utf-8'), RSAKEYS)
