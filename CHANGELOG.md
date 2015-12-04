@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [0.2.2] - 2015-12-03
+
 ##### Added
 - Make user and client unique on UserConsent model.
 - Support for URL's without end slash.
