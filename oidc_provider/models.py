@@ -2,6 +2,7 @@ import json
 
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
 
@@ -19,7 +20,12 @@ class Client(models.Model):
     response_type = models.CharField(max_length=30,
                                      choices=RESPONSE_TYPE_CHOICES)
 
-    _redirect_uris = models.TextField(default='')
+    _redirect_uris = models.TextField(default='', verbose_name=_(u'Redirect URI'), help_text=_(u'Enter each URI on a new line.'))
+
+    class Meta:
+        verbose_name = _(u'Client')
+        verbose_name_plural = _(u'Clients')
+
 
     def __str__(self):
         return u'{0}'.format(self.name)
@@ -73,6 +79,10 @@ class Code(BaseCodeTokenModel):
     code = models.CharField(max_length=255, unique=True)
     nonce = models.CharField(max_length=255, blank=True, default='')
 
+    class Meta:
+        verbose_name = _(u'Authorization Code')
+        verbose_name_plural = _(u'Authorization Codes')
+
 
 class Token(BaseCodeTokenModel):
 
@@ -87,7 +97,12 @@ class Token(BaseCodeTokenModel):
         return locals()
     id_token = property(**id_token())
 
+    class Meta:
+        verbose_name = _(u'Token')
+        verbose_name_plural = _(u'Tokens')
+
 
 class UserConsent(BaseCodeTokenModel):
+
     class Meta:
         unique_together = ('user', 'client')
