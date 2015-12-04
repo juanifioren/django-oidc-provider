@@ -1,35 +1,22 @@
-@import url(http://fonts.googleapis.com/css?family=Roboto:300,400,900);
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:300,400,800);
 
 html {
 	font-size: 16px;
 }
 
 body {
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Open Sans', sans-serif;
     font-weight: 400;
     height: auto;
+    padding-top: 100px;
 }
 
-#page-title {
-	font-weight: 900;
+.ui.huge.header {
+	font-size: 46px;
+	font-weight: 800;
 }
 
-.hero {
-	background-color: #59426B;
-	background-image: url(http://momentjs.com/static/img/bg.png);
-	color: #ffffff;
-	margin-bottom: 30px;
-	padding: 100px 0px 60px 0;
-	text-shadow: 1px 1px 2px rgba(34, 34, 34, 0.5);
-}
-
-.hero h1 {
-	font-size: 55px;
-	font-weight: 900;
-}
-
-.hero p {
-	color: #e0e0e0;
-	font-size: 24px;
+.ui.segment {
+	font-size: 18px;
 	font-weight: 300;
 }

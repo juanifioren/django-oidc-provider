@@ -9,17 +9,17 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 
-    <title>OpenID Provider</title>
+    <title>OIDC Provider Example</title>
 
-    <link rel="stylesheet" type="text/css" href="{% static 'css/semantic.css' %}">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.6/semantic.min.css">
     <link rel="stylesheet" type="text/css" href="{% static 'css/custom.css' %}">
 
 </head>
-    <div class="ui page grid fixed inverted large menu">
-        <a id="page-title" href="{% url 'home' %}" class=" item">django-oidc-provider</a>
+    <div class="ui page grid fixed large blue inverted menu">
+        <a href="{% url 'home' %}" class=" item">django-oidc-provider</a>
         <div class="right menu">
             {% if user.is_authenticated %}
-            <a href="#" class="item">My Profile</a>
+            <a href="#" class="item">{{ user.email }}</a>
             {% if user.is_superuser %}
             <a href="{% url 'admin:index' %}" class="item">Admin</a>
             {% endif %}
@@ -35,14 +35,13 @@
     <div class="ui stackable page grid">
         <div class="column">
             <div class="ui right aligned secondary segment">
-                Developed by <a href="https://github.com/juanifioren">Juan Ignacio Fiorentino</a>.
+                View the project <a href="https://github.com/juanifioren/django-oidc-provider" target="_BLANK">on Github</a>. Example by <a href="https://github.com/juanifioren" target="_BLANK">Juan Ignacio Fiorentino</a>.
             </div>
         </div>
     </div>
 
-    <script src="{% static 'js/jquery.js' %}"></script>
-    <script src="{% static 'js/semantic.js' %}"></script>
-    <script type="text/javascript">$(function() {setInterval(function() {$('#viewongithub').transition('tada')}, 5000);});</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.6/semantic.min.js"></script>
 
 </body>
 </html>

@@ -5,14 +5,14 @@
     <div class="ui page grid">
         <div class="row">
             <div class="six wide centered column">
+                {% if form.errors %}
+                <div class="ui negative message">
+                    <p>Your username and password didn't match. Please try again.</p>
+                </div>
+                {% endif %}
                 <form class="ui form segment" method="post" action="{% url 'login' %}">
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{{ next }}">
-                    {% if form.errors %}
-                    <div class="ui negative message">
-                        <p>Your username and password didn't match. Please try again.</p>
-                    </div>
-                    {% endif %}
                     <div class="field">
                         <label>Username</label>
                         <input type="text" name="username">
@@ -21,7 +21,7 @@
                         <label>Password</label>
                         <input type="password" name="password">
                     </div>
-                    <input class="ui submit big primary fluid button" type="submit" value="Login" />
+                    <input class="ui submit big primary fluid button" type="submit" value="Enter" />
                 </form>
             </div>
         </div>
