@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
-### [0.2.2] - 2015-12-03
+### [0.2.3] - 2016-01-06
 
 ##### Added
 - Make user and client unique on UserConsent model.

@@ -9,7 +9,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-oidc-provider',
-    version='0.2.2',
+    version='0.2.3',
     packages=[
         'oidc_provider', 'oidc_provider/lib', 'oidc_provider/lib/endpoints',
         'oidc_provider/lib/utils', 'oidc_provider/tests', 'oidc_provider/tests/app',
