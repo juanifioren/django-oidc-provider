@@ -391,3 +391,5 @@ This provider was tested (and fully works) with these OIDC Clients:
 - [Drupal OpenID Connect](https://www.drupal.org/project/openid_connect)
 - [Passport OpenID Connect](https://github.com/jaredhanson/passport-openidconnect) (for NodeJS)
 - [OIDCAndroidLib](https://github.com/kalemontes/OIDCAndroidLib) (for Android)
+- [Amazon IAM OpenID Connect Identity Provider](https://console.aws.amazon.com/iam/home) (for AWS)
+- [Amazon Cognito](https://console.aws.amazon.com/cognito/home) (for AWS Identity pools)
