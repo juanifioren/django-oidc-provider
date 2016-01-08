@@ -29,11 +29,11 @@ Support for Python 3 and 2. Also latest versions of django.
 
 Read docs for more info.
 
-https://github.com/juanifioren/django-oidc-provider/blob/v0.2.1/DOC.md
+https://github.com/juanifioren/django-oidc-provider/blob/v0.2.x/DOC.md
 
 See changelog here.
 
-https://github.com/juanifioren/django-oidc-provider/blob/master/CHANGELOG.md
+https://github.com/juanifioren/django-oidc-provider/blob/v0.2.x/CHANGELOG.md
 
 ****************
 Examples running
