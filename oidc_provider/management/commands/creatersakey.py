@@ -1,6 +1,7 @@
+import os
 from Crypto.PublicKey import RSA
 
-from django.conf import settings
+from oidc_provider import settings
 from django.core.management.base import BaseCommand
 
 
@@ -10,7 +11,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         try:
             key = RSA.generate(1024)
-            file_path = settings.BASE_DIR + '/OIDC_RSA_KEY.pem'
+            file_path = os.path.join(settings.get('OIDC_RSA_KEY_FOLDER'), 'OIDC_RSA_KEY.pem')
             with open(file_path, 'wb') as f:
                 f.write(key.exportKey('PEM'))
             self.stdout.write('RSA key successfully created at: ' + file_path)
