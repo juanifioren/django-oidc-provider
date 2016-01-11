@@ -227,6 +227,8 @@ Create a user with: ``python manage.py createsuperuser``.
 
 And then create a Client with django shell: ``python manage.py shell``. Or use Django admin if you have it enabled.
 
+![Client Creation](http://i64.tinypic.com/2dsfgoy.png)
+
 ```python
 >>> from oidc_provider.models import Client
 >>> c = Client(name='Some Client', client_id='123', client_secret='456', response_type='code', redirect_uris=['http://example.com/'])
