@@ -19,6 +19,7 @@ class Client(models.Model):
     client_secret = models.CharField(max_length=255, unique=True)
     response_type = models.CharField(max_length=30,
                                      choices=RESPONSE_TYPE_CHOICES)
+    date_created = models.DateField(auto_now_add=True)
 
     _redirect_uris = models.TextField(default='', verbose_name=_(u'Redirect URI'), help_text=_(u'Enter each URI on a new line.'))
 
