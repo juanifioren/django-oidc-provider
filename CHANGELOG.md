@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+##### Added
+- Auto-generation of client ID and SECRET using the admin.
+
 ##### Fixed
 - Fixed generating RSA key by ignoring value of OIDC_RSA_KEY_FOLDER.
 
