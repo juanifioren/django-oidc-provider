@@ -62,6 +62,9 @@ def is_code_valid(url, user, client):
 
 
 class FakeUserInfo(object):
+    """
+    Fake class for setting OIDC_USERINFO.
+    """
 
     given_name = 'John'
     family_name = 'Doe'
@@ -79,3 +82,10 @@ class FakeUserInfo(object):
     @classmethod
     def get_by_user(cls, user):
         return cls()
+
+
+def fake_sub_generator(user):
+    """
+    Fake function for setting OIDC_IDTOKEN_SUB_GENERATOR.
+    """
+    return user.email

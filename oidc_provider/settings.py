@@ -59,10 +59,7 @@ class DefaultSettings(object):
         reassigned identifier within the Issuer for the End-User,
         which is intended to be consumed by the Client.
         """
-        def default_sub_generator(user):
-            return str(user.id)
-
-        return default_sub_generator
+        return 'oidc_provider.lib.utils.common.default_sub_generator'
 
     @property
     def OIDC_RSA_KEY_FOLDER(self):

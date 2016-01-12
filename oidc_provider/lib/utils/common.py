@@ -42,7 +42,17 @@ def get_rsa_key():
 
 
 class DefaultUserInfo(object):
+    """
+    Default class for setting OIDC_USERINFO.
+    """
 
     @classmethod
     def get_by_user(cls, user):
         return None
+
+
+def default_sub_generator(user):
+    """
+    Default function for setting OIDC_IDTOKEN_SUB_GENERATOR.
+    """
+    return str(user.id)

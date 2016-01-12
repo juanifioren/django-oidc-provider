@@ -322,3 +322,19 @@ class TokenTestCase(TestCase):
         response_dic = json.loads(response.content.decode('utf-8'))
 
         id_token = JWS().verify_compact(response_dic['id_token'].encode('utf-8'), RSAKEYS)
+
+    @override_settings(OIDC_IDTOKEN_SUB_GENERATOR='oidc_provider.tests.app.utils.fake_sub_generator')
+    def test_custom_sub_generator(self):
+        """
+        Test custom function for setting OIDC_IDTOKEN_SUB_GENERATOR.
+        """
+        code = self._create_code()
+
+        post_data = self._auth_code_post_data(code=code.code)
+
+        response = self._post_request(post_data)
+
+        response_dic = json.loads(response.content.decode('utf-8'))
+        id_token = JWT().unpack(response_dic['id_token'].encode('utf-8')).payload()
+
+        self.assertEqual(id_token.get('sub'), self.user.email)

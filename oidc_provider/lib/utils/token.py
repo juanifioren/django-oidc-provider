@@ -21,7 +21,7 @@ def create_id_token(user, aud, nonce):
 
     Return a dic.
     """
-    sub = settings.get('OIDC_IDTOKEN_SUB_GENERATOR')(user=user)
+    sub = settings.get('OIDC_IDTOKEN_SUB_GENERATOR', import_str=True)(user=user)
 
     expires_in = settings.get('OIDC_IDTOKEN_EXPIRE')
 
