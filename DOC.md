@@ -225,9 +225,11 @@ If you want to test the provider without getting to deep into this topics you ca
 
 Create a user with: ``python manage.py createsuperuser``.
 
-And then create a Client with django shell: ``python manage.py shell``. Or use Django admin if you have it enabled.
+To create clients use Django admin (if you have it enabled):
 
 ![Client Creation](http://i64.tinypic.com/2dsfgoy.png)
+
+Or create a client with Django shell: ``python manage.py shell``:
 
 ```python
 >>> from oidc_provider.models import Client
