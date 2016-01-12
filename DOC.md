@@ -178,9 +178,9 @@ OPTIONAL.
 `int`. Expressed in seconds. Default is `60*10`.
 
 ##### OIDC_IDTOKEN_SUB_GENERATOR
-OPTIONAL. Subject Identifier. A locally unique and never reassigned identifier within the Issuer for the End-User, which is intended to be consumed by the Client.
+OPTIONAL. A string with the location of your function. `sub` is a locally unique and never reassigned identifier within the Issuer for the End-User, which is intended to be consumed by the Client.
 
-Is just a function that receives a `user` object. Returns a unique `string` for the given user.
+The function receives a `user` object and returns a unique `string` for the given user.
 
 Default is:
 ```python
