@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ##### Fixed
 - Fixed generating RSA key by ignoring value of OIDC_RSA_KEY_FOLDER.
+- Make OIDC_IDTOKEN_SUB_GENERATOR to be lazy imported by the location of the function.
 
 ### [0.2.3] - 2016-01-06
 
