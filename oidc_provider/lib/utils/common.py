@@ -21,7 +21,7 @@ def get_issuer():
     """
     site_url = settings.get('SITE_URL')
     path = reverse('oidc_provider:provider_info') \
-        .split('/.well-known/openid-configuration/')[0]
+        .split('/.well-known/openid-configuration')[0]
     issuer = site_url + path
 
     return issuer
