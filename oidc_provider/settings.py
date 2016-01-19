@@ -25,10 +25,7 @@ class DefaultSettings(object):
         OPTIONAL.  Provide a way to plug into the process after
         the user has logged in, typically to perform some business logic.
         """
-        def default_hook_func(request, user, client):
-            return None
-
-        return default_hook_func
+        return 'oidc_provider.lib.utils.common.default_after_userlogin_hook'
 
     @property
     def OIDC_CODE_EXPIRE(self):

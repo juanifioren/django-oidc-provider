@@ -32,7 +32,7 @@ class AuthorizeView(View):
 
             if request.user.is_authenticated():
                 # Check if there's a hook setted.
-                hook_resp = settings.get('OIDC_AFTER_USERLOGIN_HOOK')(
+                hook_resp = settings.get('OIDC_AFTER_USERLOGIN_HOOK', import_str=True)(
                     request=request, user=request.user,
                     client=authorize.client)
                 if hook_resp:

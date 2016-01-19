@@ -56,3 +56,10 @@ def default_sub_generator(user):
     Default function for setting OIDC_IDTOKEN_SUB_GENERATOR.
     """
     return str(user.id)
+
+
+def default_after_userlogin_hook(request, user, client):
+    """
+    Default function for setting OIDC_AFTER_USERLOGIN_HOOK.
+    """
+    return None
