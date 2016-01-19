@@ -296,7 +296,7 @@ REQUIRED. Used to log the user in. [Read more in Django docs](https://docs.djang
 `str`. Default is `/accounts/login/`.
 
 ##### OIDC_AFTER_USERLOGIN_HOOK
-OPTIONAL. Provide a way to plug into the process after the user has logged in, typically to perform some business logic.
+OPTIONAL. A string with the location of your function. Provide a way to plug into the process after the user has logged in, typically to perform some business logic.
 
 Default is:
 ```python
