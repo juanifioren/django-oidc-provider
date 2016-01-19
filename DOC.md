@@ -17,6 +17,12 @@ Before getting started there are some important things that you should know:
 
 - [Requirements](#requirements)
 - [Installation](#installation)
+- [Users And Clients](#users-and-clients)
+- [Templates](#templates)
+- [Standard Claims](#standard-claims)
+- [Server Endpoints](#server-endpoints)
+- [Running Tests](#running-tests)
+- [Relying Parties](#relying-parties)
 - [Settings](#settings)
     - [SITE_URL](#site_url)
     - [LOGIN_URL](#login_url)
@@ -30,12 +36,6 @@ Before getting started there are some important things that you should know:
     - [OIDC_SKIP_CONSENT_EXPIRE](#oidc_skip_consent_expire)
     - [OIDC_TOKEN_EXPIRE](#oidc_token_expire)
     - [OIDC_USERINFO](#oidc_userinfo)
-- [Users And Clients](#users-and-clients)
-- [Templates](#templates)
-- [Standard Claims](#standard-claims)
-- [Server Endpoints](#server-endpoints)
-- [Running Tests](#running-tests)
-- [Relying Parties](#relying-parties)
 
 ## Requirements
 
@@ -96,121 +96,6 @@ SITE_URL = 'http://localhost:8000'
 LOGIN_URL = '/accounts/login/'
 OIDC_RSA_KEY_FOLDER = BASE_DIR
 ```
-
-## Settings
-
-##### SITE_URL
-REQUIRED. The OP server url.
-
-`str`. For example `http://localhost:8000`.
-
-##### LOGIN_URL
-REQUIRED. Used to log the user in. [Read more in Django docs](https://docs.djangoproject.com/en/1.7/ref/settings/#login-url).
-
-`str`. Default is `/accounts/login/`.
-
-##### OIDC_AFTER_USERLOGIN_HOOK
-OPTIONAL. Provide a way to plug into the process after the user has logged in, typically to perform some business logic.
-
-Default is:
-```python
-def default_hook_func(request, user, client):
-    return None
-```
-
-Return `None` if you want to continue with the flow.
-
-The typical situation will be checking some state of the user or maybe redirect him somewhere.
-With request you have access to all OIDC parameters. Remember that if you redirect the user to another place then you need to take him back to the authorize endpoint (use `request.get_full_path()` as the value for a "next" parameter).
-
-##### OIDC_CODE_EXPIRE
-OPTIONAL.
-
-`int`. Expressed in seconds. Default is `60*10`.
-
-##### OIDC_EXTRA_SCOPE_CLAIMS
-OPTIONAL. A string with the location of your class. Default is `oidc_provider.lib.claims.AbstractScopeClaims`.
-
-Used to add extra scopes specific for your app. This class MUST inherit ``AbstractScopeClaims``.
-
-OpenID Connect Clients will use scope values to specify what access privileges are being requested for Access Tokens.
-
-[Here](http://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims) you have the standard scopes defined by the protocol.
-
-Check out an example of how to implement it:
-
-```python
-from oidc_provider.lib.claims import AbstractScopeClaims
-
-class MyAppScopeClaims(AbstractScopeClaims):
-
-    def setup(self):
-        # Here you can load models that will be used
-        # in more than one scope for example.
-        # print self.user
-        # print self.scopes
-        try:
-            self.some_model = SomeModel.objects.get(user=self.user)
-        except SomeModel.DoesNotExist:
-            # Create an empty model object.
-            self.some_model = SomeModel()
-
-    def scope_books(self, user):
-
-        # Here you can search books for this user.
-
-        dic = {
-            'books_readed': books_readed_count,
-        }
-
-        return dic
-```
-
-See how we create our own scopes using the convention:
-
-``def scope_<SCOPE_NAME>(self, user):``
-
-If a field is empty or ``None`` will be cleaned from the response.
-
-##### OIDC_IDTOKEN_EXPIRE
-OPTIONAL.
-
-`int`. Expressed in seconds. Default is `60*10`.
-
-##### OIDC_IDTOKEN_SUB_GENERATOR
-OPTIONAL. A string with the location of your function. `sub` is a locally unique and never reassigned identifier within the Issuer for the End-User, which is intended to be consumed by the Client.
-
-The function receives a `user` object and returns a unique `string` for the given user.
-
-Default is:
-```python
-def default_sub_generator(user):
-
-    return str(user.id)
-```
-
-##### OIDC_RSA_KEY_FOLDER
-REQUIRED. Path of the folder where `OIDC_RSA_KEY.pem` lives. Used to sign/encrypt `id_token`. The package will automatically generate a public key and expose it in the `jwks_uri` endpoint.
-
-You can easily create it using `python manage.py creatersakey` command.
-
-##### OIDC_SKIP_CONSENT_ENABLE
-OPTIONAL. If enabled, the Server will save the user consent given to a specific client, so that user won't be prompted for the same authorization multiple times.
-
-`bool`. Default is `True`.
-
-##### OIDC_SKIP_CONSENT_EXPIRE
-OPTIONAL. User consent expiration after been granted.
-
-`int`. Expressed in days. Default is `30*3`.
-
-##### OIDC_TOKEN_EXPIRE
-OPTIONAL. Token object expiration after been created.
-
-`int`. Expressed in seconds. Default is `60*60`.
-
-##### OIDC_USERINFO
-OPTIONAL. A string with the location of your class. Read [standard claims](#standard-claims) section.
 
 ## Users And Clients
 
@@ -397,3 +282,118 @@ This provider was tested (and fully works) with these OIDC Clients:
 - [OIDCAndroidLib](https://github.com/kalemontes/OIDCAndroidLib) (for Android)
 - [Amazon IAM OpenID Connect Identity Provider](https://console.aws.amazon.com/iam/home) (for AWS)
 - [Amazon Cognito](https://console.aws.amazon.com/cognito/home) (for AWS Identity pools)
+
+## Settings
+
+##### SITE_URL
+REQUIRED. The OP server url.
+
+`str`. For example `http://localhost:8000`.
+
+##### LOGIN_URL
+REQUIRED. Used to log the user in. [Read more in Django docs](https://docs.djangoproject.com/en/1.7/ref/settings/#login-url).
+
+`str`. Default is `/accounts/login/`.
+
+##### OIDC_AFTER_USERLOGIN_HOOK
+OPTIONAL. Provide a way to plug into the process after the user has logged in, typically to perform some business logic.
+
+Default is:
+```python
+def default_hook_func(request, user, client):
+    return None
+```
+
+Return `None` if you want to continue with the flow.
+
+The typical situation will be checking some state of the user or maybe redirect him somewhere.
+With request you have access to all OIDC parameters. Remember that if you redirect the user to another place then you need to take him back to the authorize endpoint (use `request.get_full_path()` as the value for a "next" parameter).
+
+##### OIDC_CODE_EXPIRE
+OPTIONAL.
+
+`int`. Expressed in seconds. Default is `60*10`.
+
+##### OIDC_EXTRA_SCOPE_CLAIMS
+OPTIONAL. A string with the location of your class. Default is `oidc_provider.lib.claims.AbstractScopeClaims`.
+
+Used to add extra scopes specific for your app. This class MUST inherit ``AbstractScopeClaims``.
+
+OpenID Connect Clients will use scope values to specify what access privileges are being requested for Access Tokens.
+
+[Here](http://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims) you have the standard scopes defined by the protocol.
+
+Check out an example of how to implement it:
+
+```python
+from oidc_provider.lib.claims import AbstractScopeClaims
+
+class MyAppScopeClaims(AbstractScopeClaims):
+
+    def setup(self):
+        # Here you can load models that will be used
+        # in more than one scope for example.
+        # print self.user
+        # print self.scopes
+        try:
+            self.some_model = SomeModel.objects.get(user=self.user)
+        except SomeModel.DoesNotExist:
+            # Create an empty model object.
+            self.some_model = SomeModel()
+
+    def scope_books(self, user):
+
+        # Here you can search books for this user.
+
+        dic = {
+            'books_readed': books_readed_count,
+        }
+
+        return dic
+```
+
+See how we create our own scopes using the convention:
+
+``def scope_<SCOPE_NAME>(self, user):``
+
+If a field is empty or ``None`` will be cleaned from the response.
+
+##### OIDC_IDTOKEN_EXPIRE
+OPTIONAL.
+
+`int`. Expressed in seconds. Default is `60*10`.
+
+##### OIDC_IDTOKEN_SUB_GENERATOR
+OPTIONAL. A string with the location of your function. `sub` is a locally unique and never reassigned identifier within the Issuer for the End-User, which is intended to be consumed by the Client.
+
+The function receives a `user` object and returns a unique `string` for the given user.
+
+Default is:
+```python
+def default_sub_generator(user):
+
+    return str(user.id)
+```
+
+##### OIDC_RSA_KEY_FOLDER
+REQUIRED. Path of the folder where `OIDC_RSA_KEY.pem` lives. Used to sign/encrypt `id_token`. The package will automatically generate a public key and expose it in the `jwks_uri` endpoint.
+
+You can easily create it using `python manage.py creatersakey` command.
+
+##### OIDC_SKIP_CONSENT_ENABLE
+OPTIONAL. If enabled, the Server will save the user consent given to a specific client, so that user won't be prompted for the same authorization multiple times.
+
+`bool`. Default is `True`.
+
+##### OIDC_SKIP_CONSENT_EXPIRE
+OPTIONAL. User consent expiration after been granted.
+
+`int`. Expressed in days. Default is `30*3`.
+
+##### OIDC_TOKEN_EXPIRE
+OPTIONAL. Token object expiration after been created.
+
+`int`. Expressed in seconds. Default is `60*60`.
+
+##### OIDC_USERINFO
+OPTIONAL. A string with the location of your class. Read [standard claims](#standard-claims) section.
