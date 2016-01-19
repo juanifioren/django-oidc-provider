@@ -54,37 +54,36 @@ class AuthorizeEndpoint(object):
         self.params.nonce = query_dict.get('nonce', '')
 
     def validate_params(self):
-
         if not self.params.redirect_uri:
             logger.error('[Authorize] Missing redirect uri.')
             raise RedirectUriError()
 
         if not ('openid' in self.params.scope):
             logger.error('[Authorize] Missing openid scope.')
-            raise AuthorizeError(
-                self.params.redirect_uri,
-                'invalid_scope',
+            raise AuthorizeError(self.params.redirect_uri, 'invalid_scope',
+                self.grant_type)
+
+        # http://openid.net/specs/openid-connect-implicit-1_0.html#RequestParameters
+        if self.grant_type == 'implicit' and not self.params.nonce:
+            raise AuthorizeError(self.params.redirect_uri, 'invalid_request',
                 self.grant_type)
 
         try:
             self.client = Client.objects.get(client_id=self.params.client_id)
-
-            clean_redirect_uri = urlsplit(self.params.redirect_uri)
-            clean_redirect_uri = urlunsplit(clean_redirect_uri._replace(query=''))
-            if not (clean_redirect_uri in self.client.redirect_uris):
-                logger.error('[Authorize] Invalid redirect uri: %s', self.params.redirect_uri)
-                raise RedirectUriError()
-
-            if not self.grant_type or not (self.params.response_type == self.client.response_type):
-                logger.error('[Authorize] Invalid response type: %s', self.params.response_type)
-                raise AuthorizeError(
-                    self.params.redirect_uri,
-                    'unsupported_response_type',
-                    self.grant_type)
-
         except Client.DoesNotExist:
             logger.error('[Authorize] Invalid client identifier: %s', self.params.client_id)
             raise ClientIdError()
+
+        clean_redirect_uri = urlsplit(self.params.redirect_uri)
+        clean_redirect_uri = urlunsplit(clean_redirect_uri._replace(query=''))
+        if not (clean_redirect_uri in self.client.redirect_uris):
+            logger.error('[Authorize] Invalid redirect uri: %s', self.params.redirect_uri)
+            raise RedirectUriError()
+
+        if not self.grant_type or not (self.params.response_type == self.client.response_type):
+            logger.error('[Authorize] Invalid response type: %s', self.params.response_type)
+            raise AuthorizeError(self.params.redirect_uri, 'unsupported_response_type',
+                self.grant_type)
 
     def create_response_uri(self):
         uri = urlsplit(self.params.redirect_uri)
