@@ -110,7 +110,7 @@ If you want to test the provider without getting to deep into this topics you ca
 
 Create a user with: ``python manage.py createsuperuser``.
 
-To create clients use Django admin (if you have it enabled):
+Create clients using Django admin (if you have it enabled):
 
 ![Client Creation](http://i64.tinypic.com/2dsfgoy.png)
 
