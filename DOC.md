@@ -110,7 +110,7 @@ If you want to test the provider without getting to deep into this topics you ca
 
 Create a user with: ``python manage.py createsuperuser``.
 
-To create clients use Django admin (if you have it enabled):
+Create clients using Django admin (if you have it enabled):
 
 ![Client Creation](http://i64.tinypic.com/2dsfgoy.png)
 
@@ -296,7 +296,7 @@ REQUIRED. Used to log the user in. [Read more in Django docs](https://docs.djang
 `str`. Default is `/accounts/login/`.
 
 ##### OIDC_AFTER_USERLOGIN_HOOK
-OPTIONAL. Provide a way to plug into the process after the user has logged in, typically to perform some business logic.
+OPTIONAL. A string with the location of your function. Provide a way to plug into the process after the user has logged in, typically to perform some business logic.
 
 Default is:
 ```python

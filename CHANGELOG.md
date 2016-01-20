@@ -8,10 +8,11 @@ All notable changes to this project will be documented in this file.
 
 ##### Added
 - Auto-generation of client ID and SECRET using the admin.
+- Validate nonce parameter when using Implicit Flow.
 
 ##### Fixed
 - Fixed generating RSA key by ignoring value of OIDC_RSA_KEY_FOLDER.
-- Make OIDC_IDTOKEN_SUB_GENERATOR to be lazy imported by the location of the function.
+- Make OIDC_AFTER_USERLOGIN_HOOK and OIDC_IDTOKEN_SUB_GENERATOR to be lazy imported by the location of the function.
 - Problem with a function that generate urls for the /.well-known/openid-configuration/ endpoint.
 
 ### [0.2.3] - 2016-01-06
