@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [0.2.4] - 2016-01-20
+
 ##### Added
 - Auto-generation of client ID and SECRET using the admin.
 
