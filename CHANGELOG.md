@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+##### Fixed
+- Nonce parameter missing on the decide form.
+- Set Allow-Origin header to jwks endpoint.
+
 ### [0.2.4] - 2016-01-20
 
 ##### Added
