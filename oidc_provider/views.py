@@ -194,7 +194,10 @@ class JwksView(View):
             'e': long_to_base64(public_key.e),
         })
 
-        return JsonResponse(dic)
+        response = JsonResponse(dic)
+        response['Access-Control-Allow-Origin'] = '*'
+
+        return response
 
 
 class LogoutView(View):
