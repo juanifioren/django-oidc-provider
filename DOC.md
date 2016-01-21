@@ -247,7 +247,7 @@ POST /openid/token/ HTTP/1.1
 Host: localhost:8000
 Cache-Control: no-cache
 Content-Type: application/x-www-form-urlencoded
-    client_id=123&client_secret=456&redirect_uri=http%253A%252F%252Fexample.com%252F&grant_type=authorization_code&code=[CODE]&state=abcdefgh
+    client_id=123&client_secret=456&redirect_uri=http%253A%252F%252Fexample.com%252F&grant_type=authorization_code&code=5fb3b172913448acadce6b011af1e75e&state=abcdefgh
 ```
 
 **/userinfo endpoint**
@@ -255,7 +255,7 @@ Content-Type: application/x-www-form-urlencoded
 ```curl
 POST /openid/userinfo/ HTTP/1.1
 Host: localhost:8000
-Authorization: Bearer [ACCESS_TOKEN]
+Authorization: Bearer 2b5e4400bfcf47aa9f6abb1d7432fc60
 ```
 
 ## Running Tests
