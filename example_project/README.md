@@ -29,6 +29,20 @@ $ python manage.py runserver
 
 Open your browser and go to `http://localhost:8000`. Voilà!
 
+## Or Use Docker
+
+Build the container first.
+```
+docker build -t django-oidc-provider .
+```
+
+Run the container next.
+```
+docker run -d -p 8000:8000 django-oidc-provider
+```
+
+Open your browser and go to `http://localhost:8000`. Voilà!
+
 ## Install package for development
 
 After you run `pip install -r requirements.txt`.
