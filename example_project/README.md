@@ -4,6 +4,11 @@ Run your own OIDC provider in a second. This is a Django app with all the necess
 
 ## Setup & Running
 
+- [Manually](#manually)
+- [Using Docker](#using-docker)
+
+### Manually
+
 Setup project environment with [virtualenv](https://virtualenv.pypa.io) and [pip](https://pip.pypa.io).
 
 ```bash
@@ -29,19 +34,14 @@ $ python manage.py runserver
 
 Open your browser and go to `http://localhost:8000`. Voilà!
 
-## Or Use Docker
+### Using Docker
 
-Build the container first.
-```
-docker build -t django-oidc-provider .
-```
+Build and run the container.
 
-Run the container next.
+```bash
+$ docker build -t django-oidc-provider .
+$ docker run -d -p 8000:8000 django-oidc-provider
 ```
-docker run -d -p 8000:8000 django-oidc-provider
-```
-
-Open your browser and go to `http://localhost:8000`. Voilà!
 
 ## Install package for development
 
