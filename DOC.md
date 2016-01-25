@@ -18,7 +18,7 @@ Before getting started there are some important things that you should know:
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Users And Clients](#users-and-clients)
-- [Server RSA Keys](#rsa-keys)
+- [Server Keys](#server-keys)
 - [Templates](#templates)
 - [Standard Claims](#standard-claims)
 - [Server Endpoints](#server-endpoints)
@@ -122,9 +122,9 @@ Or create a client with Django shell: ``python manage.py shell``:
 >>> c.save()
 ```
 
-## Server RSA Keys
+## Server Keys
 
-Server keys are used to sign/encrypt ID Tokens. These keys are stored in the `RSAKey` model. So the package will automatically generate public keys and expose them in the `jwks_uri` endpoint.
+Server RSA keys are used to sign/encrypt ID Tokens. These keys are stored in the `RSAKey` model. So the package will automatically generate public keys and expose them in the `jwks_uri` endpoint.
 
 You can easily create them with the admin:
 
