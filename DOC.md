@@ -80,21 +80,15 @@ urlpatterns = patterns('',
 Generate server RSA key and run migrations (if you don't).
 
 ```bash
-python manage.py creatersakey
-python manage.py migrate
+$ python manage.py creatersakey
+$ python manage.py migrate
 ```
 
 Add required variables to your project settings.
 
 ```python
-# You maybe have this on top of your settings.py
-import os
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-
-
 SITE_URL = 'http://localhost:8000'
 LOGIN_URL = '/accounts/login/'
-OIDC_RSA_KEY_FOLDER = BASE_DIR
 ```
 
 ## Users And Clients
