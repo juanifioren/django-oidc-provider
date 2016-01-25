@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+##### Changed
+- Removing OIDC_RSA_KEY_FOLDER setting. Moving RSA Keys to the database.
+
 ##### Fixed
 - Nonce parameter missing on the decide form.
 - Set Allow-Origin header to jwks endpoint.
