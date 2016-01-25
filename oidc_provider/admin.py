@@ -5,7 +5,8 @@ from uuid import uuid4
 from django.forms import ModelForm
 from django.contrib import admin
 
-from oidc_provider.models import Client, Code, Token
+from oidc_provider.models import Client, Code, Token, RSAKey
+
 
 class ClientForm(ModelForm):
 
@@ -56,3 +57,9 @@ class TokenAdmin(admin.ModelAdmin):
     
     def has_add_permission(self, request):
         return False
+
+
+@admin.register(RSAKey)
+class RSAKeyAdmin(admin.ModelAdmin):
+
+    readonly_fields = ['kid']

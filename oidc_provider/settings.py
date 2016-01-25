@@ -59,13 +59,6 @@ class DefaultSettings(object):
         return 'oidc_provider.lib.utils.common.default_sub_generator'
 
     @property
-    def OIDC_RSA_KEY_FOLDER(self):
-        """
-        REQUIRED.
-        """
-        return None
-
-    @property
     def OIDC_SKIP_CONSENT_ENABLE(self):
         """
         OPTIONAL. If enabled, the Server will save the user consent

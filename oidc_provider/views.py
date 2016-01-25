@@ -8,14 +8,14 @@ from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
-from hashlib import md5
 from jwkest import long_to_base64
 
 from oidc_provider.lib.endpoints.authorize import *
 from oidc_provider.lib.endpoints.token import *
 from oidc_provider.lib.endpoints.userinfo import *
 from oidc_provider.lib.errors import *
-from oidc_provider.lib.utils.common import redirect, get_issuer, get_rsa_key
+from oidc_provider.lib.utils.common import redirect, get_issuer
+from oidc_provider.models import Client, RSAKey
 
 
 logger = logging.getLogger(__name__)
@@ -160,7 +160,6 @@ class ProviderInfoView(View):
         dic['userinfo_endpoint'] = SITE_URL + reverse('oidc_provider:userinfo')
         dic['end_session_endpoint'] = SITE_URL + reverse('oidc_provider:logout')
 
-        from oidc_provider.models import Client
         types_supported = [x[0] for x in Client.RESPONSE_TYPE_CHOICES]
         dic['response_types_supported'] = types_supported
 
@@ -182,17 +181,16 @@ class JwksView(View):
     def get(self, request, *args, **kwargs):
         dic = dict(keys=[])
 
-        key = get_rsa_key().encode('utf-8')
-        public_key  = RSA.importKey(key).publickey()
-
-        dic['keys'].append({
-            'kty': 'RSA',
-            'alg': 'RS256',
-            'use': 'sig',
-            'kid': md5(key).hexdigest(),
-            'n': long_to_base64(public_key.n),
-            'e': long_to_base64(public_key.e),
-        })
+        for rsakey in RSAKey.objects.all():
+            public_key  = RSA.importKey(rsakey.key).publickey()
+            dic['keys'].append({
+                'kty': 'RSA',
+                'alg': 'RS256',
+                'use': 'sig',
+                'kid': rsakey.kid,
+                'n': long_to_base64(public_key.n),
+                'e': long_to_base64(public_key.e),
+            })
 
         response = JsonResponse(dic)
         response['Access-Control-Allow-Origin'] = '*'

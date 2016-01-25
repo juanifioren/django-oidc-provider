@@ -27,20 +27,6 @@ def get_issuer():
     return issuer
 
 
-def get_rsa_key():
-    """
-    Load the rsa key previously created with `creatersakey` command.
-    """
-    file_path = settings.get('OIDC_RSA_KEY_FOLDER') + '/OIDC_RSA_KEY.pem'
-    try:
-        with open(file_path, 'r') as f:
-            key = f.read()
-    except IOError:
-        raise IOError('We could not find your key file on: ' + file_path)
-
-    return key
-
-
 class DefaultUserInfo(object):
     """
     Default class for setting OIDC_USERINFO.

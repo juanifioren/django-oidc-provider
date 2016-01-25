@@ -5,10 +5,10 @@ import uuid
 from Crypto.PublicKey.RSA import importKey
 from django.utils import timezone
 from hashlib import md5
-from jwkest.jwk import RSAKey
+from jwkest.jwk import RSAKey as jwk_RSAKey
 from jwkest.jws import JWS
 
-from oidc_provider.lib.utils.common import get_issuer, get_rsa_key
+from oidc_provider.lib.utils.common import get_issuer
 from oidc_provider.models import *
 from oidc_provider import settings
 
@@ -53,9 +53,16 @@ def encode_id_token(payload):
 
     Return a hash.
     """
-    key_string = get_rsa_key().encode('utf-8')
-    keys = [ RSAKey(key=importKey(key_string), kid=md5(key_string).hexdigest()) ]
+    keys = []
+
+    for rsakey in RSAKey.objects.all():
+        keys.append(jwk_RSAKey(key=importKey(rsakey.key), kid=rsakey.kid))
+
+    if not keys:
+        raise Exception('You must add at least one RSA Key.')
+    
     _jws = JWS(payload, alg='RS256')
+
     return _jws.sign_compact(keys)
 
 

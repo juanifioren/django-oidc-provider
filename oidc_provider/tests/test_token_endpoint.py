@@ -12,11 +12,11 @@ from django.test import TestCase
 from jwkest.jwk import KEYS
 from jwkest.jws import JWS
 from jwkest.jwt import JWT
+from mock import patch
 
 from oidc_provider.lib.utils.token import *
 from oidc_provider.tests.app.utils import *
 from oidc_provider.views import *
-from mock import patch
 
 
 class TokenTestCase(TestCase):
@@ -30,6 +30,7 @@ class TokenTestCase(TestCase):
         self.factory = RequestFactory()
         self.user = create_fake_user()
         self.client = create_fake_client(response_type='code')
+        create_rsakey()
 
     def _auth_code_post_data(self, code):
         """

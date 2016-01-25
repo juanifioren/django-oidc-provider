@@ -309,6 +309,7 @@ class ImplicitFlowTestCase(TestCase):
         self.client = create_fake_client(response_type='id_token token')
         self.state = uuid.uuid4().hex
         self.nonce = uuid.uuid4().hex
+        create_rsakey()
 
     def test_missing_nonce(self):
         """

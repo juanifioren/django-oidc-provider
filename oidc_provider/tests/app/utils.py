@@ -1,8 +1,11 @@
-from django.contrib.auth.models import User
+import os
 try:
     from urlparse import parse_qs, urlsplit
 except ImportError:
     from urllib.parse import parse_qs, urlsplit
+
+from django.contrib.auth.models import User
+
 from oidc_provider.models import *
 
 
@@ -42,6 +45,17 @@ def create_fake_client(response_type):
     client.save()
 
     return client
+
+
+def create_rsakey():
+    """
+    Generate and save a sample RSA Key.
+    """
+    fullpath = os.path.abspath(os.path.dirname(__file__)) + '/RSAKEY.pem'
+
+    with open(fullpath, 'r') as f:
+        key = f.read()
+        RSAKey(key=key).save()
 
 
 def is_code_valid(url, user, client):

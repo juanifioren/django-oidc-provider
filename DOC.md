@@ -18,6 +18,7 @@ Before getting started there are some important things that you should know:
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Users And Clients](#users-and-clients)
+- [Server RSA Keys](#rsa-keys)
 - [Templates](#templates)
 - [Standard Claims](#standard-claims)
 - [Server Endpoints](#server-endpoints)
@@ -31,7 +32,6 @@ Before getting started there are some important things that you should know:
     - [OIDC_EXTRA_SCOPE_CLAIMS](#oidc_extra_scope_claims)
     - [OIDC_IDTOKEN_EXPIRE](#oidc_idtoken_expire)
     - [OIDC_IDTOKEN_SUB_GENERATOR](#oidc_idtoken_sub_generator)
-    - [OIDC_RSA_KEY_FOLDER](#oidc_rsa_key_folder)
     - [OIDC_SKIP_CONSENT_ENABLE](#oidc_skip_consent_enable)
     - [OIDC_SKIP_CONSENT_EXPIRE](#oidc_skip_consent_expire)
     - [OIDC_TOKEN_EXPIRE](#oidc_token_expire)
@@ -120,6 +120,35 @@ Or create a client with Django shell: ``python manage.py shell``:
 >>> from oidc_provider.models import Client
 >>> c = Client(name='Some Client', client_id='123', client_secret='456', response_type='code', redirect_uris=['http://example.com/'])
 >>> c.save()
+```
+
+## Server RSA Keys
+
+Server keys are used to sign/encrypt ID Tokens. These keys are stored in the `RSAKey` model. So the package will automatically generate public keys and expose them in the `jwks_uri` endpoint.
+
+You can easily create them with the admin:
+
+![RSAKey Creation](http://i64.tinypic.com/vj2ma.png)
+
+Or use `python manage.py creatersakey` command.
+
+```curl
+GET /openid/jwks HTTP/1.1
+Host: localhost:8000
+```
+```json
+{  
+  "keys":[  
+    {  
+      "use":"sig",
+      "e":"AQAB",
+      "kty":"RSA",
+      "alg":"RS256",
+      "n":"3Gm0pS7ij_SnY96wkbaki74MUYJrobXecO6xJhvmAEEhMHGpO0m4H2nbOWTf6Jc1FiiSvgvhObVk9xPOM6qMTQ5D5pfWZjNk99qDJXvAE4ImM8S0kCaBJGT6e8JbuDllCUq8aL71t67DhzbnoBsKCnVOE1GJffpMcDdBUYkAsx8",
+      "kid":"a38ea7fbf944cc060eaf5acc1956b0e3"
+    }
+  ]
+}
 ```
 
 ## Templates
