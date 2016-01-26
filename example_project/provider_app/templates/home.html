@@ -7,6 +7,7 @@
     <div class="ui stackable page grid">
         <div class="row">
             <div class="center aligned column">
+                <i class="thumbs outline up massive icon"></i>
                 <h1 class="ui huge header">Congratulations! It works. <div class="sub header">... what's next?</div></h1>
             </div>
         </div>
@@ -15,6 +16,34 @@
                 <div class="ui segments">
                     <div class="ui segment">
                         <p>Now that you are an OpenID Connect Provider, start by creating your clients <a href="{% url 'admin:index' %}oidc_provider/client/" target="_BLANK">here</a>.</p>
+                        <p>Also check that you've created at least one server key, do it <a href="{% url 'admin:index' %}oidc_provider/rsakey/" target="_BLANK">here</a>.</p>
+                        <h2 class="ui header">Server Endpoints</h2>
+                        <div class="ui list">
+                            <div class="item">
+                                <a href="{% url 'oidc_provider:provider_info' %}" class="header">{% url 'oidc_provider:provider_info' %}</a>
+                                <div class="description">This endpoint performs Authentication of the End-User. <a href="http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig" target="_BLANK">Read more</a>.</div>
+                            </div>
+                            <div class="item">
+                                <a href="{% url 'oidc_provider:jwks' %}" class="header">{% url 'oidc_provider:jwks' %}</a>
+                                <div class="description">JavaScript Object Notation (JSON) data structure that represents a cryptographic key.</div>
+                            </div>
+                            <div class="item">
+                                <a href="{% url 'oidc_provider:authorize' %}" class="header">{% url 'oidc_provider:authorize' %}</a>
+                                <div class="description">This endpoint performs Authentication of the End-User. <a href="http://openid.net/specs/openid-connect-core-1_0.html#AuthorizationEndpoint" target="_BLANK">Read more</a>.</div>
+                            </div>
+                            <div class="item">
+                                <a href="{% url 'oidc_provider:token' %}" class="header">{% url 'oidc_provider:token' %}</a>
+                                <div class="description">Used to obtain an Access Token, an ID Token, and optionally a Refresh Token. <a href="http://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint" target="_BLANK">Read more</a>.</div>
+                            </div>
+                            <div class="item">
+                                <a href="{% url 'oidc_provider:userinfo' %}" class="header">{% url 'oidc_provider:userinfo' %}</a>
+                                <div class="description">OAuth 2.0 Protected Resource that returns Claims about the authenticated End-User. <a href="http://openid.net/specs/openid-connect-core-1_0.html#UserInfo" target="_BLANK">Read more</a>.</div>
+                            </div>
+                            <div class="item">
+                                <a href="{% url 'oidc_provider:logout' %}" class="header">{% url 'oidc_provider:logout' %}</a>
+                                <div class="description">Used to notify the OP that the End-User has logged out of the site. <a href="http://openid.net/specs/openid-connect-session-1_0.html#RPLogout" target="_BLANK">Read more</a>.</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
