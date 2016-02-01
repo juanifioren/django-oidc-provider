@@ -224,13 +224,18 @@ class AuthorizationCodeFlowTestCase(TestCase):
         # Simulate that the user is logged.
         request.user = self.user
 
+        with self.settings(OIDC_SKIP_CONSENT_ALWAYS=True):
+            response = AuthorizeView.as_view()(request)
+
+            self.assertEqual('code' in response['Location'], True,
+                msg='Code is missing in the returned url.')
+
         response = AuthorizeView.as_view()(request)
 
         is_code_ok = is_code_valid(url=response['Location'],
                                    user=self.user,
                                    client=self.client)
-        self.assertEqual(is_code_ok, True,
-            msg='Code returned is invalid.')
+        self.assertEqual(is_code_ok, True, msg='Code returned is invalid.')
 
         del post_data['allow']
         query_str = urlencode(post_data).replace('+', '%20')
@@ -247,10 +252,12 @@ class AuthorizationCodeFlowTestCase(TestCase):
         is_code_ok = is_code_valid(url=response['Location'],
                                    user=self.user,
                                    client=self.client)
-        self.assertEqual(is_code_ok, True,
-            msg='Code returned is invalid or missing.')
+        self.assertEqual(is_code_ok, True, msg='Code returned is invalid or missing.')
 
     def test_response_uri_is_properly_constructed(self):
+        """
+        TODO
+        """
         post_data = {
             'client_id': self.client.client_id,
             'redirect_uri': self.client.default_redirect_uri + "?redirect_state=xyz",

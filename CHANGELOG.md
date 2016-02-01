@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+##### Added
+- Setting OIDC_SKIP_CONSENT_ALWAYS.
+
 ##### Changed
 - Removing OIDC_RSA_KEY_FOLDER setting. Moving RSA Keys to the database.
 

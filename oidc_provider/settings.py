@@ -59,6 +59,13 @@ class DefaultSettings(object):
         return 'oidc_provider.lib.utils.common.default_sub_generator'
 
     @property
+    def OIDC_SKIP_CONSENT_ALWAYS(self):
+        """
+        OPTIONAL. If enabled, the Server will NEVER ask the user for consent.
+        """
+        return False
+
+    @property
     def OIDC_SKIP_CONSENT_ENABLE(self):
         """
         OPTIONAL. If enabled, the Server will save the user consent

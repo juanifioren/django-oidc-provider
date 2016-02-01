@@ -38,11 +38,13 @@ class AuthorizeView(View):
                 if hook_resp:
                     return hook_resp
 
+                if settings.get('OIDC_SKIP_CONSENT_ALWAYS'):
+                    return redirect(authorize.create_response_uri())
+
                 if settings.get('OIDC_SKIP_CONSENT_ENABLE'):
                     # Check if user previously give consent.
                     if authorize.client_has_user_consent():
-                        uri = authorize.create_response_uri()
-                        return redirect(uri)
+                        return redirect(authorize.create_response_uri())
 
                 # Generate hidden inputs for the form.
                 context = {
