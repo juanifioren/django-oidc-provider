@@ -1,5 +1,7 @@
 # Example Project
 
+![Example Project](http://s12.postimg.org/e4uwlsi0d/Screenshot_from_2016_02_02_13_15_26.png)
+
 Run your own OIDC provider in a second. This is a Django app with all the necessary things to work with `django-oidc-provider` package.
 
 ## Setup & Running
