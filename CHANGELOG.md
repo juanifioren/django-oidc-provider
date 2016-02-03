@@ -4,11 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [0.2.5] - 2016-02-03
+
 ##### Added
 - Setting OIDC_SKIP_CONSENT_ALWAYS.
 
 ##### Changed
 - Removing OIDC_RSA_KEY_FOLDER setting. Moving RSA Keys to the database.
+- Update pyjwkest to version 1.1.0.
 
 ##### Fixed
 - Nonce parameter missing on the decide form.
