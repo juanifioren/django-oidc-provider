@@ -1,0 +1,300 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Settings &mdash; django-oidc-provider 0.2.5 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="django-oidc-provider 0.2.5 documentation" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> django-oidc-provider
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clients.html">Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="serverkeys.html">Server Keys</a></li>
+<li class="toctree-l1"><a class="reference internal" href="templates.html">Templates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="claims.html">Standard Claims</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">django-oidc-provider</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Settings</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/settings.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="settings">
+<span id="id1"></span><h1>Settings<a class="headerlink" href="#settings" title="Permalink to this headline">¶</a></h1>
+<p>Customize your provider so fit your project needs.</p>
+<div class="section" id="site-url">
+<h2>SITE_URL<a class="headerlink" href="#site-url" title="Permalink to this headline">¶</a></h2>
+<p>REQUIRED. The OP server url.</p>
+<p><code class="docutils literal"><span class="pre">str</span></code>. For example <code class="docutils literal"><span class="pre">http://localhost:8000</span></code>.</p>
+</div>
+<div class="section" id="login-url">
+<h2>LOGIN_URL<a class="headerlink" href="#login-url" title="Permalink to this headline">¶</a></h2>
+<p>REQUIRED. Used to log the user in. <a class="reference external" href="https://docs.djangoproject.com/en/1.7/ref/settings/#login-url">Read more in Django docs</a></p>
+<p><code class="docutils literal"><span class="pre">str</span></code>. Default is <code class="docutils literal"><span class="pre">/accounts/login/</span></code>.</p>
+</div>
+<div class="section" id="oidc-after-userlogin-hook">
+<h2>OIDC_AFTER_USERLOGIN_HOOK<a class="headerlink" href="#oidc-after-userlogin-hook" title="Permalink to this headline">¶</a></h2>
+<p>OPTIONAL. A string with the location of your function. Provide a way to plug into the process after the user has logged in, typically to perform some business logic.</p>
+<p>Default is:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">default_hook_func</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">client</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">None</span>
+</pre></div>
+</div>
+<p>Return <code class="docutils literal"><span class="pre">None</span></code> if you want to continue with the flow.</p>
+<p>The typical situation will be checking some state of the user or maybe redirect him somewhere.
+With request you have access to all OIDC parameters. Remember that if you redirect the user to another place then you need to take him back to the authorize endpoint (use <code class="docutils literal"><span class="pre">request.get_full_path()</span></code> as the value for a &#8220;next&#8221; parameter).</p>
+</div>
+<div class="section" id="oidc-code-expire">
+<h2>OIDC_CODE_EXPIRE<a class="headerlink" href="#oidc-code-expire" title="Permalink to this headline">¶</a></h2>
+<p>OPTIONAL. Code object expiration after been delivered.</p>
+<p><code class="docutils literal"><span class="pre">int</span></code>. Expressed in seconds. Default is <code class="docutils literal"><span class="pre">60*10</span></code>.</p>
+</div>
+<div class="section" id="oidc-extra-scope-claims">
+<h2>OIDC_EXTRA_SCOPE_CLAIMS<a class="headerlink" href="#oidc-extra-scope-claims" title="Permalink to this headline">¶</a></h2>
+<p>OPTIONAL. A string with the location of your class. Default is <code class="docutils literal"><span class="pre">oidc_provider.lib.claims.AbstractScopeClaims</span></code>.</p>
+<p>Used to add extra scopes specific for your app. This class MUST inherit <code class="docutils literal"><span class="pre">AbstractScopeClaims</span></code>.</p>
+<p>OpenID Connect Clients will use scope values to specify what access privileges are being requested for Access Tokens.</p>
+<p><a class="reference external" href="http://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims">Here</a> you have the standard scopes defined by the protocol.</p>
+<p>Check out an example of how to implement it:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">oidc_provider.lib.claims</span> <span class="kn">import</span> <span class="n">AbstractScopeClaims</span>
+
+<span class="k">class</span> <span class="nc">MyAppScopeClaims</span><span class="p">(</span><span class="n">AbstractScopeClaims</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Here you can load models that will be used</span>
+        <span class="c1"># in more than one scope for example.</span>
+        <span class="c1"># print self.user</span>
+        <span class="c1"># print self.scopes</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">some_model</span> <span class="o">=</span> <span class="n">SomeModel</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">SomeModel</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+            <span class="c1"># Create an empty model object.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">some_model</span> <span class="o">=</span> <span class="n">SomeModel</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">scope_books</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">):</span>
+
+        <span class="c1"># Here you can search books for this user.</span>
+
+        <span class="n">dic</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;books_readed&#39;</span><span class="p">:</span> <span class="n">books_readed_count</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">dic</span>
+</pre></div>
+</div>
+<p>You can create our own scopes using the convention:</p>
+<p><code class="docutils literal"><span class="pre">def</span> <span class="pre">scope_SCOPENAMEHERE(self,</span> <span class="pre">user):</span></code></p>
+<p>If a field is empty or <code class="docutils literal"><span class="pre">None</span></code> will be cleaned from the response.</p>
+</div>
+<div class="section" id="oidc-idtoken-expire">
+<h2>OIDC_IDTOKEN_EXPIRE<a class="headerlink" href="#oidc-idtoken-expire" title="Permalink to this headline">¶</a></h2>
+<p>OPTIONAL. Token object expiration after been delivered.</p>
+<p><code class="docutils literal"><span class="pre">int</span></code>. Expressed in seconds. Default is <code class="docutils literal"><span class="pre">60*10</span></code>.</p>
+</div>
+<div class="section" id="oidc-idtoken-sub-generator">
+<h2>OIDC_IDTOKEN_SUB_GENERATOR<a class="headerlink" href="#oidc-idtoken-sub-generator" title="Permalink to this headline">¶</a></h2>
+<p>OPTIONAL. A string with the location of your function. <code class="docutils literal"><span class="pre">sub</span></code> is a locally unique and never reassigned identifier within the Issuer for the End-User, which is intended to be consumed by the Client.</p>
+<p>The function receives a <code class="docutils literal"><span class="pre">user</span></code> object and returns a unique <code class="docutils literal"><span class="pre">string</span></code> for the given user.</p>
+<p>Default is:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">default_sub_generator</span><span class="p">(</span><span class="n">user</span><span class="p">):</span>
+
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="oidc-skip-consent-always">
+<h2>OIDC_SKIP_CONSENT_ALWAYS<a class="headerlink" href="#oidc-skip-consent-always" title="Permalink to this headline">¶</a></h2>
+<p>OPTIONAL. If enabled, the Server will NEVER ask the user for consent.</p>
+<p><code class="docutils literal"><span class="pre">bool</span></code>. Default is <code class="docutils literal"><span class="pre">False</span></code>.</p>
+</div>
+<div class="section" id="oidc-skip-consent-enable">
+<h2>OIDC_SKIP_CONSENT_ENABLE<a class="headerlink" href="#oidc-skip-consent-enable" title="Permalink to this headline">¶</a></h2>
+<p>OPTIONAL. If enabled, the Server will save the user consent given to a specific client, so that user won&#8217;t be prompted for the same authorization multiple times.</p>
+<p><code class="docutils literal"><span class="pre">bool</span></code>. Default is <code class="docutils literal"><span class="pre">True</span></code>.</p>
+</div>
+<div class="section" id="oidc-skip-consent-expire">
+<h2>OIDC_SKIP_CONSENT_EXPIRE<a class="headerlink" href="#oidc-skip-consent-expire" title="Permalink to this headline">¶</a></h2>
+<p>OPTIONAL. User consent expiration after been granted.</p>
+<p><code class="docutils literal"><span class="pre">int</span></code>. Expressed in days. Default is <code class="docutils literal"><span class="pre">30*3</span></code>.</p>
+</div>
+<div class="section" id="oidc-token-expire">
+<h2>OIDC_TOKEN_EXPIRE<a class="headerlink" href="#oidc-token-expire" title="Permalink to this headline">¶</a></h2>
+<p>OPTIONAL. Token object expiration after been created.</p>
+<p><code class="docutils literal"><span class="pre">int</span></code>. Expressed in seconds. Default is <code class="docutils literal"><span class="pre">60*60</span></code>.</p>
+</div>
+<div class="section" id="oidc-userinfo">
+<h2>OIDC_USERINFO<a class="headerlink" href="#oidc-userinfo" title="Permalink to this headline">¶</a></h2>
+<p>OPTIONAL. A string with the location of your class. Read <strong>Standard Claims</strong> section.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Juan Ignacio Fiorentino.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.2.5',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
