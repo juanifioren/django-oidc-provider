@@ -1,8 +1,10 @@
 import os
+
 from Crypto.PublicKey import RSA
+from django.core.management.base import BaseCommand
 
 from oidc_provider import settings
-from django.core.management.base import BaseCommand
+from oidc_provider.models import RSAKey
 
 
 class Command(BaseCommand):
@@ -11,9 +13,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         try:
             key = RSA.generate(1024)
-            file_path = os.path.join(settings.get('OIDC_RSA_KEY_FOLDER'), 'OIDC_RSA_KEY.pem')
-            with open(file_path, 'wb') as f:
-                f.write(key.exportKey('PEM'))
-            self.stdout.write('RSA key successfully created at: ' + file_path)
+            rsakey = RSAKey(key=key.exportKey('PEM').decode('utf8'))
+            rsakey.save()
+            self.stdout.write(u'RSA key successfully created with kid: {0}'.format(rsakey.kid))
         except Exception as e:
             self.stdout.write('Something goes wrong: {0}'.format(e))

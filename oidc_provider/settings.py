@@ -25,10 +25,7 @@ class DefaultSettings(object):
         OPTIONAL.  Provide a way to plug into the process after
         the user has logged in, typically to perform some business logic.
         """
-        def default_hook_func(request, user, client):
-            return None
-
-        return default_hook_func
+        return 'oidc_provider.lib.utils.common.default_after_userlogin_hook'
 
     @property
     def OIDC_CODE_EXPIRE(self):
@@ -59,17 +56,14 @@ class DefaultSettings(object):
         reassigned identifier within the Issuer for the End-User,
         which is intended to be consumed by the Client.
         """
-        def default_sub_generator(user):
-            return str(user.id)
-
-        return default_sub_generator
+        return 'oidc_provider.lib.utils.common.default_sub_generator'
 
     @property
-    def OIDC_RSA_KEY_FOLDER(self):
+    def OIDC_SKIP_CONSENT_ALWAYS(self):
         """
-        REQUIRED.
+        OPTIONAL. If enabled, the Server will NEVER ask the user for consent.
         """
-        return None
+        return False
 
     @property
     def OIDC_SKIP_CONSENT_ENABLE(self):

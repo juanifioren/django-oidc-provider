@@ -12,11 +12,11 @@ from django.test import TestCase
 from jwkest.jwk import KEYS
 from jwkest.jws import JWS
 from jwkest.jwt import JWT
+from mock import patch
 
 from oidc_provider.lib.utils.token import *
 from oidc_provider.tests.app.utils import *
 from oidc_provider.views import *
-from mock import patch
 
 
 class TokenTestCase(TestCase):
@@ -30,6 +30,7 @@ class TokenTestCase(TestCase):
         self.factory = RequestFactory()
         self.user = create_fake_user()
         self.client = create_fake_client(response_type='code')
+        create_rsakey()
 
     def _auth_code_post_data(self, code):
         """
@@ -322,3 +323,19 @@ class TokenTestCase(TestCase):
         response_dic = json.loads(response.content.decode('utf-8'))
 
         id_token = JWS().verify_compact(response_dic['id_token'].encode('utf-8'), RSAKEYS)
+
+    @override_settings(OIDC_IDTOKEN_SUB_GENERATOR='oidc_provider.tests.app.utils.fake_sub_generator')
+    def test_custom_sub_generator(self):
+        """
+        Test custom function for setting OIDC_IDTOKEN_SUB_GENERATOR.
+        """
+        code = self._create_code()
+
+        post_data = self._auth_code_post_data(code=code.code)
+
+        response = self._post_request(post_data)
+
+        response_dic = json.loads(response.content.decode('utf-8'))
+        id_token = JWT().unpack(response_dic['id_token'].encode('utf-8')).payload()
+
+        self.assertEqual(id_token.get('sub'), self.user.email)

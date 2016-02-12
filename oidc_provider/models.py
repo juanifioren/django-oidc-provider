@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from hashlib import md5
 import json
 
 from django.db import models
@@ -19,13 +21,13 @@ class Client(models.Model):
     client_secret = models.CharField(max_length=255, unique=True)
     response_type = models.CharField(max_length=30,
                                      choices=RESPONSE_TYPE_CHOICES)
+    date_created = models.DateField(auto_now_add=True)
 
     _redirect_uris = models.TextField(default='', verbose_name=_(u'Redirect URI'), help_text=_(u'Enter each URI on a new line.'))
 
     class Meta:
         verbose_name = _(u'Client')
         verbose_name_plural = _(u'Clients')
-
 
     def __str__(self):
         return u'{0}'.format(self.name)
@@ -106,3 +108,22 @@ class UserConsent(BaseCodeTokenModel):
 
     class Meta:
         unique_together = ('user', 'client')
+
+
+class RSAKey(models.Model):
+
+    key = models.TextField(help_text=_(u'Paste your private RSA Key here.'))
+
+    class Meta:
+        verbose_name = _(u'RSA Key')
+        verbose_name_plural = _(u'RSA Keys')
+
+    def __str__(self):
+        return u'{0}'.format(self.kid)
+
+    def __unicode__(self):
+        return self.__str__()
+
+    @property
+    def kid(self):
+        return  u'{0}'.format(md5(self.key.encode('utf-8')).hexdigest() if self.key else '')

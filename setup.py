@@ -1,15 +1,13 @@
 import os
 from setuptools import setup
 
-with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
-    README = readme.read()
 
 # allow setup.py to be run from any path
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-oidc-provider',
-    version='0.2.3',
+    version='0.2.5',
     packages=[
         'oidc_provider', 'oidc_provider/lib', 'oidc_provider/lib/endpoints',
         'oidc_provider/lib/utils', 'oidc_provider/tests', 'oidc_provider/tests/app',
@@ -18,7 +16,7 @@ setup(
     include_package_data=True,
     license='MIT License',
     description='OpenID Connect Provider implementation for Django.',
-    long_description=README,
+    long_description='http://github.com/juanifioren/django-oidc-provider',
     url='http://github.com/juanifioren/django-oidc-provider',
     author='Juan Ignacio Fiorentino',
     author_email='juanifioren@gmail.com',
@@ -37,11 +35,11 @@ setup(
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
     tests_require=[
-        'pyjwkest==1.0.6',
+        'pyjwkest==1.1.0',
         'mock==1.3.0',
     ],
 
     install_requires=[
-        'pyjwkest==1.0.6',
+        'pyjwkest==1.1.0',
     ],
 )

@@ -224,13 +224,18 @@ class AuthorizationCodeFlowTestCase(TestCase):
         # Simulate that the user is logged.
         request.user = self.user
 
+        with self.settings(OIDC_SKIP_CONSENT_ALWAYS=True):
+            response = AuthorizeView.as_view()(request)
+
+            self.assertEqual('code' in response['Location'], True,
+                msg='Code is missing in the returned url.')
+
         response = AuthorizeView.as_view()(request)
 
         is_code_ok = is_code_valid(url=response['Location'],
                                    user=self.user,
                                    client=self.client)
-        self.assertEqual(is_code_ok, True,
-            msg='Code returned is invalid.')
+        self.assertEqual(is_code_ok, True, msg='Code returned is invalid.')
 
         del post_data['allow']
         query_str = urlencode(post_data).replace('+', '%20')
@@ -247,10 +252,12 @@ class AuthorizationCodeFlowTestCase(TestCase):
         is_code_ok = is_code_valid(url=response['Location'],
                                    user=self.user,
                                    client=self.client)
-        self.assertEqual(is_code_ok, True,
-            msg='Code returned is invalid or missing.')
+        self.assertEqual(is_code_ok, True, msg='Code returned is invalid or missing.')
 
     def test_response_uri_is_properly_constructed(self):
+        """
+        TODO
+        """
         post_data = {
             'client_id': self.client.client_id,
             'redirect_uri': self.client.default_redirect_uri + "?redirect_state=xyz",
@@ -296,3 +303,64 @@ class AuthorizationCodeFlowTestCase(TestCase):
         response = AuthorizeView.as_view()(request)
 
         self.assertEqual(scope_test in response.content.decode('utf-8'), True)
+
+
+class ImplicitFlowTestCase(TestCase):
+    """
+    Test cases for Authorize Endpoint using Implicit Grant Flow.
+    """
+
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.user = create_fake_user()
+        self.client = create_fake_client(response_type='id_token token')
+        self.state = uuid.uuid4().hex
+        self.nonce = uuid.uuid4().hex
+        create_rsakey()
+
+    def test_missing_nonce(self):
+        """
+        The `nonce` parameter is REQUIRED if you use the Implicit Flow.
+        """
+        query_str = urlencode({
+            'client_id': self.client.client_id,
+            'response_type': self.client.response_type,
+            'redirect_uri': self.client.default_redirect_uri,
+            'scope': 'openid email',
+            'state': self.state,
+        }).replace('+', '%20')
+
+        url = reverse('oidc_provider:authorize') + '?' + query_str
+
+        request = self.factory.get(url)
+        # Simulate that the user is logged.
+        request.user = self.user
+
+        response = AuthorizeView.as_view()(request)
+        
+        self.assertEqual('#error=invalid_request' in response['Location'], True)   
+
+    def test_access_token_response(self):
+        """
+        Unlike the Authorization Code flow, in which the client makes
+        separate requests for authorization and for an access token, the client
+        receives the access token as the result of the authorization request.
+        """
+        post_data = {
+            'client_id': self.client.client_id,
+            'redirect_uri': self.client.default_redirect_uri,
+            'response_type': self.client.response_type,
+            'scope': 'openid email',
+            'state': self.state,
+            'nonce': self.nonce,
+            'allow': 'Accept',
+        }
+
+        request = self.factory.post(reverse('oidc_provider:authorize'),
+                                    data=post_data)
+        # Simulate that the user is logged.
+        request.user = self.user
+
+        response = AuthorizeView.as_view()(request)
+        
+        self.assertEqual('access_token' in response['Location'], True) 

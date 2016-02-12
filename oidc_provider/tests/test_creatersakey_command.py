@@ -4,6 +4,7 @@ from django.utils.six import StringIO
 
 
 class CreateRSAKeyTest(TestCase):
+
     @override_settings(BASE_DIR='/tmp')
     def test_command_output(self):
         out = StringIO()

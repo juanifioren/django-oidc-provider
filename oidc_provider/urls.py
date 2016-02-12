@@ -3,7 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 from oidc_provider.views import *
 
 
-urlpatterns = patterns('',
+urlpatterns = [
 
     url(r'^authorize/?$', AuthorizeView.as_view(), name='authorize'),
     url(r'^token/?$', csrf_exempt(TokenView.as_view()), name='token'),
@@ -13,4 +13,4 @@ urlpatterns = patterns('',
     url(r'^\.well-known/openid-configuration/?$', ProviderInfoView.as_view(), name='provider_info'),
     url(r'^jwks/?$', JwksView.as_view(), name='jwks'),
 
-)
+]

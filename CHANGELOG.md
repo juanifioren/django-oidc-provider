@@ -4,6 +4,30 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [0.2.5] - 2016-02-03
+
+##### Added
+- Setting OIDC_SKIP_CONSENT_ALWAYS.
+
+##### Changed
+- Removing OIDC_RSA_KEY_FOLDER setting. Moving RSA Keys to the database.
+- Update pyjwkest to version 1.1.0.
+
+##### Fixed
+- Nonce parameter missing on the decide form.
+- Set Allow-Origin header to jwks endpoint.
+
+### [0.2.4] - 2016-01-20
+
+##### Added
+- Auto-generation of client ID and SECRET using the admin.
+- Validate nonce parameter when using Implicit Flow.
+
+##### Fixed
+- Fixed generating RSA key by ignoring value of OIDC_RSA_KEY_FOLDER.
+- Make OIDC_AFTER_USERLOGIN_HOOK and OIDC_IDTOKEN_SUB_GENERATOR to be lazy imported by the location of the function.
+- Problem with a function that generate urls for the /.well-known/openid-configuration/ endpoint.
+
 ### [0.2.3] - 2016-01-06
 
 ##### Added

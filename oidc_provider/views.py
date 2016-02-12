@@ -8,14 +8,14 @@ from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
-from hashlib import md5
 from jwkest import long_to_base64
 
 from oidc_provider.lib.endpoints.authorize import *
 from oidc_provider.lib.endpoints.token import *
 from oidc_provider.lib.endpoints.userinfo import *
 from oidc_provider.lib.errors import *
-from oidc_provider.lib.utils.common import redirect, get_issuer, get_rsa_key
+from oidc_provider.lib.utils.common import redirect, get_issuer
+from oidc_provider.models import Client, RSAKey
 
 
 logger = logging.getLogger(__name__)
@@ -32,17 +32,19 @@ class AuthorizeView(View):
 
             if request.user.is_authenticated():
                 # Check if there's a hook setted.
-                hook_resp = settings.get('OIDC_AFTER_USERLOGIN_HOOK')(
+                hook_resp = settings.get('OIDC_AFTER_USERLOGIN_HOOK', import_str=True)(
                     request=request, user=request.user,
                     client=authorize.client)
                 if hook_resp:
                     return hook_resp
 
+                if settings.get('OIDC_SKIP_CONSENT_ALWAYS'):
+                    return redirect(authorize.create_response_uri())
+
                 if settings.get('OIDC_SKIP_CONSENT_ENABLE'):
                     # Check if user previously give consent.
                     if authorize.client_has_user_consent():
-                        uri = authorize.create_response_uri()
-                        return redirect(uri)
+                        return redirect(authorize.create_response_uri())
 
                 # Generate hidden inputs for the form.
                 context = {
@@ -160,7 +162,6 @@ class ProviderInfoView(View):
         dic['userinfo_endpoint'] = SITE_URL + reverse('oidc_provider:userinfo')
         dic['end_session_endpoint'] = SITE_URL + reverse('oidc_provider:logout')
 
-        from oidc_provider.models import Client
         types_supported = [x[0] for x in Client.RESPONSE_TYPE_CHOICES]
         dic['response_types_supported'] = types_supported
 
@@ -182,19 +183,21 @@ class JwksView(View):
     def get(self, request, *args, **kwargs):
         dic = dict(keys=[])
 
-        key = get_rsa_key().encode('utf-8')
-        public_key  = RSA.importKey(key).publickey()
+        for rsakey in RSAKey.objects.all():
+            public_key  = RSA.importKey(rsakey.key).publickey()
+            dic['keys'].append({
+                'kty': 'RSA',
+                'alg': 'RS256',
+                'use': 'sig',
+                'kid': rsakey.kid,
+                'n': long_to_base64(public_key.n),
+                'e': long_to_base64(public_key.e),
+            })
 
-        dic['keys'].append({
-            'kty': 'RSA',
-            'alg': 'RS256',
-            'use': 'sig',
-            'kid': md5(key).hexdigest(),
-            'n': long_to_base64(public_key.n),
-            'e': long_to_base64(public_key.e),
-        })
+        response = JsonResponse(dic)
+        response['Access-Control-Allow-Origin'] = '*'
 
-        return JsonResponse(dic)
+        return response
 
 
 class LogoutView(View):

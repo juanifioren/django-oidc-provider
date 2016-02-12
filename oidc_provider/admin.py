@@ -1,11 +1,47 @@
+from hashlib import md5
+from random import randint
+from uuid import uuid4
+
+from django.forms import ModelForm
 from django.contrib import admin
 
-from oidc_provider.models import Client, Code, Token
+from oidc_provider.models import Client, Code, Token, RSAKey
+
+
+class ClientForm(ModelForm):
+
+    class Meta:
+        model = Client
+        exclude = []
+
+    def __init__(self, *args, **kwargs):
+        super(ClientForm, self).__init__(*args, **kwargs)
+        self.fields['client_id'].required = False
+        self.fields['client_id'].widget.attrs['disabled'] = 'true'
+        self.fields['client_secret'].required = False
+        self.fields['client_secret'].widget.attrs['disabled'] = 'true'
+
+    def clean_client_id(self):
+        instance = getattr(self, 'instance', None)
+        if instance and instance.pk:
+            return instance.client_id
+        else:
+            return str(randint(1, 999999)).zfill(6)
+
+    def clean_client_secret(self):
+        instance = getattr(self, 'instance', None)
+        if instance and instance.pk:
+            return instance.client_secret
+        else:
+            return md5(str(uuid4())).hexdigest()
 
 
 @admin.register(Client)
 class ClientAdmin(admin.ModelAdmin):
     
+    form = ClientForm
+    list_display = ['name', 'client_id', 'response_type', 'date_created']
+    readonly_fields = ['date_created']
     search_fields = ['name']
 
 
@@ -21,3 +57,9 @@ class TokenAdmin(admin.ModelAdmin):
     
     def has_add_permission(self, request):
         return False
+
+
+@admin.register(RSAKey)
+class RSAKeyAdmin(admin.ModelAdmin):
+
+    readonly_fields = ['kid']

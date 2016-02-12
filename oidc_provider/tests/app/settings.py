@@ -13,11 +13,11 @@ DATABASES = {
 
 SITE_ID = 1
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-)
+]
 
 LOGGING = {
     'version': 1,
@@ -35,27 +35,25 @@ LOGGING = {
     },
 }
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.admin',
-
     'oidc_provider',
-)
+]
 
-SECRET_KEY = 'this-is-top-secret'
+SECRET_KEY = 'this-should-be-top-secret'
 
 ROOT_URLCONF = 'oidc_provider.tests.app.urls'
 
-TEMPLATE_DIRS = (
-    "oidc_provider/tests/templates",
-)
+TEMPLATE_DIRS = [
+    'oidc_provider/tests/templates',
+]
 
 # OIDC Provider settings.
 
 SITE_URL = 'http://localhost:8000'
-OIDC_RSA_KEY_FOLDER = os.path.dirname(__file__)
 OIDC_USERINFO = 'oidc_provider.tests.app.utils.FakeUserInfo'
