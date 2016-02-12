@@ -137,3 +137,12 @@ OIDC_USERINFO
 =============
 
 OPTIONAL. A string with the location of your class. Read **Standard Claims** section.
+
+
+OIDC_ID_TOKEN_PROCESSING_HOOK
+=============================
+
+OPTIONAL. A string with the location of your hook.
+Used to add extra dictionary values specific for your app into id_token.
+
+
