@@ -1,4 +1,6 @@
 import os
+import random
+import string
 try:
     from urlparse import parse_qs, urlsplit
 except ImportError:
@@ -9,7 +11,8 @@ from django.contrib.auth.models import User
 from oidc_provider.models import *
 
 
-FAKE_NONCE = 'cb584e44c43ed6bd0bc2d9c7e242837d'  
+FAKE_NONCE = 'cb584e44c43ed6bd0bc2d9c7e242837d'
+FAKE_RANDOM_STRING = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(32))
 
 
 def create_fake_user():
@@ -103,3 +106,11 @@ def fake_sub_generator(user):
     Fake function for setting OIDC_IDTOKEN_SUB_GENERATOR.
     """
     return user.email
+
+
+def fake_id_token_processing_hook(id_token):
+    """
+    Fake function for inserting some keys into token. Testing OIDC_ID_TOKEN_PROCESSING_HOOK
+    """
+    id_token['test_id_token_processing_hook'] = FAKE_RANDOM_STRING
+    return id_token

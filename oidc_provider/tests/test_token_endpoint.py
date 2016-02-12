@@ -1,16 +1,12 @@
 from base64 import b64encode
-import json
 try:
     from urllib.parse import urlencode
 except ImportError:
     from urllib import urlencode
-import uuid
 
-from django.core.urlresolvers import reverse
 from django.test import RequestFactory, override_settings
 from django.test import TestCase
 from jwkest.jwk import KEYS
-from jwkest.jws import JWS
 from jwkest.jwt import JWT
 from mock import patch
 
@@ -339,3 +335,19 @@ class TokenTestCase(TestCase):
         id_token = JWT().unpack(response_dic['id_token'].encode('utf-8')).payload()
 
         self.assertEqual(id_token.get('sub'), self.user.email)
+
+    @override_settings(OIDC_ID_TOKEN_PROCESSING_HOOK='oidc_provider.tests.app.utils.fake_id_token_processing_hook')
+    def test_additional_id_token_processing_hook(self):
+        """
+        Test custom function for setting OIDC_ID_TOKEN_PROCESSING_HOOK.
+        """
+        code = self._create_code()
+
+        post_data = self._auth_code_post_data(code=code.code)
+
+        response = self._post_request(post_data)
+
+        response_dic = json.loads(response.content.decode('utf-8'))
+        id_token = JWT().unpack(response_dic['id_token'].encode('utf-8')).payload()
+
+        self.assertEqual(id_token.get('test_id_token_processing_hook'), FAKE_RANDOM_STRING)

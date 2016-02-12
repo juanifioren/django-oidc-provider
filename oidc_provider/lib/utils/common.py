@@ -1,4 +1,3 @@
-from django.conf import settings as django_settings
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 
@@ -49,3 +48,15 @@ def default_after_userlogin_hook(request, user, client):
     Default function for setting OIDC_AFTER_USERLOGIN_HOOK.
     """
     return None
+
+def additional_id_token_processing_hook(id_token):
+    """
+    Hook to perform some additional actions ti `id_token` dictionary just before serialization.
+
+    :param id_token: dictionary contains values that going to be serialized into `id_token`
+    :type id_token: dict
+    :return: custom modified dictionary of values for `id_token`
+    :rtype dict
+    """
+    return id_token
+
