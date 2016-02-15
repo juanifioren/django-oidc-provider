@@ -12,7 +12,6 @@ from jwkest import long_to_base64
 
 from oidc_provider.lib.endpoints.authorize import *
 from oidc_provider.lib.endpoints.token import *
-from oidc_provider.lib.endpoints.userinfo import *
 from oidc_provider.lib.errors import *
 from oidc_provider.lib.utils.common import redirect, get_issuer
 from oidc_provider.lib.utils.oauth2 import protected_resource_view
