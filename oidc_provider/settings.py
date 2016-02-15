@@ -126,11 +126,12 @@ def get(name, import_str=False):
     """
     Helper function to use inside the package.
     """
+    value = None
     try:
         value = getattr(default_settings, name)
         value = getattr(settings, name)
     except AttributeError:
-        if value == None:
+        if value is None:
             raise Exception('You must set ' + name + ' in your settings.')
 
     value = import_from_str(value) if import_str else value
