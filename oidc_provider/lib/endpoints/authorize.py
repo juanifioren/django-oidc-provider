@@ -29,10 +29,13 @@ class AuthorizeEndpoint(object):
         # Determine which flow to use.
         if self.params.response_type in ['code']:
             self.grant_type = 'authorization_code'
-        elif self.params.response_type in ['id_token', 'id_token token']:
+        elif self.params.response_type in ['id_token', 'id_token token', 'token']:
             self.grant_type = 'implicit'
         else:
             self.grant_type = None
+
+        # Determine if it's an OpenID Authentication request (or OAuth2).
+        self.is_authentication = 'openid' in self.params.scope 
 
     def _extract_params(self):
         """
@@ -54,36 +57,31 @@ class AuthorizeEndpoint(object):
         self.params.nonce = query_dict.get('nonce', '')
 
     def validate_params(self):
-        if not self.params.redirect_uri:
-            logger.error('[Authorize] Missing redirect uri.')
-            raise RedirectUriError()
-
-        if not ('openid' in self.params.scope):
-            logger.error('[Authorize] Missing openid scope.')
-            raise AuthorizeError(self.params.redirect_uri, 'invalid_scope',
-                self.grant_type)
-
-        # http://openid.net/specs/openid-connect-implicit-1_0.html#RequestParameters
-        if self.grant_type == 'implicit' and not self.params.nonce:
-            raise AuthorizeError(self.params.redirect_uri, 'invalid_request',
-                self.grant_type)
-
         try:
             self.client = Client.objects.get(client_id=self.params.client_id)
         except Client.DoesNotExist:
             logger.error('[Authorize] Invalid client identifier: %s', self.params.client_id)
             raise ClientIdError()
 
+        if self.is_authentication and not self.params.redirect_uri:
+            logger.error('[Authorize] Missing redirect uri.')
+            raise RedirectUriError()
+
+        if not self.grant_type:
+            logger.error('[Authorize] Invalid response type: %s', self.params.response_type)
+            raise AuthorizeError(self.params.redirect_uri, 'unsupported_response_type',
+                self.grant_type)
+
+        if self.is_authentication and self.grant_type == 'implicit' and not self.params.nonce:
+            raise AuthorizeError(self.params.redirect_uri, 'invalid_request',
+                self.grant_type)
+
         clean_redirect_uri = urlsplit(self.params.redirect_uri)
         clean_redirect_uri = urlunsplit(clean_redirect_uri._replace(query=''))
         if not (clean_redirect_uri in self.client.redirect_uris):
             logger.error('[Authorize] Invalid redirect uri: %s', self.params.redirect_uri)
             raise RedirectUriError()
-
-        if not self.grant_type or not (self.params.response_type == self.client.response_type):
-            logger.error('[Authorize] Invalid response type: %s', self.params.response_type)
-            raise AuthorizeError(self.params.redirect_uri, 'unsupported_response_type',
-                self.grant_type)
+        
 
     def create_response_uri(self):
         uri = urlsplit(self.params.redirect_uri)
@@ -96,7 +94,8 @@ class AuthorizeEndpoint(object):
                     user=self.request.user,
                     client=self.client,
                     scope=self.params.scope,
-                    nonce=self.params.nonce)
+                    nonce=self.params.nonce,
+                    is_authentication=self.is_authentication)
                 
                 code.save()
 
@@ -104,10 +103,15 @@ class AuthorizeEndpoint(object):
                 query_params['state'] = self.params.state if self.params.state else ''
 
             elif self.grant_type == 'implicit':
-                id_token_dic = create_id_token(
-                    user=self.request.user,
-                    aud=self.client.client_id,
-                    nonce=self.params.nonce)
+                # We don't need id_token if it's an OAuth2 request.
+                if self.is_authentication:
+                    id_token_dic = create_id_token(
+                        user=self.request.user,
+                        aud=self.client.client_id,
+                        nonce=self.params.nonce)
+                    query_fragment['id_token'] = encode_id_token(id_token_dic)
+                else:
+                    id_token_dic = {}
 
                 token = create_token(
                     user=self.request.user,
@@ -119,12 +123,12 @@ class AuthorizeEndpoint(object):
                 token.save()
 
                 query_fragment['token_type'] = 'bearer'
-                query_fragment['id_token'] = encode_id_token(id_token_dic)
+                # TODO: Create setting 'OIDC_TOKEN_EXPIRE'.
                 query_fragment['expires_in'] = 60 * 10
 
-                # Check if response_type is 'id_token token' then
-                # add access_token to the fragment.
-                if self.params.response_type == 'id_token token':
+                # Check if response_type is an OpenID request with value 'id_token token'
+                # or it's an OAuth2 Implicit Flow request.
+                if self.params.response_type in ['id_token token', 'token']:
                     query_fragment['access_token'] = token.access_token
 
                 query_fragment['state'] = self.params.state if self.params.state else ''

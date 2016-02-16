@@ -64,7 +64,6 @@ class TokenEndpoint(object):
     def validate_params(self):
         try:
             self.client = Client.objects.get(client_id=self.params.client_id)
-
         except Client.DoesNotExist:
             logger.error('[Token] Client does not exist: %s', self.params.client_id)
             raise TokenError('invalid_client')
@@ -81,7 +80,6 @@ class TokenEndpoint(object):
 
             try:
                 self.code = Code.objects.get(code=self.params.code)
-
             except Code.DoesNotExist:
                 logger.error('[Token] Code does not exist: %s', self.params.code)
                 raise TokenError('invalid_grant')
@@ -114,16 +112,16 @@ class TokenEndpoint(object):
             return self.create_code_response_dic()
         elif self.params.grant_type == 'refresh_token':
             return self.create_refresh_response_dic()
-        else:
-            # Should have already been catched by validate_params
-            raise RuntimeError('Invalid grant type')
 
     def create_code_response_dic(self):
-        id_token_dic = create_id_token(
-            user=self.code.user,
-            aud=self.client.client_id,
-            nonce=self.code.nonce,
-        )
+        if self.code.is_authentication:
+            id_token_dic = create_id_token(
+                user=self.code.user,
+                aud=self.client.client_id,
+                nonce=self.code.nonce,
+            )
+        else:
+            id_token_dic = {}
 
         token = create_token(
             user=self.code.user,
@@ -148,11 +146,15 @@ class TokenEndpoint(object):
         return dic
 
     def create_refresh_response_dic(self):
-        id_token_dic = create_id_token(
-            user=self.token.user,
-            aud=self.client.client_id,
-            nonce=None,
-        )
+        # If the Token has an id_token it's an Authentication request.
+        if self.token.id_token:
+            id_token_dic = create_id_token(
+                user=self.token.user,
+                aud=self.client.client_id,
+                nonce=None,
+            )
+        else:
+            id_token_dic = {}
 
         token = create_token(
             user=self.token.user,
