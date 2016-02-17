@@ -8,21 +8,21 @@ Customize your provider so fit your project needs.
 SITE_URL
 ========
 
-REQUIRED. The OP server url.
+REQUIRED. ``str``. The OP server url.
 
-``str``. For example ``http://localhost:8000``.
+For example ``http://localhost:8000``.
 
 LOGIN_URL
 =========
 
-REQUIRED. Used to log the user in. `Read more in Django docs <https://docs.djangoproject.com/en/1.7/ref/settings/#login-url>`_
+REQUIRED. ``str``. Used to log the user in. `Read more in Django docs <https://docs.djangoproject.com/en/1.7/ref/settings/#login-url>`_
 
 ``str``. Default is ``/accounts/login/``.
 
 OIDC_AFTER_USERLOGIN_HOOK
 =========================
 
-OPTIONAL. A string with the location of your function. Provide a way to plug into the process after the user has logged in, typically to perform some business logic.
+OPTIONAL. ``str``. A string with the location of your function. Provide a way to plug into the process after the user has logged in, typically to perform some business logic.
 
 Default is::
 
@@ -37,14 +37,14 @@ With request you have access to all OIDC parameters. Remember that if you redire
 OIDC_CODE_EXPIRE
 ================
 
-OPTIONAL. Code object expiration after been delivered.
+OPTIONAL. ``int``. Code object expiration after been delivered.
 
-``int``. Expressed in seconds. Default is ``60*10``.
+Expressed in seconds. Default is ``60*10``.
 
 OIDC_EXTRA_SCOPE_CLAIMS
 =======================
 
-OPTIONAL. A string with the location of your class. Default is ``oidc_provider.lib.claims.AbstractScopeClaims``.
+OPTIONAL. ``str``. A string with the location of your class. Default is ``oidc_provider.lib.claims.AbstractScopeClaims``.
 
 Used to add extra scopes specific for your app. This class MUST inherit ``AbstractScopeClaims``.
 
@@ -88,14 +88,20 @@ If a field is empty or ``None`` will be cleaned from the response.
 OIDC_IDTOKEN_EXPIRE
 ===================
 
-OPTIONAL. Token object expiration after been delivered.
+OPTIONAL. ``int``. Token object expiration after been delivered.
 
-``int``. Expressed in seconds. Default is ``60*10``.
+Expressed in seconds. Default is ``60*10``.
+
+OIDC_IDTOKEN_PROCESSING_HOOK
+============================
+
+OPTIONAL. ``str``. A string with the location of your function hook.
+here you can add extra dictionary values specific for your app into id_token.
 
 OIDC_IDTOKEN_SUB_GENERATOR
 ==========================
 
-OPTIONAL. A string with the location of your function. ``sub`` is a locally unique and never reassigned identifier within the Issuer for the End-User, which is intended to be consumed by the Client.
+OPTIONAL. ``str``. A string with the location of your function. ``sub`` is a locally unique and never reassigned identifier within the Issuer for the End-User, which is intended to be consumed by the Client.
 
 The function receives a ``user`` object and returns a unique ``string`` for the given user.
 
@@ -108,41 +114,32 @@ Default is::
 OIDC_SKIP_CONSENT_ALWAYS
 ========================
 
-OPTIONAL. If enabled, the Server will NEVER ask the user for consent.
+OPTIONAL. ``bool``. If enabled, the Server will NEVER ask the user for consent.
 
-``bool``. Default is ``False``.
+Default is ``False``.
 
 OIDC_SKIP_CONSENT_ENABLE
 ========================
 
-OPTIONAL. If enabled, the Server will save the user consent given to a specific client, so that user won't be prompted for the same authorization multiple times.
+OPTIONAL. ``bool``. If enabled, the Server will save the user consent given to a specific client, so that user won't be prompted for the same authorization multiple times.
 
-``bool``. Default is ``True``.
+Default is ``True``.
 
 OIDC_SKIP_CONSENT_EXPIRE
 ========================
 
-OPTIONAL. User consent expiration after been granted.
+OPTIONAL. ``int``. User consent expiration after been granted.
 
-``int``. Expressed in days. Default is ``30*3``.
+Expressed in days. Default is ``30*3``.
 
 OIDC_TOKEN_EXPIRE
 =================
 
-OPTIONAL. Token object expiration after been created.
+OPTIONAL. ``int``. Token object expiration after been created.
 
-``int``. Expressed in seconds. Default is ``60*60``.
+Expressed in seconds. Default is ``60*60``.
 
 OIDC_USERINFO
 =============
 
-OPTIONAL. A string with the location of your class. Read **Standard Claims** section.
-
-
-OIDC_ID_TOKEN_PROCESSING_HOOK
-=============================
-
-OPTIONAL. A string with the location of your hook.
-Used to add extra dictionary values specific for your app into id_token.
-
-
+OPTIONAL. ``str``. A string with the location of your class. Read **Standard Claims** section.

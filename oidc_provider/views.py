@@ -10,12 +10,14 @@ from django.views.decorators.http import require_http_methods
 from django.views.generic import View
 from jwkest import long_to_base64
 
+from oidc_provider.lib.claims import StandardScopeClaims
 from oidc_provider.lib.endpoints.authorize import *
 from oidc_provider.lib.endpoints.token import *
-from oidc_provider.lib.endpoints.userinfo import *
 from oidc_provider.lib.errors import *
 from oidc_provider.lib.utils.common import redirect, get_issuer
+from oidc_provider.lib.utils.oauth2 import protected_resource_view
 from oidc_provider.models import Client, RSAKey
+from oidc_provider import settings
 
 
 logger = logging.getLogger(__name__)
@@ -130,22 +132,33 @@ class TokenView(View):
 
 
 @require_http_methods(['GET', 'POST'])
-def userinfo(request):
+@protected_resource_view(['openid'])
+def userinfo(request, *args, **kwargs):
+    """
+    Create a diccionary with all the requested claims about the End-User.
+    See: http://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse
 
-    userinfo = UserInfoEndpoint(request)
-    
-    try:
-        userinfo.validate_params()
+    Return a diccionary.
+    """
+    token = kwargs['token']
 
-        dic = userinfo.create_response_dic()
+    dic = {
+        'sub': token.id_token.get('sub'),
+    }
 
-        return UserInfoEndpoint.response(dic)
+    standard_claims = StandardScopeClaims(token.user, token.scope)
 
-    except (UserInfoError) as error:
-        return UserInfoEndpoint.error_response(
-            error.code,
-            error.description,
-            error.status)
+    dic.update(standard_claims.create_response_dic())
+
+    extra_claims = settings.get('OIDC_EXTRA_SCOPE_CLAIMS', import_str=True)(
+        token.user, token.scope)
+
+    dic.update(extra_claims.create_response_dic())
+
+    response = JsonResponse(dic, status=200)
+    response['Cache-Control'] = 'no-store'
+    response['Pragma'] = 'no-cache'
+    return response
 
 
 class ProviderInfoView(View):

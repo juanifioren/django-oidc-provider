@@ -336,10 +336,10 @@ class TokenTestCase(TestCase):
 
         self.assertEqual(id_token.get('sub'), self.user.email)
 
-    @override_settings(OIDC_ID_TOKEN_PROCESSING_HOOK='oidc_provider.tests.app.utils.fake_id_token_processing_hook')
-    def test_additional_id_token_processing_hook(self):
+    @override_settings(OIDC_IDTOKEN_PROCESSING_HOOK='oidc_provider.tests.app.utils.fake_idtoken_processing_hook')
+    def test_additional_idtoken_processing_hook(self):
         """
-        Test custom function for setting OIDC_ID_TOKEN_PROCESSING_HOOK.
+        Test custom function for setting OIDC_IDTOKEN_PROCESSING_HOOK.
         """
         code = self._create_code()
 
@@ -350,4 +350,4 @@ class TokenTestCase(TestCase):
         response_dic = json.loads(response.content.decode('utf-8'))
         id_token = JWT().unpack(response_dic['id_token'].encode('utf-8')).payload()
 
-        self.assertEqual(id_token.get('test_id_token_processing_hook'), FAKE_RANDOM_STRING)
+        self.assertEqual(id_token.get('test_idtoken_processing_hook'), FAKE_RANDOM_STRING)

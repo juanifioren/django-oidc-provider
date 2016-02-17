@@ -99,10 +99,12 @@ class AuthorizeError(Exception):
 
 
 class TokenError(Exception):
+    """
+    OAuth2 token endpoint errors.
+    https://tools.ietf.org/html/rfc6749#section-5.2
+    """
 
     _errors = {
-        # Oauth2 errors.
-        # https://tools.ietf.org/html/rfc6749#section-5.2
         'invalid_request': 'The request is otherwise malformed',
 
         'invalid_client': 'Client authentication failed (e.g., unknown client, '
@@ -137,10 +139,13 @@ class TokenError(Exception):
         return dic
 
 
-class UserInfoError(Exception):
+class BearerTokenError(Exception):
+    """
+    OAuth2 errors.
+    https://tools.ietf.org/html/rfc6750#section-3.1
+    """
+
     _errors = {
-        # Oauth2 errors.
-        # https://tools.ietf.org/html/rfc6750#section-3.1
         'invalid_request': (
             'The request is otherwise malformed', 400
         ),
@@ -155,7 +160,6 @@ class UserInfoError(Exception):
     }
 
     def __init__(self, code):
-
         self.code = code
         error_tuple = self._errors.get(code, ('', ''))
         self.description = error_tuple[0]
