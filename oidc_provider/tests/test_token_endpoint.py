@@ -351,3 +351,4 @@ class TokenTestCase(TestCase):
         id_token = JWT().unpack(response_dic['id_token'].encode('utf-8')).payload()
 
         self.assertEqual(id_token.get('test_idtoken_processing_hook'), FAKE_RANDOM_STRING)
+        self.assertEqual(id_token.get('test_idtoken_processing_hook_user_email'), self.user.email)
