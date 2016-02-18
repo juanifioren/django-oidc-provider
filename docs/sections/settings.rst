@@ -105,7 +105,7 @@ Default is::
 
     def default_idtoken_processing_hook(id_token, user):
 
-        return return id_token
+        return id_token
 
 OIDC_IDTOKEN_SUB_GENERATOR
 ==========================
