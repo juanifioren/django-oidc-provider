@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 ### [Unreleased]
 
 ##### Added
+- Support OAuth2 requests.
+- Decorator for protecting views with OAuth2.
 - Setting OIDC_IDTOKEN_PROCESSING_HOOK.
 
 ### [0.2.5] - 2016-02-03
