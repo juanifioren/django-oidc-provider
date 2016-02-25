@@ -49,12 +49,14 @@ def default_after_userlogin_hook(request, user, client):
     """
     return None
 
-def default_idtoken_processing_hook(id_token):
+def default_idtoken_processing_hook(id_token, user):
     """
     Hook to perform some additional actions ti `id_token` dictionary just before serialization.
 
     :param id_token: dictionary contains values that going to be serialized into `id_token`
     :type id_token: dict
+    :param user: user for whom id_token is generated
+    :type user: User
     :return: custom modified dictionary of values for `id_token`
     :rtype dict
     """
