@@ -108,9 +108,10 @@ def fake_sub_generator(user):
     return user.email
 
 
-def fake_idtoken_processing_hook(id_token):
+def fake_idtoken_processing_hook(id_token, user):
     """
     Fake function for inserting some keys into token. Testing OIDC_IDTOKEN_PROCESSING_HOOK.
     """
     id_token['test_idtoken_processing_hook'] = FAKE_RANDOM_STRING
+    id_token['test_idtoken_processing_hook_user_email'] = user.email
     return id_token

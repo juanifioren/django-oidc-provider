@@ -96,7 +96,16 @@ OIDC_IDTOKEN_PROCESSING_HOOK
 ============================
 
 OPTIONAL. ``str``. A string with the location of your function hook.
-here you can add extra dictionary values specific for your app into id_token.
+Here you can add extra dictionary values specific for your app into id_token.
+
+The function receives a ``id_token`` dictionary and ``user`` instance 
+and returns it with additional fields.
+
+Default is::
+
+    def default_idtoken_processing_hook(id_token, user):
+
+        return id_token
 
 OIDC_IDTOKEN_SUB_GENERATOR
 ==========================
