@@ -57,7 +57,8 @@ class AuthorizeView(View):
 
                 # Remove `openid` from scope list
                 # since we don't need to print it.
-                authorize.params.scope.remove('openid')
+                if 'openid' in authorize.params.scope:
+                    authorize.params.scope.remove('openid')
 
                 context = {
                     'client': authorize.client,
@@ -117,7 +118,7 @@ class AuthorizeView(View):
 class TokenView(View):
 
     def post(self, request, *args, **kwargs):
-        
+
         token = TokenEndpoint(request)
 
         try:

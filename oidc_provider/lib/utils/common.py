@@ -55,7 +55,10 @@ def default_idtoken_processing_hook(id_token, user):
 
     :param id_token: dictionary contains values that going to be serialized into `id_token`
     :type id_token: dict
-    :param user: user instance 
+
+    :param user: user for whom id_token is generated
+    :type user: User
+
     :return: custom modified dictionary of values for `id_token`
     :rtype dict
     """

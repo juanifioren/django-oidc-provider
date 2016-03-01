@@ -81,7 +81,8 @@ class TokenTestCase(TestCase):
             user=self.user,
             client=self.client,
             scope=['openid', 'email'],
-            nonce=FAKE_NONCE)
+            nonce=FAKE_NONCE,
+            is_authentication=True)
         code.save()
 
         return code

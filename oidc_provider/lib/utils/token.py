@@ -44,7 +44,7 @@ def create_id_token(user, aud, nonce):
     if nonce:
         dic['nonce'] = str(nonce)
 
-    dic = settings.get('OIDC_IDTOKEN_PROCESSING_HOOK', import_str=True)(dic, user)
+    dic = settings.get('OIDC_IDTOKEN_PROCESSING_HOOK', import_str=True)(dic, user=user)
 
     return dic
 
@@ -89,7 +89,7 @@ def create_token(user, client, id_token_dic, scope):
     return token
 
 
-def create_code(user, client, scope, nonce):
+def create_code(user, client, scope, nonce, is_authentication):
     """
     Create and populate a Code object.
 
@@ -103,5 +103,6 @@ def create_code(user, client, scope, nonce):
         seconds=settings.get('OIDC_CODE_EXPIRE'))
     code.scope = scope
     code.nonce = nonce
+    code.is_authentication = is_authentication
 
     return code
