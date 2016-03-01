@@ -95,8 +95,12 @@ Expressed in seconds. Default is ``60*10``.
 OIDC_IDTOKEN_PROCESSING_HOOK
 ============================
 
-OPTIONAL. ``str``. A string with the location of your function hook.
+OPTIONAL. ``str`` or ``(list, tuple)``.
+
+A string with the location of your function hook or ``list`` or ``tuple`` with hook functions.
 Here you can add extra dictionary values specific for your app into id_token.
+
+The ``list`` or ``tuple`` is useful when You want to set multiple hooks, i.e. one for permissions and second for some special field.
 
 The function receives a ``id_token`` dictionary and ``user`` instance 
 and returns it with additional fields.

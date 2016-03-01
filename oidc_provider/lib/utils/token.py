@@ -44,7 +44,13 @@ def create_id_token(user, aud, nonce):
     if nonce:
         dic['nonce'] = str(nonce)
 
-    dic = settings.get('OIDC_IDTOKEN_PROCESSING_HOOK', import_str=True)(dic, user=user)
+    processing_hook = settings.get('OIDC_IDTOKEN_PROCESSING_HOOK')
+
+    if isinstance(processing_hook, (list, tuple)):
+        for hook in processing_hook:
+            dic = settings.import_from_str(hook)(dic, user=user)
+    else:
+        dic = settings.import_from_str(processing_hook)(dic, user=user)
 
     return dic
 
