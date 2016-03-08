@@ -33,7 +33,7 @@ class ClientForm(ModelForm):
         if instance and instance.pk:
             return instance.client_secret
         else:
-            return md5(str(uuid4())).hexdigest()
+            return md5(uuid4().hex.encode()).hexdigest()
 
 
 @admin.register(Client)
