@@ -76,6 +76,10 @@ class AuthorizeEndpoint(object):
             raise AuthorizeError(self.params.redirect_uri, 'invalid_request',
                 self.grant_type)
 
+        if self.is_authentication and self.params.response_type != self.client.response_type:
+            raise AuthorizeError(self.params.redirect_uri, 'invalid_request',
+                self.grant_type)
+                
         clean_redirect_uri = urlsplit(self.params.redirect_uri)
         clean_redirect_uri = urlunsplit(clean_redirect_uri._replace(query=''))
         if not (clean_redirect_uri in self.client.redirect_uris):
