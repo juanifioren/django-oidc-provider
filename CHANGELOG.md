@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [0.3.1] - 2016-03-09
+
+##### Fixed
+- response_type was not being validated (OpenID request).
+
 ### [0.3.0] - 2016-02-23
 
 ##### Added
