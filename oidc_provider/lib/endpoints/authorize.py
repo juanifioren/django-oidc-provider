@@ -60,15 +60,15 @@ class AuthorizeEndpoint(object):
         try:
             self.client = Client.objects.get(client_id=self.params.client_id)
         except Client.DoesNotExist:
-            logger.error('[Authorize] Invalid client identifier: %s', self.params.client_id)
+            logger.debug('[Authorize] Invalid client identifier: %s', self.params.client_id)
             raise ClientIdError()
 
         if self.is_authentication and not self.params.redirect_uri:
-            logger.error('[Authorize] Missing redirect uri.')
+            logger.debug('[Authorize] Missing redirect uri.')
             raise RedirectUriError()
 
         if not self.grant_type:
-            logger.error('[Authorize] Invalid response type: %s', self.params.response_type)
+            logger.debug('[Authorize] Invalid response type: %s', self.params.response_type)
             raise AuthorizeError(self.params.redirect_uri, 'unsupported_response_type',
                 self.grant_type)
 
@@ -83,7 +83,7 @@ class AuthorizeEndpoint(object):
         clean_redirect_uri = urlsplit(self.params.redirect_uri)
         clean_redirect_uri = urlunsplit(clean_redirect_uri._replace(query=''))
         if not (clean_redirect_uri in self.client.redirect_uris):
-            logger.error('[Authorize] Invalid redirect uri: %s', self.params.redirect_uri)
+            logger.debug('[Authorize] Invalid redirect uri: %s', self.params.redirect_uri)
             raise RedirectUriError()
         
 
@@ -138,7 +138,7 @@ class AuthorizeEndpoint(object):
                 query_fragment['state'] = self.params.state if self.params.state else ''
 
         except Exception as error:
-            logger.error('[Authorize] Error when trying to create response uri: %s', error)
+            logger.debug('[Authorize] Error when trying to create response uri: %s', error)
             raise AuthorizeError(
                 self.params.redirect_uri,
                 'server_error',
