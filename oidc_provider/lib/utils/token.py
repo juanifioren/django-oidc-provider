@@ -6,6 +6,7 @@ from Crypto.PublicKey.RSA import importKey
 from django.utils import timezone
 from hashlib import md5
 from jwkest.jwk import RSAKey as jwk_RSAKey
+from jwkest.jwk import SYMKey
 from jwkest.jws import JWS
 
 from oidc_provider.lib.utils.common import get_issuer
@@ -55,21 +56,26 @@ def create_id_token(user, aud, nonce):
     return dic
 
 
-def encode_id_token(payload):
+def encode_id_token(payload, client):
     """
     Represent the ID Token as a JSON Web Token (JWT).
 
     Return a hash.
     """
-    keys = []
+    alg = client.jwt_alg
+    if alg == 'RS256':
+        keys = []
+        for rsakey in RSAKey.objects.all():
+            keys.append(jwk_RSAKey(key=importKey(rsakey.key), kid=rsakey.kid))
 
-    for rsakey in RSAKey.objects.all():
-        keys.append(jwk_RSAKey(key=importKey(rsakey.key), kid=rsakey.kid))
-
-    if not keys:
-        raise Exception('You must add at least one RSA Key.')
+        if not keys:
+            raise Exception('You must add at least one RSA Key.')
+    elif alg == 'HS256':
+        keys = [SYMKey(key=client.client_secret, alg=alg)]
+    else:
+        raise Exception('Unsupported key algorithm.')
     
-    _jws = JWS(payload, alg='RS256')
+    _jws = JWS(payload, alg=alg)
 
     return _jws.sign_compact(keys)
 

@@ -16,11 +16,16 @@ class Client(models.Model):
         ('id_token token', 'id_token token (Implicit Flow)'),
     ]
 
+    JWT_ALGS = [
+        ('HS256', 'HS256'),
+        ('RS256', 'RS256'),
+    ]
+
     name = models.CharField(max_length=100, default='')
     client_id = models.CharField(max_length=255, unique=True)
     client_secret = models.CharField(max_length=255, unique=True)
-    response_type = models.CharField(max_length=30,
-                                     choices=RESPONSE_TYPE_CHOICES)
+    response_type = models.CharField(max_length=30, choices=RESPONSE_TYPE_CHOICES)
+    jwt_alg = models.CharField(max_length=10, choices=JWT_ALGS, default='RS256', verbose_name=_(u'JWT Algorithm'))
     date_created = models.DateField(auto_now_add=True)
 
     _redirect_uris = models.TextField(default='', verbose_name=_(u'Redirect URI'), help_text=_(u'Enter each URI on a new line.'))

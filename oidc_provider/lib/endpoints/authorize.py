@@ -113,7 +113,7 @@ class AuthorizeEndpoint(object):
                         user=self.request.user,
                         aud=self.client.client_id,
                         nonce=self.params.nonce)
-                    query_fragment['id_token'] = encode_id_token(id_token_dic)
+                    query_fragment['id_token'] = encode_id_token(id_token_dic, self.client)
                 else:
                     id_token_dic = {}
 
