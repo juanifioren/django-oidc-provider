@@ -33,8 +33,6 @@ class ClientForm(ModelForm):
 
         secret = ''
 
-        print self.cleaned_data
-
         if instance and instance.pk:
             if (self.cleaned_data['client_type'] == 'confidential') and not instance.client_secret:
                 secret = md5(uuid4().hex.encode()).hexdigest()
