@@ -30,10 +30,21 @@ class ClientForm(ModelForm):
 
     def clean_client_secret(self):
         instance = getattr(self, 'instance', None)
+
+        secret = ''
+
+        print self.cleaned_data
+
         if instance and instance.pk:
-            return instance.client_secret
+            if (self.cleaned_data['client_type'] == 'confidential') and not instance.client_secret:
+                secret = md5(uuid4().hex.encode()).hexdigest()
+            elif (self.cleaned_data['client_type'] == 'confidential') and instance.client_secret:
+                secret = instance.client_secret
         else:
-            return md5(uuid4().hex.encode()).hexdigest()
+            if (instance.client_type == 'confidential'):
+                secret = md5(uuid4().hex.encode()).hexdigest()
+
+        return secret
 
 
 @admin.register(Client)
