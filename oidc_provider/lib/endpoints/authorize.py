@@ -56,6 +56,10 @@ class AuthorizeEndpoint(object):
         self.params.state = query_dict.get('state', '')
         self.params.nonce = query_dict.get('nonce', '')
 
+        # PKCE parameters.
+        self.params.code_challenge = query_dict.get('code_challenge')
+        self.params.code_challenge_method = query_dict.get('code_challenge_method')
+
     def validate_params(self):
         try:
             self.client = Client.objects.get(client_id=self.params.client_id)
@@ -85,7 +89,11 @@ class AuthorizeEndpoint(object):
         if not (clean_redirect_uri in self.client.redirect_uris):
             logger.debug('[Authorize] Invalid redirect uri: %s', self.params.redirect_uri)
             raise RedirectUriError()
-        
+
+        # PKCE validation of the transformation method.
+        if self.params.code_challenge and self.params.code_challenge_method:
+            if not (self.params.code_challenge_method in ['plain', 'S256']):
+                raise AuthorizeError(self.params.redirect_uri, 'invalid_request', self.grant_type)
 
     def create_response_uri(self):
         uri = urlsplit(self.params.redirect_uri)
@@ -99,7 +107,9 @@ class AuthorizeEndpoint(object):
                     client=self.client,
                     scope=self.params.scope,
                     nonce=self.params.nonce,
-                    is_authentication=self.is_authentication)
+                    is_authentication=self.is_authentication,
+                    code_challenge=self.params.code_challenge,
+                    code_challenge_method=self.params.code_challenge_method)
                 
                 code.save()
 

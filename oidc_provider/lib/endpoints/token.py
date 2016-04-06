@@ -1,4 +1,5 @@
-from base64 import b64decode
+from base64 import b64decode, urlsafe_b64encode
+import hashlib
 import logging
 import re
 try:
@@ -6,6 +7,7 @@ try:
 except ImportError:
     from urllib import unquote
 
+from Crypto.Cipher import AES
 from django.http import JsonResponse
 
 from oidc_provider.lib.errors import *
@@ -30,13 +32,15 @@ class TokenEndpoint(object):
 
         self.params.client_id = client_id
         self.params.client_secret = client_secret
-        self.params.redirect_uri = unquote(
-            self.request.POST.get('redirect_uri', ''))
+        self.params.redirect_uri = unquote(self.request.POST.get('redirect_uri', ''))
         self.params.grant_type = self.request.POST.get('grant_type', '')
         self.params.code = self.request.POST.get('code', '')
         self.params.state = self.request.POST.get('state', '')
         self.params.scope = self.request.POST.get('scope', '')
         self.params.refresh_token = self.request.POST.get('refresh_token', '')
+
+        # PKCE parameters.
+        self.params.code_verifier = self.request.POST.get('code_verifier')
 
     def _extract_client_auth(self):
         """
@@ -89,6 +93,20 @@ class TokenEndpoint(object):
                 logger.debug('[Token] Invalid code: invalid client or code has expired',
                              self.params.redirect_uri)
                 raise TokenError('invalid_grant')
+
+            # Validate PKCE parameters.
+            if self.params.code_verifier:
+                obj = AES.new(settings.SECRET_KEY, AES.MODE_CBC)
+                code_challenge, code_challenge_method = tuple(obj.decrypt(self.code.code.decode('hex')).split(':'))
+
+                if code_challenge_method == 'S256':
+                    new_code_challenge = urlsafe_b64encode(hashlib.sha256(self.params.code_verifier.encode('ascii')).digest()).replace('=', '')
+                else:
+                    new_code_challenge = self.params.code_verifier
+
+                # TODO: We should explain the error.
+                if not (new_code_challenge == code_challenge):
+                    raise TokenError('invalid_grant')
 
         elif self.params.grant_type == 'refresh_token':
             if not self.params.refresh_token:

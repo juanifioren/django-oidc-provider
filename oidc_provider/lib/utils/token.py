@@ -2,6 +2,7 @@ from datetime import timedelta
 import time
 import uuid
 
+from Crypto.Cipher import AES
 from Crypto.PublicKey.RSA import importKey
 from django.utils import timezone
 from hashlib import md5
@@ -95,7 +96,8 @@ def create_token(user, client, id_token_dic, scope):
     return token
 
 
-def create_code(user, client, scope, nonce, is_authentication):
+def create_code(user, client, scope, nonce, is_authentication,
+                code_challenge=None, code_challenge_method=None):
     """
     Create and populate a Code object.
 
@@ -104,7 +106,18 @@ def create_code(user, client, scope, nonce, is_authentication):
     code = Code()
     code.user = user
     code.client = client
-    code.code = uuid.uuid4().hex
+
+    if not code_challenge:
+        code.code = uuid.uuid4().hex
+    else:
+        obj = AES.new(settings.SECRET_KEY, AES.MODE_CBC)
+
+        # Default is 'plain' method.
+        code_challenge_method = 'plain' if not code_challenge_method else code_challenge_method
+
+        ciphertext = obj.encrypt(code_challenge + ':' + code_challenge_method)
+        code.code = ciphertext.encode('hex')
+
     code.expires_at = timezone.now() + timedelta(
         seconds=settings.get('OIDC_CODE_EXPIRE'))
     code.scope = scope
