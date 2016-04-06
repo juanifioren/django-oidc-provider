@@ -10,6 +10,11 @@ from django.conf import settings
 
 class Client(models.Model):
 
+    CLIENT_TYPE_CHOICES = [
+        ('confidential', 'Confidential'),
+        ('public', 'Public'),
+    ]
+
     RESPONSE_TYPE_CHOICES = [
         ('code', 'code (Authorization Code Flow)'),
         ('id_token', 'id_token (Implicit Flow)'),
@@ -17,10 +22,10 @@ class Client(models.Model):
     ]
 
     name = models.CharField(max_length=100, default='')
+    client_type = models.CharField(max_length=30, choices=CLIENT_TYPE_CHOICES, default='confidential', help_text=_(u'<b>Confidential</b> clients are capable of maintaining the confidentiality of their credentials. <b>Public</b> clients are incapable.'))
     client_id = models.CharField(max_length=255, unique=True)
-    client_secret = models.CharField(max_length=255, unique=True)
-    response_type = models.CharField(max_length=30,
-                                     choices=RESPONSE_TYPE_CHOICES)
+    client_secret = models.CharField(max_length=255, blank=True, default='')
+    response_type = models.CharField(max_length=30, choices=RESPONSE_TYPE_CHOICES)
     date_created = models.DateField(auto_now_add=True)
 
     _redirect_uris = models.TextField(default='', verbose_name=_(u'Redirect URI'), help_text=_(u'Enter each URI on a new line.'))
