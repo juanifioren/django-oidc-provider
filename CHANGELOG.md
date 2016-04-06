@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ##### Added
 - Choose type of client on creation.
+- Implement Proof Key for Code Exchange by OAuth Public Clients.
 
 ### [0.3.1] - 2016-03-09
 
