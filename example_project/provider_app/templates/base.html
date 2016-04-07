@@ -19,13 +19,12 @@
         <a href="{% url 'home' %}" class=" item">django-oidc-provider</a>
         <div class="right menu">
             {% if user.is_authenticated %}
-            <a href="#" class="item">{{ user.email }}</a>
             {% if user.is_superuser %}
             <a href="{% url 'admin:index' %}" class="item">Admin</a>
             {% endif %}
-            <a href="{% url 'logout' %}" class="item"><i class="remove icon"></i></a>
+            <a href="{% url 'admin:logout' %}" class="item"><i class="remove icon"></i></a>
             {% else %}
-            <a href="{% url 'login' %}" class="item">Login</a>
+            <a href="{% url 'admin:login' %}" class="item">Login</a>
             {% endif %}
         </div>
     </div>
