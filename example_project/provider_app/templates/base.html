@@ -22,9 +22,9 @@
             {% if user.is_superuser %}
             <a href="{% url 'admin:index' %}" class="item">Admin</a>
             {% endif %}
-            <a href="{% url 'admin:logout' %}" class="item"><i class="remove icon"></i></a>
+            <a href="{% url 'logout' %}" class="item"><i class="remove icon"></i></a>
             {% else %}
-            <a href="{% url 'admin:login' %}" class="item">Login</a>
+            <a href="{% url 'login' %}" class="item">Login</a>
             {% endif %}
         </div>
     </div>
