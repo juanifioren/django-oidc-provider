@@ -1,4 +1,4 @@
-from base64 import b64decode, urlsafe_b64encode
+from base64 import b64decode, urlsafe_b64decode, urlsafe_b64encode
 import hashlib
 import logging
 import re
@@ -73,10 +73,11 @@ class TokenEndpoint(object):
             logger.debug('[Token] Client does not exist: %s', self.params.client_id)
             raise TokenError('invalid_client')
 
-        if not (self.client.client_secret == self.params.client_secret):
-            logger.debug('[Token] Invalid client secret: client %s do not have secret %s',
-                         self.client.client_id, self.client.client_secret)
-            raise TokenError('invalid_client')
+        if self.client.client_type == 'confidential':
+            if not (self.client.client_secret == self.params.client_secret):
+                logger.debug('[Token] Invalid client secret: client %s do not have secret %s',
+                             self.client.client_id, self.client.client_secret)
+                raise TokenError('invalid_client')
 
         if self.params.grant_type == 'authorization_code':
             if not (self.params.redirect_uri in self.client.redirect_uris):
@@ -97,16 +98,13 @@ class TokenEndpoint(object):
 
             # Validate PKCE parameters.
             if self.params.code_verifier:
-                obj = AES.new(hashlib.md5(django_settings.SECRET_KEY).hexdigest(), AES.MODE_CBC)
-                code_challenge, code_challenge_method = tuple(obj.decrypt(self.code.code.decode('hex')).split(':'))
-
-                if code_challenge_method == 'S256':
+                if self.code.code_challenge_method == 'S256':
                     new_code_challenge = urlsafe_b64encode(hashlib.sha256(self.params.code_verifier.encode('ascii')).digest()).replace('=', '')
                 else:
                     new_code_challenge = self.params.code_verifier
 
                 # TODO: We should explain the error.
-                if not (new_code_challenge == code_challenge):
+                if not (new_code_challenge == self.code.code_challenge):
                     raise TokenError('invalid_grant')
 
         elif self.params.grant_type == 'refresh_token':

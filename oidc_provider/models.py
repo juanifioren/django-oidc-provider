@@ -86,6 +86,8 @@ class Code(BaseCodeTokenModel):
     code = models.CharField(max_length=255, unique=True)
     nonce = models.CharField(max_length=255, blank=True, default='')
     is_authentication = models.BooleanField(default=False)
+    code_challenge = models.CharField(max_length=255, null=True)
+    code_challenge_method = models.CharField(max_length=255, null=True)
 
     class Meta:
         verbose_name = _(u'Authorization Code')

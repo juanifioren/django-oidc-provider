@@ -1,10 +1,9 @@
+from base64 import urlsafe_b64decode, urlsafe_b64encode
 from datetime import timedelta
 import time
 import uuid
 
-from Crypto.Cipher import AES
 from Crypto.PublicKey.RSA import importKey
-from django.conf import settings as django_settings
 from django.utils import timezone
 from hashlib import md5
 from jwkest.jwk import RSAKey as jwk_RSAKey
@@ -108,16 +107,11 @@ def create_code(user, client, scope, nonce, is_authentication,
     code.user = user
     code.client = client
 
-    if not code_challenge:
-        code.code = uuid.uuid4().hex
-    else:
-        obj = AES.new(md5(django_settings.SECRET_KEY).hexdigest(), AES.MODE_CBC)
-
-        # Default is 'plain' method.
-        code_challenge_method = 'plain' if not code_challenge_method else code_challenge_method
-
-        ciphertext = obj.encrypt(code_challenge + ':' + code_challenge_method)
-        code.code = ciphertext.encode('hex')
+    code.code = uuid.uuid4().hex
+    
+    if code_challenge and code_challenge_method:
+        code.code_challenge = code_challenge
+        code.code_challenge_method = code_challenge_method
 
     code.expires_at = timezone.now() + timedelta(
         seconds=settings.get('OIDC_CODE_EXPIRE'))

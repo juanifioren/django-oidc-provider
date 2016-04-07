@@ -445,3 +445,23 @@ class TokenTestCase(TestCase):
 
         self.assertEqual(id_token.get('test_idtoken_processing_hook2'), FAKE_RANDOM_STRING)
         self.assertEqual(id_token.get('test_idtoken_processing_hook_user_email2'), self.user.email)
+
+    def test_pkce_parameters(self):
+        """
+        Test Proof Key for Code Exchange by OAuth Public Clients.
+        https://tools.ietf.org/html/rfc7636
+        """
+        import pdb;pdb.set_trace()
+        code = create_code(user=self.user, client=self.client,
+                           scope=['openid', 'email'], nonce=FAKE_NONCE, is_authentication=True,
+                           code_challenge=FAKE_CODE_CHALLENGE, code_challenge_method='S256')
+        code.save()
+
+        post_data = self._auth_code_post_data(code=code.code)
+
+        # Add parameters.
+        post_data['code_verifier'] = FAKE_CODE_VERIFIER
+
+        response = self._post_request(post_data)
+
+        response_dic = json.loads(response.content.decode('utf-8'))
