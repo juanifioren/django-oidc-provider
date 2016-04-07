@@ -4,6 +4,7 @@ import uuid
 
 from Crypto.Cipher import AES
 from Crypto.PublicKey.RSA import importKey
+from django.conf import settings as django_settings
 from django.utils import timezone
 from hashlib import md5
 from jwkest.jwk import RSAKey as jwk_RSAKey
@@ -110,7 +111,7 @@ def create_code(user, client, scope, nonce, is_authentication,
     if not code_challenge:
         code.code = uuid.uuid4().hex
     else:
-        obj = AES.new(settings.SECRET_KEY, AES.MODE_CBC)
+        obj = AES.new(md5(django_settings.SECRET_KEY).hexdigest(), AES.MODE_CBC)
 
         # Default is 'plain' method.
         code_challenge_method = 'plain' if not code_challenge_method else code_challenge_method

@@ -9,6 +9,7 @@ except ImportError:
 
 from Crypto.Cipher import AES
 from django.http import JsonResponse
+from django.conf import settings as django_settings
 
 from oidc_provider.lib.errors import *
 from oidc_provider.lib.utils.params import *
@@ -96,7 +97,7 @@ class TokenEndpoint(object):
 
             # Validate PKCE parameters.
             if self.params.code_verifier:
-                obj = AES.new(settings.SECRET_KEY, AES.MODE_CBC)
+                obj = AES.new(hashlib.md5(django_settings.SECRET_KEY).hexdigest(), AES.MODE_CBC)
                 code_challenge, code_challenge_method = tuple(obj.decrypt(self.code.code.decode('hex')).split(':'))
 
                 if code_challenge_method == 'S256':

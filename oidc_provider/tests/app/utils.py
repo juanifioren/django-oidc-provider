@@ -13,6 +13,7 @@ from oidc_provider.models import *
 
 FAKE_NONCE = 'cb584e44c43ed6bd0bc2d9c7e242837d'
 FAKE_RANDOM_STRING = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(32))
+FAKE_CODE_CHALLENGE = 'pG6flQqJa7INfIKb5cZVAXhTqvTKehIck6aQhdUuyWc'
 
 
 def create_fake_user():

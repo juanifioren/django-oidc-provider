@@ -122,6 +122,9 @@ class AuthorizationCodeFlowTestCase(TestCase):
             'redirect_uri': self.client.default_redirect_uri,
             'scope': 'openid email',
             'state': self.state,
+            # PKCE parameters.
+            'code_challenge': FAKE_CODE_CHALLENGE,
+            'code_challenge_method': 'S256',
         }).replace('+', '%20')
 
         url = reverse('oidc_provider:authorize') + '?' + query_str
@@ -140,6 +143,8 @@ class AuthorizationCodeFlowTestCase(TestCase):
             'client_id': self.client.client_id,
             'redirect_uri': self.client.default_redirect_uri,
             'response_type': 'code',
+            'code_challenge': FAKE_CODE_CHALLENGE,
+            'code_challenge_method': 'S256',
         }
 
         for key, value in iter(to_check.items()):
@@ -169,6 +174,9 @@ class AuthorizationCodeFlowTestCase(TestCase):
             'response_type': response_type,
             'scope': 'openid email',
             'state': self.state,
+            # PKCE parameters.
+            'code_challenge': FAKE_CODE_CHALLENGE,
+            'code_challenge_method': 'S256',
         }
 
         request = self.factory.post(url, data=post_data)

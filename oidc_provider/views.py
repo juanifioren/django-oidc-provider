@@ -87,7 +87,6 @@ class AuthorizeView(View):
             return redirect(uri)
 
     def post(self, request, *args, **kwargs):
-
         authorize = AuthorizeEndpoint(request)
 
         allow = True if request.POST.get('allow') else False
