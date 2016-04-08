@@ -99,7 +99,9 @@ class TokenEndpoint(object):
             # Validate PKCE parameters.
             if self.params.code_verifier:
                 if self.code.code_challenge_method == 'S256':
-                    new_code_challenge = urlsafe_b64encode(hashlib.sha256(self.params.code_verifier.encode('ascii')).digest()).replace('=', '')
+                    new_code_challenge = urlsafe_b64encode(
+                            hashlib.sha256(self.params.code_verifier.encode('ascii')).digest()
+                        ).decode('utf-8').replace('=', '')
                 else:
                     new_code_challenge = self.params.code_verifier
 
