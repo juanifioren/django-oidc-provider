@@ -33,7 +33,7 @@ def create_fake_user():
     return user
 
 
-def create_fake_client(response_type):
+def create_fake_client(response_type, is_public=False):
     """
     Create a test client, response_type argument MUST be:
     'code', 'id_token' or 'id_token token'.
@@ -42,8 +42,13 @@ def create_fake_client(response_type):
     """
     client = Client()
     client.name = 'Some Client'
-    client.client_id = '123'
-    client.client_secret = '456'
+    if is_public:
+        client.client_type = 'public'
+        client.client_id = 'p123'
+        client.client_secret = ''
+    else:
+        client.client_id = 'c123'
+        client.client_secret = '456'
     client.response_type = response_type
     client.redirect_uris = ['http://example.com/']
 

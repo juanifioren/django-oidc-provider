@@ -25,6 +25,7 @@ class AuthorizationCodeFlowTestCase(TestCase):
         self.factory = RequestFactory()
         self.user = create_fake_user()
         self.client = create_fake_client(response_type='code')
+        self.client_public = create_fake_client(response_type='code', is_public=True)
         self.state = uuid.uuid4().hex
 
     def test_missing_parameters(self):
@@ -310,8 +311,31 @@ class AuthorizationCodeFlowTestCase(TestCase):
 
         response = AuthorizeView.as_view()(request)
 
+        # Search the scopes in the html.
         self.assertEqual(scope_test in response.content.decode('utf-8'), True)
 
+    def test_public_client_auto_approval(self):
+        """
+        It's recommended not auto-approving requests for non-confidential clients.
+        """
+        query_str = urlencode({
+            'client_id': self.client_public.client_id,
+            'response_type': 'code',
+            'redirect_uri': self.client_public.default_redirect_uri,
+            'scope': 'openid email',
+            'state': self.state,
+        })
+
+        url = reverse('oidc_provider:authorize') + '?' + query_str
+
+        request = self.factory.get(url)
+        # Simulate that the user is logged.
+        request.user = self.user
+
+        with self.settings(OIDC_SKIP_CONSENT_ALWAYS=True):
+            response = AuthorizeView.as_view()(request)
+
+        self.assertEqual('Request for Permission' in response.content.decode('utf-8'), True)
 
 class ImplicitFlowTestCase(TestCase):
     """
