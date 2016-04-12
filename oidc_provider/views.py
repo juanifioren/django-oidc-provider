@@ -68,8 +68,11 @@ class AuthorizeView(View):
 
                 return render(request, 'oidc_provider/authorize.html', context)
             else:
-                path = request.get_full_path()
-                return redirect_to_login(path)
+                if authorize.params.prompt == 'none':
+                    raise AuthorizeError(authorize.params.redirect_uri, 'login_required', authorize.grant_type)
+                else:
+                    path = request.get_full_path()
+                    return redirect_to_login(path)
 
         except (ClientIdError, RedirectUriError) as error:
             context = {

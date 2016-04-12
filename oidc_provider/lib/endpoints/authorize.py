@@ -55,6 +55,7 @@ class AuthorizeEndpoint(object):
         self.params.scope = query_dict.get('scope', '').split()
         self.params.state = query_dict.get('state', '')
         self.params.nonce = query_dict.get('nonce', '')
+        self.params.prompt = query_dict.get('prompt', '')
 
         # PKCE parameters.
         self.params.code_challenge = query_dict.get('code_challenge')
@@ -91,7 +92,7 @@ class AuthorizeEndpoint(object):
             raise RedirectUriError()
 
         # PKCE validation of the transformation method.
-        if self.params.code_challenge and self.params.code_challenge_method:
+        if self.params.code_challenge:
             if not (self.params.code_challenge_method in ['plain', 'S256']):
                 raise AuthorizeError(self.params.redirect_uri, 'invalid_request', self.grant_type)
 
