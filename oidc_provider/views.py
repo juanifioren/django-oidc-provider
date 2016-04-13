@@ -66,13 +66,15 @@ class AuthorizeView(View):
                     'params': authorize.params,
                 }
 
+                if authorize.params.prompt == 'none':
+                    raise AuthorizeError(authorize.params.redirect_uri, 'interaction_required', authorize.grant_type)
+
                 return render(request, 'oidc_provider/authorize.html', context)
             else:
                 if authorize.params.prompt == 'none':
                     raise AuthorizeError(authorize.params.redirect_uri, 'login_required', authorize.grant_type)
-                else:
-                    path = request.get_full_path()
-                    return redirect_to_login(path)
+
+                return redirect_to_login(request.get_full_path())
 
         except (ClientIdError, RedirectUriError) as error:
             context = {
@@ -92,12 +94,10 @@ class AuthorizeView(View):
     def post(self, request, *args, **kwargs):
         authorize = AuthorizeEndpoint(request)
 
-        allow = True if request.POST.get('allow') else False
-
         try:
             authorize.validate_params()
             
-            if not allow:
+            if not request.POST.get('allow'):
                 raise AuthorizeError(authorize.params.redirect_uri,
                                      'access_denied',
                                      authorize.grant_type)

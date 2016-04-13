@@ -62,34 +62,38 @@ class AuthorizeEndpoint(object):
         self.params.code_challenge_method = query_dict.get('code_challenge_method')
 
     def validate_params(self):
+        # Client validation.
         try:
             self.client = Client.objects.get(client_id=self.params.client_id)
         except Client.DoesNotExist:
             logger.debug('[Authorize] Invalid client identifier: %s', self.params.client_id)
             raise ClientIdError()
 
+        # Redirect URI validation.
         if self.is_authentication and not self.params.redirect_uri:
             logger.debug('[Authorize] Missing redirect uri.')
             raise RedirectUriError()
-
-        if not self.grant_type:
-            logger.debug('[Authorize] Invalid response type: %s', self.params.response_type)
-            raise AuthorizeError(self.params.redirect_uri, 'unsupported_response_type',
-                self.grant_type)
-
-        if self.is_authentication and self.grant_type == 'implicit' and not self.params.nonce:
-            raise AuthorizeError(self.params.redirect_uri, 'invalid_request',
-                self.grant_type)
-
-        if self.is_authentication and self.params.response_type != self.client.response_type:
-            raise AuthorizeError(self.params.redirect_uri, 'invalid_request',
-                self.grant_type)
-                
         clean_redirect_uri = urlsplit(self.params.redirect_uri)
         clean_redirect_uri = urlunsplit(clean_redirect_uri._replace(query=''))
         if not (clean_redirect_uri in self.client.redirect_uris):
             logger.debug('[Authorize] Invalid redirect uri: %s', self.params.redirect_uri)
             raise RedirectUriError()
+
+        # Grant type validation.
+        if not self.grant_type:
+            logger.debug('[Authorize] Invalid response type: %s', self.params.response_type)
+            raise AuthorizeError(self.params.redirect_uri, 'unsupported_response_type',
+                self.grant_type)
+
+        # Nonce parameter validation.
+        if self.is_authentication and self.grant_type == 'implicit' and not self.params.nonce:
+            raise AuthorizeError(self.params.redirect_uri, 'invalid_request',
+                self.grant_type)
+
+        # Response type parameter validation.
+        if self.is_authentication and self.params.response_type != self.client.response_type:
+            raise AuthorizeError(self.params.redirect_uri, 'invalid_request',
+                self.grant_type)
 
         # PKCE validation of the transformation method.
         if self.params.code_challenge:
