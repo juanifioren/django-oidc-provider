@@ -40,12 +40,14 @@ class AuthorizeView(View):
                 if hook_resp:
                     return hook_resp
 
-                if settings.get('OIDC_SKIP_CONSENT_ALWAYS') and not (authorize.client.client_type == 'public'):
+                if settings.get('OIDC_SKIP_CONSENT_ALWAYS') and not (authorize.client.client_type == 'public') \
+                and not (authorize.params.prompt == 'consent'):
                     return redirect(authorize.create_response_uri())
 
                 if settings.get('OIDC_SKIP_CONSENT_ENABLE'):
                     # Check if user previously give consent.
-                    if authorize.client_has_user_consent() and not (authorize.client.client_type == 'public'):
+                    if authorize.client_has_user_consent() and not (authorize.client.client_type == 'public') \
+                    and not (authorize.params.prompt == 'consent'):
                         return redirect(authorize.create_response_uri())
 
                 # Generate hidden inputs for the form.
@@ -68,6 +70,13 @@ class AuthorizeView(View):
 
                 if authorize.params.prompt == 'none':
                     raise AuthorizeError(authorize.params.redirect_uri, 'interaction_required', authorize.grant_type)
+
+                if authorize.params.prompt == 'login':
+                    return redirect_to_login(request.get_full_path())
+
+                if authorize.params.prompt == 'select_account':
+                    # TODO: see how we can support multiple accounts for the end-user.
+                    raise AuthorizeError(authorize.params.redirect_uri, 'account_selection_required', authorize.grant_type)
 
                 return render(request, 'oidc_provider/authorize.html', context)
             else:
