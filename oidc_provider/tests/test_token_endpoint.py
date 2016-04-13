@@ -271,6 +271,29 @@ class TokenTestCase(TestCase):
                 False,
                 msg='Client authentication fails using HTTP Basic Auth.')
 
+    def test_client_redirect_url(self):
+        """
+        Validate that client redirect URIs with query strings match registered
+        URIs, and that unregistered URIs are rejected.
+        """
+        SIGKEYS = self._get_keys()
+        code = self._create_code()
+        post_data = self._auth_code_post_data(code=code.code)
+
+        # Unregistered URI
+        post_data['redirect_uri'] = 'http://invalid.example.org'
+
+        response = self._post_request(post_data)
+
+        self.assertIn('invalid_client', response.content.decode('utf-8')),
+
+        # Registered URI contained a query string
+        post_data['redirect_uri'] = 'http://example.com/?client=OidcClient'
+
+        response = self._post_request(post_data)
+
+        self.assertNotIn('invalid_client', response.content.decode('utf-8')),
+
     def test_access_token_contains_nonce(self):
         """
         If present in the Authentication Request, Authorization Servers MUST
