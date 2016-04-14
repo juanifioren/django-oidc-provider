@@ -4,6 +4,7 @@ try:
 except ImportError:
     from urllib import urlencode
 
+from django.core.management import call_command
 from django.test import RequestFactory, override_settings
 from django.test import TestCase
 from jwkest.jwk import KEYS
@@ -23,10 +24,10 @@ class TokenTestCase(TestCase):
     """
 
     def setUp(self):
+        call_command('creatersakey')
         self.factory = RequestFactory()
         self.user = create_fake_user()
         self.client = create_fake_client(response_type='code')
-        create_rsakey()
 
     def _auth_code_post_data(self, code):
         """

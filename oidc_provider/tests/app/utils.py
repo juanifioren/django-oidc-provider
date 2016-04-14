@@ -42,30 +42,18 @@ def create_fake_client(response_type, is_public=False):
     """
     client = Client()
     client.name = 'Some Client'
+    client.client_id = str(random.randint(1, 999999)).zfill(6)
     if is_public:
         client.client_type = 'public'
-        client.client_id = 'p123'
         client.client_secret = ''
     else:
-        client.client_id = 'c123'
-        client.client_secret = '456'
+        client.client_secret = str(random.randint(1, 999999)).zfill(6)
     client.response_type = response_type
     client.redirect_uris = ['http://example.com/']
 
     client.save()
 
     return client
-
-
-def create_rsakey():
-    """
-    Generate and save a sample RSA Key.
-    """
-    fullpath = os.path.abspath(os.path.dirname(__file__)) + '/RSAKEY.pem'
-
-    with open(fullpath, 'r') as f:
-        key = f.read()
-        RSAKey(key=key).save()
 
 
 def is_code_valid(url, user, client):
