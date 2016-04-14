@@ -32,16 +32,16 @@ class AuthorizationCodeFlowTestCase(TestCase):
         self.state = uuid.uuid4().hex
         self.nonce = uuid.uuid4().hex
 
-    def _auth_request(self, method, params_or_data={}, is_user_authenticated=False):
+    def _auth_request(self, method, data={}, is_user_authenticated=False):
         url = reverse('oidc_provider:authorize')
 
         if method.lower() == 'get':
-            query_str = urlencode(params_or_data).replace('+', '%20')
+            query_str = urlencode(data).replace('+', '%20')
             if query_str:
                 url += '?' + query_str
             request = self.factory.get(url)
         elif method.lower() == 'post':
-            request = self.factory.post(url, data=params_or_data)
+            request = self.factory.post(url, data=data)
         else:
             raise Exception('Method unsupported for an Authorization Request.')
 
@@ -74,7 +74,7 @@ class AuthorizationCodeFlowTestCase(TestCase):
         See: http://openid.net/specs/openid-connect-core-1_0.html#AuthError
         """
         # Create an authorize request with an unsupported response_type.
-        params = {
+        data = {
             'client_id': self.client.client_id,
             'response_type': 'something_wrong',
             'redirect_uri': self.client.default_redirect_uri,
@@ -82,7 +82,7 @@ class AuthorizationCodeFlowTestCase(TestCase):
             'state': self.state,
         }
 
-        response = self._auth_request('get', params)
+        response = self._auth_request('get', data)
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.has_header('Location'), True)
@@ -98,7 +98,7 @@ class AuthorizationCodeFlowTestCase(TestCase):
 
         See: http://openid.net/specs/openid-connect-core-1_0.html#Authenticates
         """
-        params = {
+        data = {
             'client_id': self.client.client_id,
             'response_type': 'code',
             'redirect_uri': self.client.default_redirect_uri,
@@ -106,7 +106,7 @@ class AuthorizationCodeFlowTestCase(TestCase):
             'state': self.state,
         }
 
-        response = self._auth_request('get', params)
+        response = self._auth_request('get', data)
 
         # Check if user was redirected to the login view.
         login_url_exists = settings.get('LOGIN_URL') in response['Location']
@@ -120,7 +120,7 @@ class AuthorizationCodeFlowTestCase(TestCase):
 
         See: http://openid.net/specs/openid-connect-core-1_0.html#Consent
         """
-        params = {
+        data = {
             'client_id': self.client.client_id,
             'response_type': 'code',
             'redirect_uri': self.client.default_redirect_uri,
@@ -131,7 +131,7 @@ class AuthorizationCodeFlowTestCase(TestCase):
             'code_challenge_method': 'S256',
         }
 
-        response = self._auth_request('get', params, is_user_authenticated=True)
+        response = self._auth_request('get', data, is_user_authenticated=True)
 
         # Check if hidden inputs exists in the form,
         # also if their values are valid.
@@ -257,7 +257,7 @@ class AuthorizationCodeFlowTestCase(TestCase):
         """
         It's recommended not auto-approving requests for non-confidential clients.
         """
-        params = {
+        data = {
             'client_id': self.client_public.client_id,
             'response_type': 'code',
             'redirect_uri': self.client_public.default_redirect_uri,
@@ -266,7 +266,7 @@ class AuthorizationCodeFlowTestCase(TestCase):
         }
 
         with self.settings(OIDC_SKIP_CONSENT_ALWAYS=True):
-            response = self._auth_request('get', params, is_user_authenticated=True)
+            response = self._auth_request('get', data, is_user_authenticated=True)
 
         self.assertEqual('Request for Permission' in response.content.decode('utf-8'), True)
 
@@ -274,7 +274,7 @@ class AuthorizationCodeFlowTestCase(TestCase):
         """
         The `nonce` parameter is REQUIRED if you use the Implicit Flow.
         """
-        params = {
+        data = {
             'client_id': self.client_implicit.client_id,
             'response_type': self.client_implicit.response_type,
             'redirect_uri': self.client_implicit.default_redirect_uri,
@@ -282,7 +282,7 @@ class AuthorizationCodeFlowTestCase(TestCase):
             'state': self.state,
         }
 
-        response = self._auth_request('get', params, is_user_authenticated=True)
+        response = self._auth_request('get', data, is_user_authenticated=True)
         
         self.assertEqual('#error=invalid_request' in response['Location'], True)   
 
@@ -304,4 +304,30 @@ class AuthorizationCodeFlowTestCase(TestCase):
 
         response = self._auth_request('post', data, is_user_authenticated=True)
         
-        self.assertEqual('access_token' in response['Location'], True) 
+        self.assertEqual('access_token' in response['Location'], True)
+
+
+    def test_prompt_parameter(self):
+        """
+        Specifies whether the Authorization Server prompts the End-User for reauthentication and consent.
+        See: http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
+        """
+        data = {
+            'client_id': self.client.client_id,
+            'response_type': self.client.response_type,
+            'redirect_uri': self.client.default_redirect_uri,
+            'scope': 'openid email',
+            'state': self.state,
+        }
+
+        data['prompt'] = 'none'
+
+        response = self._auth_request('get', data)
+
+        # An error is returned if an End-User is not already authenticated.
+        self.assertEqual('login_required' in response['Location'], True)
+
+        response = self._auth_request('get', data, is_user_authenticated=True)
+
+        # An error is returned if the Client does not have pre-configured consent for the requested Claims.
+        self.assertEqual('interaction_required' in response['Location'], True)
