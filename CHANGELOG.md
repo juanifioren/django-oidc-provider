@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ##### Added
 - Choose type of client on creation.
 - Implement Proof Key for Code Exchange by OAuth Public Clients.
+- Support for prompt parameter.
 
 ##### Fixed
 - Not auto-approve requests for non-confidential clients (publics).
