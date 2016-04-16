@@ -3,6 +3,11 @@ Welcome to Django OIDC Provider Documentation!
 
 Django OIDC Provider can help you providing out of the box all the endpoints, data and logic needed to add OpenID Connect capabilities to your Django projects. And as a side effect a fair implementation of OAuth2.0 too.
 
+Also implements the following specifications:
+
+* `OAuth 2.0 for Native Apps <https://tools.ietf.org/html/draft-ietf-oauth-native-apps-01>`_
+* `Proof Key for Code Exchange by OAuth Public Clients <https://tools.ietf.org/html/rfc7636>`_
+
 --------------------------------------------------------------------------------
 
 Before getting started there are some important things that you should know:
@@ -19,7 +24,7 @@ Contents:
    :maxdepth: 2
    
    sections/installation
-   sections/clients
+   sections/relyingparties
    sections/serverkeys
    sections/templates
    sections/claims
