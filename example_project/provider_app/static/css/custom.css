@@ -1,22 +1,15 @@
-@import url(https://fonts.googleapis.com/css?family=Open+Sans:300,400,800);
-
-html {
-	font-size: 16px;
-}
-
 body {
-    font-family: 'Open Sans', sans-serif;
-    font-weight: 400;
-    height: auto;
-    padding-top: 10px;
+	background-color: #536dfe;
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
 }
 
-.ui.huge.header {
-	font-size: 46px;
-	font-weight: 800;
+#main-container {
+    flex: 1 0 auto;
+    padding-top: 40px;
 }
 
-.ui.segment {
-	font-size: 18px;
-	font-weight: 300;
+footer {
+	padding-top: 0px !important;
 }
