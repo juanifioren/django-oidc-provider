@@ -1,3 +1,4 @@
+from base64 import urlsafe_b64decode, urlsafe_b64encode
 from datetime import timedelta
 import time
 import uuid
@@ -101,7 +102,8 @@ def create_token(user, client, id_token_dic, scope):
     return token
 
 
-def create_code(user, client, scope, nonce, is_authentication):
+def create_code(user, client, scope, nonce, is_authentication,
+                code_challenge=None, code_challenge_method=None):
     """
     Create and populate a Code object.
 
@@ -110,7 +112,13 @@ def create_code(user, client, scope, nonce, is_authentication):
     code = Code()
     code.user = user
     code.client = client
+
     code.code = uuid.uuid4().hex
+    
+    if code_challenge and code_challenge_method:
+        code.code_challenge = code_challenge
+        code.code_challenge_method = code_challenge_method
+
     code.expires_at = timezone.now() + timedelta(
         seconds=settings.get('OIDC_CODE_EXPIRE'))
     code.scope = scope

@@ -8,22 +8,28 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
 
+CLIENT_TYPE_CHOICES = [
+    ('confidential', 'Confidential'),
+    ('public', 'Public'),
+]
+
+RESPONSE_TYPE_CHOICES = [
+    ('code', 'code (Authorization Code Flow)'),
+    ('id_token', 'id_token (Implicit Flow)'),
+    ('id_token token', 'id_token token (Implicit Flow)'),
+]
+
+JWT_ALGS = [
+    ('HS256', 'HS256'),
+    ('RS256', 'RS256'),
+]
+
 class Client(models.Model):
 
-    RESPONSE_TYPE_CHOICES = [
-        ('code', 'code (Authorization Code Flow)'),
-        ('id_token', 'id_token (Implicit Flow)'),
-        ('id_token token', 'id_token token (Implicit Flow)'),
-    ]
-
-    JWT_ALGS = [
-        ('HS256', 'HS256'),
-        ('RS256', 'RS256'),
-    ]
-
     name = models.CharField(max_length=100, default='')
+    client_type = models.CharField(max_length=30, choices=CLIENT_TYPE_CHOICES, default='confidential', help_text=_(u'<b>Confidential</b> clients are capable of maintaining the confidentiality of their credentials. <b>Public</b> clients are incapable.'))
     client_id = models.CharField(max_length=255, unique=True)
-    client_secret = models.CharField(max_length=255, unique=True)
+    client_secret = models.CharField(max_length=255, blank=True, default='')
     response_type = models.CharField(max_length=30, choices=RESPONSE_TYPE_CHOICES)
     jwt_alg = models.CharField(max_length=10, choices=JWT_ALGS, default='RS256', verbose_name=_(u'JWT Algorithm'))
     date_created = models.DateField(auto_now_add=True)
@@ -86,6 +92,8 @@ class Code(BaseCodeTokenModel):
     code = models.CharField(max_length=255, unique=True)
     nonce = models.CharField(max_length=255, blank=True, default='')
     is_authentication = models.BooleanField(default=False)
+    code_challenge = models.CharField(max_length=255, null=True)
+    code_challenge_method = models.CharField(max_length=255, null=True)
 
     class Meta:
         verbose_name = _(u'Authorization Code')

@@ -40,12 +40,14 @@ class AuthorizeView(View):
                 if hook_resp:
                     return hook_resp
 
-                if settings.get('OIDC_SKIP_CONSENT_ALWAYS'):
+                if settings.get('OIDC_SKIP_CONSENT_ALWAYS') and not (authorize.client.client_type == 'public') \
+                and not (authorize.params.prompt == 'consent'):
                     return redirect(authorize.create_response_uri())
 
                 if settings.get('OIDC_SKIP_CONSENT_ENABLE'):
                     # Check if user previously give consent.
-                    if authorize.client_has_user_consent():
+                    if authorize.client_has_user_consent() and not (authorize.client.client_type == 'public') \
+                    and not (authorize.params.prompt == 'consent'):
                         return redirect(authorize.create_response_uri())
 
                 # Generate hidden inputs for the form.
@@ -66,10 +68,22 @@ class AuthorizeView(View):
                     'params': authorize.params,
                 }
 
+                if authorize.params.prompt == 'none':
+                    raise AuthorizeError(authorize.params.redirect_uri, 'interaction_required', authorize.grant_type)
+
+                if authorize.params.prompt == 'login':
+                    return redirect_to_login(request.get_full_path())
+
+                if authorize.params.prompt == 'select_account':
+                    # TODO: see how we can support multiple accounts for the end-user.
+                    raise AuthorizeError(authorize.params.redirect_uri, 'account_selection_required', authorize.grant_type)
+
                 return render(request, 'oidc_provider/authorize.html', context)
             else:
-                path = request.get_full_path()
-                return redirect_to_login(path)
+                if authorize.params.prompt == 'none':
+                    raise AuthorizeError(authorize.params.redirect_uri, 'login_required', authorize.grant_type)
+
+                return redirect_to_login(request.get_full_path())
 
         except (ClientIdError, RedirectUriError) as error:
             context = {
@@ -87,15 +101,12 @@ class AuthorizeView(View):
             return redirect(uri)
 
     def post(self, request, *args, **kwargs):
-
         authorize = AuthorizeEndpoint(request)
-
-        allow = True if request.POST.get('allow') else False
 
         try:
             authorize.validate_params()
             
-            if not allow:
+            if not request.POST.get('allow'):
                 raise AuthorizeError(authorize.params.redirect_uri,
                                      'access_denied',
                                      authorize.grant_type)
