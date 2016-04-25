@@ -16,7 +16,7 @@ from oidc_provider.lib.endpoints.token import *
 from oidc_provider.lib.errors import *
 from oidc_provider.lib.utils.common import redirect, get_issuer
 from oidc_provider.lib.utils.oauth2 import protected_resource_view
-from oidc_provider.models import Client, RSAKey
+from oidc_provider.models import RESPONSE_TYPE_CHOICES, RSAKey
 from oidc_provider import settings
 
 
@@ -187,7 +187,7 @@ class ProviderInfoView(View):
         dic['userinfo_endpoint'] = SITE_URL + reverse('oidc_provider:userinfo')
         dic['end_session_endpoint'] = SITE_URL + reverse('oidc_provider:logout')
 
-        types_supported = [x[0] for x in Client.RESPONSE_TYPE_CHOICES]
+        types_supported = [x[0] for x in RESPONSE_TYPE_CHOICES]
         dic['response_types_supported'] = types_supported
 
         dic['jwks_uri'] = SITE_URL + reverse('oidc_provider:jwks')

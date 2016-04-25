@@ -22,3 +22,13 @@ If you have a Django project properly configured with the package. Then just run
     $ python manage.py test --settings oidc_provider.tests.app.settings oidc_provider
 
 Also tests run on every commit to the project, we use `travis <https://travis-ci.org/juanifioren/django-oidc-provider/>`_ for this.
+
+Improve Documentation
+=====================
+
+We use `Sphinx <http://www.sphinx-doc.org/>`_ for generate this documentation. I you want to add or modify something just:
+
+* Install Sphinx ``pip install sphinx`` and this theme ``pip install sphinx-rtd-theme``.
+* Move inside the docs folder. ``cd docs/``
+* Generate the HTML. ``make html``
+* Open ``docs/_build/html/index.html`` on a browser.
