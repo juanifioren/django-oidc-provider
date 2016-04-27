@@ -11,6 +11,17 @@ OAuth defines two client types, based on their ability to maintain the confident
 * ``confidential``: Clients capable of maintaining the confidentiality of their credentials (e.g., client implemented on a secure server with restricted access to the client credentials).
 * ``public``: Clients incapable of maintaining the confidentiality of their credentials (e.g., clients executing on the device used by the resource owner, such as an installed native application or a web browser-based application), and incapable of secure client authentication via any other means.
 
+Properties
+==========
+
+* ``name``: Human-readable name for your client.
+* ``client_type``: Values are ``confidential`` and ``public``.
+* ``client_id``: Client unique identifier.
+* ``client_secret``: Client secret for confidential applications.
+* ``response_type``: Values are ``code``, ``id_token`` and ``id_token token``.
+* ``jwt_alg``: Clients can choose wich algorithm will be used to sign id_tokens. Values are ``HS256`` and ``RS256``.
+* ``date_created``: Date automatically added when created.
+
 Using the admin
 ===============
 
