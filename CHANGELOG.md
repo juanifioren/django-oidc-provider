@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [0.3.3] - 2016-05-03
+
+##### Fixed
+- Important bug with PKCE and form submit in Auth Request.
+
 ### [0.3.2] - 2016-04-26
 
 ##### Added

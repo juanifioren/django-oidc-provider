@@ -54,12 +54,11 @@ class AuthorizeEndpoint(object):
         self.params.response_type = query_dict.get('response_type', '')
         self.params.scope = query_dict.get('scope', '').split()
         self.params.state = query_dict.get('state', '')
+        
         self.params.nonce = query_dict.get('nonce', '')
         self.params.prompt = query_dict.get('prompt', '')
-
-        # PKCE parameters.
-        self.params.code_challenge = query_dict.get('code_challenge')
-        self.params.code_challenge_method = query_dict.get('code_challenge_method')
+        self.params.code_challenge = query_dict.get('code_challenge', '')
+        self.params.code_challenge_method = query_dict.get('code_challenge_method', '')
 
     def validate_params(self):
         # Client validation.
