@@ -1,4 +1,3 @@
-from datetime import timedelta
 import logging
 try:
     from urllib import urlencode
@@ -126,7 +125,8 @@ class AuthorizeEndpoint(object):
                     id_token_dic = create_id_token(
                         user=self.request.user,
                         aud=self.client.client_id,
-                        nonce=self.params.nonce)
+                        nonce=self.params.nonce,
+                        request=self.request)
                     query_fragment['id_token'] = encode_id_token(id_token_dic, self.client)
                 else:
                     id_token_dic = {}

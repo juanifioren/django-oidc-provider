@@ -1,11 +1,9 @@
-from base64 import urlsafe_b64decode, urlsafe_b64encode
 from datetime import timedelta
 import time
 import uuid
 
 from Crypto.PublicKey.RSA import importKey
 from django.utils import timezone
-from hashlib import md5
 from jwkest.jwk import RSAKey as jwk_RSAKey
 from jwkest.jwk import SYMKey
 from jwkest.jws import JWS
@@ -15,7 +13,7 @@ from oidc_provider.models import *
 from oidc_provider import settings
 
 
-def create_id_token(user, aud, nonce):
+def create_id_token(user, aud, nonce, request=None):
     """
     Receives a user object and aud (audience).
     Then creates the id_token dictionary.
@@ -35,7 +33,7 @@ def create_id_token(user, aud, nonce):
     auth_time = int(time.mktime(user_auth_time.timetuple()))
 
     dic = {
-        'iss': get_issuer(),
+        'iss': get_issuer(request=request),
         'sub': sub,
         'aud': str(aud),
         'exp': exp_time,
