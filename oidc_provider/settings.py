@@ -134,7 +134,7 @@ def get(name, import_str=False):
         value = getattr(default_settings, name)
         value = getattr(settings, name)
     except AttributeError:
-        if value is None and value in default_settings.required_attrs:
+        if value is None and name in default_settings.required_attrs:
             raise Exception('You must set ' + name + ' in your settings.')
 
     value = import_from_str(value) if import_str else value
