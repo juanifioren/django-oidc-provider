@@ -46,5 +46,4 @@ Generate server RSA key and run migrations (if you don't)::
 
 Add required variables to your project settings::
 
-    SITE_URL = 'http://localhost:8000'
     LOGIN_URL = '/accounts/login/'

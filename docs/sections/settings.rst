@@ -5,19 +5,21 @@ Settings
 
 Customize your provider so fit your project needs.
 
-SITE_URL
-========
-
-REQUIRED. ``str``. The OP server url.
-
-For example ``http://localhost:8000``.
-
 LOGIN_URL
 =========
 
 REQUIRED. ``str``. Used to log the user in. `Read more in Django docs <https://docs.djangoproject.com/en/1.7/ref/settings/#login-url>`_
 
 ``str``. Default is ``/accounts/login/``.
+
+SITE_URL
+========
+
+OPTIONAL. ``str``. The OP server url.
+
+If not specified will be automatically generated using ``request.scheme`` and ``request.get_host()``.
+
+For example ``http://localhost:8000``.
 
 OIDC_AFTER_USERLOGIN_HOOK
 =========================
