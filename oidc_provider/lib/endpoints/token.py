@@ -1,4 +1,4 @@
-from base64 import b64decode, urlsafe_b64decode, urlsafe_b64encode
+from base64 import b64decode, urlsafe_b64encode
 import hashlib
 import logging
 import re
@@ -7,9 +7,7 @@ try:
 except ImportError:
     from urllib import unquote
 
-from Crypto.Cipher import AES
 from django.http import JsonResponse
-from django.conf import settings as django_settings
 
 from oidc_provider.lib.errors import *
 from oidc_provider.lib.utils.params import *
@@ -138,6 +136,7 @@ class TokenEndpoint(object):
                 user=self.code.user,
                 aud=self.client.client_id,
                 nonce=self.code.nonce,
+                request=self.request,
             )
         else:
             id_token_dic = {}
@@ -171,6 +170,7 @@ class TokenEndpoint(object):
                 user=self.token.user,
                 aud=self.client.client_id,
                 nonce=None,
+                request=self.request,
             )
         else:
             id_token_dic = {}

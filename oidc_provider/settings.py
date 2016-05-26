@@ -4,6 +4,9 @@ from django.conf import settings
 
 
 class DefaultSettings(object):
+    required_attrs = (
+        'LOGIN_URL',
+    )
 
     @property
     def LOGIN_URL(self):
@@ -15,7 +18,7 @@ class DefaultSettings(object):
     @property
     def SITE_URL(self):
         """
-        REQUIRED. The OP server url.
+        OPTIONAL. The OP server url.
         """
         return None
 
@@ -131,7 +134,7 @@ def get(name, import_str=False):
         value = getattr(default_settings, name)
         value = getattr(settings, name)
     except AttributeError:
-        if value is None:
+        if value is None and name in default_settings.required_attrs:
             raise Exception('You must set ' + name + ' in your settings.')
 
     value = import_from_str(value) if import_str else value
