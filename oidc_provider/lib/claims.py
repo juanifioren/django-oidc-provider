@@ -3,16 +3,12 @@ from django.utils.translation import ugettext as _
 from oidc_provider import settings
 
 
-class AbstractScopeClaims(object):
+class ScopeClaims(object):
 
     def __init__(self, user, scopes):
         self.user = user
+        self.userinfo = settings.get('OIDC_USERINFO', import_str=True).get_by_user(self.user)
         self.scopes = scopes
-
-        self.setup()
-
-    def setup(self):
-        pass
 
     def create_response_dic(self):
         """
@@ -25,7 +21,7 @@ class AbstractScopeClaims(object):
 
         for scope in self.scopes:
             if scope in self._scopes_registered():
-                dic.update(getattr(self, 'scope_' + scope)(self.user))
+                dic.update(getattr(self, 'scope_' + scope)())
 
         dic = self._clean_dic(dic)
 
@@ -61,20 +57,13 @@ class AbstractScopeClaims(object):
         return aux_dic
 
 
-class StandardScopeClaims(AbstractScopeClaims):
+class StandardScopeClaims(ScopeClaims):
     """
     Based on OpenID Standard Claims.
     See: http://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
     """
-
-    def setup(self):
-        try:
-            self.userinfo = settings.get('OIDC_USERINFO',
-                                         import_str=True).get_by_user(self.user)
-        except:
-            self.userinfo = None
-
-    def scope_profile(self, user):
+        
+    def scope_profile(self):
         dic = {
             'name': getattr(self.userinfo, 'name', None),
             'given_name': getattr(self.userinfo, 'given_name', None),
@@ -94,7 +83,7 @@ class StandardScopeClaims(AbstractScopeClaims):
 
         return dic
 
-    def scope_email(self, user):
+    def scope_email(self):
         dic = {
             'email': getattr(self.user, 'email', None),
             'email_verified': getattr(self.userinfo, 'email_verified', None),
@@ -102,7 +91,7 @@ class StandardScopeClaims(AbstractScopeClaims):
 
         return dic
 
-    def scope_phone(self, user):
+    def scope_phone(self):
         dic = {
             'phone_number': getattr(self.userinfo, 'phone_number', None),
             'phone_number_verified': getattr(self.userinfo, 'phone_number_verified', None),
@@ -110,7 +99,7 @@ class StandardScopeClaims(AbstractScopeClaims):
 
         return dic
 
-    def scope_address(self, user):
+    def scope_address(self):
         dic = {
             'address': {
                 'formatted': getattr(self.userinfo, 'address_formatted', None),

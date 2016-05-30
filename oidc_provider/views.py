@@ -168,6 +168,7 @@ def userinfo(request, *args, **kwargs):
     response = JsonResponse(dic, status=200)
     response['Cache-Control'] = 'no-store'
     response['Pragma'] = 'no-cache'
+
     return response
 
 

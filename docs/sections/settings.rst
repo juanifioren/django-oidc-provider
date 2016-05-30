@@ -46,9 +46,9 @@ Expressed in seconds. Default is ``60*10``.
 OIDC_EXTRA_SCOPE_CLAIMS
 =======================
 
-OPTIONAL. ``str``. A string with the location of your class. Default is ``oidc_provider.lib.claims.AbstractScopeClaims``.
+OPTIONAL. ``str``. A string with the location of your class. Default is ``oidc_provider.lib.claims.ScopeClaims``.
 
-Used to add extra scopes specific for your app. This class MUST inherit ``AbstractScopeClaims``.
+Used to add extra scopes specific for your app. This class MUST inherit ``ScopeClaims``.
 
 OpenID Connect Clients will use scope values to specify what access privileges are being requested for Access Tokens.
 
@@ -56,24 +56,15 @@ OpenID Connect Clients will use scope values to specify what access privileges a
 
 Check out an example of how to implement it::
 
-    from oidc_provider.lib.claims import AbstractScopeClaims
+    from oidc_provider.lib.claims import ScopeClaims
 
-    class MyAppScopeClaims(AbstractScopeClaims):
+    class MyAppScopeClaims(ScopeClaims):
 
-        def setup(self):
-            # Here you can load models that will be used
-            # in more than one scope for example.
-            # print self.user
-            # print self.scopes
-            try:
-                self.some_model = SomeModel.objects.get(user=self.user)
-            except SomeModel.DoesNotExist:
-                # Create an empty model object.
-                self.some_model = SomeModel()
-
-        def scope_books(self, user):
-
-            # Here you can search books for this user.
+        def scope_books(self):
+            # Here, for example, you can search books for this user.
+            # self.user - Django user instance.
+            # self.userinfo - Instance of your custom OIDC_USERINFO class.
+            # self.scopes - List of scopes requested.
 
             dic = {
                 'books_readed': books_readed_count,
@@ -83,7 +74,7 @@ Check out an example of how to implement it::
 
 You can create our own scopes using the convention:
 
-``def scope_SCOPENAMEHERE(self, user):``
+``def scope_somename(self):``
 
 If a field is empty or ``None`` will be cleaned from the response.
 
