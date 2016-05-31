@@ -13,8 +13,8 @@ Also implements the following specifications:
 Before getting started there are some important things that you should know:
 
 * Despite that implementation MUST support TLS. You can make request without using SSL. There is no control on that.
-* This cover **Authorization Code Flow**  and **Implicit Flow**, NO support for **Hybrid Flow** at this moment.
-* Only support for requesting Claims using Scope Values.
+* This library covers **Authorization Code Flow**  and **Implicit Flow**, NO support for **Hybrid Flow** at this moment.
+* Supports only for requesting Claims using Scope values.
 
 --------------------------------------------------------------------------------
 
