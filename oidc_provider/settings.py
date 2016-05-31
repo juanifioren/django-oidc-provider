@@ -43,7 +43,7 @@ class DefaultSettings(object):
         OPTIONAL. A string with the location of your class.
         Used to add extra scopes specific for your app. 
         """
-        return 'oidc_provider.lib.claims.AbstractScopeClaims'
+        return 'oidc_provider.lib.claims.ScopeClaims'
 
     @property
     def OIDC_IDTOKEN_EXPIRE(self):
