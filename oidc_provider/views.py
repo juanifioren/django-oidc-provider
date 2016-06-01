@@ -48,12 +48,21 @@ class AuthorizeView(View):
                     and not (authorize.params.prompt == 'consent'):
                         return redirect(authorize.create_response_uri())
 
+                if authorize.params.prompt == 'none':
+                    raise AuthorizeError(authorize.params.redirect_uri, 'interaction_required', authorize.grant_type)
+
+                if authorize.params.prompt == 'login':
+                    return redirect_to_login(request.get_full_path())
+
+                if authorize.params.prompt == 'select_account':
+                    # TODO: see how we can support multiple accounts for the end-user.
+                    raise AuthorizeError(authorize.params.redirect_uri, 'account_selection_required', authorize.grant_type)
+
                 # Generate hidden inputs for the form.
                 context = {
                     'params': authorize.params,
                 }
-                hidden_inputs = render_to_string(
-                    'oidc_provider/hidden_inputs.html', context)
+                hidden_inputs = render_to_string('oidc_provider/hidden_inputs.html', context)
 
                 # Remove `openid` from scope list
                 # since we don't need to print it.
@@ -65,16 +74,6 @@ class AuthorizeView(View):
                     'hidden_inputs': hidden_inputs,
                     'params': authorize.params,
                 }
-
-                if authorize.params.prompt == 'none':
-                    raise AuthorizeError(authorize.params.redirect_uri, 'interaction_required', authorize.grant_type)
-
-                if authorize.params.prompt == 'login':
-                    return redirect_to_login(request.get_full_path())
-
-                if authorize.params.prompt == 'select_account':
-                    # TODO: see how we can support multiple accounts for the end-user.
-                    raise AuthorizeError(authorize.params.redirect_uri, 'account_selection_required', authorize.grant_type)
 
                 return render(request, 'oidc_provider/authorize.html', context)
             else:
@@ -103,7 +102,7 @@ class AuthorizeView(View):
 
         try:
             authorize.validate_params()
-            
+
             if not request.POST.get('allow'):
                 raise AuthorizeError(authorize.params.redirect_uri,
                                      'access_denied',
