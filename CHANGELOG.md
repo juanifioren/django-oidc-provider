@@ -4,8 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [0.3.4] - 2016-06-10
+
 ##### Changed
 - Make SITE_URL setting optional.
+
+##### Fixed
+- Missing migration.
 
 ### [0.3.3] - 2016-05-03
 
