@@ -34,7 +34,7 @@ class AuthorizeEndpoint(object):
             self.grant_type = None
 
         # Determine if it's an OpenID Authentication request (or OAuth2).
-        self.is_authentication = 'openid' in self.params.scope 
+        self.is_authentication = 'openid' in self.params.scope
 
     def _extract_params(self):
         """
@@ -53,7 +53,7 @@ class AuthorizeEndpoint(object):
         self.params.response_type = query_dict.get('response_type', '')
         self.params.scope = query_dict.get('scope', '').split()
         self.params.state = query_dict.get('state', '')
-        
+
         self.params.nonce = query_dict.get('nonce', '')
         self.params.prompt = query_dict.get('prompt', '')
         self.params.code_challenge = query_dict.get('code_challenge', '')
@@ -113,7 +113,7 @@ class AuthorizeEndpoint(object):
                     is_authentication=self.is_authentication,
                     code_challenge=self.params.code_challenge,
                     code_challenge_method=self.params.code_challenge_method)
-                
+
                 code.save()
 
                 query_params['code'] = code.code
@@ -169,18 +169,24 @@ class AuthorizeEndpoint(object):
 
         Return None.
         """
-        expires_at = timezone.now() + timedelta(
+        date_given = timezone.now()
+        expires_at = date_given + timedelta(
             days=settings.get('OIDC_SKIP_CONSENT_EXPIRE'))
 
         uc, created = UserConsent.objects.get_or_create(
             user=self.request.user,
             client=self.client,
-            defaults={'expires_at': expires_at})
+            defaults={
+                'expires_at': expires_at,
+                'date_given': date_given,
+            }
+        )
         uc.scope = self.params.scope
 
-        # Rewrite expires_at if object already exists.
+        # Rewrite expires_at and date_given if object already exists.
         if not created:
             uc.expires_at = expires_at
+            uc.date_given = date_given
 
         uc.save()
 

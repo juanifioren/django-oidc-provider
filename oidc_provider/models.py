@@ -26,15 +26,15 @@ JWT_ALGS = [
 
 class Client(models.Model):
 
-    name = models.CharField(max_length=100, default='')
-    client_type = models.CharField(max_length=30, choices=CLIENT_TYPE_CHOICES, default='confidential', help_text=_(u'<b>Confidential</b> clients are capable of maintaining the confidentiality of their credentials. <b>Public</b> clients are incapable.'))
-    client_id = models.CharField(max_length=255, unique=True)
-    client_secret = models.CharField(max_length=255, blank=True, default='')
-    response_type = models.CharField(max_length=30, choices=RESPONSE_TYPE_CHOICES)
+    name = models.CharField(max_length=100, default='', verbose_name=_(u'Name'))
+    client_type = models.CharField(max_length=30, choices=CLIENT_TYPE_CHOICES, default='confidential', verbose_name=_(u'Client Type'), help_text=_(u'<b>Confidential</b> clients are capable of maintaining the confidentiality of their credentials. <b>Public</b> clients are incapable.'))
+    client_id = models.CharField(max_length=255, unique=True, verbose_name=_(u'Client ID'))
+    client_secret = models.CharField(max_length=255, blank=True, default='', verbose_name=_(u'Client SECRET'))
+    response_type = models.CharField(max_length=30, choices=RESPONSE_TYPE_CHOICES, verbose_name=_(u'Response Type'))
     jwt_alg = models.CharField(max_length=10, choices=JWT_ALGS, default='RS256', verbose_name=_(u'JWT Algorithm'))
-    date_created = models.DateField(auto_now_add=True)
+    date_created = models.DateField(auto_now_add=True, verbose_name=_(u'Date Created'))
 
-    _redirect_uris = models.TextField(default='', verbose_name=_(u'Redirect URI'), help_text=_(u'Enter each URI on a new line.'))
+    _redirect_uris = models.TextField(default='', verbose_name=_(u'Redirect URIs'), help_text=_(u'Enter each URI on a new line.'))
 
     class Meta:
         verbose_name = _(u'Client')
@@ -45,7 +45,7 @@ class Client(models.Model):
 
     def __unicode__(self):
         return self.__str__()
-    
+
     def redirect_uris():
         def fget(self):
             return self._redirect_uris.splitlines()
@@ -61,10 +61,10 @@ class Client(models.Model):
 
 class BaseCodeTokenModel(models.Model):
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL)
-    client = models.ForeignKey(Client)
-    expires_at = models.DateTimeField()
-    _scope = models.TextField(default='')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'User'))
+    client = models.ForeignKey(Client, verbose_name=_(u'Client'))
+    expires_at = models.DateTimeField(verbose_name=_(u'Expiration Date'))
+    _scope = models.TextField(default='', verbose_name=_(u'Scopes'))
 
     def scope():
         def fget(self):
@@ -82,18 +82,18 @@ class BaseCodeTokenModel(models.Model):
 
     def __unicode__(self):
         return self.__str__()
-    
+
     class Meta:
         abstract = True
 
 
 class Code(BaseCodeTokenModel):
 
-    code = models.CharField(max_length=255, unique=True)
-    nonce = models.CharField(max_length=255, blank=True, default='')
-    is_authentication = models.BooleanField(default=False)
-    code_challenge = models.CharField(max_length=255, null=True)
-    code_challenge_method = models.CharField(max_length=255, null=True)
+    code = models.CharField(max_length=255, unique=True, verbose_name=_(u'Code'))
+    nonce = models.CharField(max_length=255, blank=True, default='', verbose_name=_(u'Nonce'))
+    is_authentication = models.BooleanField(default=False, verbose_name=_(u'Is Authentication?'))
+    code_challenge = models.CharField(max_length=255, null=True, verbose_name=_(u'Code Challenge'))
+    code_challenge_method = models.CharField(max_length=255, null=True, verbose_name=_(u'Code Challenge Method'))
 
     class Meta:
         verbose_name = _(u'Authorization Code')
@@ -102,9 +102,9 @@ class Code(BaseCodeTokenModel):
 
 class Token(BaseCodeTokenModel):
 
-    access_token = models.CharField(max_length=255, unique=True)
-    refresh_token = models.CharField(max_length=255, unique=True, null=True)
-    _id_token = models.TextField()
+    access_token = models.CharField(max_length=255, unique=True, verbose_name=_(u'Access Token'))
+    refresh_token = models.CharField(max_length=255, unique=True, null=True, verbose_name=_(u'Refresh Token'))
+    _id_token = models.TextField(verbose_name=_(u'ID Token'))
     def id_token():
         def fget(self):
             return json.loads(self._id_token)
@@ -120,13 +120,15 @@ class Token(BaseCodeTokenModel):
 
 class UserConsent(BaseCodeTokenModel):
 
+    date_given = models.DateTimeField(verbose_name=_(u'Date Given'))
+
     class Meta:
         unique_together = ('user', 'client')
 
 
 class RSAKey(models.Model):
 
-    key = models.TextField(help_text=_(u'Paste your private RSA Key here.'))
+    key = models.TextField(verbose_name=_(u'Key'), help_text=_(u'Paste your private RSA Key here.'))
 
     class Meta:
         verbose_name = _(u'RSA Key')
