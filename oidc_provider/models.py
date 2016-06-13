@@ -78,7 +78,7 @@ class BaseCodeTokenModel(models.Model):
         return timezone.now() >= self.expires_at
 
     def __str__(self):
-        return u'{0} - {1} ({2})'.format(self.client, self.user.email, self.expires_at)
+        return u'{0} - {1}'.format(self.client, self.user.email)
 
     def __unicode__(self):
         return self.__str__()

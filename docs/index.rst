@@ -22,12 +22,13 @@ Contents:
 
 .. toctree::
    :maxdepth: 2
-   
+
    sections/installation
    sections/relyingparties
    sections/serverkeys
    sections/templates
    sections/claims
+   sections/userconsent
    sections/oauth2
    sections/settings
    sections/contribute
@@ -39,4 +40,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
