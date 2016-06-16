@@ -35,7 +35,6 @@ class ScopeClaims(object):
         scopes = []
 
         for name in self.__class__.__dict__:
-
             if name.startswith('scope_'):
                 scope = name.split('scope_')[1]
                 scopes.append(scope)
@@ -56,13 +55,34 @@ class ScopeClaims(object):
 
         return aux_dic
 
+    @classmethod
+    def get_scopes_info(cls, scopes=[]):
+        scopes_info = []
+
+        for name in cls.__dict__:
+            if name.startswith('info_'):
+                scope_name = name.split('info_')[1]
+                if scope_name in scopes:
+                    touple_info = getattr(cls, name)
+                    scopes_info.append({
+                        'scope': scope_name,
+                        'name': touple_info[0],
+                        'description': touple_info[1],
+                    })
+
+        return scopes_info
+
 
 class StandardScopeClaims(ScopeClaims):
     """
     Based on OpenID Standard Claims.
     See: http://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
     """
-        
+
+    info_profile = (
+        _(u'Basic profile'),
+        _(u'Access to your basic information. Includes names, gender, birthdate and other information.'),
+    )
     def scope_profile(self):
         dic = {
             'name': getattr(self.userinfo, 'name', None),
@@ -83,6 +103,10 @@ class StandardScopeClaims(ScopeClaims):
 
         return dic
 
+    info_email = (
+        _(u'Email'),
+        _(u'Access to your email address.'),
+    )
     def scope_email(self):
         dic = {
             'email': getattr(self.user, 'email', None),
@@ -91,6 +115,10 @@ class StandardScopeClaims(ScopeClaims):
 
         return dic
 
+    info_phone = (
+        _(u'Phone number'),
+        _(u'Access to your phone number.'),
+    )
     def scope_phone(self):
         dic = {
             'phone_number': getattr(self.userinfo, 'phone_number', None),
@@ -99,6 +127,10 @@ class StandardScopeClaims(ScopeClaims):
 
         return dic
 
+    info_address = (
+        _(u'Address information'),
+        _(u'Access to your address. Includes country, locality, street and other information.'),
+    )
     def scope_address(self):
         dic = {
             'address': {

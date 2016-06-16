@@ -7,6 +7,7 @@ except ImportError:
 
 from django.utils import timezone
 
+from oidc_provider.lib.claims import StandardScopeClaims
 from oidc_provider.lib.errors import *
 from oidc_provider.lib.utils.params import *
 from oidc_provider.lib.utils.token import *
@@ -207,3 +208,16 @@ class AuthorizeEndpoint(object):
             pass
 
         return value
+
+    def get_scopes_information(self):
+        """
+        Return a list with the description of all the scopes requested.
+        """
+        scopes = StandardScopeClaims.get_scopes_info(self.params.scope)
+        scopes_extra = settings.get('OIDC_EXTRA_SCOPE_CLAIMS', import_str=True).get_scopes_info(self.params.scope)
+        for index_extra, scope_extra in enumerate(scopes_extra):
+            for index, scope in enumerate(scopes[:]):
+                if scope_extra['scope'] == scope['scope']:
+                    del scopes[index]
+
+        return scopes + scopes_extra

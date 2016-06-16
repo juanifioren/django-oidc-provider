@@ -73,6 +73,7 @@ class AuthorizeView(View):
                     'client': authorize.client,
                     'hidden_inputs': hidden_inputs,
                     'params': authorize.params,
+                    'scopes': authorize.get_scopes_information(),
                 }
 
                 return render(request, 'oidc_provider/authorize.html', context)
