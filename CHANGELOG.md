@@ -7,6 +7,10 @@ All notable changes to this project will be documented in this file.
 ##### Added
 - Field date_given in UserConsent model.
 - Verbose names to all model fields.
+- Customize scopes names and descriptions on authorize template.
+
+##### Changed
+- OIDC_EXTRA_SCOPE_CLAIMS setting.
 
 ### [0.3.4] - 2016-06-10
 
