@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [0.3.5] - 2016-06-21
+
 ##### Added
 - Field date_given in UserConsent model.
 - Verbose names to all model fields.
