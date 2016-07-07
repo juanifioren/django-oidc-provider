@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [0.3.6] - 2016-07-07
+
+##### Changed
+- OIDC_USERINFO setting.
+
 ### [0.3.5] - 2016-06-21
 
 ##### Added
