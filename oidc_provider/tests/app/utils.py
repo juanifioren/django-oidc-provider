@@ -73,27 +73,16 @@ def is_code_valid(url, user, client):
     return is_code_ok
 
 
-class FakeUserInfo(object):
+def userinfo(claims, user):
     """
-    Fake class for setting OIDC_USERINFO.
+    Fake function for setting OIDC_USERINFO.
     """
-
-    given_name = 'John'
-    family_name = 'Doe'
-    nickname = 'johndoe'
-    website = 'http://johndoe.com'
-
-    phone_number = '+49-89-636-48018'
-    phone_number_verified = True
-
-    address_street_address = 'Evergreen 742'
-    address_locality = 'Glendive'
-    address_region = 'Montana'
-    address_country = 'United States'
-
-    @classmethod
-    def get_by_user(cls, user):
-        return cls()
+    claims['given_name'] = 'John'
+    claims['family_name'] = 'Doe'
+    claims['name'] = '{0} {1}'.format(claims['given_name'], claims['family_name'])
+    claims['email'] = user.email
+    claims['address']['country'] = 'Argentina'
+    return claims
 
 
 def fake_sub_generator(user):

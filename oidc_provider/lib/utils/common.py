@@ -45,14 +45,12 @@ def get_issuer(site_url=None, request=None):
     return issuer
 
 
-class DefaultUserInfo(object):
+def default_userinfo(claims, user):
     """
-    Default class for setting OIDC_USERINFO.
+    Default function for setting OIDC_USERINFO.
+    `claims` is a dict that contains all the OIDC standard claims.
     """
-
-    @classmethod
-    def get_by_user(cls, user):
-        return None
+    return claims
 
 
 def default_sub_generator(user):

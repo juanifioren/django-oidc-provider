@@ -162,4 +162,21 @@ Expressed in seconds. Default is ``60*60``.
 OIDC_USERINFO
 =============
 
-OPTIONAL. ``str``. A string with the location of your class. Read **Standard Claims** section.
+OPTIONAL. ``str``. A string with the location of your function. Read **Standard Claims** section.
+
+The function receives a ``claims`` dictionary with all the standard claims and ``user`` instance. Must returns the ``claims`` dict again.
+
+Example usage::
+
+    def userinfo(claims, user):
+
+        claims['name'] = '{0} {1}'.format(user.first_name, user.last_name)
+        claims['given_name'] = user.first_name
+        claims['family_name'] = user.last_name
+        claims['email'] = user.email
+        claims['address']['street_address'] = '...'
+
+        return claims
+
+.. note::
+    Please **DO NOT** add extra keys or delete the existing ones in the ``claims`` dict. If you want to add extra claims to some scopes you can use the ``OIDC_EXTRA_SCOPE_CLAIMS`` setting.

@@ -3,11 +3,20 @@ from django.utils.translation import ugettext as _
 from oidc_provider import settings
 
 
+STANDARD_CLAIMS = {
+    'name': '', 'given_name': '', 'family_name': '', 'middle_name': '', 'nickname': '',
+    'preferred_username': '', 'profile': '', 'picture': '', 'website': '', 'gender': '',
+    'birthdate': '', 'zoneinfo': '', 'locale': '', 'updated_at': '', 'email': '', 'email_verified': '',
+    'phone_number': '', 'phone_number_verified': '', 'address': { 'formatted': '',
+    'street_address': '', 'locality': '', 'region': '', 'postal_code': '', 'country': '', },
+}
+
+
 class ScopeClaims(object):
 
     def __init__(self, user, scopes):
         self.user = user
-        self.userinfo = settings.get('OIDC_USERINFO', import_str=True).get_by_user(self.user)
+        self.userinfo = settings.get('OIDC_USERINFO', import_str=True)(STANDARD_CLAIMS, self.user)
         self.scopes = scopes
 
     def create_response_dic(self):
@@ -85,20 +94,20 @@ class StandardScopeClaims(ScopeClaims):
     )
     def scope_profile(self):
         dic = {
-            'name': getattr(self.userinfo, 'name', None),
-            'given_name': getattr(self.userinfo, 'given_name', None),
-            'family_name': getattr(self.userinfo, 'family_name', None),
-            'middle_name': getattr(self.userinfo, 'middle_name', None),
-            'nickname': getattr(self.userinfo, 'nickname', None),
-            'preferred_username': getattr(self.userinfo, 'preferred_username', None),
-            'profile': getattr(self.userinfo, 'profile', None),
-            'picture': getattr(self.userinfo, 'picture', None),
-            'website': getattr(self.userinfo, 'website', None),
-            'gender': getattr(self.userinfo, 'gender', None),
-            'birthdate': getattr(self.userinfo, 'birthdate', None),
-            'zoneinfo': getattr(self.userinfo, 'zoneinfo', None),
-            'locale': getattr(self.userinfo, 'locale', None),
-            'updated_at': getattr(self.userinfo, 'updated_at', None),
+            'name': self.userinfo.get('name'),
+            'given_name': self.userinfo.get('given_name'),
+            'family_name': self.userinfo.get('family_name'),
+            'middle_name': self.userinfo.get('middle_name'),
+            'nickname': self.userinfo.get('nickname'),
+            'preferred_username': self.userinfo.get('preferred_username'),
+            'profile': self.userinfo.get('profile'),
+            'picture': self.userinfo.get('picture'),
+            'website': self.userinfo.get('website'),
+            'gender': self.userinfo.get('gender'),
+            'birthdate': self.userinfo.get('birthdate'),
+            'zoneinfo': self.userinfo.get('zoneinfo'),
+            'locale': self.userinfo.get('locale'),
+            'updated_at': self.userinfo.get('updated_at'),
         }
 
         return dic
@@ -109,8 +118,8 @@ class StandardScopeClaims(ScopeClaims):
     )
     def scope_email(self):
         dic = {
-            'email': getattr(self.user, 'email', None),
-            'email_verified': getattr(self.userinfo, 'email_verified', None),
+            'email': self.userinfo.get('email'),
+            'email_verified': self.userinfo.get('email_verified'),
         }
 
         return dic
@@ -121,8 +130,8 @@ class StandardScopeClaims(ScopeClaims):
     )
     def scope_phone(self):
         dic = {
-            'phone_number': getattr(self.userinfo, 'phone_number', None),
-            'phone_number_verified': getattr(self.userinfo, 'phone_number_verified', None),
+            'phone_number': self.userinfo.get('phone_number'),
+            'phone_number_verified': self.userinfo.get('phone_number_verified'),
         }
 
         return dic
@@ -134,12 +143,12 @@ class StandardScopeClaims(ScopeClaims):
     def scope_address(self):
         dic = {
             'address': {
-                'formatted': getattr(self.userinfo, 'address_formatted', None),
-                'street_address': getattr(self.userinfo, 'address_street_address', None),
-                'locality': getattr(self.userinfo, 'address_locality', None),
-                'region': getattr(self.userinfo, 'address_region', None),
-                'postal_code': getattr(self.userinfo, 'address_postal_code', None),
-                'country': getattr(self.userinfo, 'address_country', None),
+                'formatted': self.userinfo.get('address', {}).get('formatted'),
+                'street_address': self.userinfo.get('address', {}).get('street_address'),
+                'locality': self.userinfo.get('address', {}).get('locality'),
+                'region': self.userinfo.get('address', {}).get('region'),
+                'postal_code': self.userinfo.get('address', {}).get('postal_code'),
+                'country': self.userinfo.get('address', {}).get('country'),
             }
         }
 

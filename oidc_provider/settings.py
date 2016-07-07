@@ -41,9 +41,9 @@ class DefaultSettings(object):
     def OIDC_EXTRA_SCOPE_CLAIMS(self):
         """
         OPTIONAL. A string with the location of your class.
-        Used to add extra scopes specific for your app. 
+        Used to add extra scopes specific for your app.
         """
-        return 'oidc_provider.lib.claims.ScopeClaims'
+        return None
 
     @property
     def OIDC_IDTOKEN_EXPIRE(self):
@@ -95,10 +95,10 @@ class DefaultSettings(object):
     @property
     def OIDC_USERINFO(self):
         """
-        OPTIONAL. A string with the location of your class.
-        Used to add extra scopes specific for your app. 
+        OPTIONAL. A string with the location of your function.
+        Used to populate standard claims with your user information.
         """
-        return 'oidc_provider.lib.utils.common.DefaultUserInfo'
+        return 'oidc_provider.lib.utils.common.default_userinfo'
 
     @property
     def OIDC_IDTOKEN_PROCESSING_HOOK(self):

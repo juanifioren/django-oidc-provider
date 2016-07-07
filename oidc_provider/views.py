@@ -157,13 +157,11 @@ def userinfo(request, *args, **kwargs):
     }
 
     standard_claims = StandardScopeClaims(token.user, token.scope)
-
     dic.update(standard_claims.create_response_dic())
 
-    extra_claims = settings.get('OIDC_EXTRA_SCOPE_CLAIMS', import_str=True)(
-        token.user, token.scope)
-
-    dic.update(extra_claims.create_response_dic())
+    if settings.get('OIDC_EXTRA_SCOPE_CLAIMS'):
+        extra_claims = settings.get('OIDC_EXTRA_SCOPE_CLAIMS', import_str=True)(token.user, token.scope)
+        dic.update(extra_claims.create_response_dic())
 
     response = JsonResponse(dic, status=200)
     response['Cache-Control'] = 'no-store'

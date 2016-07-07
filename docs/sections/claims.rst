@@ -12,17 +12,17 @@ List of all the attributes grouped by scopes:
 +--------------------+----------------+-----------------------+------------------------+
 | profile            | email          | phone                 | address                |
 +====================+================+=======================+========================+
-| name               | email          | phone_number          | address_formatted      |
+| name               | email          | phone_number          | formatted              |
 +--------------------+----------------+-----------------------+------------------------+
-| given_name         | email_verified | phone_number_verified | address_street_address |
+| given_name         | email_verified | phone_number_verified | street_address         |
 +--------------------+----------------+-----------------------+------------------------+
-| family_name        |                |                       | address_locality       |
+| family_name        |                |                       | locality               |
 +--------------------+----------------+-----------------------+------------------------+
-| middle_name        |                |                       | address_region         |
+| middle_name        |                |                       | region                 |
 +--------------------+----------------+-----------------------+------------------------+
-| nickname           |                |                       | address_postal_code    |
+| nickname           |                |                       | postal_code            |
 +--------------------+----------------+-----------------------+------------------------+
-| preferred_username |                |                       | address_country        |
+| preferred_username |                |                       | country                |
 +--------------------+----------------+-----------------------+------------------------+
 | profile            |                |                       |                        |
 +--------------------+----------------+-----------------------+------------------------+
@@ -41,35 +41,22 @@ List of all the attributes grouped by scopes:
 | updated_at         |                |                       |                        |
 +--------------------+----------------+-----------------------+------------------------+
 
-Example using a django model::
+Somewhere in your Django ``settings.py``::
 
-	from django.conf import settings
-	from django.db import models
+    OIDC_USERINFO = 'myproject.oidc_provider_settings.userinfo'
 
 
-	class UserInfo(models.Model):
+Then create the function for the ``OIDC_USERINFO`` setting::
 
-	    GENDER_CHOICES = [
-	        ('F', 'Female'),
-	        ('M', 'Male'),
-	    ]
+    def userinfo(claims, user):
 
-	    user = models.OneToOneField(settings.AUTH_USER_MODEL, primary_key=True)
-	    
-	    given_name = models.CharField(max_length=255, blank=True, null=True)
-	    family_name = models.CharField(max_length=255, blank=True, null=True)
-	    gender = models.CharField(max_length=100, choices=GENDER_CHOICES, null=True)
-	    birthdate = models.DateField(null=True)
-	    updated_at = models.DateTimeField(auto_now=True, null=True)
+        claims['name'] = '{0} {1}'.format(user.first_name, user.last_name)
+        claims['given_name'] = user.first_name
+        claims['family_name'] = user.last_name
+        claims['email'] = user.email
+        claims['address']['street_address'] = '...'
 
-	    email_verified = models.NullBooleanField(default=False)
+        return claims
 
-	    phone_number = models.CharField(max_length=255, blank=True, null=True)
-	    phone_number_verified = models.NullBooleanField(default=False)
-
-	    address_locality = models.CharField(max_length=255, blank=True, null=True)
-	    address_country = models.CharField(max_length=255, blank=True, null=True)
-
-	    @classmethod
-	    def get_by_user(cls, user):
-	        return cls.objects.get(user=user)
+.. note::
+    Please **DO NOT** add extra keys or delete the existing ones in the ``claims`` dict. If you want to add extra claims to some scopes you can use the ``OIDC_EXTRA_SCOPE_CLAIMS`` setting.
