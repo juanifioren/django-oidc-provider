@@ -19,7 +19,12 @@ def extract_access_token(request):
     Return a string.
     """
     auth_header = request.META.get('HTTP_AUTHORIZATION', '')
-
+    if auth_header.startswith('bearer'):  # lowercase
+        warnings.warn(
+            "Client passes 'bearer' token, which is lowercase and breaks standarts for {}".format(
+                request.path_info
+            )
+        )
     if re.compile('^Bearer\s{1}.+$').match(auth_header):
         access_token = auth_header.split()[1]
     else:
