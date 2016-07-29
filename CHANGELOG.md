@@ -4,8 +4,44 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [0.3.6] - 2016-07-07
+
+##### Changed
+- OIDC_USERINFO setting.
+
+### [0.3.5] - 2016-06-21
+
+##### Added
+- Field date_given in UserConsent model.
+- Verbose names to all model fields.
+- Customize scopes names and descriptions on authorize template.
+
+##### Changed
+- OIDC_EXTRA_SCOPE_CLAIMS setting.
+
+### [0.3.4] - 2016-06-10
+
+##### Changed
+- Make SITE_URL setting optional.
+
+##### Fixed
+- Missing migration.
+
+### [0.3.3] - 2016-05-03
+
+##### Fixed
+- Important bug with PKCE and form submit in Auth Request.
+
+### [0.3.2] - 2016-04-26
+
 ##### Added
 - Choose type of client on creation.
+- Implement Proof Key for Code Exchange by OAuth Public Clients.
+- Support for prompt parameter.
+- Support for different client JWT tokens algorithm.
+
+##### Fixed
+- Not auto-approve requests for non-confidential clients (publics).
 
 ### [0.3.1] - 2016-03-09
 

@@ -53,7 +53,9 @@ TEMPLATE_DIRS = [
     'oidc_provider/tests/templates',
 ]
 
+USE_TZ = True
+
 # OIDC Provider settings.
 
 SITE_URL = 'http://localhost:8000'
-OIDC_USERINFO = 'oidc_provider.tests.app.utils.FakeUserInfo'
+OIDC_USERINFO = 'oidc_provider.tests.app.utils.userinfo'

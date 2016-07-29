@@ -1,4 +1,5 @@
-from base64 import b64decode
+from base64 import b64decode, urlsafe_b64encode
+import hashlib
 import logging
 import re
 try:
@@ -30,13 +31,15 @@ class TokenEndpoint(object):
 
         self.params.client_id = client_id
         self.params.client_secret = client_secret
-        self.params.redirect_uri = unquote(
-            self.request.POST.get('redirect_uri', ''))
+        self.params.redirect_uri = unquote(self.request.POST.get('redirect_uri', ''))
         self.params.grant_type = self.request.POST.get('grant_type', '')
         self.params.code = self.request.POST.get('code', '')
         self.params.state = self.request.POST.get('state', '')
         self.params.scope = self.request.POST.get('scope', '')
         self.params.refresh_token = self.request.POST.get('refresh_token', '')
+
+        # PKCE parameters.
+        self.params.code_verifier = self.request.POST.get('code_verifier')
 
     def _extract_client_auth(self):
         """
@@ -68,10 +71,11 @@ class TokenEndpoint(object):
             logger.debug('[Token] Client does not exist: %s', self.params.client_id)
             raise TokenError('invalid_client')
 
-        if not (self.client.client_secret == self.params.client_secret):
-            logger.debug('[Token] Invalid client secret: client %s do not have secret %s',
-                         self.client.client_id, self.client.client_secret)
-            raise TokenError('invalid_client')
+        if self.client.client_type == 'confidential':
+            if not (self.client.client_secret == self.params.client_secret):
+                logger.debug('[Token] Invalid client secret: client %s do not have secret %s',
+                             self.client.client_id, self.client.client_secret)
+                raise TokenError('invalid_client')
 
         if self.params.grant_type == 'authorization_code':
             if not (self.params.redirect_uri in self.client.redirect_uris):
@@ -89,6 +93,19 @@ class TokenEndpoint(object):
                 logger.debug('[Token] Invalid code: invalid client or code has expired',
                              self.params.redirect_uri)
                 raise TokenError('invalid_grant')
+
+            # Validate PKCE parameters.
+            if self.params.code_verifier:
+                if self.code.code_challenge_method == 'S256':
+                    new_code_challenge = urlsafe_b64encode(
+                            hashlib.sha256(self.params.code_verifier.encode('ascii')).digest()
+                        ).decode('utf-8').replace('=', '')
+                else:
+                    new_code_challenge = self.params.code_verifier
+
+                # TODO: We should explain the error.
+                if not (new_code_challenge == self.code.code_challenge):
+                    raise TokenError('invalid_grant')
 
         elif self.params.grant_type == 'refresh_token':
             if not self.params.refresh_token:
@@ -119,6 +136,7 @@ class TokenEndpoint(object):
                 user=self.code.user,
                 aud=self.client.client_id,
                 nonce=self.code.nonce,
+                request=self.request,
             )
         else:
             id_token_dic = {}
@@ -140,7 +158,7 @@ class TokenEndpoint(object):
             'refresh_token': token.refresh_token,
             'token_type': 'bearer',
             'expires_in': settings.get('OIDC_TOKEN_EXPIRE'),
-            'id_token': encode_id_token(id_token_dic),
+            'id_token': encode_id_token(id_token_dic, token.client),
         }
 
         return dic
@@ -152,6 +170,7 @@ class TokenEndpoint(object):
                 user=self.token.user,
                 aud=self.client.client_id,
                 nonce=None,
+                request=self.request,
             )
         else:
             id_token_dic = {}
@@ -173,7 +192,7 @@ class TokenEndpoint(object):
             'refresh_token': token.refresh_token,
             'token_type': 'bearer',
             'expires_in': settings.get('OIDC_TOKEN_EXPIRE'),
-            'id_token': encode_id_token(id_token_dic),
+            'id_token': encode_id_token(id_token_dic, self.token.client),
         }
 
         return dic

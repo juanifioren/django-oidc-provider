@@ -4,6 +4,9 @@ from django.conf import settings
 
 
 class DefaultSettings(object):
+    required_attrs = (
+        'LOGIN_URL',
+    )
 
     @property
     def LOGIN_URL(self):
@@ -15,7 +18,7 @@ class DefaultSettings(object):
     @property
     def SITE_URL(self):
         """
-        REQUIRED. The OP server url.
+        OPTIONAL. The OP server url.
         """
         return None
 
@@ -38,9 +41,9 @@ class DefaultSettings(object):
     def OIDC_EXTRA_SCOPE_CLAIMS(self):
         """
         OPTIONAL. A string with the location of your class.
-        Used to add extra scopes specific for your app. 
+        Used to add extra scopes specific for your app.
         """
-        return 'oidc_provider.lib.claims.AbstractScopeClaims'
+        return None
 
     @property
     def OIDC_IDTOKEN_EXPIRE(self):
@@ -92,10 +95,10 @@ class DefaultSettings(object):
     @property
     def OIDC_USERINFO(self):
         """
-        OPTIONAL. A string with the location of your class.
-        Used to add extra scopes specific for your app. 
+        OPTIONAL. A string with the location of your function.
+        Used to populate standard claims with your user information.
         """
-        return 'oidc_provider.lib.utils.common.DefaultUserInfo'
+        return 'oidc_provider.lib.utils.common.default_userinfo'
 
     @property
     def OIDC_IDTOKEN_PROCESSING_HOOK(self):
@@ -131,7 +134,7 @@ def get(name, import_str=False):
         value = getattr(default_settings, name)
         value = getattr(settings, name)
     except AttributeError:
-        if value is None:
+        if value is None and name in default_settings.required_attrs:
             raise Exception('You must set ' + name + ' in your settings.')
 
     value = import_from_str(value) if import_str else value

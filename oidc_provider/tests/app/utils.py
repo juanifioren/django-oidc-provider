@@ -13,6 +13,8 @@ from oidc_provider.models import *
 
 FAKE_NONCE = 'cb584e44c43ed6bd0bc2d9c7e242837d'
 FAKE_RANDOM_STRING = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(32))
+FAKE_CODE_CHALLENGE = 'YlYXEqXuRm-Xgi2BOUiK50JW1KsGTX6F1TDnZSC8VTg'
+FAKE_CODE_VERIFIER = 'SmxGa0XueyNh5bDgTcSrqzAh2_FmXEqU8kDT6CuXicw'
 
 
 def create_fake_user():
@@ -31,7 +33,7 @@ def create_fake_user():
     return user
 
 
-def create_fake_client(response_type):
+def create_fake_client(response_type, is_public=False):
     """
     Create a test client, response_type argument MUST be:
     'code', 'id_token' or 'id_token token'.
@@ -40,25 +42,18 @@ def create_fake_client(response_type):
     """
     client = Client()
     client.name = 'Some Client'
-    client.client_id = '123'
-    client.client_secret = '456'
+    client.client_id = str(random.randint(1, 999999)).zfill(6)
+    if is_public:
+        client.client_type = 'public'
+        client.client_secret = ''
+    else:
+        client.client_secret = str(random.randint(1, 999999)).zfill(6)
     client.response_type = response_type
     client.redirect_uris = ['http://example.com/']
 
     client.save()
 
     return client
-
-
-def create_rsakey():
-    """
-    Generate and save a sample RSA Key.
-    """
-    fullpath = os.path.abspath(os.path.dirname(__file__)) + '/RSAKEY.pem'
-
-    with open(fullpath, 'r') as f:
-        key = f.read()
-        RSAKey(key=key).save()
 
 
 def is_code_valid(url, user, client):
@@ -78,27 +73,16 @@ def is_code_valid(url, user, client):
     return is_code_ok
 
 
-class FakeUserInfo(object):
+def userinfo(claims, user):
     """
-    Fake class for setting OIDC_USERINFO.
+    Fake function for setting OIDC_USERINFO.
     """
-
-    given_name = 'John'
-    family_name = 'Doe'
-    nickname = 'johndoe'
-    website = 'http://johndoe.com'
-
-    phone_number = '+49-89-636-48018'
-    phone_number_verified = True
-
-    address_street_address = 'Evergreen 742'
-    address_locality = 'Glendive'
-    address_region = 'Montana'
-    address_country = 'United States'
-
-    @classmethod
-    def get_by_user(cls, user):
-        return cls()
+    claims['given_name'] = 'John'
+    claims['family_name'] = 'Doe'
+    claims['name'] = '{0} {1}'.format(claims['given_name'], claims['family_name'])
+    claims['email'] = user.email
+    claims['address']['country'] = 'Argentina'
+    return claims
 
 
 def fake_sub_generator(user):

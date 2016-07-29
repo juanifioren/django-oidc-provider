@@ -13,12 +13,31 @@ def redirect(uri):
     return response
 
 
-def get_issuer():
+def get_site_url(site_url=None, request=None):
+    """
+    Construct the site url.
+
+    Orders to decide site url:
+        1. valid `site_url` parameter
+        2. valid `SITE_URL` in settings
+        3. construct from `request` object
+    """
+    site_url = site_url or settings.get('SITE_URL')
+    if site_url:
+        return site_url
+    elif request:
+        return '{}://{}'.format(request.scheme, request.get_host())
+    else:
+        raise Exception('Either pass `site_url`, '
+                        'or set `SITE_URL` in settings, '
+                        'or pass `request` object.')
+
+def get_issuer(site_url=None, request=None):
     """
     Construct the issuer full url. Basically is the site url with some path
     appended.
     """
-    site_url = settings.get('SITE_URL')
+    site_url = get_site_url(site_url=site_url, request=request)
     path = reverse('oidc_provider:provider_info') \
         .split('/.well-known/openid-configuration')[0]
     issuer = site_url + path
@@ -26,14 +45,12 @@ def get_issuer():
     return issuer
 
 
-class DefaultUserInfo(object):
+def default_userinfo(claims, user):
     """
-    Default class for setting OIDC_USERINFO.
+    Default function for setting OIDC_USERINFO.
+    `claims` is a dict that contains all the OIDC standard claims.
     """
-
-    @classmethod
-    def get_by_user(cls, user):
-        return None
+    return claims
 
 
 def default_sub_generator(user):

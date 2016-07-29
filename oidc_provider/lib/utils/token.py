@@ -4,8 +4,8 @@ import uuid
 
 from Crypto.PublicKey.RSA import importKey
 from django.utils import timezone
-from hashlib import md5
 from jwkest.jwk import RSAKey as jwk_RSAKey
+from jwkest.jwk import SYMKey
 from jwkest.jws import JWS
 
 from oidc_provider.lib.utils.common import get_issuer
@@ -13,7 +13,7 @@ from oidc_provider.models import *
 from oidc_provider import settings
 
 
-def create_id_token(user, aud, nonce):
+def create_id_token(user, aud, nonce, request=None):
     """
     Receives a user object and aud (audience).
     Then creates the id_token dictionary.
@@ -33,7 +33,7 @@ def create_id_token(user, aud, nonce):
     auth_time = int(time.mktime(user_auth_time.timetuple()))
 
     dic = {
-        'iss': get_issuer(),
+        'iss': get_issuer(request=request),
         'sub': sub,
         'aud': str(aud),
         'exp': exp_time,
@@ -55,21 +55,26 @@ def create_id_token(user, aud, nonce):
     return dic
 
 
-def encode_id_token(payload):
+def encode_id_token(payload, client):
     """
     Represent the ID Token as a JSON Web Token (JWT).
 
     Return a hash.
     """
-    keys = []
+    alg = client.jwt_alg
+    if alg == 'RS256':
+        keys = []
+        for rsakey in RSAKey.objects.all():
+            keys.append(jwk_RSAKey(key=importKey(rsakey.key), kid=rsakey.kid))
 
-    for rsakey in RSAKey.objects.all():
-        keys.append(jwk_RSAKey(key=importKey(rsakey.key), kid=rsakey.kid))
-
-    if not keys:
-        raise Exception('You must add at least one RSA Key.')
+        if not keys:
+            raise Exception('You must add at least one RSA Key.')
+    elif alg == 'HS256':
+        keys = [SYMKey(key=client.client_secret, alg=alg)]
+    else:
+        raise Exception('Unsupported key algorithm.')
     
-    _jws = JWS(payload, alg='RS256')
+    _jws = JWS(payload, alg=alg)
 
     return _jws.sign_compact(keys)
 
@@ -95,7 +100,8 @@ def create_token(user, client, id_token_dic, scope):
     return token
 
 
-def create_code(user, client, scope, nonce, is_authentication):
+def create_code(user, client, scope, nonce, is_authentication,
+                code_challenge=None, code_challenge_method=None):
     """
     Create and populate a Code object.
 
@@ -104,7 +110,13 @@ def create_code(user, client, scope, nonce, is_authentication):
     code = Code()
     code.user = user
     code.client = client
+
     code.code = uuid.uuid4().hex
+    
+    if code_challenge and code_challenge_method:
+        code.code_challenge = code_challenge
+        code.code_challenge_method = code_challenge_method
+
     code.expires_at = timezone.now() + timedelta(
         seconds=settings.get('OIDC_CODE_EXPIRE'))
     code.scope = scope

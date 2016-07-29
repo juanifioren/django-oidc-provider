@@ -6,7 +6,7 @@ Installation
 Requirements
 ============
 
-* Python: ``2.7`` ``3.4``
+* Python: ``2.7`` ``3.4`` ``3.5``
 * Django: ``1.7`` ``1.8`` ``1.9``
 
 Quick Installation
@@ -46,5 +46,4 @@ Generate server RSA key and run migrations (if you don't)::
 
 Add required variables to your project settings::
 
-    SITE_URL = 'http://localhost:8000'
     LOGIN_URL = '/accounts/login/'

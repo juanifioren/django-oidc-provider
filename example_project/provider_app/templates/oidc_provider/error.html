@@ -2,12 +2,11 @@
 
 {% block content %}
 
-    <div class="ui page grid">
-        <div class="nine wide centered column">
-            <div class="ui icon negative large message">
-                <i class="meh icon"></i>
-                <div class="content">
-                    <div class="header">{{ error }}</div>
+    <div class="row">
+        <div class="col s12 m8 offset-m2 l6 offset-l3">
+            <div class="card hoverable">
+                <div class="card-content">
+                    <h4 class="center-align red-text text-lighten-1">{{ error }}</h4>
                     <p>{{ description }}</p>
                 </div>
             </div>

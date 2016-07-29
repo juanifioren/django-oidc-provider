@@ -1,4 +1,3 @@
-from datetime import timedelta
 import logging
 try:
     from urllib import urlencode
@@ -8,6 +7,7 @@ except ImportError:
 
 from django.utils import timezone
 
+from oidc_provider.lib.claims import StandardScopeClaims
 from oidc_provider.lib.errors import *
 from oidc_provider.lib.utils.params import *
 from oidc_provider.lib.utils.token import *
@@ -35,7 +35,7 @@ class AuthorizeEndpoint(object):
             self.grant_type = None
 
         # Determine if it's an OpenID Authentication request (or OAuth2).
-        self.is_authentication = 'openid' in self.params.scope 
+        self.is_authentication = 'openid' in self.params.scope
 
     def _extract_params(self):
         """
@@ -54,38 +54,50 @@ class AuthorizeEndpoint(object):
         self.params.response_type = query_dict.get('response_type', '')
         self.params.scope = query_dict.get('scope', '').split()
         self.params.state = query_dict.get('state', '')
+
         self.params.nonce = query_dict.get('nonce', '')
+        self.params.prompt = query_dict.get('prompt', '')
+        self.params.code_challenge = query_dict.get('code_challenge', '')
+        self.params.code_challenge_method = query_dict.get('code_challenge_method', '')
 
     def validate_params(self):
+        # Client validation.
         try:
             self.client = Client.objects.get(client_id=self.params.client_id)
         except Client.DoesNotExist:
             logger.debug('[Authorize] Invalid client identifier: %s', self.params.client_id)
             raise ClientIdError()
 
+        # Redirect URI validation.
         if self.is_authentication and not self.params.redirect_uri:
             logger.debug('[Authorize] Missing redirect uri.')
             raise RedirectUriError()
-
-        if not self.grant_type:
-            logger.debug('[Authorize] Invalid response type: %s', self.params.response_type)
-            raise AuthorizeError(self.params.redirect_uri, 'unsupported_response_type',
-                self.grant_type)
-
-        if self.is_authentication and self.grant_type == 'implicit' and not self.params.nonce:
-            raise AuthorizeError(self.params.redirect_uri, 'invalid_request',
-                self.grant_type)
-
-        if self.is_authentication and self.params.response_type != self.client.response_type:
-            raise AuthorizeError(self.params.redirect_uri, 'invalid_request',
-                self.grant_type)
-                
         clean_redirect_uri = urlsplit(self.params.redirect_uri)
         clean_redirect_uri = urlunsplit(clean_redirect_uri._replace(query=''))
         if not (clean_redirect_uri in self.client.redirect_uris):
             logger.debug('[Authorize] Invalid redirect uri: %s', self.params.redirect_uri)
             raise RedirectUriError()
-        
+
+        # Grant type validation.
+        if not self.grant_type:
+            logger.debug('[Authorize] Invalid response type: %s', self.params.response_type)
+            raise AuthorizeError(self.params.redirect_uri, 'unsupported_response_type',
+                self.grant_type)
+
+        # Nonce parameter validation.
+        if self.is_authentication and self.grant_type == 'implicit' and not self.params.nonce:
+            raise AuthorizeError(self.params.redirect_uri, 'invalid_request',
+                self.grant_type)
+
+        # Response type parameter validation.
+        if self.is_authentication and self.params.response_type != self.client.response_type:
+            raise AuthorizeError(self.params.redirect_uri, 'invalid_request',
+                self.grant_type)
+
+        # PKCE validation of the transformation method.
+        if self.params.code_challenge:
+            if not (self.params.code_challenge_method in ['plain', 'S256']):
+                raise AuthorizeError(self.params.redirect_uri, 'invalid_request', self.grant_type)
 
     def create_response_uri(self):
         uri = urlsplit(self.params.redirect_uri)
@@ -99,8 +111,10 @@ class AuthorizeEndpoint(object):
                     client=self.client,
                     scope=self.params.scope,
                     nonce=self.params.nonce,
-                    is_authentication=self.is_authentication)
-                
+                    is_authentication=self.is_authentication,
+                    code_challenge=self.params.code_challenge,
+                    code_challenge_method=self.params.code_challenge_method)
+
                 code.save()
 
                 query_params['code'] = code.code
@@ -112,8 +126,9 @@ class AuthorizeEndpoint(object):
                     id_token_dic = create_id_token(
                         user=self.request.user,
                         aud=self.client.client_id,
-                        nonce=self.params.nonce)
-                    query_fragment['id_token'] = encode_id_token(id_token_dic)
+                        nonce=self.params.nonce,
+                        request=self.request)
+                    query_fragment['id_token'] = encode_id_token(id_token_dic, self.client)
                 else:
                     id_token_dic = {}
 
@@ -155,18 +170,24 @@ class AuthorizeEndpoint(object):
 
         Return None.
         """
-        expires_at = timezone.now() + timedelta(
+        date_given = timezone.now()
+        expires_at = date_given + timedelta(
             days=settings.get('OIDC_SKIP_CONSENT_EXPIRE'))
 
         uc, created = UserConsent.objects.get_or_create(
             user=self.request.user,
             client=self.client,
-            defaults={'expires_at': expires_at})
+            defaults={
+                'expires_at': expires_at,
+                'date_given': date_given,
+            }
+        )
         uc.scope = self.params.scope
 
-        # Rewrite expires_at if object already exists.
+        # Rewrite expires_at and date_given if object already exists.
         if not created:
             uc.expires_at = expires_at
+            uc.date_given = date_given
 
         uc.save()
 
@@ -187,3 +208,19 @@ class AuthorizeEndpoint(object):
             pass
 
         return value
+
+    def get_scopes_information(self):
+        """
+        Return a list with the description of all the scopes requested.
+        """
+        scopes = StandardScopeClaims.get_scopes_info(self.params.scope)
+        if settings.get('OIDC_EXTRA_SCOPE_CLAIMS'):
+            scopes_extra = settings.get('OIDC_EXTRA_SCOPE_CLAIMS', import_str=True).get_scopes_info(self.params.scope)
+            for index_extra, scope_extra in enumerate(scopes_extra):
+                for index, scope in enumerate(scopes[:]):
+                    if scope_extra['scope'] == scope['scope']:
+                        del scopes[index]
+        else:
+            scopes_extra = []
+
+        return scopes + scopes_extra
