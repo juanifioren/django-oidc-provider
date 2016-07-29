@@ -1,4 +1,3 @@
-from Crypto.PublicKey import RSA
 from django.contrib.auth.views import redirect_to_login, logout
 from django.core.urlresolvers import reverse
 from django.http import JsonResponse
@@ -6,8 +5,9 @@ from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
-from jwkest import long_to_base64
 
+
+from oidc_provider.lib import jwt_compat
 from oidc_provider.lib.claims import StandardScopeClaims
 from oidc_provider.lib.endpoints.authorize import *
 from oidc_provider.lib.endpoints.token import *
@@ -206,16 +206,11 @@ class JwksView(View):
     def get(self, request, *args, **kwargs):
         dic = dict(keys=[])
 
-        for rsakey in RSAKey.objects.all():
-            public_key  = RSA.importKey(rsakey.key).publickey()
-            dic['keys'].append({
-                'kty': 'RSA',
-                'alg': 'RS256',
-                'use': 'sig',
-                'kid': rsakey.kid,
-                'n': long_to_base64(public_key.n),
-                'e': long_to_base64(public_key.e),
-            })
+        rsa_keys = jwt_compat.to_rsa_keys(RSAKey.objects.all())
+
+        for rsa_key in rsa_keys:
+            public_key = jwt_compat.to_public_key(rsa_key)
+            dic['keys'].append(public_key)
 
         response = JsonResponse(dic)
         response['Access-Control-Allow-Origin'] = '*'
