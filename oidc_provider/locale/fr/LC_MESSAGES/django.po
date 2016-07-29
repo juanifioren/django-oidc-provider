@@ -78,7 +78,7 @@ msgstr "Identifiant client"
 
 #: models.py:32
 msgid "Client SECRET"
-msgstr ""
+msgstr "Code secret client"
 
 #: models.py:33
 msgid "Response Type"
