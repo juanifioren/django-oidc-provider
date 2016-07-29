@@ -2,16 +2,11 @@ from datetime import timedelta
 import time
 import uuid
 
-from Crypto.PublicKey.RSA import importKey
 from django.utils import timezone
-from jwkest.jwk import RSAKey as jwk_RSAKey
-from jwkest.jwk import SYMKey
-from jwkest.jws import JWS
-
+from oidc_provider.lib import jwt_compat
 from oidc_provider.lib.utils.common import get_issuer
 from oidc_provider.models import *
 from oidc_provider import settings
-
 
 def create_id_token(user, aud, nonce, request=None):
     """
@@ -63,20 +58,16 @@ def encode_id_token(payload, client):
     """
     alg = client.jwt_alg
     if alg == 'RS256':
-        keys = []
-        for rsakey in RSAKey.objects.all():
-            keys.append(jwk_RSAKey(key=importKey(rsakey.key), kid=rsakey.kid))
+        keys = list(RSAKey.objects.all())
 
         if not keys:
             raise Exception('You must add at least one RSA Key.')
     elif alg == 'HS256':
-        keys = [SYMKey(key=client.client_secret, alg=alg)]
+        keys = [client.client_secret]
     else:
         raise Exception('Unsupported key algorithm.')
-    
-    _jws = JWS(payload, alg=alg)
 
-    return _jws.sign_compact(keys)
+    return jwt_compat.sign_payload(alg, keys, payload)
 
 
 def create_token(user, client, id_token_dic, scope):
@@ -112,7 +103,7 @@ def create_code(user, client, scope, nonce, is_authentication,
     code.client = client
 
     code.code = uuid.uuid4().hex
-    
+
     if code_challenge and code_challenge_method:
         code.code_challenge = code_challenge
         code.code_challenge_method = code_challenge_method
