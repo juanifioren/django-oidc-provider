@@ -206,7 +206,7 @@ class JwksView(View):
     def get(self, request, *args, **kwargs):
         dic = dict(keys=[])
 
-        rsa_keys = jwt_compat.to_rsa_keys(RSAKey.objects.all())
+        rsa_keys = jwt_compat.from_model_keys(RSAKey.objects.all())
 
         for rsa_key in rsa_keys:
             public_key = jwt_compat.to_public_key(rsa_key)
