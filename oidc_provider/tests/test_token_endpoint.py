@@ -309,7 +309,11 @@ class TokenTestCase(TestCase):
         the JOSE Header.
         """
         SIGKEYS = self._get_keys()
-        RSAKEYS = [ k for k in SIGKEYS if k.kty == 'RSA' ]
+
+        if jwt_compat.HAS_JWKEST:
+            RSAKEYS = [ k for k in SIGKEYS if k.kty == 'RSA' ]
+        else:
+            RSAKEYS = [ k for k in SIGKEYS if k['kty'] == 'RSA' ]
 
         code = self._create_code()
 

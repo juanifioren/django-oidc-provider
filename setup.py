@@ -38,8 +38,8 @@ setup(
         'pyjwkest==1.1.0',
         'mock==1.3.0',
     ],
-
-    install_requires=[
-        'pyjwkest==1.1.0',
-    ],
+    extras_require={
+        'pyjwkest': ['pyjwkest==1.1.0'],
+        'jose': ['python-jose==1.0.0'],
+    }
 )

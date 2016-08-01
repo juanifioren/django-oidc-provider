@@ -12,7 +12,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            rsakey = RSAKey(key=jwt_compat.generate_key(1024))
+            rsakey = RSAKey(key=jwt_compat.generate_key(1024).decode('utf-8'))
             rsakey.save()
             self.stdout.write(u'RSA key successfully created with kid: {0}'.format(rsakey.kid))
         except Exception as e:

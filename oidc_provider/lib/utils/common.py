@@ -1,3 +1,5 @@
+import base64, struct
+
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 
@@ -80,3 +82,15 @@ def default_idtoken_processing_hook(id_token, user):
     :rtype dict
     """
     return id_token
+
+def long_to_base64(n):
+    _bytes = []
+    while n:
+        n, r = divmod(n, 256)
+        _bytes.append(r)
+    _bytes.reverse()
+    data = struct.pack('%sB' % len(_bytes), *_bytes)
+    if not len(data):
+        data = '\x00'
+    s = base64.urlsafe_b64encode(data).rstrip(b'=')
+    return s.decode("ascii")
