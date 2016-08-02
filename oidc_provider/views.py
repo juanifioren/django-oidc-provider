@@ -7,7 +7,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.generic import View
 
 
-from oidc_provider.lib import jwt_compat
+from oidc_provider.lib.jwt_compat import adapter
 from oidc_provider.lib.claims import StandardScopeClaims
 from oidc_provider.lib.endpoints.authorize import *
 from oidc_provider.lib.endpoints.token import *
@@ -206,10 +206,10 @@ class JwksView(View):
     def get(self, request, *args, **kwargs):
         dic = dict(keys=[])
 
-        rsa_keys = jwt_compat.from_model_keys(RSAKey.objects.all())
+        rsa_keys = adapter.from_model_keys(RSAKey.objects.all())
 
         for rsa_key in rsa_keys:
-            public_key = jwt_compat.to_public_key(rsa_key)
+            public_key = adapter.to_public_key(rsa_key)
             dic['keys'].append(public_key)
 
         response = JsonResponse(dic)

@@ -10,7 +10,7 @@ from django.test import TestCase
 
 from mock import patch
 
-from oidc_provider.lib import jwt_compat
+from oidc_provider.lib.jwt_compat import adapter, HAS_JWKEST
 from oidc_provider.lib.utils.token import *
 from oidc_provider.tests.app.utils import *
 from oidc_provider.views import *
@@ -95,7 +95,7 @@ class TokenTestCase(TestCase):
         request = self.factory.get(reverse('oidc_provider:jwks'))
         response = JwksView.as_view()(request)
         jwks_dic = json.loads(response.content.decode('utf-8'))
-        return jwt_compat.load_keys(jwks_dic)
+        return adapter.load_keys(jwks_dic)
 
     def _get_userinfo(self, access_token):
         url = reverse('oidc_provider:userinfo')
@@ -119,7 +119,7 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
         response_dic = json.loads(response.content.decode('utf-8'))
 
-        id_token = jwt_compat.verify_payload(response_dic['id_token'].encode('utf-8'), SIGKEYS)
+        id_token = adapter.verify_payload(response_dic['id_token'].encode('utf-8'), SIGKEYS)
 
         token = Token.objects.get(user=self.user)
         self.assertEqual(response_dic['access_token'], token.access_token)
@@ -146,7 +146,7 @@ class TokenTestCase(TestCase):
             response = self._post_request(post_data)
 
         response_dic1 = json.loads(response.content.decode('utf-8'))
-        id_token1 = jwt_compat.verify_payload(response_dic1['id_token'], SIGKEYS)
+        id_token1 = adapter.verify_payload(response_dic1['id_token'], SIGKEYS)
 
         # Use refresh token to obtain new token
         post_data = self._refresh_token_post_data(response_dic1['refresh_token'])
@@ -155,7 +155,7 @@ class TokenTestCase(TestCase):
             response = self._post_request(post_data)
 
         response_dic2 = json.loads(response.content.decode('utf-8'))
-        id_token2 = jwt_compat.verify_payload(response_dic2['id_token'], SIGKEYS)
+        id_token2 = adapter.verify_payload(response_dic2['id_token'], SIGKEYS)
 
         self.assertNotEqual(response_dic1['id_token'], response_dic2['id_token'])
         self.assertNotEqual(response_dic1['access_token'], response_dic2['access_token'])
@@ -287,7 +287,7 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
 
         response_dic = json.loads(response.content.decode('utf-8'))
-        id_token = jwt_compat.unpack_payload(response_dic['id_token'])
+        id_token = adapter.unpack_payload(response_dic['id_token'])
 
         self.assertEqual(id_token.get('nonce'), FAKE_NONCE)
 
@@ -298,7 +298,7 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
         response_dic = json.loads(response.content.decode('utf-8'))
 
-        id_token = jwt_compat.unpack_payload(response_dic['id_token'])
+        id_token = adapter.unpack_payload(response_dic['id_token'])
 
         self.assertEqual(id_token.get('nonce'), None)
 
@@ -310,7 +310,7 @@ class TokenTestCase(TestCase):
         """
         SIGKEYS = self._get_keys()
 
-        if jwt_compat.HAS_JWKEST:
+        if HAS_JWKEST:
             RSAKEYS = [ k for k in SIGKEYS if k.kty == 'RSA' ]
         else:
             RSAKEYS = [ k for k in SIGKEYS if k['kty'] == 'RSA' ]
@@ -322,7 +322,7 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
         response_dic = json.loads(response.content.decode('utf-8'))
 
-        id_token = jwt_compat.verify_payload(response_dic['id_token'], RSAKEYS)
+        id_token = adapter.verify_payload(response_dic['id_token'], RSAKEYS)
 
     @override_settings(OIDC_IDTOKEN_SUB_GENERATOR='oidc_provider.tests.app.utils.fake_sub_generator')
     def test_custom_sub_generator(self):
@@ -336,7 +336,7 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
 
         response_dic = json.loads(response.content.decode('utf-8'))
-        id_token = jwt_compat.unpack_payload(response_dic['id_token'])
+        id_token = adapter.unpack_payload(response_dic['id_token'])
 
         self.assertEqual(id_token.get('sub'), self.user.email)
 
@@ -352,7 +352,7 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
 
         response_dic = json.loads(response.content.decode('utf-8'))
-        id_token = jwt_compat.unpack_payload(response_dic['id_token'])
+        id_token = adapter.unpack_payload(response_dic['id_token'])
 
         self.assertEqual(id_token.get('test_idtoken_processing_hook'), FAKE_RANDOM_STRING)
         self.assertEqual(id_token.get('test_idtoken_processing_hook_user_email'), self.user.email)
@@ -373,7 +373,7 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
 
         response_dic = json.loads(response.content.decode('utf-8'))
-        id_token = jwt_compat.unpack_payload(response_dic['id_token'])
+        id_token = adapter.unpack_payload(response_dic['id_token'])
 
         self.assertEqual(id_token.get('test_idtoken_processing_hook'), FAKE_RANDOM_STRING)
         self.assertEqual(id_token.get('test_idtoken_processing_hook_user_email'), self.user.email)
@@ -394,7 +394,7 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
 
         response_dic = json.loads(response.content.decode('utf-8'))
-        id_token = jwt_compat.unpack_payload(response_dic['id_token'])
+        id_token = adapter.unpack_payload(response_dic['id_token'])
 
         self.assertEqual(id_token.get('test_idtoken_processing_hook'), FAKE_RANDOM_STRING)
         self.assertEqual(id_token.get('test_idtoken_processing_hook_user_email'), self.user.email)
@@ -416,7 +416,7 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
 
         response_dic = json.loads(response.content.decode('utf-8'))
-        id_token = jwt_compat.unpack_payload(response_dic['id_token'])
+        id_token = adapter.unpack_payload(response_dic['id_token'])
 
         self.assertEqual(id_token.get('test_idtoken_processing_hook'), FAKE_RANDOM_STRING)
         self.assertEqual(id_token.get('test_idtoken_processing_hook_user_email'), self.user.email)
@@ -441,7 +441,7 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
 
         response_dic = json.loads(response.content.decode('utf-8'))
-        id_token = jwt_compat.unpack_payload(response_dic['id_token'])
+        id_token = adapter.unpack_payload(response_dic['id_token'])
 
         self.assertEqual(id_token.get('test_idtoken_processing_hook'), FAKE_RANDOM_STRING)
         self.assertEqual(id_token.get('test_idtoken_processing_hook_user_email'), self.user.email)

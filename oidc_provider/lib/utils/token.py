@@ -3,7 +3,7 @@ import time
 import uuid
 
 from django.utils import timezone
-from oidc_provider.lib import jwt_compat
+from oidc_provider.lib.jwt_compat import adapter
 from oidc_provider.lib.utils.common import get_issuer
 from oidc_provider.models import *
 from oidc_provider import settings
@@ -67,7 +67,7 @@ def encode_id_token(payload, client):
     else:
         raise Exception('Unsupported key algorithm.')
 
-    return jwt_compat.sign_payload(alg, keys, payload)
+    return adapter.sign_payload(alg, keys, payload)
 
 
 def create_token(user, client, id_token_dic, scope):
