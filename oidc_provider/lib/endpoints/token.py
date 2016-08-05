@@ -131,23 +131,24 @@ class TokenEndpoint(object):
             return self.create_refresh_response_dic()
 
     def create_code_response_dic(self):
+        token = create_token(
+            user=self.code.user,
+            client=self.code.client,
+            scope=self.code.scope)
+
         if self.code.is_authentication:
             id_token_dic = create_id_token(
                 user=self.code.user,
                 aud=self.client.client_id,
                 nonce=self.code.nonce,
+                at_hash=token.at_hash,
                 request=self.request,
             )
         else:
             id_token_dic = {}
 
-        token = create_token(
-            user=self.code.user,
-            client=self.code.client,
-            id_token_dic=id_token_dic,
-            scope=self.code.scope)
-
         # Store the token.
+        token.id_token = id_token_dic
         token.save()
 
         # We don't need to store the code anymore.
@@ -164,24 +165,25 @@ class TokenEndpoint(object):
         return dic
 
     def create_refresh_response_dic(self):
+        token = create_token(
+            user=self.token.user,
+            client=self.token.client,
+            scope=self.token.scope)
+
         # If the Token has an id_token it's an Authentication request.
         if self.token.id_token:
             id_token_dic = create_id_token(
                 user=self.token.user,
                 aud=self.client.client_id,
                 nonce=None,
+                at_hash=token.at_hash,
                 request=self.request,
             )
         else:
             id_token_dic = {}
 
-        token = create_token(
-            user=self.token.user,
-            client=self.token.client,
-            id_token_dic=id_token_dic,
-            scope=self.token.scope)
-
         # Store the token.
+        token.id_token = id_token_dic
         token.save()
 
         # Forget the old token.
