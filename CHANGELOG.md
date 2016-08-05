@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+##### Added
+- Support for Django 1.10.
+
 ### [0.3.6] - 2016-07-07
 
 ##### Changed
