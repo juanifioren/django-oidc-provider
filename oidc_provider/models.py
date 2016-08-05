@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-from hashlib import md5
+import base64
+import binascii
+from hashlib import md5, sha256
 import json
 
 from django.db import models
@@ -116,6 +118,18 @@ class Token(BaseCodeTokenModel):
     class Meta:
         verbose_name = _(u'Token')
         verbose_name_plural = _(u'Tokens')
+
+    @property
+    def at_hash(self):
+        # @@@ d-o-p only supports 256 bits (change this if that changes)
+        hashed_access_token = sha256(
+            self.access_token.encode('ascii')
+        ).hexdigest().encode('ascii')
+        return base64.urlsafe_b64encode(
+            binascii.unhexlify(
+                hashed_access_token[:len(hashed_access_token) // 2]
+            )
+        ).rstrip(b'=').decode('ascii')
 
 
 class UserConsent(BaseCodeTokenModel):
