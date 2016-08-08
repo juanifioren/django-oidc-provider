@@ -1,10 +1,9 @@
 try:
-    from urllib.parse import unquote, urlencode
+    from urllib.parse import urlencode
 except ImportError:
-    from urllib import unquote, urlencode
+    from urllib import urlencode
 import uuid
 
-from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.models import AnonymousUser
 from django.core.management import call_command
 from django.core.urlresolvers import reverse

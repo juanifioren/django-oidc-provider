@@ -3,9 +3,9 @@ try:
 except ImportError:
     from urllib import urlencode
 try:
-    from urllib.parse import urlparse, parse_qs
+    from urllib.parse import parse_qs, urlsplit
 except ImportError:
-    from urlparse import urlparse, parse_qs
+    from urlparse import parse_qs, urlsplit
 import uuid
 
 from django.contrib.auth.models import AnonymousUser
