@@ -304,6 +304,21 @@ class TokenTestCase(TestCase):
 
         self.assertEqual(id_token.get('nonce'), None)
 
+    def test_id_token_contains_at_hash(self):
+        """
+        If access_token is included, the id_token SHOULD contain an at_hash.
+        """
+        code = self._create_code()
+
+        post_data = self._auth_code_post_data(code=code.code)
+
+        response = self._post_request(post_data)
+
+        response_dic = json.loads(response.content.decode('utf-8'))
+        id_token = JWT().unpack(response_dic['id_token'].encode('utf-8')).payload()
+
+        self.assertTrue(id_token.get('at_hash'))
+
     def test_idtoken_sign_validation(self):
         """
         We MUST validate the signature of the ID Token according to JWS
