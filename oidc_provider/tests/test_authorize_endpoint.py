@@ -1,10 +1,9 @@
 try:
-    from urllib.parse import unquote, urlencode
+    from urllib.parse import urlencode
 except ImportError:
-    from urllib import unquote, urlencode
+    from urllib import urlencode
 import uuid
 
-from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.models import AnonymousUser
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
@@ -28,7 +27,6 @@ class AuthorizationCodeFlowTestCase(TestCase):
         self.user = create_fake_user()
         self.client = create_fake_client(response_type='code')
         self.client_public = create_fake_client(response_type='code', is_public=True)
-        self.client_implicit = create_fake_client(response_type='id_token token')
         self.state = uuid.uuid4().hex
         self.nonce = uuid.uuid4().hex
 
@@ -51,7 +49,6 @@ class AuthorizationCodeFlowTestCase(TestCase):
         response = AuthorizeView.as_view()(request)
 
         return response
-
 
     def test_missing_parameters(self):
         """
@@ -148,7 +145,7 @@ class AuthorizationCodeFlowTestCase(TestCase):
         for key, value in iter(to_check.items()):
             is_input_ok = input_html.format(key, value) in response.content.decode('utf-8')
             self.assertEqual(is_input_ok, True,
-                msg='Hidden input for "'+key+'" fails.')
+                msg='Hidden input for "' + key + '" fails.')
 
     def test_user_consent_response(self):
         """
@@ -183,7 +180,7 @@ class AuthorizationCodeFlowTestCase(TestCase):
             msg='"access_denied" code is missing in query.')
 
         # Simulate user authorization.
-        data['allow'] = 'Accept' # Will be the value of the button.
+        data['allow'] = 'Accept'  # Will be the value of the button.
 
         response = self._auth_request('post', data, is_user_authenticated=True)
 
@@ -269,43 +266,6 @@ class AuthorizationCodeFlowTestCase(TestCase):
             response = self._auth_request('get', data, is_user_authenticated=True)
 
         self.assertEqual('Request for Permission' in response.content.decode('utf-8'), True)
-
-    def test_implicit_missing_nonce(self):
-        """
-        The `nonce` parameter is REQUIRED if you use the Implicit Flow.
-        """
-        data = {
-            'client_id': self.client_implicit.client_id,
-            'response_type': self.client_implicit.response_type,
-            'redirect_uri': self.client_implicit.default_redirect_uri,
-            'scope': 'openid email',
-            'state': self.state,
-        }
-
-        response = self._auth_request('get', data, is_user_authenticated=True)
-        
-        self.assertEqual('#error=invalid_request' in response['Location'], True)   
-
-    def test_implicit_access_token_response(self):
-        """
-        Unlike the Authorization Code flow, in which the client makes
-        separate requests for authorization and for an access token, the client
-        receives the access token as the result of the authorization request.
-        """
-        data = {
-            'client_id': self.client_implicit.client_id,
-            'redirect_uri': self.client_implicit.default_redirect_uri,
-            'response_type': self.client_implicit.response_type,
-            'scope': 'openid email',
-            'state': self.state,
-            'nonce': self.nonce,
-            'allow': 'Accept',
-        }
-
-        response = self._auth_request('post', data, is_user_authenticated=True)
-        
-        self.assertEqual('access_token' in response['Location'], True)
-
 
     def test_prompt_parameter(self):
         """
