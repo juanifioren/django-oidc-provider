@@ -146,9 +146,9 @@ class TokenEndpoint(object):
             )
         else:
             id_token_dic = {}
+        token.id_token = id_token_dic
 
         # Store the token.
-        token.id_token = id_token_dic
         token.save()
 
         # We don't need to store the code anymore.
@@ -181,9 +181,9 @@ class TokenEndpoint(object):
             )
         else:
             id_token_dic = {}
+        token.id_token = id_token_dic
 
         # Store the token.
-        token.id_token = id_token_dic
         token.save()
 
         # Forget the old token.

@@ -10,3 +10,5 @@ src/
 .venv
 .idea
 docs/_build/
+.eggs/
+.python-version
