@@ -13,7 +13,7 @@ from oidc_provider.models import *
 from oidc_provider import settings
 
 
-def create_id_token(user, aud, nonce, request=None):
+def create_id_token(user, aud, nonce, at_hash=None, request=None):
     """
     Receives a user object and aud (audience).
     Then creates the id_token dictionary.
@@ -44,6 +44,9 @@ def create_id_token(user, aud, nonce, request=None):
     if nonce:
         dic['nonce'] = str(nonce)
 
+    if at_hash:
+        dic['at_hash'] = at_hash
+
     processing_hook = settings.get('OIDC_IDTOKEN_PROCESSING_HOOK')
 
     if isinstance(processing_hook, (list, tuple)):
@@ -73,13 +76,13 @@ def encode_id_token(payload, client):
         keys = [SYMKey(key=client.client_secret, alg=alg)]
     else:
         raise Exception('Unsupported key algorithm.')
-    
+
     _jws = JWS(payload, alg=alg)
 
     return _jws.sign_compact(keys)
 
 
-def create_token(user, client, id_token_dic, scope):
+def create_token(user, client, scope, id_token_dic=None):
     """
     Create and populate a Token object.
 
@@ -90,7 +93,8 @@ def create_token(user, client, id_token_dic, scope):
     token.client = client
     token.access_token = uuid.uuid4().hex
 
-    token.id_token = id_token_dic
+    if id_token_dic is not None:
+        token.id_token = id_token_dic
 
     token.refresh_token = uuid.uuid4().hex
     token.expires_at = timezone.now() + timedelta(
@@ -112,7 +116,7 @@ def create_code(user, client, scope, nonce, is_authentication,
     code.client = client
 
     code.code = uuid.uuid4().hex
-    
+
     if code_challenge and code_challenge_method:
         code.code_challenge = code_challenge
         code.code_challenge_method = code_challenge_method
