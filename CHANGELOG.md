@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ##### Added
 - Support for Django 1.10.
 - Initial translation files (ES, FR).
+- Support for at_hash parameter.
 
 ### [0.3.6] - 2016-07-07
 
