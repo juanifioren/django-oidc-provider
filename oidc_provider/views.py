@@ -193,8 +193,8 @@ class ProviderInfoView(View):
         # See: http://openid.net/specs/openid-connect-core-1_0.html#SubjectIDTypes
         dic['subject_types_supported'] = ['public']
 
-        dic['token_endpoint_auth_methods_supported'] = [ 'client_secret_post',
-                                                         'client_secret_basic' ]
+        dic['token_endpoint_auth_methods_supported'] = ['client_secret_post',
+                                                        'client_secret_basic']
 
         return JsonResponse(dic)
 
@@ -205,7 +205,7 @@ class JwksView(View):
         dic = dict(keys=[])
 
         for rsakey in RSAKey.objects.all():
-            public_key  = RSA.importKey(rsakey.key).publickey()
+            public_key = RSA.importKey(rsakey.key).publickey()
             dic['keys'].append({
                 'kty': 'RSA',
                 'alg': 'RS256',

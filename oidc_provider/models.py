@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-from hashlib import md5
+import base64
+import binascii
+from hashlib import md5, sha256
 import json
 
 from django.db import models
@@ -23,6 +25,7 @@ JWT_ALGS = [
     ('HS256', 'HS256'),
     ('RS256', 'RS256'),
 ]
+
 
 class Client(models.Model):
 
@@ -49,8 +52,10 @@ class Client(models.Model):
     def redirect_uris():
         def fget(self):
             return self._redirect_uris.splitlines()
+
         def fset(self, value):
             self._redirect_uris = '\n'.join(value)
+
         return locals()
     redirect_uris = property(**redirect_uris())
 
@@ -69,8 +74,10 @@ class BaseCodeTokenModel(models.Model):
     def scope():
         def fget(self):
             return self._scope.split()
+
         def fset(self, value):
             self._scope = ' '.join(value)
+
         return locals()
     scope = property(**scope())
 
@@ -105,17 +112,33 @@ class Token(BaseCodeTokenModel):
     access_token = models.CharField(max_length=255, unique=True, verbose_name=_(u'Access Token'))
     refresh_token = models.CharField(max_length=255, unique=True, null=True, verbose_name=_(u'Refresh Token'))
     _id_token = models.TextField(verbose_name=_(u'ID Token'))
+
     def id_token():
+
         def fget(self):
             return json.loads(self._id_token)
+
         def fset(self, value):
             self._id_token = json.dumps(value)
+
         return locals()
     id_token = property(**id_token())
 
     class Meta:
         verbose_name = _(u'Token')
         verbose_name_plural = _(u'Tokens')
+
+    @property
+    def at_hash(self):
+        # @@@ d-o-p only supports 256 bits (change this if that changes)
+        hashed_access_token = sha256(
+            self.access_token.encode('ascii')
+        ).hexdigest().encode('ascii')
+        return base64.urlsafe_b64encode(
+            binascii.unhexlify(
+                hashed_access_token[:len(hashed_access_token) // 2]
+            )
+        ).rstrip(b'=').decode('ascii')
 
 
 class UserConsent(BaseCodeTokenModel):
@@ -142,4 +165,4 @@ class RSAKey(models.Model):
 
     @property
     def kid(self):
-        return  u'{0}'.format(md5(self.key.encode('utf-8')).hexdigest() if self.key else '')
+        return u'{0}'.format(md5(self.key.encode('utf-8')).hexdigest() if self.key else '')
