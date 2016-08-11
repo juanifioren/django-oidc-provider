@@ -34,7 +34,7 @@ setup(
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
-    test_suite="runtests.runtests",
+    test_suite='runtests.runtests',
     tests_require=[
         'pyjwkest==1.1.0',
         'mock==2.0.0',

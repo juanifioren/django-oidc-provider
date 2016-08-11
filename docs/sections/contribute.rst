@@ -18,8 +18,8 @@ Use `tox <https://pypi.python.org/pypi/tox>`_ for running tests in each of the e
     # Run all tests.
     $ tox
 
-    # Run a particular test file with Python 2.7 and Django 1.9.
-    $ tox -e py27-django19 oidc_provider.tests.test_authorize_endpoint
+    # Run with Python 2.7 and Django 1.9.
+    $ tox -e py27-django19
 
 If you have a Django project properly configured with the package. Then just run tests as normal::
 
