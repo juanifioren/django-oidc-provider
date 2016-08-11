@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+##### Added
+- Support for python-jose in addition to pyjwkest.
+
 ### [0.3.6] - 2016-07-07
 
 ##### Changed

@@ -1,3 +1,5 @@
+import base64, struct
+
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 
