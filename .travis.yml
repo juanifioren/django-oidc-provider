@@ -15,6 +15,6 @@ matrix:
 install:
   - pip install tox coveralls
 script:
-  - tox -e py${TRAVIS_PYTHON_VERSION//[.]/}-$DJANGO
+  - tox -e py${TRAVIS_PYTHON_VERSION//[.]/}-django$DJANGO
 after_success:
   - coveralls
