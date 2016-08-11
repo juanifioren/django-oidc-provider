@@ -98,11 +98,13 @@ def runtests(*test_args):
     try:
         from django.test.runner import DiscoverRunner
         runner_class = DiscoverRunner
-        test_args = ["oidc_provider.tests"]
+        if not test_args:
+            test_args = ["oidc_provider.tests"]
     except ImportError:
         from django.test.simple import DjangoTestSuiteRunner
         runner_class = DjangoTestSuiteRunner
-        test_args = ["tests"]
+        if not test_args:
+            test_args = ["tests"]
 
     failures = runner_class(verbosity=1, interactive=True, failfast=False).run_tests(test_args)
     sys.exit(failures)
