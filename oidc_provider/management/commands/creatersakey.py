@@ -1,8 +1,8 @@
 import os
 
-from Crypto.PublicKey import RSA
 from django.core.management.base import BaseCommand
 
+from oidc_provider.lib.jwt_compat import adapter
 from oidc_provider import settings
 from oidc_provider.models import RSAKey
 
@@ -12,8 +12,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            key = RSA.generate(1024)
-            rsakey = RSAKey(key=key.exportKey('PEM').decode('utf8'))
+            rsakey = RSAKey(key=adapter.generate_key(1024).decode('utf-8'))
             rsakey.save()
             self.stdout.write(u'RSA key successfully created with kid: {0}'.format(rsakey.kid))
         except Exception as e:

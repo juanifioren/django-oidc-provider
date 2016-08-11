@@ -14,9 +14,19 @@ Quick Installation
 
 If you want to get started fast see our ``/example_project`` folder.
 
-Install the package using pip::
+OIDC Provider relies on a JWT implementation, and supports pyjwkest and
+python-jose. Under CPython, pyjwkest uses Cryptodome, while python-jose uses
+PyCrypto.  PyCrypto and Cryptodome must not both be installed, as they are
+incompatible. If your project already uses one of these crypto libraries, you
+may prefer one JWT implementation over the other.
 
-    $ pip install django-oidc-provider
+Install the package with pyjwkest using pip::
+
+    $ pip install django-oidc-provider[pyjwkest]
+
+Or, if you prefer to use python-jose:
+
+    $ pip install django-oidc-provider[jose]
 
 Add it to your apps::
 
