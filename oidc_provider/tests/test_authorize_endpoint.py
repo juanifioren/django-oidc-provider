@@ -16,9 +16,13 @@ from django.test import TestCase
 from jwkest.jwt import JWT
 
 from oidc_provider import settings
-from oidc_provider.models import *
-from oidc_provider.tests.app.utils import *
-from oidc_provider.views import *
+from oidc_provider.tests.app.utils import (
+    create_fake_user,
+    create_fake_client,
+    FAKE_CODE_CHALLENGE,
+    is_code_valid,
+)
+from oidc_provider.views import AuthorizeView
 
 
 class AuthorizationCodeFlowTestCase(TestCase):

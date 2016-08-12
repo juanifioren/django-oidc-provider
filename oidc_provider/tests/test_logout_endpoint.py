@@ -1,8 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from oidc_provider.views import *
-from oidc_provider.tests.app.utils import *
+from oidc_provider.tests.app.utils import create_fake_user
 
 
 class UserInfoTestCase(TestCase):

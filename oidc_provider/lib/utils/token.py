@@ -9,7 +9,11 @@ from jwkest.jwk import SYMKey
 from jwkest.jws import JWS
 
 from oidc_provider.lib.utils.common import get_issuer
-from oidc_provider.models import *
+from oidc_provider.models import (
+    Code,
+    RSAKey,
+    Token,
+)
 from oidc_provider import settings
 
 

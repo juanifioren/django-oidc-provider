@@ -2,7 +2,7 @@ from django.core.urlresolvers import reverse
 from django.test import RequestFactory
 from django.test import TestCase
 
-from oidc_provider.views import *
+from oidc_provider.views import ProviderInfoView
 
 
 class ProviderInfoTestCase(TestCase):
