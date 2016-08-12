@@ -1,3 +1,5 @@
+import logging
+
 from Crypto.PublicKey import RSA
 from django.contrib.auth.views import redirect_to_login, logout
 from django.core.urlresolvers import reverse
@@ -9,9 +11,14 @@ from django.views.generic import View
 from jwkest import long_to_base64
 
 from oidc_provider.lib.claims import StandardScopeClaims
-from oidc_provider.lib.endpoints.authorize import *
-from oidc_provider.lib.endpoints.token import *
-from oidc_provider.lib.errors import *
+from oidc_provider.lib.endpoints.authorize import AuthorizeEndpoint
+from oidc_provider.lib.endpoints.token import TokenEndpoint
+from oidc_provider.lib.errors import (
+    AuthorizeError,
+    ClientIdError,
+    RedirectUriError,
+    TokenError,
+)
 from oidc_provider.lib.utils.common import redirect, get_site_url, get_issuer
 from oidc_provider.lib.utils.oauth2 import protected_resource_view
 from oidc_provider.models import RESPONSE_TYPE_CHOICES, RSAKey

@@ -1,3 +1,4 @@
+from datetime import timedelta
 import logging
 try:
     from urllib import urlencode
@@ -8,10 +9,22 @@ except ImportError:
 from django.utils import timezone
 
 from oidc_provider.lib.claims import StandardScopeClaims
-from oidc_provider.lib.errors import *
-from oidc_provider.lib.utils.params import *
-from oidc_provider.lib.utils.token import *
-from oidc_provider.models import *
+from oidc_provider.lib.errors import (
+    AuthorizeError,
+    ClientIdError,
+    RedirectUriError,
+)
+from oidc_provider.lib.utils.params import Params
+from oidc_provider.lib.utils.token import (
+    create_code,
+    create_id_token,
+    create_token,
+    encode_id_token,
+)
+from oidc_provider.models import (
+    Client,
+    UserConsent,
+)
 from oidc_provider import settings
 
 
