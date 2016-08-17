@@ -60,11 +60,11 @@ class ScopeClaims(object):
             if value is None or value == '':
                 del aux_dic[key]
             elif type(value) is dict:
-                cleaned_dic = self._clean_dic(value)
-                if not cleaned_dic:
+                cleaned_dict = self._clean_dic(value)
+                if not cleaned_dict:
                     del aux_dic[key]
                     continue
-                aux_dic[key] = self._clean_dic(value)
+                aux_dic[key] = cleaned_dict
         return aux_dic
 
     @classmethod
