@@ -24,10 +24,6 @@ Use `tox <https://pypi.python.org/pypi/tox>`_ for running tests in each of the e
     # Run single test file.
     $ python runtests.py oidc_provider.tests.test_authorize_endpoint
 
-If you have a Django project properly configured with the package. Then just run tests as normal::
-
-    $ python manage.py test --settings oidc_provider.tests.app.settings oidc_provider
-
 Also tests run on every commit to the project, we use `travis <https://travis-ci.org/juanifioren/django-oidc-provider/>`_ for this.
 
 Improve Documentation

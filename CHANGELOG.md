@@ -9,6 +9,9 @@ All notable changes to this project will be documented in this file.
 - Initial translation files (ES, FR).
 - Support for at_hash parameter.
 
+##### Fixed
+- Empty address dict in userinfo response.
+
 ### [0.3.6] - 2016-07-07
 
 ##### Changed
