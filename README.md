@@ -2,7 +2,7 @@
 
 [![Python Versions](https://img.shields.io/pypi/pyversions/django-oidc-provider.svg)](https://pypi.python.org/pypi/django-oidc-provider)
 [![PyPI Versions](https://img.shields.io/pypi/v/django-oidc-provider.svg)](https://pypi.python.org/pypi/django-oidc-provider)
-[![Travis](https://travis-ci.org/juanifioren/django-oidc-provider.svg?branch=master)](https://travis-ci.org/juanifioren/django-oidc-provider)
+[![Travis](https://travis-ci.org/juanifioren/django-oidc-provider.svg?branch=develop)](https://travis-ci.org/juanifioren/django-oidc-provider)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/django-oidc-provider.svg)](https://pypi.python.org/pypi/django-oidc-provider)
 
 ## About OpenID
