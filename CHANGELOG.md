@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [0.3.7] - 2016-08-31
+
 ##### Added
 - Support for Django 1.10.
 - Initial translation files (ES, FR).
