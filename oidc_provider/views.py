@@ -203,7 +203,10 @@ class ProviderInfoView(View):
         dic['token_endpoint_auth_methods_supported'] = ['client_secret_post',
                                                         'client_secret_basic']
 
-        return JsonResponse(dic)
+        response = JsonResponse(dic)
+        response['Access-Control-Allow-Origin'] = '*'
+
+        return response
 
 
 class JwksView(View):
