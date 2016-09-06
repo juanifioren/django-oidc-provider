@@ -2,7 +2,7 @@
 
 [![Python Versions](https://img.shields.io/pypi/pyversions/django-oidc-provider.svg)](https://pypi.python.org/pypi/django-oidc-provider)
 [![PyPI Versions](https://img.shields.io/pypi/v/django-oidc-provider.svg)](https://pypi.python.org/pypi/django-oidc-provider)
-[![Travis](https://travis-ci.org/juanifioren/django-oidc-provider.svg?branch=master)](https://travis-ci.org/juanifioren/django-oidc-provider)
+[![Travis](https://travis-ci.org/juanifioren/django-oidc-provider.svg?branch=develop)](https://travis-ci.org/juanifioren/django-oidc-provider)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/django-oidc-provider.svg)](https://pypi.python.org/pypi/django-oidc-provider)
 
 ## About OpenID
@@ -24,4 +24,4 @@ We love contributions, so please feel free to fix bugs, improve things, provide 
 * Fork the project.
 * Make your feature addition or bug fix.
 * Add tests for it inside `oidc_provider/tests`. Then run all and ensure everything is OK (read docs for how to test in all envs).
-* Send pull request to the specific version branch.
+* Send pull request to the `develop` branch.

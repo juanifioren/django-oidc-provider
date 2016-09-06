@@ -1,3 +1,4 @@
+from datetime import timedelta
 import logging
 try:
     from urllib import urlencode
@@ -8,10 +9,22 @@ except ImportError:
 from django.utils import timezone
 
 from oidc_provider.lib.claims import StandardScopeClaims
-from oidc_provider.lib.errors import *
-from oidc_provider.lib.utils.params import *
-from oidc_provider.lib.utils.token import *
-from oidc_provider.models import *
+from oidc_provider.lib.errors import (
+    AuthorizeError,
+    ClientIdError,
+    RedirectUriError,
+)
+from oidc_provider.lib.utils.params import Params
+from oidc_provider.lib.utils.token import (
+    create_code,
+    create_id_token,
+    create_token,
+    encode_id_token,
+)
+from oidc_provider.models import (
+    Client,
+    UserConsent,
+)
 from oidc_provider import settings
 
 
@@ -121,34 +134,40 @@ class AuthorizeEndpoint(object):
                 query_params['state'] = self.params.state if self.params.state else ''
 
             elif self.grant_type == 'implicit':
-                # We don't need id_token if it's an OAuth2 request.
-                if self.is_authentication:
-                    id_token_dic = create_id_token(
-                        user=self.request.user,
-                        aud=self.client.client_id,
-                        nonce=self.params.nonce,
-                        request=self.request)
-                    query_fragment['id_token'] = encode_id_token(id_token_dic, self.client)
-                else:
-                    id_token_dic = {}
-
                 token = create_token(
                     user=self.request.user,
                     client=self.client,
-                    id_token_dic=id_token_dic,
                     scope=self.params.scope)
-
-                # Store the token.
-                token.save()
-
-                query_fragment['token_type'] = 'bearer'
-                # TODO: Create setting 'OIDC_TOKEN_EXPIRE'.
-                query_fragment['expires_in'] = 60 * 10
 
                 # Check if response_type is an OpenID request with value 'id_token token'
                 # or it's an OAuth2 Implicit Flow request.
                 if self.params.response_type in ['id_token token', 'token']:
                     query_fragment['access_token'] = token.access_token
+
+                # We don't need id_token if it's an OAuth2 request.
+                if self.is_authentication:
+                    kwargs = {
+                        "user": self.request.user,
+                        "aud": self.client.client_id,
+                        "nonce": self.params.nonce,
+                        "request": self.request
+                    }
+                    # Include at_hash when access_token is being returned.
+                    if 'access_token' in query_fragment:
+                        kwargs['at_hash'] = token.at_hash
+                    id_token_dic = create_id_token(**kwargs)
+                    query_fragment['id_token'] = encode_id_token(id_token_dic, self.client)
+                    token.id_token = id_token_dic
+                else:
+                    id_token_dic = {}
+
+                # Store the token.
+                token.id_token = id_token_dic
+                token.save()
+
+                query_fragment['token_type'] = 'bearer'
+                # TODO: Create setting 'OIDC_TOKEN_EXPIRE'.
+                query_fragment['expires_in'] = 60 * 10
 
                 query_fragment['state'] = self.params.state if self.params.state else ''
 

@@ -1,3 +1,5 @@
+import json
+
 from datetime import timedelta
 try:
     from urllib.parse import urlencode
@@ -9,9 +11,15 @@ from django.test import RequestFactory
 from django.test import TestCase
 from django.utils import timezone
 
-from oidc_provider.lib.utils.token import *
-from oidc_provider.models import *
-from oidc_provider.tests.app.utils import *
+from oidc_provider.lib.utils.token import (
+    create_id_token,
+    create_token,
+)
+from oidc_provider.tests.app.utils import (
+    create_fake_user,
+    create_fake_client,
+    FAKE_NONCE,
+)
 from oidc_provider.views import userinfo
 
 

@@ -9,10 +9,20 @@ except ImportError:
 
 from django.http import JsonResponse
 
-from oidc_provider.lib.errors import *
-from oidc_provider.lib.utils.params import *
-from oidc_provider.lib.utils.token import *
-from oidc_provider.models import *
+from oidc_provider.lib.errors import (
+    TokenError,
+)
+from oidc_provider.lib.utils.params import Params
+from oidc_provider.lib.utils.token import (
+    create_id_token,
+    create_token,
+    encode_id_token,
+)
+from oidc_provider.models import (
+    Client,
+    Code,
+    Token,
+)
 from oidc_provider import settings
 
 
@@ -131,21 +141,22 @@ class TokenEndpoint(object):
             return self.create_refresh_response_dic()
 
     def create_code_response_dic(self):
+        token = create_token(
+            user=self.code.user,
+            client=self.code.client,
+            scope=self.code.scope)
+
         if self.code.is_authentication:
             id_token_dic = create_id_token(
                 user=self.code.user,
                 aud=self.client.client_id,
                 nonce=self.code.nonce,
+                at_hash=token.at_hash,
                 request=self.request,
             )
         else:
             id_token_dic = {}
-
-        token = create_token(
-            user=self.code.user,
-            client=self.code.client,
-            id_token_dic=id_token_dic,
-            scope=self.code.scope)
+        token.id_token = id_token_dic
 
         # Store the token.
         token.save()
@@ -164,22 +175,23 @@ class TokenEndpoint(object):
         return dic
 
     def create_refresh_response_dic(self):
+        token = create_token(
+            user=self.token.user,
+            client=self.token.client,
+            scope=self.token.scope)
+
         # If the Token has an id_token it's an Authentication request.
         if self.token.id_token:
             id_token_dic = create_id_token(
                 user=self.token.user,
                 aud=self.client.client_id,
                 nonce=None,
+                at_hash=token.at_hash,
                 request=self.request,
             )
         else:
             id_token_dic = {}
-
-        token = create_token(
-            user=self.token.user,
-            client=self.token.client,
-            id_token_dic=id_token_dic,
-            scope=self.token.scope)
+        token.id_token = id_token_dic
 
         # Store the token.
         token.save()

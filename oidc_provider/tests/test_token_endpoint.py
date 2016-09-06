@@ -1,3 +1,7 @@
+from datetime import timedelta
+import json
+import uuid
+
 from base64 import b64encode
 try:
     from urllib.parse import urlencode
@@ -5,15 +9,30 @@ except ImportError:
     from urllib import urlencode
 
 from django.core.management import call_command
+from django.core.urlresolvers import reverse
 from django.test import RequestFactory, override_settings
 from django.test import TestCase
+from django.utils import timezone
 from jwkest.jwk import KEYS
+from jwkest.jws import JWS
 from jwkest.jwt import JWT
 from mock import patch
 
-from oidc_provider.lib.utils.token import *
-from oidc_provider.tests.app.utils import *
-from oidc_provider.views import *
+from oidc_provider.lib.utils.token import create_code
+from oidc_provider.models import Token
+from oidc_provider.tests.app.utils import (
+    create_fake_user,
+    create_fake_client,
+    FAKE_CODE_CHALLENGE,
+    FAKE_CODE_VERIFIER,
+    FAKE_NONCE,
+    FAKE_RANDOM_STRING,
+)
+from oidc_provider.views import (
+    JwksView,
+    TokenView,
+    userinfo,
+)
 
 
 class TokenTestCase(TestCase):
@@ -208,14 +227,14 @@ class TokenTestCase(TestCase):
             response = TokenView.as_view()(request)
 
             self.assertEqual(response.status_code == 405, True,
-                msg=request.method+' request does not return a 405 status.')
+                msg=request.method + ' request does not return a 405 status.')
 
         request = self.factory.post(url)
 
         response = TokenView.as_view()(request)
 
         self.assertEqual(response.status_code == 400, True,
-                msg=request.method+' request does not return a 400 status.')
+                msg=request.method + ' request does not return a 400 status.')
 
     def test_client_authentication(self):
         """
@@ -238,7 +257,7 @@ class TokenTestCase(TestCase):
 
         # Now, test with an invalid client_id.
         invalid_data = post_data.copy()
-        invalid_data['client_id'] = self.client.client_id * 2 # Fake id.
+        invalid_data['client_id'] = self.client.client_id * 2  # Fake id.
 
         # Create another grant code.
         code = self._create_code()
@@ -264,8 +283,8 @@ class TokenTestCase(TestCase):
         user_pass = self.client.client_id + ':' + self.client.client_secret
         auth_header = b'Basic ' + b64encode(user_pass.encode('utf-8'))
         response = self._post_request(basicauth_data, {
-                       'HTTP_AUTHORIZATION': auth_header.decode('utf-8'),
-                   })
+            'HTTP_AUTHORIZATION': auth_header.decode('utf-8'),
+        })
         response.content.decode('utf-8')
 
         self.assertEqual('invalid_client' in response.content.decode('utf-8'),
@@ -304,6 +323,21 @@ class TokenTestCase(TestCase):
 
         self.assertEqual(id_token.get('nonce'), None)
 
+    def test_id_token_contains_at_hash(self):
+        """
+        If access_token is included, the id_token SHOULD contain an at_hash.
+        """
+        code = self._create_code()
+
+        post_data = self._auth_code_post_data(code=code.code)
+
+        response = self._post_request(post_data)
+
+        response_dic = json.loads(response.content.decode('utf-8'))
+        id_token = JWT().unpack(response_dic['id_token'].encode('utf-8')).payload()
+
+        self.assertTrue(id_token.get('at_hash'))
+
     def test_idtoken_sign_validation(self):
         """
         We MUST validate the signature of the ID Token according to JWS
@@ -311,7 +345,7 @@ class TokenTestCase(TestCase):
         the JOSE Header.
         """
         SIGKEYS = self._get_keys()
-        RSAKEYS = [ k for k in SIGKEYS if k.kty == 'RSA' ]
+        RSAKEYS = [k for k in SIGKEYS if k.kty == 'RSA']
 
         code = self._create_code()
 

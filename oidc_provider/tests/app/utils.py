@@ -1,4 +1,3 @@
-import os
 import random
 import string
 try:
@@ -8,7 +7,10 @@ except ImportError:
 
 from django.contrib.auth.models import User
 
-from oidc_provider.models import *
+from oidc_provider.models import (
+    Client,
+    Code,
+)
 
 
 FAKE_NONCE = 'cb584e44c43ed6bd0bc2d9c7e242837d'

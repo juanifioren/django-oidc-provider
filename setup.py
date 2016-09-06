@@ -7,7 +7,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-oidc-provider',
-    version='0.3.6',
+    version='0.3.7',
     packages=[
         'oidc_provider', 'oidc_provider/lib', 'oidc_provider/lib/endpoints',
         'oidc_provider/lib/utils', 'oidc_provider/tests', 'oidc_provider/tests/app',
@@ -34,9 +34,10 @@ setup(
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
+    test_suite='runtests.runtests',
     tests_require=[
         'pyjwkest==1.1.0',
-        'mock==1.3.0',
+        'mock==2.0.0',
     ],
 
     install_requires=[
