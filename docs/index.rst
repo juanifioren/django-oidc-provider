@@ -31,6 +31,7 @@ Contents:
    sections/userconsent
    sections/oauth2
    sections/settings
+   sections/examples
    sections/contribute
 ..
 
