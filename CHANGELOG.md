@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+##### Added
+- Polish translations.
+
 ### [0.3.7] - 2016-08-31
 
 ##### Added
