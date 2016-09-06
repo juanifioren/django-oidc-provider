@@ -171,6 +171,7 @@ def userinfo(request, *args, **kwargs):
         dic.update(extra_claims.create_response_dic())
 
     response = JsonResponse(dic, status=200)
+    response['Access-Control-Allow-Origin'] = '*'
     response['Cache-Control'] = 'no-store'
     response['Pragma'] = 'no-cache'
 
