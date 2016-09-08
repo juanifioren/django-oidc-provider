@@ -18,14 +18,14 @@ Properties
 * ``client_type``: Values are ``confidential`` and ``public``.
 * ``client_id``: Client unique identifier.
 * ``client_secret``: Client secret for confidential applications.
-* ``response_type``: Values are ``code``, ``id_token`` and ``id_token token``.
+* ``response_type``: Values depends of wich flow you want use.
 * ``jwt_alg``: Clients can choose wich algorithm will be used to sign id_tokens. Values are ``HS256`` and ``RS256``.
 * ``date_created``: Date automatically added when created.
 
 Using the admin
 ===============
 
-We suggest you to use Django admin to easily manage your clients: 
+We suggest you to use Django admin to easily manage your clients:
 
 .. image:: ../images/client_creation.png
     :align: center
