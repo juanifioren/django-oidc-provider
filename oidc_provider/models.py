@@ -19,6 +19,9 @@ RESPONSE_TYPE_CHOICES = [
     ('code', 'code (Authorization Code Flow)'),
     ('id_token', 'id_token (Implicit Flow)'),
     ('id_token token', 'id_token token (Implicit Flow)'),
+    ('code token', 'code token (Hybrid Flow)'),
+    ('code id_token', 'code id_token (Hybrid Flow)'),
+    ('code id_token token', 'code id_token token (Hybrid Flow)'),
 ]
 
 JWT_ALGS = [

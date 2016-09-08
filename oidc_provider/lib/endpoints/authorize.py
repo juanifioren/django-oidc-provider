@@ -44,6 +44,8 @@ class AuthorizeEndpoint(object):
             self.grant_type = 'authorization_code'
         elif self.params.response_type in ['id_token', 'id_token token', 'token']:
             self.grant_type = 'implicit'
+        elif self.params.response_type in ['code token', 'code id_token', 'code id_token token']:
+            self.grant_type = 'hybrid'
         else:
             self.grant_type = None
 
@@ -53,7 +55,7 @@ class AuthorizeEndpoint(object):
     def _extract_params(self):
         """
         Get all the params used by the Authorization Code Flow
-        (and also for the Implicit).
+        (and also for the Implicit and Hybrid).
 
         See: http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
         """
@@ -118,7 +120,7 @@ class AuthorizeEndpoint(object):
         query_fragment = parse_qs(uri.fragment)
 
         try:
-            if self.grant_type == 'authorization_code':
+            if self.grant_type in ['authorization_code', 'hybrid']:
                 code = create_code(
                     user=self.request.user,
                     client=self.client,
@@ -127,37 +129,37 @@ class AuthorizeEndpoint(object):
                     is_authentication=self.is_authentication,
                     code_challenge=self.params.code_challenge,
                     code_challenge_method=self.params.code_challenge_method)
-
                 code.save()
 
+            if self.grant_type == 'authorization_code':
                 query_params['code'] = code.code
                 query_params['state'] = self.params.state if self.params.state else ''
-
-            elif self.grant_type == 'implicit':
+            elif self.grant_type in ['implicit', 'hybrid']:
                 token = create_token(
                     user=self.request.user,
                     client=self.client,
                     scope=self.params.scope)
 
-                # Check if response_type is an OpenID request with value 'id_token token'
-                # or it's an OAuth2 Implicit Flow request.
-                if self.params.response_type in ['id_token token', 'token']:
+                # Check if response_type must include access_token in the response.
+                if self.params.response_type in ['id_token token', 'token', 'code token', 'code id_token token']:
                     query_fragment['access_token'] = token.access_token
 
                 # We don't need id_token if it's an OAuth2 request.
                 if self.is_authentication:
                     kwargs = {
-                        "user": self.request.user,
-                        "aud": self.client.client_id,
-                        "nonce": self.params.nonce,
-                        "request": self.request
+                        'user': self.request.user,
+                        'aud': self.client.client_id,
+                        'nonce': self.params.nonce,
+                        'request': self.request,
                     }
                     # Include at_hash when access_token is being returned.
                     if 'access_token' in query_fragment:
                         kwargs['at_hash'] = token.at_hash
                     id_token_dic = create_id_token(**kwargs)
-                    query_fragment['id_token'] = encode_id_token(id_token_dic, self.client)
-                    token.id_token = id_token_dic
+
+                    # Check if response_type must include id_token in the response.
+                    if self.params.response_type in ['id_token', 'id_token token', 'code id_token', 'code id_token token']:
+                        query_fragment['id_token'] = encode_id_token(id_token_dic, self.client)
                 else:
                     id_token_dic = {}
 
@@ -165,7 +167,12 @@ class AuthorizeEndpoint(object):
                 token.id_token = id_token_dic
                 token.save()
 
+                # Code parameter must be present if it's Hybrid Flow.
+                if self.grant_type == 'hybrid':
+                    query_fragment['code'] = code.code
+
                 query_fragment['token_type'] = 'bearer'
+
                 # TODO: Create setting 'OIDC_TOKEN_EXPIRE'.
                 query_fragment['expires_in'] = 60 * 10
 
