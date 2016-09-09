@@ -12,7 +12,6 @@ from django.http import JsonResponse
 from oidc_provider.lib.errors import (
     TokenError,
 )
-from oidc_provider.lib.utils.params import Params
 from oidc_provider.lib.utils.token import (
     create_id_token,
     create_token,
@@ -33,23 +32,22 @@ class TokenEndpoint(object):
 
     def __init__(self, request):
         self.request = request
-        self.params = Params()
+        self.params = {}
         self._extract_params()
 
     def _extract_params(self):
         client_id, client_secret = self._extract_client_auth()
 
-        self.params.client_id = client_id
-        self.params.client_secret = client_secret
-        self.params.redirect_uri = unquote(self.request.POST.get('redirect_uri', ''))
-        self.params.grant_type = self.request.POST.get('grant_type', '')
-        self.params.code = self.request.POST.get('code', '')
-        self.params.state = self.request.POST.get('state', '')
-        self.params.scope = self.request.POST.get('scope', '')
-        self.params.refresh_token = self.request.POST.get('refresh_token', '')
-
-        # PKCE parameters.
-        self.params.code_verifier = self.request.POST.get('code_verifier')
+        self.params['client_id'] = client_id
+        self.params['client_secret'] = client_secret
+        self.params['redirect_uri'] = unquote(self.request.POST.get('redirect_uri', ''))
+        self.params['grant_type'] = self.request.POST.get('grant_type', '')
+        self.params['code'] = self.request.POST.get('code', '')
+        self.params['state'] = self.request.POST.get('state', '')
+        self.params['scope'] = self.request.POST.get('scope', '')
+        self.params['refresh_token'] = self.request.POST.get('refresh_token', '')
+        # PKCE parameter.
+        self.params['code_verifier'] = self.request.POST.get('code_verifier')
 
     def _extract_client_auth(self):
         """
@@ -76,68 +74,68 @@ class TokenEndpoint(object):
 
     def validate_params(self):
         try:
-            self.client = Client.objects.get(client_id=self.params.client_id)
+            self.client = Client.objects.get(client_id=self.params['client_id'])
         except Client.DoesNotExist:
-            logger.debug('[Token] Client does not exist: %s', self.params.client_id)
+            logger.debug('[Token] Client does not exist: %s', self.params['client_id'])
             raise TokenError('invalid_client')
 
         if self.client.client_type == 'confidential':
-            if not (self.client.client_secret == self.params.client_secret):
+            if not (self.client.client_secret == self.params['client_secret']):
                 logger.debug('[Token] Invalid client secret: client %s do not have secret %s',
                              self.client.client_id, self.client.client_secret)
                 raise TokenError('invalid_client')
 
-        if self.params.grant_type == 'authorization_code':
-            if not (self.params.redirect_uri in self.client.redirect_uris):
-                logger.debug('[Token] Invalid redirect uri: %s', self.params.redirect_uri)
+        if self.params['grant_type'] == 'authorization_code':
+            if not (self.params['redirect_uri'] in self.client.redirect_uris):
+                logger.debug('[Token] Invalid redirect uri: %s', self.params['redirect_uri'])
                 raise TokenError('invalid_client')
 
             try:
-                self.code = Code.objects.get(code=self.params.code)
+                self.code = Code.objects.get(code=self.params['code'])
             except Code.DoesNotExist:
-                logger.debug('[Token] Code does not exist: %s', self.params.code)
+                logger.debug('[Token] Code does not exist: %s', self.params['code'])
                 raise TokenError('invalid_grant')
 
             if not (self.code.client == self.client) \
                or self.code.has_expired():
                 logger.debug('[Token] Invalid code: invalid client or code has expired',
-                             self.params.redirect_uri)
+                             self.params['redirect_uri'])
                 raise TokenError('invalid_grant')
 
             # Validate PKCE parameters.
-            if self.params.code_verifier:
+            if self.params['code_verifier']:
                 if self.code.code_challenge_method == 'S256':
                     new_code_challenge = urlsafe_b64encode(
-                            hashlib.sha256(self.params.code_verifier.encode('ascii')).digest()
+                            hashlib.sha256(self.params['code_verifier'].encode('ascii')).digest()
                         ).decode('utf-8').replace('=', '')
                 else:
-                    new_code_challenge = self.params.code_verifier
+                    new_code_challenge = self.params['code_verifier']
 
                 # TODO: We should explain the error.
                 if not (new_code_challenge == self.code.code_challenge):
                     raise TokenError('invalid_grant')
 
-        elif self.params.grant_type == 'refresh_token':
-            if not self.params.refresh_token:
+        elif self.params['grant_type'] == 'refresh_token':
+            if not self.params['refresh_token']:
                 logger.debug('[Token] Missing refresh token')
                 raise TokenError('invalid_grant')
 
             try:
-                self.token = Token.objects.get(refresh_token=self.params.refresh_token,
+                self.token = Token.objects.get(refresh_token=self.params['refresh_token'],
                                                client=self.client)
 
             except Token.DoesNotExist:
-                logger.debug('[Token] Refresh token does not exist: %s', self.params.refresh_token)
+                logger.debug('[Token] Refresh token does not exist: %s', self.params['refresh_token'])
                 raise TokenError('invalid_grant')
 
         else:
-            logger.debug('[Token] Invalid grant type: %s', self.params.grant_type)
+            logger.debug('[Token] Invalid grant type: %s', self.params['grant_type'])
             raise TokenError('unsupported_grant_type')
 
     def create_response_dic(self):
-        if self.params.grant_type == 'authorization_code':
+        if self.params['grant_type'] == 'authorization_code':
             return self.create_code_response_dic()
-        elif self.params.grant_type == 'refresh_token':
+        elif self.params['grant_type'] == 'refresh_token':
             return self.create_refresh_response_dic()
 
     def create_code_response_dic(self):
@@ -153,7 +151,7 @@ class TokenEndpoint(object):
                 nonce=self.code.nonce,
                 at_hash=token.at_hash,
                 request=self.request,
-                scope=self.params.scope,
+                scope=self.params['scope'],
             )
         else:
             id_token_dic = {}
@@ -189,7 +187,7 @@ class TokenEndpoint(object):
                 nonce=None,
                 at_hash=token.at_hash,
                 request=self.request,
-                scope=self.params.scope,
+                scope=self.params['scope'],
             )
         else:
             id_token_dic = {}

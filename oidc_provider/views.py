@@ -46,24 +46,24 @@ class AuthorizeView(View):
                     return hook_resp
 
                 if settings.get('OIDC_SKIP_CONSENT_ALWAYS') and not (authorize.client.client_type == 'public') \
-                and not (authorize.params.prompt == 'consent'):
+                and not (authorize.params['prompt'] == 'consent'):
                     return redirect(authorize.create_response_uri())
 
                 if settings.get('OIDC_SKIP_CONSENT_ENABLE'):
                     # Check if user previously give consent.
                     if authorize.client_has_user_consent() and not (authorize.client.client_type == 'public') \
-                    and not (authorize.params.prompt == 'consent'):
+                    and not (authorize.params['prompt'] == 'consent'):
                         return redirect(authorize.create_response_uri())
 
-                if authorize.params.prompt == 'none':
-                    raise AuthorizeError(authorize.params.redirect_uri, 'interaction_required', authorize.grant_type)
+                if authorize.params['prompt'] == 'none':
+                    raise AuthorizeError(authorize.params['redirect_uri'], 'interaction_required', authorize.grant_type)
 
-                if authorize.params.prompt == 'login':
+                if authorize.params['prompt'] == 'login':
                     return redirect_to_login(request.get_full_path())
 
-                if authorize.params.prompt == 'select_account':
+                if authorize.params['prompt'] == 'select_account':
                     # TODO: see how we can support multiple accounts for the end-user.
-                    raise AuthorizeError(authorize.params.redirect_uri, 'account_selection_required', authorize.grant_type)
+                    raise AuthorizeError(authorize.params['redirect_uri'], 'account_selection_required', authorize.grant_type)
 
                 # Generate hidden inputs for the form.
                 context = {
@@ -73,8 +73,8 @@ class AuthorizeView(View):
 
                 # Remove `openid` from scope list
                 # since we don't need to print it.
-                if 'openid' in authorize.params.scope:
-                    authorize.params.scope.remove('openid')
+                if 'openid' in authorize.params['scope']:
+                    authorize.params['scope'].remove('openid')
 
                 context = {
                     'client': authorize.client,
@@ -85,8 +85,8 @@ class AuthorizeView(View):
 
                 return render(request, 'oidc_provider/authorize.html', context)
             else:
-                if authorize.params.prompt == 'none':
-                    raise AuthorizeError(authorize.params.redirect_uri, 'login_required', authorize.grant_type)
+                if authorize.params['prompt'] == 'none':
+                    raise AuthorizeError(authorize.params['redirect_uri'], 'login_required', authorize.grant_type)
 
                 return redirect_to_login(request.get_full_path())
 
@@ -100,8 +100,8 @@ class AuthorizeView(View):
 
         except (AuthorizeError) as error:
             uri = error.create_uri(
-                authorize.params.redirect_uri,
-                authorize.params.state)
+                authorize.params['redirect_uri'],
+                authorize.params['state'])
 
             return redirect(uri)
 
@@ -112,7 +112,7 @@ class AuthorizeView(View):
             authorize.validate_params()
 
             if not request.POST.get('allow'):
-                raise AuthorizeError(authorize.params.redirect_uri,
+                raise AuthorizeError(authorize.params['redirect_uri'],
                                      'access_denied',
                                      authorize.grant_type)
 
@@ -125,8 +125,8 @@ class AuthorizeView(View):
 
         except (AuthorizeError) as error:
             uri = error.create_uri(
-                authorize.params.redirect_uri,
-                authorize.params.state)
+                authorize.params['redirect_uri'],
+                authorize.params['state'])
 
             return redirect(uri)
 
@@ -134,7 +134,6 @@ class AuthorizeView(View):
 class TokenView(View):
 
     def post(self, request, *args, **kwargs):
-
         token = TokenEndpoint(request)
 
         try:

@@ -14,7 +14,6 @@ from oidc_provider.lib.errors import (
     ClientIdError,
     RedirectUriError,
 )
-from oidc_provider.lib.utils.params import Params
 from oidc_provider.lib.utils.token import (
     create_code,
     create_id_token,
@@ -35,22 +34,22 @@ class AuthorizeEndpoint(object):
 
     def __init__(self, request):
         self.request = request
-        self.params = Params()
+        self.params = {}
 
         self._extract_params()
 
         # Determine which flow to use.
-        if self.params.response_type in ['code']:
+        if self.params['response_type'] in ['code']:
             self.grant_type = 'authorization_code'
-        elif self.params.response_type in ['id_token', 'id_token token', 'token']:
+        elif self.params['response_type'] in ['id_token', 'id_token token', 'token']:
             self.grant_type = 'implicit'
-        elif self.params.response_type in ['code token', 'code id_token', 'code id_token token']:
+        elif self.params['response_type'] in ['code token', 'code id_token', 'code id_token token']:
             self.grant_type = 'hybrid'
         else:
             self.grant_type = None
 
         # Determine if it's an OpenID Authentication request (or OAuth2).
-        self.is_authentication = 'openid' in self.params.scope
+        self.is_authentication = 'openid' in self.params['scope']
 
     def _extract_params(self):
         """
@@ -64,58 +63,54 @@ class AuthorizeEndpoint(object):
         query_dict = (self.request.POST if self.request.method == 'POST'
                       else self.request.GET)
 
-        self.params.client_id = query_dict.get('client_id', '')
-        self.params.redirect_uri = query_dict.get('redirect_uri', '')
-        self.params.response_type = query_dict.get('response_type', '')
-        self.params.scope = query_dict.get('scope', '').split()
-        self.params.state = query_dict.get('state', '')
-
-        self.params.nonce = query_dict.get('nonce', '')
-        self.params.prompt = query_dict.get('prompt', '')
-        self.params.code_challenge = query_dict.get('code_challenge', '')
-        self.params.code_challenge_method = query_dict.get('code_challenge_method', '')
+        self.params['client_id'] = query_dict.get('client_id', '')
+        self.params['redirect_uri'] = query_dict.get('redirect_uri', '')
+        self.params['response_type'] = query_dict.get('response_type', '')
+        self.params['scope'] = query_dict.get('scope', '').split()
+        self.params['state'] = query_dict.get('state', '')
+        self.params['nonce'] = query_dict.get('nonce', '')
+        self.params['prompt'] = query_dict.get('prompt', '')
+        self.params['code_challenge'] = query_dict.get('code_challenge', '')
+        self.params['code_challenge_method'] = query_dict.get('code_challenge_method', '')
 
     def validate_params(self):
         # Client validation.
         try:
-            self.client = Client.objects.get(client_id=self.params.client_id)
+            self.client = Client.objects.get(client_id=self.params['client_id'])
         except Client.DoesNotExist:
-            logger.debug('[Authorize] Invalid client identifier: %s', self.params.client_id)
+            logger.debug('[Authorize] Invalid client identifier: %s', self.params['client_id'])
             raise ClientIdError()
 
         # Redirect URI validation.
-        if self.is_authentication and not self.params.redirect_uri:
+        if self.is_authentication and not self.params['redirect_uri']:
             logger.debug('[Authorize] Missing redirect uri.')
             raise RedirectUriError()
-        clean_redirect_uri = urlsplit(self.params.redirect_uri)
+        clean_redirect_uri = urlsplit(self.params['redirect_uri'])
         clean_redirect_uri = urlunsplit(clean_redirect_uri._replace(query=''))
         if not (clean_redirect_uri in self.client.redirect_uris):
-            logger.debug('[Authorize] Invalid redirect uri: %s', self.params.redirect_uri)
+            logger.debug('[Authorize] Invalid redirect uri: %s', self.params['redirect_uri'])
             raise RedirectUriError()
 
         # Grant type validation.
         if not self.grant_type:
-            logger.debug('[Authorize] Invalid response type: %s', self.params.response_type)
-            raise AuthorizeError(self.params.redirect_uri, 'unsupported_response_type',
-                self.grant_type)
+            logger.debug('[Authorize] Invalid response type: %s', self.params['response_type'])
+            raise AuthorizeError(self.params['redirect_uri'], 'unsupported_response_type', self.grant_type)
 
         # Nonce parameter validation.
-        if self.is_authentication and self.grant_type == 'implicit' and not self.params.nonce:
-            raise AuthorizeError(self.params.redirect_uri, 'invalid_request',
-                self.grant_type)
+        if self.is_authentication and self.grant_type == 'implicit' and not self.params['nonce']:
+            raise AuthorizeError(self.params['redirect_uri'], 'invalid_request', self.grant_type)
 
         # Response type parameter validation.
-        if self.is_authentication and self.params.response_type != self.client.response_type:
-            raise AuthorizeError(self.params.redirect_uri, 'invalid_request',
-                self.grant_type)
+        if self.is_authentication and self.params['response_type'] != self.client.response_type:
+            raise AuthorizeError(self.params['redirect_uri'], 'invalid_request', self.grant_type)
 
         # PKCE validation of the transformation method.
-        if self.params.code_challenge:
-            if not (self.params.code_challenge_method in ['plain', 'S256']):
-                raise AuthorizeError(self.params.redirect_uri, 'invalid_request', self.grant_type)
+        if self.params['code_challenge']:
+            if not (self.params['code_challenge_method'] in ['plain', 'S256']):
+                raise AuthorizeError(self.params['redirect_uri'], 'invalid_request', self.grant_type)
 
     def create_response_uri(self):
-        uri = urlsplit(self.params.redirect_uri)
+        uri = urlsplit(self.params['redirect_uri'])
         query_params = parse_qs(uri.query)
         query_fragment = parse_qs(uri.fragment)
 
@@ -124,24 +119,24 @@ class AuthorizeEndpoint(object):
                 code = create_code(
                     user=self.request.user,
                     client=self.client,
-                    scope=self.params.scope,
-                    nonce=self.params.nonce,
+                    scope=self.params['scope'],
+                    nonce=self.params['nonce'],
                     is_authentication=self.is_authentication,
-                    code_challenge=self.params.code_challenge,
-                    code_challenge_method=self.params.code_challenge_method)
+                    code_challenge=self.params['code_challenge'],
+                    code_challenge_method=self.params['code_challenge_method'])
                 code.save()
 
             if self.grant_type == 'authorization_code':
                 query_params['code'] = code.code
-                query_params['state'] = self.params.state if self.params.state else ''
+                query_params['state'] = self.params['state'] if self.params['state'] else ''
             elif self.grant_type in ['implicit', 'hybrid']:
                 token = create_token(
                     user=self.request.user,
                     client=self.client,
-                    scope=self.params.scope)
+                    scope=self.params['scope'])
 
                 # Check if response_type must include access_token in the response.
-                if self.params.response_type in ['id_token token', 'token', 'code token', 'code id_token token']:
+                if self.params['response_type'] in ['id_token token', 'token', 'code token', 'code id_token token']:
                     query_fragment['access_token'] = token.access_token
 
                 # We don't need id_token if it's an OAuth2 request.
@@ -149,9 +144,9 @@ class AuthorizeEndpoint(object):
                     kwargs = {
                         'user': self.request.user,
                         'aud': self.client.client_id,
-                        'nonce': self.params.nonce,
+                        'nonce': self.params['nonce'],
                         'request': self.request,
-                        'scope': self.params.scope,
+                        'scope': self.params['scope'],
                     }
                     # Include at_hash when access_token is being returned.
                     if 'access_token' in query_fragment:
@@ -159,7 +154,7 @@ class AuthorizeEndpoint(object):
                     id_token_dic = create_id_token(**kwargs)
 
                     # Check if response_type must include id_token in the response.
-                    if self.params.response_type in ['id_token', 'id_token token', 'code id_token', 'code id_token token']:
+                    if self.params['response_type'] in ['id_token', 'id_token token', 'code id_token', 'code id_token token']:
                         query_fragment['id_token'] = encode_id_token(id_token_dic, self.client)
                 else:
                     id_token_dic = {}
@@ -176,14 +171,11 @@ class AuthorizeEndpoint(object):
 
                 query_fragment['expires_in'] = settings.get('OIDC_TOKEN_EXPIRE')
 
-                query_fragment['state'] = self.params.state if self.params.state else ''
+                query_fragment['state'] = self.params['state'] if self.params['state'] else ''
 
         except Exception as error:
             logger.debug('[Authorize] Error when trying to create response uri: %s', error)
-            raise AuthorizeError(
-                self.params.redirect_uri,
-                'server_error',
-                self.grant_type)
+            raise AuthorizeError(self.params['redirect_uri'], 'server_error', self.grant_type)
 
         uri = uri._replace(query=urlencode(query_params, doseq=True))
         uri = uri._replace(fragment=urlencode(query_fragment, doseq=True))
@@ -208,7 +200,7 @@ class AuthorizeEndpoint(object):
                 'date_given': date_given,
             }
         )
-        uc.scope = self.params.scope
+        uc.scope = self.params['scope']
 
         # Rewrite expires_at and date_given if object already exists.
         if not created:
@@ -225,10 +217,8 @@ class AuthorizeEndpoint(object):
         """
         value = False
         try:
-            uc = UserConsent.objects.get(user=self.request.user,
-                                         client=self.client)
-            if (set(self.params.scope).issubset(uc.scope)) and \
-               not (uc.has_expired()):
+            uc = UserConsent.objects.get(user=self.request.user, client=self.client)
+            if (set(self.params['scope']).issubset(uc.scope)) and not (uc.has_expired()):
                 value = True
         except UserConsent.DoesNotExist:
             pass
@@ -239,9 +229,9 @@ class AuthorizeEndpoint(object):
         """
         Return a list with the description of all the scopes requested.
         """
-        scopes = StandardScopeClaims.get_scopes_info(self.params.scope)
+        scopes = StandardScopeClaims.get_scopes_info(self.params['scope'])
         if settings.get('OIDC_EXTRA_SCOPE_CLAIMS'):
-            scopes_extra = settings.get('OIDC_EXTRA_SCOPE_CLAIMS', import_str=True).get_scopes_info(self.params.scope)
+            scopes_extra = settings.get('OIDC_EXTRA_SCOPE_CLAIMS', import_str=True).get_scopes_info(self.params['scope'])
             for index_extra, scope_extra in enumerate(scopes_extra):
                 for index, scope in enumerate(scopes[:]):
                     if scope_extra['scope'] == scope['scope']:
