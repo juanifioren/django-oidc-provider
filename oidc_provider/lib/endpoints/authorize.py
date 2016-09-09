@@ -151,6 +151,7 @@ class AuthorizeEndpoint(object):
                         'aud': self.client.client_id,
                         'nonce': self.params.nonce,
                         'request': self.request,
+                        'scope': self.params.scope,
                     }
                     # Include at_hash when access_token is being returned.
                     if 'access_token' in query_fragment:

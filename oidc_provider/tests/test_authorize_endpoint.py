@@ -11,7 +11,10 @@ import uuid
 from django.contrib.auth.models import AnonymousUser
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
-from django.test import RequestFactory
+from django.test import (
+    RequestFactory,
+    override_settings,
+)
 from django.test import TestCase
 from jwkest.jwt import JWT
 
@@ -457,12 +460,8 @@ class AuthorizationHybridFlowTestCase(TestCase, AuthorizeEndpointMixin):
         self.state = uuid.uuid4().hex
         self.nonce = uuid.uuid4().hex
 
-    def test_code_idtoken_token_response(self):
-        """
-        Implicit client requesting `id_token token` receives both id token
-        and access token as the result of the authorization request.
-        """
-        data = {
+        # Base data for the auth request.
+        self.data = {
             'client_id': self.client_code_idtoken_token.client_id,
             'redirect_uri': self.client_code_idtoken_token.default_redirect_uri,
             'response_type': self.client_code_idtoken_token.response_type,
@@ -472,7 +471,12 @@ class AuthorizationHybridFlowTestCase(TestCase, AuthorizeEndpointMixin):
             'allow': 'Accept',
         }
 
-        response = self._auth_request('post', data, is_user_authenticated=True)
+    def test_code_idtoken_token_response(self):
+        """
+        Implicit client requesting `id_token token` receives both id token
+        and access token as the result of the authorization request.
+        """
+        response = self._auth_request('post', self.data, is_user_authenticated=True)
 
         self.assertIn('#', response['Location'])
         self.assertIn('access_token', response['Location'])
@@ -485,3 +489,12 @@ class AuthorizationHybridFlowTestCase(TestCase, AuthorizeEndpointMixin):
                                    user=self.user,
                                    client=self.client_code_idtoken_token)
         self.assertEqual(is_code_ok, True, msg='Code returned is invalid.')
+
+    @override_settings(OIDC_TOKEN_EXPIRE=36000)
+    def test_access_token_expiration(self):
+        """
+        Add ten hours of expiration to access_token. Check for the expires_in query in fragment.
+        """
+        response = self._auth_request('post', self.data, is_user_authenticated=True)
+
+        self.assertIn('expires_in=36000', response['Location'])

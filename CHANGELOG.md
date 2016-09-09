@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 ##### Fixed
 - CORS in discovery and userinfo endpoint.
 - Client type public bug when created using the admin.
+- Missing OIDC_TOKEN_EXPIRE setting on implicit flow.
 
 ### [0.3.7] - 2016-08-31
 

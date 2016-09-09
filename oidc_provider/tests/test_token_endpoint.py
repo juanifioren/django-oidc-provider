@@ -10,7 +10,10 @@ except ImportError:
 
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
-from django.test import RequestFactory, override_settings
+from django.test import (
+    RequestFactory,
+    override_settings,
+)
 from django.test import TestCase
 from django.utils import timezone
 from jwkest.jwk import KEYS
@@ -148,7 +151,7 @@ class TokenTestCase(TestCase):
         self.assertEqual(response_dic['token_type'], 'bearer')
         self.assertEqual(response_dic['expires_in'], 720)
         self.assertEqual(id_token['sub'], str(self.user.id))
-        self.assertEqual(id_token['aud'], self.client.client_id)
+        self.assertEqual(id_token['aud'], self.client.client_id);
 
     def test_refresh_token(self):
         """
