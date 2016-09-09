@@ -19,8 +19,7 @@ from oidc_provider import settings
 
 def create_id_token(user, aud, nonce, at_hash=None, request=None):
     """
-    Receives a user object and aud (audience).
-    Then creates the id_token dictionary.
+    Creates the id_token dictionary.
     See: http://openid.net/specs/openid-connect-core-1_0.html#IDToken
 
     Return a dic.
@@ -50,6 +49,9 @@ def create_id_token(user, aud, nonce, at_hash=None, request=None):
 
     if at_hash:
         dic['at_hash'] = at_hash
+
+    if getattr(user, 'email', None):
+        dic['email'] = user.email
 
     processing_hook = settings.get('OIDC_IDTOKEN_PROCESSING_HOOK')
 
