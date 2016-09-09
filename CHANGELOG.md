@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ##### Added
 - Support for Hybrid Flow.
+- New attributes for Clients: Website url, logo, contact email, terms url.
 - Polish translations.
 - Examples section in documentation.
 
