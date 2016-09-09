@@ -37,8 +37,12 @@ class Client(models.Model):
     client_id = models.CharField(max_length=255, unique=True, verbose_name=_(u'Client ID'))
     client_secret = models.CharField(max_length=255, blank=True, default='', verbose_name=_(u'Client SECRET'))
     response_type = models.CharField(max_length=30, choices=RESPONSE_TYPE_CHOICES, verbose_name=_(u'Response Type'))
-    jwt_alg = models.CharField(max_length=10, choices=JWT_ALGS, default='RS256', verbose_name=_(u'JWT Algorithm'))
+    jwt_alg = models.CharField(max_length=10, choices=JWT_ALGS, default='RS256', verbose_name=_(u'JWT Algorithm'), help_text=_(u'Algorithm used to encode ID Tokens.'))
     date_created = models.DateField(auto_now_add=True, verbose_name=_(u'Date Created'))
+    website_url = models.CharField(max_length=255, blank=True, default='', verbose_name=_(u'Website URL'))
+    terms_url = models.CharField(max_length=255, blank=True, default='', verbose_name=_(u'Terms URL'), help_text=_(u'External reference to the privacy policy of the client.'))
+    contact_email = models.CharField(max_length=255, blank=True, default='', verbose_name=_(u'Contact Email'))
+    logo = models.FileField(blank=True, default='', upload_to='oidc_provider/clients', verbose_name=_(u'Logo Image'))
 
     _redirect_uris = models.TextField(default='', verbose_name=_(u'Redirect URIs'), help_text=_(u'Enter each URI on a new line.'))
 
