@@ -95,7 +95,7 @@ Check out an example of how to implement it::
 OIDC_IDTOKEN_EXPIRE
 ===================
 
-OPTIONAL. ``int``. Token object expiration after been delivered.
+OPTIONAL. ``int``. ID Token expiration after been delivered.
 
 Expressed in seconds. Default is ``60*10``.
 
@@ -155,7 +155,7 @@ Expressed in days. Default is ``30*3``.
 OIDC_TOKEN_EXPIRE
 =================
 
-OPTIONAL. ``int``. Token object expiration after been created.
+OPTIONAL. ``int``. Token object (access token) expiration after been created.
 
 Expressed in seconds. Default is ``60*60``.
 
