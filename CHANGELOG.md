@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [0.4.0] - 2016-09-12
+
 ##### Added
 - Support for Hybrid Flow.
 - New attributes for Clients: Website url, logo, contact email, terms url.
