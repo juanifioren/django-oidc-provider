@@ -9,7 +9,6 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
-
 CLIENT_TYPE_CHOICES = [
     ('confidential', 'Confidential'),
     ('public', 'Public'),
@@ -46,6 +45,10 @@ class Client(models.Model):
 
     _redirect_uris = models.TextField(default='', verbose_name=_(u'Redirect URIs'), help_text=_(u'Enter each URI on a new line.'))
 
+    frontchannel_logout_uri = models.URLField(blank=True, verbose_name=_(u'Front-Channel logout URI'), help_text=_(u'URI that this OP should call when a user requests to log out'))
+    frontchannel_logout_session_supported = models.BooleanField(default=False, verbose_name=_(u'Logout session required'), help_text=_(u'Should this OP include the session id as parameter when calling \'frontchannel_logout_uri\'?'))
+    _post_logout_redirect_uris = models.TextField(default='', blank=True, verbose_name=_(u'Post logout redirect URIs'), help_text=_(u'Enter each post logout URI in a new line.'))
+
     class Meta:
         verbose_name = _(u'Client')
         verbose_name_plural = _(u'Clients')
@@ -66,9 +69,26 @@ class Client(models.Model):
         return locals()
     redirect_uris = property(**redirect_uris())
 
+    def post_logout_redirect_uris():
+        def fget(self):
+            return self._post_logout_redirect_uris.splitlines()
+
+        def fset(self, value):
+            self._post_logout_redirect_uris = '\n'.join(value)
+
+        return locals()
+
+    post_logout_redirect_uris = property(**post_logout_redirect_uris())
+
     @property
     def default_redirect_uri(self):
         return self.redirect_uris[0] if self.redirect_uris else ''
+
+    def get_frontchannel_logout_uri(self, iss, sid):
+        if self.frontchannel_logout_session_supported:
+            return '{uri}?iss={iss}&sid={sid}'.format(uri=self.frontchannel_logout_uri, iss=iss, sid=sid)
+        else:
+            return self.frontchannel_logout_uri
 
 
 class BaseCodeTokenModel(models.Model):

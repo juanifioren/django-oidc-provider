@@ -3,13 +3,16 @@ import logging
 from Crypto.PublicKey import RSA
 from django.contrib.auth.views import redirect_to_login, logout
 from django.core.urlresolvers import reverse
+from django.http import HttpResponseBadRequest
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
+from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
-from jwkest import long_to_base64
+from jwkest import long_to_base64, BadSignature, BadSyntax
 
+from oidc_provider import settings
 from oidc_provider.lib.claims import StandardScopeClaims
 from oidc_provider.lib.endpoints.authorize import AuthorizeEndpoint
 from oidc_provider.lib.endpoints.token import TokenEndpoint
@@ -21,8 +24,8 @@ from oidc_provider.lib.errors import (
 )
 from oidc_provider.lib.utils.common import redirect, get_site_url, get_issuer
 from oidc_provider.lib.utils.oauth2 import protected_resource_view
-from oidc_provider.models import RESPONSE_TYPE_CHOICES, RSAKey
-from oidc_provider import settings
+from oidc_provider.lib.utils.token import decode_id_token, client_from_token
+from oidc_provider.models import RESPONSE_TYPE_CHOICES, RSAKey, Client
 
 
 logger = logging.getLogger(__name__)
@@ -203,6 +206,9 @@ class ProviderInfoView(View):
         dic['token_endpoint_auth_methods_supported'] = ['client_secret_post',
                                                         'client_secret_basic']
 
+        dic['frontchannel_logout_supported'] = True
+        dic['frontchannel_logout_session_supported'] = True
+
         response = JsonResponse(dic)
         response['Access-Control-Allow-Origin'] = '*'
 
@@ -232,7 +238,47 @@ class JwksView(View):
 
 
 class LogoutView(View):
-
+    @never_cache
     def get(self, request, *args, **kwargs):
-        # We should actually verify if the requested redirect URI is safe
-        return logout(request, next_page=request.GET.get('post_logout_redirect_uri'))
+        try:
+            id_token_hint = request.GET.get('id_token_hint', None)
+            requested_post_logout_redirect = request.GET.get('post_logout_redirect_uri', None)
+            state = request.GET.get('state', None)
+
+            if id_token_hint is not None:
+                _, client = self.extract_id_token_hint(id_token_hint, request.user)
+                post_logout_redirect = self.get_post_logout_redirect(client, requested_post_logout_redirect, state)
+                return logout(request, next_page=post_logout_redirect)
+            else:
+                return logout(request, next_page=settings.get('LOGIN_URL'))
+
+        except ValueError as e:
+            return HttpResponseBadRequest(e.args)
+
+    def extract_id_token_hint(self, id_token_hint, authenticated_user):
+        try:
+            client_id = client_from_token(id_token_hint)
+            client = Client.objects.get(client_id=client_id)
+            decoded_token = decode_id_token(id_token_hint, client)
+            sub = settings.get('OIDC_IDTOKEN_SUB_GENERATOR', import_str=True)(user=authenticated_user)
+            if decoded_token.get('sub', None) != sub:
+                raise ValueError('\'id_token_hint\' references a user that\'s no longer valid')
+            return decoded_token, client
+        except Client.DoesNotExist:
+            raise ValueError
+        except BadSignature:
+            raise ValueError
+        except BadSyntax:
+            raise ValueError
+
+    def get_post_logout_redirect(self, client, requested_post_logout_redirect, state):
+        if requested_post_logout_redirect is None:
+            return settings.get('LOGIN_URL')
+        else:
+            if requested_post_logout_redirect in client.post_logout_redirect_uris:
+                if state is None:
+                    return requested_post_logout_redirect
+                else:
+                    return '{url}?state={state}'.format(url=requested_post_logout_redirect, state=state)
+            else:
+                raise ValueError('\'post_logout_redirect_uri\' is not registered')
