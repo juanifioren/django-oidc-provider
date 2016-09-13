@@ -516,6 +516,8 @@ class AuthorizationImplicitFlowTestCase(TestCase, AuthorizeEndpointMixin):
         self.client_public_no_access = create_fake_client(response_type='id_token', is_public=True)
         self.client_multiple_response_types = create_fake_client(
             response_type=('id_token', 'id_token token'))
+        self.client_logout_session_supported = create_fake_client(response_type='id_token',
+                                                                  logout_session_supported=True)
         self.state = uuid.uuid4().hex
         self.nonce = uuid.uuid4().hex
 
@@ -647,6 +649,32 @@ class AuthorizationImplicitFlowTestCase(TestCase, AuthorizeEndpointMixin):
 
         self.assertNotIn('at_hash', id_token)
 
+    def test_idtoken_sid(self):
+	        """
+	        Implicit client which supports logout session receives
+	        `sid` in `id_token`.
+	        """
+	        data = {
+	            'client_id': self.client_logout_session_supported.client_id,
+	            'redirect_uri': self.client_logout_session_supported.default_redirect_uri,
+	            'response_type': self.client_logout_session_supported.response_type,
+	            'scope': 'openid email',
+	            'state': self.state,
+	            'nonce': self.nonce,
+	            'allow': 'Accept',
+	        }
+	
+	        response = self._auth_request('post', data, is_user_authenticated=True)
+	
+	        self.assertIn('id_token', response['Location'])
+	
+	        # obtain `id_token` portion of Location
+	        components = urlsplit(response['Location'])
+	        fragment = parse_qs(components[4])
+	        id_token = JWT().unpack(fragment["id_token"][0].encode('utf-8')).payload()
+	
+	        self.assertIn('sid', id_token)
+	
     def test_public_client_implicit_auto_approval(self):
         """
         Public clients using Implicit Flow should be able to reuse consent.

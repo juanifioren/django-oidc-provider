@@ -9,7 +9,7 @@ from jwkest.jwk import SYMKey
 from jwkest.jws import JWS
 from jwkest.jwt import JWT
 
-from oidc_provider.lib.utils.common import get_issuer, run_processing_hook
+from oidc_provider.lib.utils.common import get_issuer, get_user_sid, run_processing_hook
 from oidc_provider.lib.claims import StandardScopeClaims
 from oidc_provider.models import (
     Code,
@@ -19,7 +19,7 @@ from oidc_provider.models import (
 from oidc_provider import settings
 
 
-def create_id_token(token, user, aud, nonce='', at_hash='', request=None, scope=None):
+def create_id_token(token, user, aud, nonce='', at_hash='', request=None, scope=[], sid=False):
     """
     Creates the id_token dictionary.
     See: http://openid.net/specs/openid-connect-core-1_0.html#IDToken
@@ -53,6 +53,9 @@ def create_id_token(token, user, aud, nonce='', at_hash='', request=None, scope=
     if at_hash:
         dic['at_hash'] = at_hash
 
+    if sid:
+        dic['sid'] = get_user_sid(user)
+
     # Inlude (or not) user standard claims in the id_token.
     if settings.get('OIDC_IDTOKEN_INCLUDE_CLAIMS'):
         if settings.get('OIDC_EXTRA_SCOPE_CLAIMS'):
@@ -81,8 +84,9 @@ def encode_id_token(payload, client):
 
 def decode_id_token(token, client):
     """
-    Represent the ID Token as a JSON Web Token (JWT).
-    Return a hash.
+    Takes a JSON Web Token (JWT) and signing client
+    to verify and decode the payload.
+    Return a dict.
     """
     keys = get_client_alg_keys(client)
     return JWS().verify_compact(token, keys=keys)

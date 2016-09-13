@@ -585,6 +585,23 @@ class TokenTestCase(TestCase):
 
         self.assertTrue(id_token.get('at_hash'))
 
+    def test_id_token_contains_sid(self):
+        """
+        If Client supports logout session, it token should include sid.
+        """
+        self.client = create_fake_client(response_type='code', logout_session_supported=True)
+
+        code = self._create_code()
+
+        post_data = self._auth_code_post_data(code=code.code)
+
+        response = self._post_request(post_data)
+
+        response_dic = json.loads(response.content.decode('utf-8'))
+        id_token = JWT().unpack(response_dic['id_token'].encode('utf-8')).payload()
+
+        self.assertTrue(id_token.get('sid'))
+
     def test_idtoken_sign_validation(self):
         """
         We MUST validate the signature of the ID Token according to JWS

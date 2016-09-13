@@ -7,8 +7,11 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 from mock import mock
 
-from oidc_provider.lib.utils.common import get_issuer, get_browser_state_or_default
+from oidc_provider.lib.utils.common import get_issuer, get_browser_state_or_default, get_user_sid
+from oidc_provider.models import Client, Token
+
 from oidc_provider.lib.utils.token import create_token, create_id_token
+from oidc_provider.lib.utils.user import get_authorized_clients
 from oidc_provider.tests.app.utils import create_fake_user, create_fake_client
 
 
@@ -51,6 +54,23 @@ class CommonTest(TestCase):
         self.assertEqual(get_issuer(site_url='http://127.0.0.1:9000',
                                     request=request),
                          'http://127.0.0.1:9000/openid')
+
+    def test_get_user_sid(self):
+        user1 = create_fake_user(username='johndoe')
+        user1.last_login = timezone.datetime(year=2000, month=1, day=1)
+
+        self.assertEqual('2b2b9cff7e1eb739f158a59f98daa0fdbe6f43a66b6f51892f639d72', get_user_sid(user1))
+
+        # same date as user1, should generate a different sid
+        user2 = create_fake_user(username='johndoe2')
+        user2.last_login = timezone.datetime(year=2000, month=1, day=1)
+
+        self.assertEqual('9225e0f32cea33183db63f5c7609e4d4a76e63bcfe0cd325ee775f4e', get_user_sid(user2))
+
+        # change login date for user1
+        user1.last_login = timezone.datetime(year=2020, month=1, day=1)
+
+        self.assertEqual('42ca90ad794bf94ce23f56e03a46e0b24a6e5822a6c3f966066908f6', get_user_sid(user1))
 
 
 def timestamp_to_datetime(timestamp):
@@ -98,3 +118,30 @@ class BrowserStateTest(TestCase):
         request.session = mock.Mock(session_key='my_session_key')
         state = get_browser_state_or_default(request)
         self.assertEqual(state, sha224('my_session_key'.encode('utf-8')).hexdigest())
+
+
+class UserTest(TestCase):
+    def setUp(self):
+        self.user = create_fake_user()
+        self.oidc_client = Client.objects.create(client_id='1')
+
+    def test_get_authorized_clients(self):
+        Token.objects.create(user=self.user,
+                             client=self.oidc_client,
+                             access_token='token1',
+                             refresh_token='rtoken1',
+                             expires_at=timezone.now())
+
+        Token.objects.create(user=self.user,
+                             client=self.oidc_client,
+                             access_token='token2',
+                             refresh_token='rtoken2',
+                             expires_at=timezone.now())
+
+        clients = get_authorized_clients(self.user)
+
+        self.assertEqual(1, len(clients))
+
+        client = next(iter(clients))
+        self.assertTrue(isinstance(client, Client))
+        self.assertEqual(self.oidc_client.pk, client.pk)

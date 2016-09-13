@@ -23,6 +23,7 @@ from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
@@ -283,6 +284,9 @@ class ProviderInfoView(View):
         dic['token_endpoint_auth_methods_supported'] = ['client_secret_post',
                                                         'client_secret_basic']
 
+        dic['frontchannel_logout_supported'] = True
+        dic['frontchannel_logout_session_supported'] = True
+
         if settings.get('OIDC_SESSION_MANAGEMENT_ENABLE'):
             dic['check_session_iframe'] = site_url + reverse('oidc_provider:check-session-iframe')
 
@@ -314,6 +318,7 @@ class JwksView(View):
 
 
 class EndSessionView(LogoutView):
+    @never_cache
     def dispatch(self, request, *args, **kwargs):
         id_token_hint = request.GET.get('id_token_hint', '')
         post_logout_redirect_uri = request.GET.get('post_logout_redirect_uri', '')

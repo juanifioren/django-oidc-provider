@@ -64,6 +64,9 @@ class ClientAdmin(admin.ModelAdmin):
         [_(u'Session Management'), {
             'fields': ('_post_logout_redirect_uris',),
         }],
+        [_(u'Front-Channel Logout'), {
+            'fields': ('frontchannel_logout_uri', 'frontchannel_logout_session_supported'),
+        }]
     ]
     form = ClientForm
     list_display = ['name', 'client_id', 'response_type_descriptions', 'date_created']

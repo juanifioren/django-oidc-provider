@@ -166,6 +166,7 @@ class AuthorizeEndpoint(object):
                         'nonce': self.params['nonce'],
                         'request': self.request,
                         'scope': self.params['scope'],
+                        'sid': self.client.frontchannel_logout_session_supported,
                     }
                     # Include at_hash when access_token is being returned.
                     if 'access_token' in query_fragment:

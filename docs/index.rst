@@ -10,6 +10,7 @@ Also implements the following specifications:
 * `OAuth 2.0 for Native Apps <https://tools.ietf.org/html/draft-ietf-oauth-native-apps-01>`_
 * `OAuth 2.0 Resource Owner Password Credentials Grant <https://tools.ietf.org/html/rfc6749#section-4.3>`_
 * `Proof Key for Code Exchange by OAuth Public Clients <https://tools.ietf.org/html/rfc7636>`_
+* `Front-Channel Logout (draft 01) <http://openid.net/specs/openid-connect-frontchannel-1_0.html>`_
 
 --------------------------------------------------------------------------------
 
@@ -36,6 +37,7 @@ Contents:
    sections/accesstokens
    sections/sessionmanagement
    sections/tokenintrospection
+   sections/logout
    sections/settings
    sections/signals
    sections/examples
