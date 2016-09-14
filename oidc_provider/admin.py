@@ -64,6 +64,16 @@ class ClientAdmin(admin.ModelAdmin):
     list_display = ['name', 'client_id', 'response_type', 'date_created']
     readonly_fields = ['date_created']
     search_fields = ['name']
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'client_type', 'client_id', 'client_secret', 'response_type', 'jwt_alg',
+                       '_redirect_uris', 'website_url', 'terms_url', 'contact_email', 'logo')
+        }),
+        ('Front-Channel logout', {
+            'fields': ('frontchannel_logout_uri', 'frontchannel_logout_session_supported',
+                       '_post_logout_redirect_uris')
+        })
+    )
 
 
 @admin.register(Code)

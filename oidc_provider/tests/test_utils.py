@@ -1,6 +1,8 @@
 from django.test import TestCase
+from django.utils import timezone
 
-from oidc_provider.lib.utils.common import get_issuer
+from oidc_provider.lib.utils.common import get_issuer, get_user_sid
+from oidc_provider.tests.app.utils import create_fake_user
 
 
 class Request(object):
@@ -42,3 +44,20 @@ class CommonTest(TestCase):
         self.assertEqual(get_issuer(site_url='http://127.0.0.1:9000',
                                     request=request),
                          'http://127.0.0.1:9000/openid')
+
+    def test_get_user_sid(self):
+        user1 = create_fake_user(username='johndoe')
+        user1.last_login = timezone.datetime(year=2000,month=1,day=1)
+
+        self.assertEqual('2b2b9cff7e1eb739f158a59f98daa0fdbe6f43a66b6f51892f639d72', get_user_sid(user1))
+
+        # same date as user1, should generate a different sid
+        user2 = create_fake_user(username='johndoe2')
+        user2.last_login = timezone.datetime(year=2000, month=1, day=1)
+
+        self.assertEqual('9225e0f32cea33183db63f5c7609e4d4a76e63bcfe0cd325ee775f4e', get_user_sid(user2))
+
+        # change login date for user1
+        user1.last_login = timezone.datetime(year=2020, month=1, day=1)
+
+        self.assertEqual('42ca90ad794bf94ce23f56e03a46e0b24a6e5822a6c3f966066908f6', get_user_sid(user1))

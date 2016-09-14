@@ -19,23 +19,23 @@ FAKE_CODE_CHALLENGE = 'YlYXEqXuRm-Xgi2BOUiK50JW1KsGTX6F1TDnZSC8VTg'
 FAKE_CODE_VERIFIER = 'SmxGa0XueyNh5bDgTcSrqzAh2_FmXEqU8kDT6CuXicw'
 
 
-def create_fake_user():
+def create_fake_user(username='johndoe', password='1234'):
     """
     Create a test user.
 
     Return a User object.
     """
     user = User()
-    user.username = 'johndoe'
-    user.email = 'johndoe@example.com'
-    user.set_password('1234')
+    user.username = username
+    user.email = '%s@example.com' % username
+    user.set_password(password)
 
     user.save()
 
     return user
 
 
-def create_fake_client(response_type, is_public=False):
+def create_fake_client(response_type, is_public=False, jwt_alg=None, logout_session_supported=False):
     """
     Create a test client, response_type argument MUST be:
     'code', 'id_token' or 'id_token token'.
@@ -52,6 +52,10 @@ def create_fake_client(response_type, is_public=False):
         client.client_secret = str(random.randint(1, 999999)).zfill(6)
     client.response_type = response_type
     client.redirect_uris = ['http://example.com/']
+    client.frontchannel_logout_session_supported = logout_session_supported
+
+    if jwt_alg:
+        client.jwt_alg = jwt_alg
 
     client.save()
 
