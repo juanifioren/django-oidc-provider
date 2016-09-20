@@ -109,4 +109,4 @@ Inside your oidc_provider_settings.py file add the following class::
         )
 
 .. note::
-    If a field is empty or ``None`` inside the dictionary your return on ``scope_scopename`` method, it will be cleaned from the response.
+    If a field is empty or ``None`` inside the dictionary you return on the ``scope_scopename`` method, it will be cleaned from the response.
