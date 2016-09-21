@@ -42,7 +42,7 @@ def get_issuer(site_url=None, request=None):
         .split('/.well-known/openid-configuration')[0]
     issuer = site_url + path
 
-    return issuer
+    return str(issuer)
 
 
 def default_userinfo(claims, user):
