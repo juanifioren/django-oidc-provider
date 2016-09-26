@@ -29,6 +29,7 @@ Contents:
    sections/scopesclaims
    sections/userconsent
    sections/oauth2
+   sections/accesstokens
    sections/settings
    sections/examples
    sections/contribute
