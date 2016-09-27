@@ -10,7 +10,7 @@ Access tokens generally have a lifetime of only a couple of hours, you can use `
 Obtaining an Access token
 =========================
 
-Go to the admin site and create a public client with a response_type ``id_token token`` and a redirect_uri ``http://example.org/``.
+Go to the admin site and create a public client with ``response_type = code`` and ``redirect_uri = http://example.org/``.
 
 Open your browser and accept consent at::
 
@@ -22,7 +22,15 @@ In the redirected URL you should have a ``code`` parameter included as query str
 
 We use ``code`` value to obtain ``access_token`` and ``refresh_token``::
 
-    curl -X POST -H "Authorization: Basic NjUxNDYyOjM3YjFjNGZmODI2ZjhkNzhiZDQ1ZTI1YmFkNzVhMmMw" -H "Cache-Control: no-cache" -H "Content-Type: multipart/form-data" -F "code=b9cedb346ee04f15ab1d3ac13da92002" -F "redirect_uri=http://example.org/" -F "grant_type=authorization_code" "http://localhost:8000/token/"
+    curl -X POST \
+        -H "Cache-Control: no-cache" \
+        -H "Content-Type: application/x-www-form-urlencoded" \
+        "http://localhost:8000/token/" \
+        -d "client_id=651462" \
+        -d "client_secret=37b1c4ff826f8d78bd45e25bad75a2c0" \
+        -d "code=b9cedb346ee04f15ab1d3ac13da92002" \
+        -d "redirect_uri=http://example.org/" \
+        -d "grant_type=authorization_code"
 
 Example response::
 
@@ -36,7 +44,9 @@ Example response::
 
 Then you can grab the access token and ask user data by doing a GET request to the ``/userinfo`` endpoint::
 
-    http://localhost:8000/userinfo/?access_token=82b35f3d810f4cf49dd7a52d4b22a594
+    curl -X GET \
+        -H "Cache-Control: no-cache" \
+        "http://localhost:8000/userinfo/?access_token=82b35f3d810f4cf49dd7a52d4b22a594"
 
 Expiration and Refresh of Access Tokens
 =======================================
@@ -45,4 +55,10 @@ If you receive a ``401 Unauthorized`` status when issuing access token probably 
 
 The RP application obtains a new access token by sending a POST request to the ``/token`` endpoint with the following request parameters::
 
-    curl -X POST -H "Cache-Control: no-cache" -H "Content-Type: multipart/form-data" -F "client_id=651462" -F "grant_type=refresh_token" -F "refresh_token=0bac2d80d75d46658b0b31d3778039bb" "http://localhost:8000/token/"
+    curl -X POST \
+        -H "Cache-Control: no-cache" \
+        -H "Content-Type: application/x-www-form-urlencoded" \
+        "http://localhost:8000/token/" \
+        -d "client_id=651462" \
+        -d "grant_type=refresh_token" \
+        -d "refresh_token=0bac2d80d75d46658b0b31d3778039bb"
