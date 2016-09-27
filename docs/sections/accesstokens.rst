@@ -10,7 +10,7 @@ Access tokens generally have a lifetime of only a couple of hours, you can use `
 Obtaining an Access token
 =========================
 
-Go to the admin site and create a public client with ``response_type = code`` and ``redirect_uri = http://example.org/``.
+Go to the admin site and create a confidential client with ``response_type = code`` and ``redirect_uri = http://example.org/``.
 
 Open your browser and accept consent at::
 
