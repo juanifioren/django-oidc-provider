@@ -1,6 +1,6 @@
 import logging
 
-from Crypto.PublicKey import RSA
+from Cryptodome.PublicKey import RSA
 from django.contrib.auth.views import redirect_to_login, logout
 from django.core.urlresolvers import reverse
 from django.http import JsonResponse
