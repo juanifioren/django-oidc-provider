@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [0.4.1] - 2016-10-03
+
+##### Changed
+- Update pyjwkest to version 1.3.0.
+- Use Cryptodome instead of Crypto lib.
+
 ### [0.4.0] - 2016-09-12
 
 ##### Added
