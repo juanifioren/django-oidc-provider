@@ -1,6 +1,6 @@
 # Example Project
 
-![Example Project](http://i.imgur.com/IK3OZjx.png)
+![Example Project](https://s17.postimg.org/4jjj8lavj/Screen_Shot_2016_09_07_at_15_58_43.png)
 
 Run your own OIDC provider in a second. This is a Django app with all the necessary things to work with `django-oidc-provider` package.
 
@@ -31,6 +31,7 @@ Run your provider.
 ```bash
 $ python manage.py migrate
 $ python manage.py creatersakey
+$ python manage.py createsuperuser
 $ python manage.py runserver
 ```
 

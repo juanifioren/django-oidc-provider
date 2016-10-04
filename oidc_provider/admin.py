@@ -39,7 +39,7 @@ class ClientForm(ModelForm):
             elif (self.cleaned_data['client_type'] == 'confidential') and instance.client_secret:
                 secret = instance.client_secret
         else:
-            if (instance.client_type == 'confidential'):
+            if (self.cleaned_data['client_type'] == 'confidential'):
                 secret = md5(uuid4().hex.encode()).hexdigest()
 
         return secret
@@ -47,7 +47,7 @@ class ClientForm(ModelForm):
 
 @admin.register(Client)
 class ClientAdmin(admin.ModelAdmin):
-    
+
     form = ClientForm
     list_display = ['name', 'client_id', 'response_type', 'date_created']
     readonly_fields = ['date_created']
@@ -56,14 +56,14 @@ class ClientAdmin(admin.ModelAdmin):
 
 @admin.register(Code)
 class CodeAdmin(admin.ModelAdmin):
-    
+
     def has_add_permission(self, request):
         return False
 
 
 @admin.register(Token)
 class TokenAdmin(admin.ModelAdmin):
-    
+
     def has_add_permission(self, request):
         return False
 

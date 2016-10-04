@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+##### Added
+- Polish translations.
+- Examples section in documentation.
+
+##### Fixed
+- CORS in discovery and userinfo endpoint.
+- Client type public bug when created using the admin.
+
 ### [0.3.7] - 2016-08-31
 
 ##### Added

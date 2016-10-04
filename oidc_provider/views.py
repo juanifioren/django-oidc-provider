@@ -171,6 +171,7 @@ def userinfo(request, *args, **kwargs):
         dic.update(extra_claims.create_response_dic())
 
     response = JsonResponse(dic, status=200)
+    response['Access-Control-Allow-Origin'] = '*'
     response['Cache-Control'] = 'no-store'
     response['Pragma'] = 'no-cache'
 
@@ -203,7 +204,10 @@ class ProviderInfoView(View):
         dic['token_endpoint_auth_methods_supported'] = ['client_secret_post',
                                                         'client_secret_basic']
 
-        return JsonResponse(dic)
+        response = JsonResponse(dic)
+        response['Access-Control-Allow-Origin'] = '*'
+
+        return response
 
 
 class JwksView(View):
