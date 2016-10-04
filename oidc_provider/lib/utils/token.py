@@ -2,7 +2,7 @@ from datetime import timedelta
 import time
 import uuid
 
-from Crypto.PublicKey.RSA import importKey
+from Cryptodome.PublicKey.RSA import importKey
 from django.utils import timezone
 from jwkest.jwk import RSAKey as jwk_RSAKey
 from jwkest.jwk import SYMKey
@@ -17,10 +17,9 @@ from oidc_provider.models import (
 from oidc_provider import settings
 
 
-def create_id_token(user, aud, nonce, at_hash=None, request=None):
+def create_id_token(user, aud, nonce, at_hash=None, request=None, scope=[]):
     """
-    Receives a user object and aud (audience).
-    Then creates the id_token dictionary.
+    Creates the id_token dictionary.
     See: http://openid.net/specs/openid-connect-core-1_0.html#IDToken
 
     Return a dic.
@@ -50,6 +49,9 @@ def create_id_token(user, aud, nonce, at_hash=None, request=None):
 
     if at_hash:
         dic['at_hash'] = at_hash
+
+    if ('email' in scope) and getattr(user, 'email', None):
+        dic['email'] = user.email
 
     processing_hook = settings.get('OIDC_IDTOKEN_PROCESSING_HOOK')
 

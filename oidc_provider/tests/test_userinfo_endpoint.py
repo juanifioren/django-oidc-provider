@@ -34,14 +34,20 @@ class UserInfoTestCase(TestCase):
         """
         Generate a valid token.
         """
-        id_token_dic = create_id_token(self.user,
-                                       self.client.client_id, FAKE_NONCE)
+        scope = ['openid', 'email'] + extra_scope
+
+        id_token_dic = create_id_token(
+            user=self.user,
+            aud=self.client.client_id,
+            nonce=FAKE_NONCE,
+            scope=scope,
+        )
 
         token = create_token(
             user=self.user,
             client=self.client,
             id_token_dic=id_token_dic,
-            scope=['openid', 'email'] + extra_scope)
+            scope=scope)
         token.save()
 
         return token

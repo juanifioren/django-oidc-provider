@@ -2,8 +2,8 @@
 
 [![Python Versions](https://img.shields.io/pypi/pyversions/django-oidc-provider.svg)](https://pypi.python.org/pypi/django-oidc-provider)
 [![PyPI Versions](https://img.shields.io/pypi/v/django-oidc-provider.svg)](https://pypi.python.org/pypi/django-oidc-provider)
-[![Travis](https://travis-ci.org/juanifioren/django-oidc-provider.svg?branch=develop)](https://travis-ci.org/juanifioren/django-oidc-provider)
-[![PyPI Downloads](https://img.shields.io/pypi/dm/django-oidc-provider.svg)](https://pypi.python.org/pypi/django-oidc-provider)
+[![Documentation Status](https://readthedocs.org/projects/django-oidc-provider/badge/?version=v0.4.x)](http://django-oidc-provider.readthedocs.io/en/v0.4.x/?badge=v0.4.x)
+[![Travis](https://travis-ci.org/juanifioren/django-oidc-provider.svg?branch=v0.4.x)](https://travis-ci.org/juanifioren/django-oidc-provider)
 
 ## About OpenID
 
@@ -15,7 +15,7 @@ OpenID Connect is a simple identity layer on top of the OAuth 2.0 protocol, whic
 
 Support for Python 3 and 2. Also latest versions of django.
 
-[Read docs for more info](http://django-oidc-provider.readthedocs.org/) or [see the changelog here](https://github.com/juanifioren/django-oidc-provider/blob/master/CHANGELOG.md).
+[Read docs for more info](http://django-oidc-provider.readthedocs.org/).
 
 ## Contributing
 

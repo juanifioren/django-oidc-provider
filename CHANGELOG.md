@@ -4,13 +4,24 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [0.4.1] - 2016-10-03
+
+##### Changed
+- Update pyjwkest to version 1.3.0.
+- Use Cryptodome instead of Crypto lib.
+
+### [0.4.0] - 2016-09-12
+
 ##### Added
+- Support for Hybrid Flow.
+- New attributes for Clients: Website url, logo, contact email, terms url.
 - Polish translations.
 - Examples section in documentation.
 
 ##### Fixed
 - CORS in discovery and userinfo endpoint.
 - Client type public bug when created using the admin.
+- Missing OIDC_TOKEN_EXPIRE setting on implicit flow.
 
 ### [0.3.7] - 2016-08-31
 

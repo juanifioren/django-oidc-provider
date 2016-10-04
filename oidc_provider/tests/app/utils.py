@@ -60,15 +60,14 @@ def create_fake_client(response_type, is_public=False):
 
 def is_code_valid(url, user, client):
     """
-    Check if the code inside the url is valid.
+    Check if the code inside the url is valid. Supporting both query string and fragment.
     """
     try:
         parsed = urlsplit(url)
-        params = parse_qs(parsed.query)
+        params = parse_qs(parsed.query or parsed.fragment)
         code = params['code'][0]
         code = Code.objects.get(code=code)
-        is_code_ok = (code.client == client) and \
-                     (code.user == user)
+        is_code_ok = (code.client == client) and (code.user == user)
     except:
         is_code_ok = False
 
