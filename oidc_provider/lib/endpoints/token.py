@@ -2,6 +2,9 @@ from base64 import b64decode, urlsafe_b64encode
 import hashlib
 import logging
 import re
+
+from oidc_provider.lib.utils.common import cleanup_url_from_query_string
+
 try:
     from urllib.parse import unquote
 except ImportError:
@@ -86,7 +89,8 @@ class TokenEndpoint(object):
                 raise TokenError('invalid_client')
 
         if self.params['grant_type'] == 'authorization_code':
-            if not (self.params['redirect_uri'] in self.client.redirect_uris):
+            clean_redirect_uri = cleanup_url_from_query_string(self.params['redirect_uri'])
+            if not (clean_redirect_uri in self.client.redirect_uris):
                 logger.debug('[Token] Invalid redirect uri: %s', self.params['redirect_uri'])
                 raise TokenError('invalid_client')
 
