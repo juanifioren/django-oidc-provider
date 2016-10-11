@@ -213,6 +213,31 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
         self.assertIn('invalid_grant', response.content.decode('utf-8'))
 
+    def test_client_redirect_url(self):
+        """
+        Validate that client redirect URIs with query strings match registered
+        URIs, and that unregistered URIs are rejected.
+
+        source: https://github.com/jerrykan/django-oidc-provider/blob/2f54e537666c689dd8448f8bbc6a3a0244b01a97/oidc_provider/tests/test_token_endpoint.py
+        """
+        SIGKEYS = self._get_keys()
+        code = self._create_code()
+        post_data = self._auth_code_post_data(code=code.code)
+
+        # Unregistered URI
+        post_data['redirect_uri'] = 'http://invalid.example.org'
+
+        response = self._post_request(post_data)
+
+        self.assertIn('invalid_client', response.content.decode('utf-8')),
+
+        # Registered URI contained a query string
+        post_data['redirect_uri'] = 'http://example.com/?client=OidcClient'
+
+        response = self._post_request(post_data)
+
+        self.assertNotIn('invalid_client', response.content.decode('utf-8')),
+
     def test_request_methods(self):
         """
         Client sends an HTTP POST request to the Token Endpoint. Other request
