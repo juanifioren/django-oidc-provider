@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+##### Added
+- Support for client redirect URIs with query strings.
+
 ### [0.4.1] - 2016-10-03
 
 ##### Changed
