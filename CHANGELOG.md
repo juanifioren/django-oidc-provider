@@ -7,6 +7,9 @@ All notable changes to this project will be documented in this file.
 ##### Added
 - Support for client redirect URIs with query strings.
 
+##### Fixed
+- Bug when generating secret_key value using admin.
+
 ### [0.4.1] - 2016-10-03
 
 ##### Changed
