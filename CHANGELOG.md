@@ -10,6 +10,12 @@ All notable changes to this project will be documented in this file.
 ##### Fixed
 - Bug when generating secret_key value using admin.
 
+##### Changed
+- Client is available to OIDC_EXTRA_SCOPE_CLAIMS implementations via `self.client`.
+
+##### Incompatible changes
+- The constructor signature for `ScopeClaims` has changed, it now is called with the `Token` as its single argument.
+
 ### [0.4.1] - 2016-10-03
 
 ##### Changed
