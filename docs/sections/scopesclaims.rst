@@ -96,6 +96,7 @@ Inside your oidc_provider_settings.py file add the following class::
             # self.user - Django user instance.
             # self.userinfo - Dict returned by OIDC_USERINFO function.
             # self.scopes - List of scopes requested.
+            # self.client - Client requesting this claims.
             dic = {
                 'bar': 'Something dynamic here',
             }
