@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [0.4.2] - 2016-10-13
+
 ##### Added
 - Support for client redirect URIs with query strings.
 
@@ -12,8 +14,6 @@ All notable changes to this project will be documented in this file.
 
 ##### Changed
 - Client is available to OIDC_EXTRA_SCOPE_CLAIMS implementations via `self.client`.
-
-##### Incompatible changes
 - The constructor signature for `ScopeClaims` has changed, it now is called with the `Token` as its single argument.
 
 ### [0.4.1] - 2016-10-03
