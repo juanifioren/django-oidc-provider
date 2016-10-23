@@ -41,8 +41,8 @@ Add the provider urls::
 
 Generate server RSA key and run migrations (if you don't)::
 
-    $ python manage.py creatersakey
     $ python manage.py migrate
+    $ python manage.py creatersakey
 
 Add required variables to your project settings::
 

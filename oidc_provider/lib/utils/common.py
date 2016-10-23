@@ -17,9 +17,7 @@ def cleanup_url_from_query_string(uri):
     :type uri: str
     :return: cleaned URI without query string
     """
-
     clean_uri = urlsplit(uri)
-    # noinspection PyProtectedMember
     clean_uri = urlunsplit(clean_uri._replace(query=''))
     return clean_uri
 

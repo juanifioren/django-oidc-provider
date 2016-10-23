@@ -43,7 +43,8 @@ class TokenEndpoint(object):
 
         self.params['client_id'] = client_id
         self.params['client_secret'] = client_secret
-        self.params['redirect_uri'] = unquote(self.request.POST.get('redirect_uri', ''))
+        self.params['redirect_uri'] = unquote(
+            self.request.POST.get('redirect_uri', '').split('?', 1)[0])
         self.params['grant_type'] = self.request.POST.get('grant_type', '')
         self.params['code'] = self.request.POST.get('code', '')
         self.params['state'] = self.request.POST.get('state', '')
