@@ -6,6 +6,24 @@ from django.http import HttpResponse
 
 from oidc_provider import settings
 
+try:
+    from urlparse import urlsplit, urlunsplit
+except ImportError:
+    from urllib.parse import urlsplit, urlunsplit
+
+
+def cleanup_url_from_query_string(uri):
+    """
+    Function used to clean up the uri from any query string, used i.e. by endpoints to validate redirect_uri
+
+    :param uri: URI to clean from query string
+    :type uri: str
+    :return: cleaned URI without query string
+    """
+    clean_uri = urlsplit(uri)
+    clean_uri = urlunsplit(clean_uri._replace(query=''))
+    return clean_uri
+
 
 def redirect(uri):
     """
@@ -45,7 +63,7 @@ def get_issuer(site_url=None, request=None):
         .split('/.well-known/openid-configuration')[0]
     issuer = site_url + path
 
-    return issuer
+    return str(issuer)
 
 
 def get_user_sid(user):

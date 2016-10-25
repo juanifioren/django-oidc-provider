@@ -48,49 +48,10 @@ OIDC_EXTRA_SCOPE_CLAIMS
 
 OPTIONAL. ``str``. A string with the location of your class. Default is ``oidc_provider.lib.claims.ScopeClaims``.
 
-Used to add extra scopes specific for your app. This class MUST inherit ``ScopeClaims``.
+Used to add extra scopes specific for your app. OpenID Connect RP's will use scope values to specify what access privileges are being requested for Access Tokens.
 
-OpenID Connect Clients will use scope values to specify what access privileges are being requested for Access Tokens.
+Read more about how to implement it in :ref:`scopesclaims` section.
 
-`Here <http://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims>`_ you have the standard scopes defined by the protocol.
-
-You can create or modify scopes using:
-
-* ``info_scopename`` class property for setting the verbose name and description.
-* ``scope_scopename`` method for returning some information related.
-
-Check out an example of how to implement it::
-
-    from django.utils.translation import ugettext as _
-    from oidc_provider.lib.claims import ScopeClaims
-
-    class MyAppScopeClaims(ScopeClaims):
-
-        info_books = (
-            _(u'Books'), # Verbose name of the scope.
-            _(u'Access to your books.'), # Description of the scope.
-        )
-
-        def scope_books(self):
-            # Here, for example, you can search books for this user.
-            # self.user - Django user instance.
-            # self.userinfo - Instance of your custom OIDC_USERINFO class.
-            # self.scopes - List of scopes requested.
-
-            dic = {
-                'books_readed': books_readed_count,
-            }
-
-            return dic
-
-        # If you want to change the description of the profile scope, you can redefine it.
-        info_profile = (
-            _(u'Profile'),
-            _(u'Another description.'),
-        )
-
-.. note::
-    If a field is empty or ``None`` inside the dictionary your return on ``scope_scopename`` method, it will be cleaned from the response.
 
 OIDC_IDTOKEN_EXPIRE
 ===================

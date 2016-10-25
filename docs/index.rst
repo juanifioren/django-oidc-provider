@@ -27,9 +27,10 @@ Contents:
    sections/relyingparties
    sections/serverkeys
    sections/templates
-   sections/claims
+   sections/scopesclaims
    sections/userconsent
    sections/oauth2
+   sections/accesstokens
    sections/logout
    sections/settings
    sections/examples

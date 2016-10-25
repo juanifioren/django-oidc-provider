@@ -34,7 +34,7 @@ class Client(models.Model):
     name = models.CharField(max_length=100, default='', verbose_name=_(u'Name'))
     client_type = models.CharField(max_length=30, choices=CLIENT_TYPE_CHOICES, default='confidential', verbose_name=_(u'Client Type'), help_text=_(u'<b>Confidential</b> clients are capable of maintaining the confidentiality of their credentials. <b>Public</b> clients are incapable.'))
     client_id = models.CharField(max_length=255, unique=True, verbose_name=_(u'Client ID'))
-    client_secret = models.CharField(max_length=255, blank=True, default='', verbose_name=_(u'Client SECRET'))
+    client_secret = models.CharField(max_length=255, blank=True, verbose_name=_(u'Client SECRET'))
     response_type = models.CharField(max_length=30, choices=RESPONSE_TYPE_CHOICES, verbose_name=_(u'Response Type'))
     jwt_alg = models.CharField(max_length=10, choices=JWT_ALGS, default='RS256', verbose_name=_(u'JWT Algorithm'), help_text=_(u'Algorithm used to encode ID Tokens.'))
     date_created = models.DateField(auto_now_add=True, verbose_name=_(u'Date Created'))

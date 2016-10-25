@@ -1,6 +1,6 @@
 import logging
 
-from Crypto.PublicKey import RSA
+from Cryptodome.PublicKey import RSA
 from django.contrib.auth.views import redirect_to_login, logout
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseBadRequest
@@ -165,11 +165,11 @@ def userinfo(request, *args, **kwargs):
         'sub': token.id_token.get('sub'),
     }
 
-    standard_claims = StandardScopeClaims(token.user, token.scope)
+    standard_claims = StandardScopeClaims(token)
     dic.update(standard_claims.create_response_dic())
 
     if settings.get('OIDC_EXTRA_SCOPE_CLAIMS'):
-        extra_claims = settings.get('OIDC_EXTRA_SCOPE_CLAIMS', import_str=True)(token.user, token.scope)
+        extra_claims = settings.get('OIDC_EXTRA_SCOPE_CLAIMS', import_str=True)(token)
         dic.update(extra_claims.create_response_dic())
 
     response = JsonResponse(dic, status=200)

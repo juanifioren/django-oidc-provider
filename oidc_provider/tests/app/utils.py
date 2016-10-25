@@ -1,16 +1,19 @@
 import random
 import string
+
+
 try:
     from urlparse import parse_qs, urlsplit
 except ImportError:
     from urllib.parse import parse_qs, urlsplit
 
+from django.utils import timezone
 from django.contrib.auth.models import User
 
 from oidc_provider.models import (
     Client,
     Code,
-)
+    Token)
 
 
 FAKE_NONCE = 'cb584e44c43ed6bd0bc2d9c7e242837d'
@@ -60,6 +63,16 @@ def create_fake_client(response_type, is_public=False, jwt_alg=None, logout_sess
     client.save()
 
     return client
+
+
+def create_fake_token(user, scopes, client):
+    expires_at = timezone.now() + timezone.timedelta(seconds=60)
+    token = Token(user=user, client=client, expires_at=expires_at)
+    token.scope = scopes
+
+    token.save()
+
+    return token
 
 
 def is_code_valid(url, user, client):

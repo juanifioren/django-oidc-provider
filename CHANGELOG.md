@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [0.4.2] - 2016-10-13
+
+##### Added
+- Support for client redirect URIs with query strings.
+
+##### Fixed
+- Bug when generating secret_key value using admin.
+
+##### Changed
+- Client is available to OIDC_EXTRA_SCOPE_CLAIMS implementations via `self.client`.
+- The constructor signature for `ScopeClaims` has changed, it now is called with the `Token` as its single argument.
+
+### [0.4.1] - 2016-10-03
+
+##### Changed
+- Update pyjwkest to version 1.3.0.
+- Use Cryptodome instead of Crypto lib.
+
 ### [0.4.0] - 2016-09-12
 
 ##### Added

@@ -3,7 +3,7 @@ from datetime import timedelta
 import time
 import uuid
 
-from Crypto.PublicKey.RSA import importKey
+from Cryptodome.PublicKey.RSA import importKey
 from django.utils import timezone
 from jwkest.jwk import RSAKey as jwk_RSAKey
 from jwkest.jwk import SYMKey
