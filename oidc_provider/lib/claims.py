@@ -99,10 +99,10 @@ class StandardScopeClaims(ScopeClaims):
     def scope_profile(self):
         dic = {
             'name': self.userinfo.get('name'),
-            'given_name': self.userinfo.get('given_name'),
-            'family_name': self.userinfo.get('family_name'),
+            'given_name': self.userinfo.get('given_name') or getattr(self.user, 'first_name', None),
+            'family_name': self.userinfo.get('family_name') or getattr(self.user, 'last_name', None),
             'middle_name': self.userinfo.get('middle_name'),
-            'nickname': self.userinfo.get('nickname'),
+            'nickname': self.userinfo.get('nickname') or getattr(self.user, 'username', None),
             'preferred_username': self.userinfo.get('preferred_username'),
             'profile': self.userinfo.get('profile'),
             'picture': self.userinfo.get('picture'),
@@ -122,7 +122,7 @@ class StandardScopeClaims(ScopeClaims):
     )
     def scope_email(self):
         dic = {
-            'email': self.userinfo.get('email'),
+            'email': self.userinfo.get('email') or getattr(self.user, 'email', None),
             'email_verified': self.userinfo.get('email_verified'),
         }
 
