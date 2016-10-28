@@ -1,10 +1,15 @@
 from datetime import timedelta
+from hashlib import (
+    md5,
+    sha256,
+)
 import logging
 try:
     from urllib import urlencode
     from urlparse import urlsplit, parse_qs, urlunsplit
 except ImportError:
     from urllib.parse import urlsplit, parse_qs, urlunsplit, urlencode
+from uuid import uuid4
 
 from django.utils import timezone
 
@@ -172,6 +177,29 @@ class AuthorizeEndpoint(object):
                 query_fragment['expires_in'] = settings.get('OIDC_TOKEN_EXPIRE')
 
                 query_fragment['state'] = self.params['state'] if self.params['state'] else ''
+
+            if settings.get('OIDC_SESSION_MANAGEMENT_ENABLE'):
+                # Generate client origin URI from the redirect_uri param.
+                redirect_uri_parsed = urlsplit(self.params['redirect_uri'])
+                client_origin = '{0}://{1}'.format(redirect_uri_parsed.scheme, redirect_uri_parsed.netloc)
+
+                # Create random salt.
+                salt = md5(uuid4().hex.encode()).hexdigest()
+
+                # The generation of suitable Session State values is based
+                # on a salted cryptographic hash of Client ID, origin URL,
+                # and OP browser state.
+                session_state = '{client_id} {origin} {browser_state} {salt}'.format(
+                    client_id=self.client.client_id,
+                    origin=client_origin,
+                    browser_state=self.request.COOKIES['op_browser_state'],
+                    salt=salt)
+                session_state = sha256(session_state).hexdigest()
+                session_state += '.' + salt
+                if self.grant_type == 'authorization_code':
+                    query_params['session_state'] = session_state
+                elif self.grant_type in ['implicit', 'hybrid']:
+                    query_fragment['session_state'] = session_state
 
         except Exception as error:
             logger.debug('[Authorize] Error when trying to create response uri: %s', error)

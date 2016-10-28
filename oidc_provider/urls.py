@@ -1,6 +1,10 @@
 from django.conf.urls import url
 from django.views.decorators.csrf import csrf_exempt
-from oidc_provider import views
+
+from oidc_provider import (
+    settings,
+    views,
+)
 
 
 urlpatterns = [
@@ -12,3 +16,8 @@ urlpatterns = [
     url(r'^\.well-known/openid-configuration/?$', views.ProviderInfoView.as_view(), name='provider_info'),
     url(r'^jwks/?$', views.JwksView.as_view(), name='jwks'),
 ]
+
+if settings.get('OIDC_SESSION_MANAGEMENT_ENABLE'):
+    urlpatterns += [
+        url(r'^check-session-iframe/?$', views.CheckSessionIframeView.as_view(), name='check-session-iframe'),
+    ]

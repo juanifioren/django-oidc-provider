@@ -6,6 +6,8 @@ from django.core.urlresolvers import reverse
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
+from django.utils.decorators import method_decorator
+from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
 from jwkest import long_to_base64
@@ -203,6 +205,9 @@ class ProviderInfoView(View):
         dic['token_endpoint_auth_methods_supported'] = ['client_secret_post',
                                                         'client_secret_basic']
 
+        if settings.get('OIDC_SESSION_MANAGEMENT_ENABLE'):
+            dic['check_session_iframe'] = site_url + reverse('oidc_provider:check-session-iframe')
+
         response = JsonResponse(dic)
         response['Access-Control-Allow-Origin'] = '*'
 
@@ -236,3 +241,13 @@ class LogoutView(View):
     def get(self, request, *args, **kwargs):
         # We should actually verify if the requested redirect URI is safe
         return logout(request, next_page=request.GET.get('post_logout_redirect_uri'))
+
+
+class CheckSessionIframeView(View):
+
+    @method_decorator(xframe_options_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(CheckSessionIframeView, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        return render(request, 'oidc_provider/check_session_iframe.html', kwargs)
