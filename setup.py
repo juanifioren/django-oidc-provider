@@ -1,5 +1,8 @@
 import os
-from setuptools import setup
+from setuptools import (
+    find_packages,
+    setup,
+)
 
 
 # allow setup.py to be run from any path
@@ -8,11 +11,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 setup(
     name='django-oidc-provider',
     version='0.4.2',
-    packages=[
-        'oidc_provider', 'oidc_provider/lib', 'oidc_provider/lib/endpoints',
-        'oidc_provider/lib/utils', 'oidc_provider/tests', 'oidc_provider/tests/app',
-        'oidc_provider/migrations', 'oidc_provider/management', 'oidc_provider/management/commands',
-    ],
+    packages=find_packages(),
     include_package_data=True,
     license='MIT License',
     description='OpenID Connect Provider implementation for Django.',
