@@ -5,6 +5,8 @@ This tiny (but powerful!) package can help you providing out of the box all the 
 
 Also implements the following specifications:
 
+* `OpenID Connect Discovery 1.0 <https://openid.net/specs/openid-connect-discovery-1_0.html>`_
+* `OpenID Connect Session Management 1.0 <https://openid.net/specs/openid-connect-session-1_0.html>`_
 * `OAuth 2.0 for Native Apps <https://tools.ietf.org/html/draft-ietf-oauth-native-apps-01>`_
 * `Proof Key for Code Exchange by OAuth Public Clients <https://tools.ietf.org/html/rfc7636>`_
 
@@ -30,6 +32,7 @@ Contents:
    sections/userconsent
    sections/oauth2
    sections/accesstokens
+   sections/sessionmanagement
    sections/settings
    sections/examples
    sections/contribute

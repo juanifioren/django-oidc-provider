@@ -52,7 +52,6 @@ Used to add extra scopes specific for your app. OpenID Connect RP's will use sco
 
 Read more about how to implement it in :ref:`scopesclaims` section.
 
-
 OIDC_IDTOKEN_EXPIRE
 ===================
 
@@ -92,6 +91,13 @@ Default is::
 
         return str(user.id)
 
+OIDC_SESSION_MANAGEMENT_ENABLE
+==============================
+
+OPTIONAL. ``bool``. Enables OpenID Connect Session Management 1.0 in your provider. Read :ref:`scopesclaims` section.
+
+Default is ``False``.
+
 OIDC_SKIP_CONSENT_ALWAYS
 ========================
 
@@ -123,7 +129,7 @@ Expressed in seconds. Default is ``60*60``.
 OIDC_USERINFO
 =============
 
-OPTIONAL. ``str``. A string with the location of your function. Read **Standard Claims** section.
+OPTIONAL. ``str``. A string with the location of your function. Read :ref:`scopesclaims` section.
 
 The function receives a ``claims`` dictionary with all the standard claims and ``user`` instance. Must returns the ``claims`` dict again.
 
