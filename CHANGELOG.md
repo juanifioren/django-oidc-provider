@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+##### Added
+- Session Management 1.0 support.
+
+##### Fixed
+- Bug when trying authorize with response_type id_token without openid scope.
+
 ### [0.4.2] - 2016-10-13
 
 ##### Added

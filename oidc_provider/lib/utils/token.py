@@ -7,6 +7,7 @@ from django.utils import timezone
 from jwkest.jwk import RSAKey as jwk_RSAKey
 from jwkest.jwk import SYMKey
 from jwkest.jws import JWS
+from jwkest.jwt import JWT
 
 from oidc_provider.lib.utils.common import get_issuer
 from oidc_provider.models import (
@@ -21,7 +22,6 @@ def create_id_token(user, aud, nonce, at_hash=None, request=None, scope=[]):
     """
     Creates the id_token dictionary.
     See: http://openid.net/specs/openid-connect-core-1_0.html#IDToken
-
     Return a dic.
     """
     sub = settings.get('OIDC_IDTOKEN_SUB_GENERATOR', import_str=True)(user=user)
@@ -63,35 +63,34 @@ def create_id_token(user, aud, nonce, at_hash=None, request=None, scope=[]):
 
     return dic
 
-
 def encode_id_token(payload, client):
     """
     Represent the ID Token as a JSON Web Token (JWT).
-
     Return a hash.
     """
-    alg = client.jwt_alg
-    if alg == 'RS256':
-        keys = []
-        for rsakey in RSAKey.objects.all():
-            keys.append(jwk_RSAKey(key=importKey(rsakey.key), kid=rsakey.kid))
-
-        if not keys:
-            raise Exception('You must add at least one RSA Key.')
-    elif alg == 'HS256':
-        keys = [SYMKey(key=client.client_secret, alg=alg)]
-    else:
-        raise Exception('Unsupported key algorithm.')
-
-    _jws = JWS(payload, alg=alg)
-
+    keys = get_client_alg_keys(client)
+    _jws = JWS(payload, alg=client.jwt_alg)
     return _jws.sign_compact(keys)
 
+def decode_id_token(token, client):
+    """
+    Represent the ID Token as a JSON Web Token (JWT).
+    Return a hash.
+    """
+    keys = get_client_alg_keys(client)
+    return JWS().verify_compact(token, keys=keys)
+
+def client_id_from_id_token(id_token):
+    """
+    Extracts the client id from a JSON Web Token (JWT).
+    Returns a string or None.
+    """
+    payload = JWT().unpack(id_token).payload()
+    return payload.get('aud', None)
 
 def create_token(user, client, scope, id_token_dic=None):
     """
     Create and populate a Token object.
-
     Return a Token object.
     """
     token = Token()
@@ -109,12 +108,10 @@ def create_token(user, client, scope, id_token_dic=None):
 
     return token
 
-
 def create_code(user, client, scope, nonce, is_authentication,
                 code_challenge=None, code_challenge_method=None):
     """
     Create and populate a Code object.
-
     Return a Code object.
     """
     code = Code()
@@ -134,3 +131,21 @@ def create_code(user, client, scope, nonce, is_authentication,
     code.is_authentication = is_authentication
 
     return code
+
+def get_client_alg_keys(client):
+    """
+    Takes a client and returns the set of keys associated with it.
+    Returns a list of keys.
+    """
+    if client.jwt_alg == 'RS256':
+        keys = []
+        for rsakey in RSAKey.objects.all():
+            keys.append(jwk_RSAKey(key=importKey(rsakey.key), kid=rsakey.kid))
+        if not keys:
+            raise Exception('You must add at least one RSA Key.')
+    elif client.jwt_alg == 'HS256':
+        keys = [SYMKey(key=client.client_secret, alg=client.jwt_alg)]
+    else:
+        raise Exception('Unsupported key algorithm.')
+
+    return keys

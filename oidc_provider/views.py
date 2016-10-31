@@ -1,7 +1,15 @@
 import logging
+try:
+    from urllib import urlencode
+    from urlparse import urlsplit, parse_qs, urlunsplit
+except ImportError:
+    from urllib.parse import urlsplit, parse_qs, urlunsplit, urlencode
 
 from Cryptodome.PublicKey import RSA
-from django.contrib.auth.views import redirect_to_login, logout
+from django.contrib.auth.views import (
+    redirect_to_login,
+    logout,
+)
 from django.core.urlresolvers import reverse
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -21,9 +29,18 @@ from oidc_provider.lib.errors import (
     RedirectUriError,
     TokenError,
 )
-from oidc_provider.lib.utils.common import redirect, get_site_url, get_issuer
+from oidc_provider.lib.utils.common import (
+    redirect,
+    get_site_url,
+    get_issuer,
+)
 from oidc_provider.lib.utils.oauth2 import protected_resource_view
-from oidc_provider.models import RESPONSE_TYPE_CHOICES, RSAKey
+from oidc_provider.lib.utils.token import client_id_from_id_token
+from oidc_provider.models import (
+    Client,
+    RESPONSE_TYPE_CHOICES,
+    RSAKey,
+)
 from oidc_provider import settings
 
 
@@ -239,8 +256,29 @@ class JwksView(View):
 class LogoutView(View):
 
     def get(self, request, *args, **kwargs):
-        # We should actually verify if the requested redirect URI is safe
-        return logout(request, next_page=request.GET.get('post_logout_redirect_uri'))
+        id_token_hint = request.GET.get('id_token_hint', '')
+        post_logout_redirect_uri = request.GET.get('post_logout_redirect_uri', '')
+        state = request.GET.get('state', '')
+
+        next_page = settings.get('LOGIN_URL')
+
+        if id_token_hint:
+            client_id = client_id_from_id_token(id_token_hint)
+            try:
+                client = Client.objects.get(client_id=client_id)
+                if post_logout_redirect_uri in client.post_logout_redirect_uris:
+                    if state:
+                        uri = urlsplit(post_logout_redirect_uri)
+                        query_params = parse_qs(uri.query)
+                        query_params['state'] = state
+                        uri = uri._replace(query=urlencode(query_params, doseq=True))
+                        next_page = urlunsplit(uri)
+                    else:
+                        next_page = post_logout_redirect_uri
+            except Client.DoesNotExist:
+                pass
+
+        return logout(request, next_page=next_page)
 
 
 class CheckSessionIframeView(View):
