@@ -101,6 +101,11 @@ class AuthorizeEndpoint(object):
             logger.debug('[Authorize] Invalid response type: %s', self.params['response_type'])
             raise AuthorizeError(self.params['redirect_uri'], 'unsupported_response_type', self.grant_type)
 
+        if not self.is_authentication and \
+        (self.grant_type == 'hybrid' or self.params['response_type'] in ['id_token', 'id_token token']):
+            logger.debug('[Authorize] Missing openid scope.')
+            raise AuthorizeError(self.params['redirect_uri'], 'invalid_scope', self.grant_type)
+
         # Nonce parameter validation.
         if self.is_authentication and self.grant_type == 'implicit' and not self.params['nonce']:
             raise AuthorizeError(self.params['redirect_uri'], 'invalid_request', self.grant_type)
