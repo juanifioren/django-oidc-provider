@@ -59,6 +59,9 @@ class ClientAdmin(admin.ModelAdmin):
         [_(u'Information'), {
             'fields': ('contact_email', 'website_url', 'terms_url', 'logo', 'date_created'),
         }],
+        [_(u'Session Management'), {
+            'fields': ('_post_logout_redirect_uris',),
+        }],
     ]
     form = ClientForm
     list_display = ['name', 'client_id', 'response_type', 'date_created']
