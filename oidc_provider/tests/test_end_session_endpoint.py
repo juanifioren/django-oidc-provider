@@ -4,11 +4,11 @@ from django.test import TestCase
 from oidc_provider.tests.app.utils import create_fake_user
 
 
-class UserInfoTestCase(TestCase):
+class EndSessionTestCase(TestCase):
 
     def setUp(self):
         self.user = create_fake_user()
-        self.url = reverse('oidc_provider:logout')
+        self.url = reverse('oidc_provider:end-session')
 
     def test_shows_logged_out_page(self):
         response = self.client.get(self.url)

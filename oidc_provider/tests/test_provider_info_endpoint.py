@@ -15,7 +15,7 @@ class ProviderInfoTestCase(TestCase):
         See if the endpoint is returning the corresponding
         server information by checking status, content type, etc.
         """
-        url = reverse('oidc_provider:provider_info')
+        url = reverse('oidc_provider:provider-info')
 
         request = self.factory.get(url)
 

@@ -207,7 +207,7 @@ class ProviderInfoView(View):
         dic['authorization_endpoint'] = site_url + reverse('oidc_provider:authorize')
         dic['token_endpoint'] = site_url + reverse('oidc_provider:token')
         dic['userinfo_endpoint'] = site_url + reverse('oidc_provider:userinfo')
-        dic['end_session_endpoint'] = site_url + reverse('oidc_provider:logout')
+        dic['end_session_endpoint'] = site_url + reverse('oidc_provider:end-session')
 
         types_supported = [x[0] for x in RESPONSE_TYPE_CHOICES]
         dic['response_types_supported'] = types_supported
@@ -253,7 +253,7 @@ class JwksView(View):
         return response
 
 
-class LogoutView(View):
+class EndSessionView(View):
 
     def get(self, request, *args, **kwargs):
         id_token_hint = request.GET.get('id_token_hint', '')
