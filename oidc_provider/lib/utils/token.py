@@ -18,7 +18,7 @@ from oidc_provider.models import (
 from oidc_provider import settings
 
 
-def create_id_token(user, aud, nonce, at_hash=None, request=None, scope=[]):
+def create_id_token(user, aud, nonce='', at_hash='', request=None, scope=[]):
     """
     Creates the id_token dictionary.
     See: http://openid.net/specs/openid-connect-core-1_0.html#IDToken

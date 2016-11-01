@@ -1,7 +1,5 @@
 import random
 import string
-
-
 try:
     from urlparse import parse_qs, urlsplit
 except ImportError:
