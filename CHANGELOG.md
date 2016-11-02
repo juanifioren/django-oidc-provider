@@ -4,8 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [0.4.3] - 2016-11-02
+
 ##### Added
 - Session Management 1.0 support.
+- post_logout_redirect_uris into admin.
+
+##### Changed
+- Package url names.
+- Rename /logout/ url to /end-session/.
 
 ##### Fixed
 - Bug when trying authorize with response_type id_token without openid scope.
