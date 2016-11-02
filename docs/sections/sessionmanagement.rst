@@ -65,3 +65,23 @@ Example RP iframe
         }
     </script>
     </html>
+
+RP-Initiated Logout
+===================
+
+An RP can notify the OP that the End-User has logged out of the site, and might want to log out of the OP as well. In this case, the RP, after having logged the End-User out of the RP, redirects the End-User's User Agent to the OP's logout endpoint URL.
+
+This URL is normally obtained via the ``end_session_endpoint`` element of the OP's Discovery response.
+
+Parameters that are passed as query parameters in the logout request:
+
+* ``id_token_hint``
+    Previously issued ID Token passed to the logout endpoint as a hint about the End-User's current authenticated session with the Client.
+* ``post_logout_redirect_uri``
+    URL to which the RP is requesting that the End-User's User Agent be redirected after a logout has been performed.
+* ``state``
+    OPTIONAL. Opaque value used by the RP to maintain state between the logout request and the callback to the endpoint specified by the ``post_logout_redirect_uri`` query parameter.
+
+Example redirect::
+
+    http://localhost:8000/end-session/?id_token_hint=eyJhbGciOiJSUzI1NiIsImtpZCI6ImQwM...&post_logout_redirect_uri=http://rp.example.com/logged-out/&state=c91c03ea6c46a86
