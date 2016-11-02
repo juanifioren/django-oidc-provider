@@ -94,7 +94,7 @@ Default is::
 OIDC_SESSION_MANAGEMENT_ENABLE
 ==============================
 
-OPTIONAL. ``bool``. Enables OpenID Connect Session Management 1.0 in your provider. Read :ref:`scopesclaims` section.
+OPTIONAL. ``bool``. Enables OpenID Connect Session Management 1.0 in your provider. Read :ref:`sessionmanagement` section.
 
 Default is ``False``.
 
