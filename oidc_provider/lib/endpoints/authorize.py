@@ -199,7 +199,7 @@ class AuthorizeEndpoint(object):
                     origin=client_origin,
                     browser_state=self.request.COOKIES['op_browser_state'],
                     salt=salt)
-                session_state = sha256(session_state).hexdigest()
+                session_state = sha256(session_state.encode('utf-8')).hexdigest()
                 session_state += '.' + salt
                 if self.grant_type == 'authorization_code':
                     query_params['session_state'] = session_state
