@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+##### Fixed
+- Bug in Session Management middleware when using Python 3.
+
 ### [0.4.3] - 2016-11-02
 
 ##### Added
