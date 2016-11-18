@@ -207,7 +207,7 @@ class AuthorizeEndpoint(object):
                     query_fragment['session_state'] = session_state
 
         except Exception as error:
-            logger.debug('[Authorize] Error when trying to create response uri: %s', error)
+            logger.exception('[Authorize] Error when trying to create response uri: %s', error)
             raise AuthorizeError(self.params['redirect_uri'], 'server_error', self.grant_type)
 
         uri = uri._replace(query=urlencode(query_params, doseq=True))
