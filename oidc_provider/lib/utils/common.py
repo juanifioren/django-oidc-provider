@@ -1,5 +1,9 @@
+import datetime
+import time
+
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
+from django.utils import timezone
 
 from oidc_provider import settings
 
@@ -98,3 +102,19 @@ def default_idtoken_processing_hook(id_token, user):
     :rtype dict
     """
     return id_token
+
+def to_timestamp(dt):
+    """
+    Convert a datetime to an integer timestamp.
+
+    Inspired from Py3 code, can be replaced by ``int(dt.timestamp())``
+    when Py2 is not supported anymore.
+
+    Note: we assume the timezone of naive datetimes is the one of the
+    system, not settings.TIME_ZONE as this setting may not have been
+    set by the user.
+    """
+    if timezone.is_aware(dt):
+        return int((dt - datetime.datetime(1970, 1, 1, tzinfo=timezone.utc)).total_seconds())
+    else:
+        return int(time.mktime(dt.timetuple()))
