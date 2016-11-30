@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+##### Fixed
+- Timestamps with unixtime (instead of django timezone).
+
 ### [0.4.4] - 2016-11-29
 
 ##### Fixed
