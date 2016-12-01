@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+##### Added
+- Signals when user accept/decline the authorization page.
+
 ##### Fixed
 - Timestamps with unixtime (instead of django timezone).
 
