@@ -34,6 +34,7 @@ Contents:
    sections/accesstokens
    sections/sessionmanagement
    sections/settings
+   sections/signals
    sections/examples
    sections/contribute
 ..
