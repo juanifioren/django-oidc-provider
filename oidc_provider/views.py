@@ -42,6 +42,7 @@ from oidc_provider.models import (
     RSAKey,
 )
 from oidc_provider import settings
+from oidc_provider import signals
 
 
 logger = logging.getLogger(__name__)
@@ -131,9 +132,13 @@ class AuthorizeView(View):
             authorize.validate_params()
 
             if not request.POST.get('allow'):
+                signals.user_decline_consent.send(self.__class__, user=request.user, client=authorize.client, scope=authorize.params['scope'])
+
                 raise AuthorizeError(authorize.params['redirect_uri'],
                                      'access_denied',
                                      authorize.grant_type)
+
+            signals.user_accept_consent.send(self.__class__, user=request.user, client=authorize.client, scope=authorize.params['scope'])
 
             # Save the user consent given to the client.
             authorize.set_client_user_consent()
