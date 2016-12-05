@@ -27,12 +27,10 @@ from oidc_provider.models import (
 )
 from oidc_provider import settings
 
-
 logger = logging.getLogger(__name__)
 
 
 class TokenEndpoint(object):
-
     def __init__(self, request):
         self.request = request
         self.params = {}
@@ -52,6 +50,9 @@ class TokenEndpoint(object):
         self.params['refresh_token'] = self.request.POST.get('refresh_token', '')
         # PKCE parameter.
         self.params['code_verifier'] = self.request.POST.get('code_verifier')
+
+        self.params['username'] = self.request.POST.get('username', '')
+        self.params['password'] = self.request.POST.get('password', '')
 
     def _extract_client_auth(self):
         """
@@ -120,6 +121,25 @@ class TokenEndpoint(object):
                 if not (new_code_challenge == self.code.code_challenge):
                     raise TokenError('invalid_grant')
 
+        elif self.params['grant_type'] == 'password':
+            from django.contrib.auth import authenticate
+            user = authenticate(username=self.params['username'], password=self.params['password'])
+            if not user:
+                raise TokenError('Invalid user credentials')
+
+            self.token = create_token(user, self.client, self.params['scope'].split(' '))
+
+            self.token.id_token = create_id_token(
+                user=user,
+                aud=self.client.client_id,
+                nonce='self.code.nonce',
+                at_hash=self.token.at_hash,
+                request=self.request,
+                scope=self.params['scope'],
+            )
+
+            self.token.save()
+
         elif self.params['grant_type'] == 'refresh_token':
             if not self.params['refresh_token']:
                 logger.debug('[Token] Missing refresh token')
@@ -142,6 +162,8 @@ class TokenEndpoint(object):
             return self.create_code_response_dic()
         elif self.params['grant_type'] == 'refresh_token':
             return self.create_refresh_response_dic()
+        elif self.params['grant_type'] == 'password':
+            return {'access_token': self.token.access_token}
 
     def create_code_response_dic(self):
         token = create_token(
