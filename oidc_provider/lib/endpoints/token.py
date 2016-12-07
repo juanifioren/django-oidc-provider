@@ -2,7 +2,7 @@ from base64 import b64decode, urlsafe_b64encode
 import hashlib
 import logging
 import re
-
+from django.contrib.auth import authenticate
 from oidc_provider.lib.utils.common import cleanup_url_from_query_string
 
 try:
@@ -34,6 +34,7 @@ class TokenEndpoint(object):
     def __init__(self, request):
         self.request = request
         self.params = {}
+        self.user = None
         self._extract_params()
 
     def _extract_params(self):
@@ -122,23 +123,15 @@ class TokenEndpoint(object):
                     raise TokenError('invalid_grant')
 
         elif self.params['grant_type'] == 'password':
-            from django.contrib.auth import authenticate
-            user = authenticate(username=self.params['username'], password=self.params['password'])
+            user = authenticate(
+                username=self.params['username'],
+                password=self.params['password']
+            )
+
             if not user:
                 raise TokenError('Invalid user credentials')
 
-            self.token = create_token(user, self.client, self.params['scope'].split(' '))
-
-            self.token.id_token = create_id_token(
-                user=user,
-                aud=self.client.client_id,
-                nonce='self.code.nonce',
-                at_hash=self.token.at_hash,
-                request=self.request,
-                scope=self.params['scope'],
-            )
-
-            self.token.save()
+            self.user = user
 
         elif self.params['grant_type'] == 'refresh_token':
             if not self.params['refresh_token']:
@@ -163,7 +156,30 @@ class TokenEndpoint(object):
         elif self.params['grant_type'] == 'refresh_token':
             return self.create_refresh_response_dic()
         elif self.params['grant_type'] == 'password':
-            return {'access_token': self.token.access_token}
+            return self.create_access_token_response_dic()
+
+    def create_access_token_response_dic(self):
+        token = create_token(
+            self.user,
+            self.client,
+            self.params['scope'].split(' '))
+
+        token.id_token = create_id_token(
+            user=self.user,
+            aud=self.client.client_id,
+            nonce='self.code.nonce',
+            at_hash=token.at_hash,
+            request=self.request,
+            scope=self.params['scope'],
+        )
+
+        token.save()
+        return {
+            'access_token': token.access_token,
+            'refresh_token': token.refresh_token,
+            'expires_in': settings.get('OIDC_TOKEN_EXPIRE'),
+            'token_type': 'bearer'
+        }
 
     def create_code_response_dic(self):
         token = create_token(

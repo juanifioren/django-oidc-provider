@@ -19,7 +19,7 @@ from django.utils import timezone
 from jwkest.jwk import KEYS
 from jwkest.jws import JWS
 from jwkest.jwt import JWT
-from mock import patch
+from mock import patch, Mock
 
 from oidc_provider.lib.utils.token import create_code
 from oidc_provider.models import Token
@@ -206,6 +206,29 @@ class TokenTestCase(TestCase):
         )
 
         self.assertEqual(400, response.status_code)
+
+    @patch('oidc_provider.lib.utils.token.uuid')
+    @override_settings(OIDC_TOKEN_EXPIRE=120)
+    def test_password_grant_full_response(self, mock_uuid):
+        test_hex = 'fake_token'
+        mock_uuid4 = Mock(spec=uuid.uuid4)
+        mock_uuid4.hex = test_hex
+        mock_uuid.uuid4.return_value = mock_uuid4
+
+        response = self._post_request(
+            post_data=self._password_grant_post_data(),
+            extras=self._auth_header()
+        )
+
+        response_dict = json.loads(response.content.decode('utf-8'))
+        expected_response_dic = {
+            "access_token": 'fake_token',
+            "refresh_token": 'fake_token',
+            "expires_in": 120,
+            "token_type": "bearer",
+        }
+
+        self.assertDictEqual(expected_response_dic, response_dict)
 
     @override_settings(OIDC_TOKEN_EXPIRE=720)
     def test_authorization_code(self):
