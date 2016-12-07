@@ -1,4 +1,5 @@
 from datetime import timedelta
+import time
 import uuid
 
 from Cryptodome.PublicKey.RSA import importKey
@@ -8,7 +9,7 @@ from jwkest.jwk import SYMKey
 from jwkest.jws import JWS
 from jwkest.jwt import JWT
 
-from oidc_provider.lib.utils.common import get_issuer, to_timestamp
+from oidc_provider.lib.utils.common import get_issuer
 from oidc_provider.models import (
     Code,
     RSAKey,
@@ -29,10 +30,10 @@ def create_id_token(user, aud, nonce='', at_hash='', request=None, scope=[]):
 
     # Convert datetimes into timestamps.
     now = timezone.now()
-    iat_time = to_timestamp(now)
-    exp_time = to_timestamp(now + timedelta(seconds=expires_in))
+    iat_time = int(time.mktime(now.timetuple()))
+    exp_time = int(time.mktime((now + timedelta(seconds=expires_in)).timetuple()))
     user_auth_time = user.last_login or user.date_joined
-    auth_time = to_timestamp(user_auth_time)
+    auth_time = int(time.mktime(user_auth_time.timetuple()))
 
     dic = {
         'iss': get_issuer(request=request),

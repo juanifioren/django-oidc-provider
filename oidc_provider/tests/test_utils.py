@@ -1,10 +1,6 @@
-import datetime
-
 from django.test import TestCase
-from django.utils import timezone
-from django.utils import six
 
-from oidc_provider.lib.utils.common import get_issuer, to_timestamp
+from oidc_provider.lib.utils.common import get_issuer
 
 
 class Request(object):
@@ -46,13 +42,3 @@ class CommonTest(TestCase):
         self.assertEqual(get_issuer(site_url='http://127.0.0.1:9000',
                                     request=request),
                          'http://127.0.0.1:9000/openid')
-
-    def test_to_timestamp(self):
-        if not six.PY2:
-            naive_dt = datetime.datetime.now()
-            self.assertEqual(to_timestamp(naive_dt), int(naive_dt.timestamp()))
-
-        aware_dt = datetime.datetime(2016, 3, 2, 14, 2, 6, 123, timezone.utc)
-        self.assertEqual(to_timestamp(aware_dt), 1456927326)
-        if not six.PY2:
-            self.assertEqual(to_timestamp(aware_dt), int(aware_dt.timestamp()))
