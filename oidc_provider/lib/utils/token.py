@@ -3,7 +3,7 @@ import time
 import uuid
 
 from Cryptodome.PublicKey.RSA import importKey
-from django.utils import timezone
+from django.utils import dateformat, timezone
 from jwkest.jwk import RSAKey as jwk_RSAKey
 from jwkest.jwk import SYMKey
 from jwkest.jws import JWS
@@ -29,11 +29,11 @@ def create_id_token(user, aud, nonce='', at_hash='', request=None, scope=[]):
     expires_in = settings.get('OIDC_IDTOKEN_EXPIRE')
 
     # Convert datetimes into timestamps.
-    now = timezone.now()
-    iat_time = int(time.mktime(now.timetuple()))
-    exp_time = int(time.mktime((now + timedelta(seconds=expires_in)).timetuple()))
+    now = int(time.time())
+    iat_time = now
+    exp_time = int(now + expires_in)
     user_auth_time = user.last_login or user.date_joined
-    auth_time = int(time.mktime(user_auth_time.timetuple()))
+    auth_time = int(dateformat.format(user_auth_time, 'U'))
 
     dic = {
         'iss': get_issuer(request=request),
