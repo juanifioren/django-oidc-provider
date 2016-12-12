@@ -1,14 +1,15 @@
 from datetime import timedelta
+import time
 import uuid
 
 from Cryptodome.PublicKey.RSA import importKey
-from django.utils import timezone
+from django.utils import dateformat, timezone
 from jwkest.jwk import RSAKey as jwk_RSAKey
 from jwkest.jwk import SYMKey
 from jwkest.jws import JWS
 from jwkest.jwt import JWT
 
-from oidc_provider.lib.utils.common import get_issuer, to_timestamp
+from oidc_provider.lib.utils.common import get_issuer
 from oidc_provider.models import (
     Code,
     RSAKey,
@@ -28,11 +29,11 @@ def create_id_token(user, aud, nonce='', at_hash='', request=None, scope=[]):
     expires_in = settings.get('OIDC_IDTOKEN_EXPIRE')
 
     # Convert datetimes into timestamps.
-    now = timezone.now()
-    iat_time = to_timestamp(now)
-    exp_time = to_timestamp(now + timedelta(seconds=expires_in))
+    now = int(time.time())
+    iat_time = now
+    exp_time = int(now + expires_in)
     user_auth_time = user.last_login or user.date_joined
-    auth_time = to_timestamp(user_auth_time)
+    auth_time = int(dateformat.format(user_auth_time, 'U'))
 
     dic = {
         'iss': get_issuer(request=request),
