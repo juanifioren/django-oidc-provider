@@ -125,7 +125,7 @@ class Code(BaseCodeTokenModel):
 class Token(BaseCodeTokenModel):
 
     access_token = models.CharField(max_length=255, unique=True, verbose_name=_(u'Access Token'))
-    refresh_token = models.CharField(max_length=255, unique=True, null=True, verbose_name=_(u'Refresh Token'))
+    refresh_token = models.CharField(max_length=255, unique=True, verbose_name=_(u'Refresh Token'))
     _id_token = models.TextField(verbose_name=_(u'ID Token'))
 
     def id_token():
