@@ -164,6 +164,20 @@ class TokenTestCase(TestCase):
     # o  validate the resource owner password credentials using its
     #    existing password validation algorithm.
 
+    def test_default_setting_does_not_allow_grant_type_password(self):
+        post_data = self._password_grant_post_data()
+
+        response = self._post_request(
+            post_data=post_data,
+            extras=self._auth_header()
+        )
+
+        response_dict = json.loads(response.content.decode('utf-8'))
+
+        self.assertEqual(400, response.status_code)
+        self.assertEqual('unsupported_grant_type', response_dict['error'])
+
+    @override_settings(OIDC_GRANT_TYPE_PASSWORD_ENABLE=True)
     def test_password_grant_get_access_token_without_scope(self):
         post_data = self._password_grant_post_data()
         del (post_data['scope'])
@@ -176,6 +190,7 @@ class TokenTestCase(TestCase):
         response_dict = json.loads(response.content.decode('utf-8'))
         self.assertIn('access_token', response_dict)
 
+    @override_settings(OIDC_GRANT_TYPE_PASSWORD_ENABLE=True)
     def test_password_grant_get_access_token_with_scope(self):
         response = self._post_request(
             post_data=self._password_grant_post_data(),
@@ -185,6 +200,7 @@ class TokenTestCase(TestCase):
         response_dict = json.loads(response.content.decode('utf-8'))
         self.assertIn('access_token', response_dict)
 
+    @override_settings(OIDC_GRANT_TYPE_PASSWORD_ENABLE=True)
     def test_password_grant_get_access_token_invalid_user_credentials(self):
         invalid_post = self._password_grant_post_data()
         invalid_post['password'] = 'wrong!'
@@ -194,7 +210,11 @@ class TokenTestCase(TestCase):
             extras=self._auth_header()
         )
 
+        response_dict = json.loads(response.content.decode('utf-8'))
+        print(response_dict)
+
         self.assertEqual(400, response.status_code)
+        self.assertEqual('access_denied', response_dict['error'])
 
     def test_password_grant_get_access_token_invalid_client_credentials(self):
         self.client.client_id = 'foo'
@@ -205,10 +225,14 @@ class TokenTestCase(TestCase):
             extras=self._auth_header()
         )
 
+        response_dict = json.loads(response.content.decode('utf-8'))
+
         self.assertEqual(400, response.status_code)
+        self.assertEqual('invalid_client', response_dict['error'])
 
     @patch('oidc_provider.lib.utils.token.uuid')
-    @override_settings(OIDC_TOKEN_EXPIRE=120)
+    @override_settings(OIDC_TOKEN_EXPIRE=120,
+                       OIDC_GRANT_TYPE_PASSWORD_ENABLE=True)
     def test_password_grant_full_response(self, mock_uuid):
         test_hex = 'fake_token'
         mock_uuid4 = Mock(spec=uuid.uuid4)

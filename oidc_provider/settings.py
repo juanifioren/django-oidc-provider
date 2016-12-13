@@ -115,6 +115,22 @@ class DefaultSettings(object):
         """
         return 'oidc_provider.lib.utils.common.default_idtoken_processing_hook'
 
+    @property
+    def OIDC_GRANT_TYPE_PASSWORD_ENABLE(self):
+        """
+        OPTIONAL. A boolean to set whether to allow the Resource Owner Password
+        Credentials Grant. https://tools.ietf.org/html/rfc6749#section-4.3
+
+        From the specification:
+            Since this access token request utilizes the resource owner's
+            password, the authorization server MUST protect the endpoint
+            against brute force attacks (e.g., using rate-limitation or
+            generating alerts).
+
+        How you do this, is up to you.
+        """
+        return False
+
 default_settings = DefaultSettings()
 
 

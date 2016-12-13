@@ -16,6 +16,21 @@ class ClientIdError(Exception):
     description = 'The client identifier (client_id) is missing or invalid.'
 
 
+class UserAuthError(Exception):
+    """
+    Specific to the Resource Owner Password Credentials flow when
+    the Resource Owners credentials are not valid.
+    """
+    error = 'access_denied'
+    description = 'The resource owner or authorization server denied ' \
+                  'the request'
+
+    def create_dict(self):
+        return {
+            'error': self.error,
+            'error_description': self.description,
+        }
+
 class AuthorizeError(Exception):
 
     _errors = {
