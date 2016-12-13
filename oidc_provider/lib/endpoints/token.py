@@ -14,6 +14,7 @@ from django.http import JsonResponse
 
 from oidc_provider.lib.errors import (
     TokenError,
+    UserAuthError,
 )
 from oidc_provider.lib.utils.token import (
     create_id_token,
@@ -123,13 +124,16 @@ class TokenEndpoint(object):
                     raise TokenError('invalid_grant')
 
         elif self.params['grant_type'] == 'password':
+            if not settings.get('OIDC_GRANT_TYPE_PASSWORD_ENABLE'):
+                raise TokenError('unsupported_grant_type')
+
             user = authenticate(
                 username=self.params['username'],
                 password=self.params['password']
             )
 
             if not user:
-                raise TokenError('Invalid user credentials')
+                raise UserAuthError()
 
             self.user = user
 

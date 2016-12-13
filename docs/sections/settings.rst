@@ -147,3 +147,20 @@ Example usage::
 
 .. note::
     Please **DO NOT** add extra keys or delete the existing ones in the ``claims`` dict. If you want to add extra claims to some scopes you can use the ``OIDC_EXTRA_SCOPE_CLAIMS`` setting.
+
+OIDC_GRANT_TYPE_PASSWORD_ENABLE
+===============================
+OPTIONAL. A boolean to set whether to allow the Resource Owner Password
+Credentials Grant. https://tools.ietf.org/html/rfc6749#section-4.3
+
+.. important::
+    From the specification:
+    "Since this access token request utilizes the resource owner's
+    password, the authorization server **MUST** protect the endpoint
+    against brute force attacks (e.g., using rate-limitation or
+    generating alerts)."
+
+    There are many ways to implement brute force attack prevention. We cannot
+    decide what works best for you, so you will have to implement a solution for
+    this that suits your needs.
+
