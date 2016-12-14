@@ -1,5 +1,5 @@
-from datetime import timedelta
 import json
+import time
 import uuid
 
 from base64 import b64encode
@@ -15,7 +15,6 @@ from django.test import (
     override_settings,
 )
 from django.test import TestCase
-from django.utils import timezone
 from jwkest.jwk import KEYS
 from jwkest.jws import JWS
 from jwkest.jwt import JWT
@@ -290,9 +289,9 @@ class TokenTestCase(TestCase):
         # Retrieve refresh token
         code = self._create_code()
         post_data = self._auth_code_post_data(code=code.code)
-        real_now = timezone.now
-        with patch('oidc_provider.lib.utils.token.timezone.now') as now:
-            now.return_value = real_now()
+        start_time = time.time()
+        with patch('oidc_provider.lib.utils.token.time.time') as time_func:
+            time_func.return_value = start_time
             response = self._post_request(post_data)
 
         response_dic1 = json.loads(response.content.decode('utf-8'))
@@ -300,8 +299,8 @@ class TokenTestCase(TestCase):
 
         # Use refresh token to obtain new token
         post_data = self._refresh_token_post_data(response_dic1['refresh_token'])
-        with patch('oidc_provider.lib.utils.token.timezone.now') as now:
-            now.return_value = real_now() + timedelta(minutes=10)
+        with patch('oidc_provider.lib.utils.token.time.time') as time_func:
+            time_func.return_value = start_time + 600
             response = self._post_request(post_data)
 
         response_dic2 = json.loads(response.content.decode('utf-8'))
@@ -315,6 +314,8 @@ class TokenTestCase(TestCase):
         self.assertEqual(id_token1['iss'], id_token2['iss'])
         self.assertEqual(id_token1['sub'], id_token2['sub'])
         self.assertNotEqual(id_token1['iat'], id_token2['iat'])
+        self.assertEqual(id_token1['iat'], int(start_time))
+        self.assertEqual(id_token2['iat'], int(start_time + 600))
         self.assertEqual(id_token1['aud'], id_token2['aud'])
         self.assertEqual(id_token1['auth_time'], id_token2['auth_time'])
         self.assertEqual(id_token1.get('azp'), id_token2.get('azp'))

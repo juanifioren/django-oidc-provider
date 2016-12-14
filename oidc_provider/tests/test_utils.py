@@ -1,10 +1,12 @@
-import datetime
+import time
+from datetime import datetime
 
 from django.test import TestCase
 from django.utils import timezone
-from django.utils import six
 
-from oidc_provider.lib.utils.common import get_issuer, to_timestamp
+from oidc_provider.lib.utils.common import get_issuer
+from oidc_provider.lib.utils.token import create_id_token
+from oidc_provider.tests.app.utils import create_fake_user
 
 
 class Request(object):
@@ -47,12 +49,30 @@ class CommonTest(TestCase):
                                     request=request),
                          'http://127.0.0.1:9000/openid')
 
-    def test_to_timestamp(self):
-        if not six.PY2:
-            naive_dt = datetime.datetime.now()
-            self.assertEqual(to_timestamp(naive_dt), int(naive_dt.timestamp()))
 
-        aware_dt = datetime.datetime(2016, 3, 2, 14, 2, 6, 123, timezone.utc)
-        self.assertEqual(to_timestamp(aware_dt), 1456927326)
-        if not six.PY2:
-            self.assertEqual(to_timestamp(aware_dt), int(aware_dt.timestamp()))
+def timestamp_to_datetime(timestamp):
+    tz = timezone.get_current_timezone()
+    return datetime.fromtimestamp(timestamp, tz=tz)
+
+
+class TokenTest(TestCase):
+    def setUp(self):
+        self.user = create_fake_user()
+
+    def test_create_id_token(self):
+        start_time = int(time.time())
+        login_timestamp = start_time - 1234
+        self.user.last_login = timestamp_to_datetime(login_timestamp)
+        id_token_data = create_id_token(self.user, aud='test-aud')
+        iat = id_token_data['iat']
+        self.assertEqual(type(iat), int)
+        self.assertGreaterEqual(iat, start_time)
+        self.assertLessEqual(iat - start_time, 5)  # Can't take more than 5 s
+        self.assertEqual(id_token_data, {
+            'aud': 'test-aud',
+            'auth_time': login_timestamp,
+            'exp': iat + 600,
+            'iat': iat,
+            'iss': 'http://localhost:8000/openid',
+            'sub': str(self.user.id),
+        })
