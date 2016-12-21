@@ -214,6 +214,7 @@ class TokenTestCase(TestCase):
         print(response_dict)
 
         self.assertEqual(400, response.status_code)
+        self.assertEqual(403, response.status_code)
         self.assertEqual('access_denied', response_dict['error'])
 
     def test_password_grant_get_access_token_invalid_client_credentials(self):

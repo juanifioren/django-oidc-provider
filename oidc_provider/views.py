@@ -167,8 +167,10 @@ class TokenView(View):
 
             return TokenEndpoint.response(dic)
 
-        except (TokenError, UserAuthError) as error:
+        except TokenError as error:
             return TokenEndpoint.response(error.create_dict(), status=400)
+        except UserAuthError as error:
+            return TokenEndpoint.response(error.create_dict(), status=403)
 
 
 @require_http_methods(['GET', 'POST'])
