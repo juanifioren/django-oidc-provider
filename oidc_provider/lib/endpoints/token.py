@@ -168,7 +168,7 @@ class TokenEndpoint(object):
             self.client,
             self.params['scope'].split(' '))
 
-        token.id_token = create_id_token(
+        id_token_dic = create_id_token(
             user=self.user,
             aud=self.client.client_id,
             nonce='self.code.nonce',
@@ -177,12 +177,15 @@ class TokenEndpoint(object):
             scope=self.params['scope'],
         )
 
+        token.id_token = id_token_dic
         token.save()
+
         return {
             'access_token': token.access_token,
             'refresh_token': token.refresh_token,
             'expires_in': settings.get('OIDC_TOKEN_EXPIRE'),
-            'token_type': 'bearer'
+            'token_type': 'bearer',
+            'id_token': encode_id_token(id_token_dic, token.client),
         }
 
     def create_code_response_dic(self):

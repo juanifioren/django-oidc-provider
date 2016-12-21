@@ -213,7 +213,6 @@ class TokenTestCase(TestCase):
         response_dict = json.loads(response.content.decode('utf-8'))
         print(response_dict)
 
-        self.assertEqual(400, response.status_code)
         self.assertEqual(403, response.status_code)
         self.assertEqual('access_denied', response_dict['error'])
 
@@ -246,14 +245,15 @@ class TokenTestCase(TestCase):
         )
 
         response_dict = json.loads(response.content.decode('utf-8'))
-        expected_response_dic = {
-            "access_token": 'fake_token',
-            "refresh_token": 'fake_token',
-            "expires_in": 120,
-            "token_type": "bearer",
-        }
+        id_token = JWS().verify_compact(response_dict['id_token'].encode('utf-8'), self._get_keys())
+        print(id_token)
 
-        self.assertDictEqual(expected_response_dic, response_dict)
+        self.assertEqual(response_dict['access_token'], 'fake_token')
+        self.assertEqual(response_dict['refresh_token'], 'fake_token')
+        self.assertEqual(response_dict['expires_in'], 120)
+        self.assertEqual(response_dict['token_type'], 'bearer')
+        self.assertEqual(id_token['sub'], str(self.user.id))
+        self.assertEqual(id_token['aud'], self.client.client_id);
 
     @override_settings(OIDC_TOKEN_EXPIRE=720)
     def test_authorization_code(self):
