@@ -101,7 +101,7 @@ Default is ``False``.
 OIDC_SKIP_CONSENT_ALWAYS
 ========================
 
-OPTIONAL. ``bool``. If enabled, the Server will NEVER ask the user for consent.
+OPTIONAL. ``bool``. If enabled, the Server will NEVER ask the user for consent if the client is confidential.
 
 Default is ``False``.
 
