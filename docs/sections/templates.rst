@@ -13,17 +13,18 @@ You can copy the sample html here and edit them with your own styles.
     <p>Client <strong>{{ client.name }}</strong> would like to access this information of you ...</p>
 
     <form method="post" action="{% url 'oidc_provider:authorize' %}">
-        
+
         {% csrf_token %}
 
         {{ hidden_inputs }}
 
         <ul>
         {% for scope in params.scope %}
-            <li>{{ scope | capfirst }}</li>
+            <li><strong>{{ scope.name }}</strong><br><i>{{ scope.description }}</i></li>
         {% endfor %}
         </ul>
 
+        <input type="submit" value="Decline" />
         <input name="allow" type="submit" value="Authorize" />
 
     </form>

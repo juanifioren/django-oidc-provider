@@ -1,11 +1,21 @@
 import logging
+try:
+    from urllib import urlencode
+    from urlparse import urlsplit, parse_qs, urlunsplit
+except ImportError:
+    from urllib.parse import urlsplit, parse_qs, urlunsplit, urlencode
 
 from Cryptodome.PublicKey import RSA
-from django.contrib.auth.views import redirect_to_login, logout
+from django.contrib.auth.views import (
+    redirect_to_login,
+    logout,
+)
 from django.core.urlresolvers import reverse
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
+from django.utils.decorators import method_decorator
+from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
 from jwkest import long_to_base64
@@ -19,10 +29,20 @@ from oidc_provider.lib.errors import (
     RedirectUriError,
     TokenError,
 )
-from oidc_provider.lib.utils.common import redirect, get_site_url, get_issuer
+from oidc_provider.lib.utils.common import (
+    redirect,
+    get_site_url,
+    get_issuer,
+)
 from oidc_provider.lib.utils.oauth2 import protected_resource_view
-from oidc_provider.models import RESPONSE_TYPE_CHOICES, RSAKey
+from oidc_provider.lib.utils.token import client_id_from_id_token
+from oidc_provider.models import (
+    Client,
+    RESPONSE_TYPE_CHOICES,
+    RSAKey,
+)
 from oidc_provider import settings
+from oidc_provider import signals
 
 
 logger = logging.getLogger(__name__)
@@ -112,9 +132,13 @@ class AuthorizeView(View):
             authorize.validate_params()
 
             if not request.POST.get('allow'):
+                signals.user_decline_consent.send(self.__class__, user=request.user, client=authorize.client, scope=authorize.params['scope'])
+
                 raise AuthorizeError(authorize.params['redirect_uri'],
                                      'access_denied',
                                      authorize.grant_type)
+
+            signals.user_accept_consent.send(self.__class__, user=request.user, client=authorize.client, scope=authorize.params['scope'])
 
             # Save the user consent given to the client.
             authorize.set_client_user_consent()
@@ -188,7 +212,7 @@ class ProviderInfoView(View):
         dic['authorization_endpoint'] = site_url + reverse('oidc_provider:authorize')
         dic['token_endpoint'] = site_url + reverse('oidc_provider:token')
         dic['userinfo_endpoint'] = site_url + reverse('oidc_provider:userinfo')
-        dic['end_session_endpoint'] = site_url + reverse('oidc_provider:logout')
+        dic['end_session_endpoint'] = site_url + reverse('oidc_provider:end-session')
 
         types_supported = [x[0] for x in RESPONSE_TYPE_CHOICES]
         dic['response_types_supported'] = types_supported
@@ -202,6 +226,9 @@ class ProviderInfoView(View):
 
         dic['token_endpoint_auth_methods_supported'] = ['client_secret_post',
                                                         'client_secret_basic']
+
+        if settings.get('OIDC_SESSION_MANAGEMENT_ENABLE'):
+            dic['check_session_iframe'] = site_url + reverse('oidc_provider:check-session-iframe')
 
         response = JsonResponse(dic)
         response['Access-Control-Allow-Origin'] = '*'
@@ -231,8 +258,39 @@ class JwksView(View):
         return response
 
 
-class LogoutView(View):
+class EndSessionView(View):
 
     def get(self, request, *args, **kwargs):
-        # We should actually verify if the requested redirect URI is safe
-        return logout(request, next_page=request.GET.get('post_logout_redirect_uri'))
+        id_token_hint = request.GET.get('id_token_hint', '')
+        post_logout_redirect_uri = request.GET.get('post_logout_redirect_uri', '')
+        state = request.GET.get('state', '')
+
+        next_page = settings.get('LOGIN_URL')
+
+        if id_token_hint:
+            client_id = client_id_from_id_token(id_token_hint)
+            try:
+                client = Client.objects.get(client_id=client_id)
+                if post_logout_redirect_uri in client.post_logout_redirect_uris:
+                    if state:
+                        uri = urlsplit(post_logout_redirect_uri)
+                        query_params = parse_qs(uri.query)
+                        query_params['state'] = state
+                        uri = uri._replace(query=urlencode(query_params, doseq=True))
+                        next_page = urlunsplit(uri)
+                    else:
+                        next_page = post_logout_redirect_uri
+            except Client.DoesNotExist:
+                pass
+
+        return logout(request, next_page=next_page)
+
+
+class CheckSessionIframeView(View):
+
+    @method_decorator(xframe_options_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(CheckSessionIframeView, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        return render(request, 'oidc_provider/check_session_iframe.html', kwargs)

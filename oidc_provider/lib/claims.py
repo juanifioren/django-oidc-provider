@@ -1,4 +1,6 @@
-from django.utils.translation import ugettext as _
+import copy
+
+from django.utils.translation import ugettext_lazy as _
 
 from oidc_provider import settings
 
@@ -16,7 +18,8 @@ class ScopeClaims(object):
 
     def __init__(self, token):
         self.user = token.user
-        self.userinfo = settings.get('OIDC_USERINFO', import_str=True)(STANDARD_CLAIMS, self.user)
+        claims = copy.deepcopy(STANDARD_CLAIMS)
+        self.userinfo = settings.get('OIDC_USERINFO', import_str=True)(claims, self.user)
         self.scopes = token.scope
         self.client = token.client
 
@@ -99,10 +102,10 @@ class StandardScopeClaims(ScopeClaims):
     def scope_profile(self):
         dic = {
             'name': self.userinfo.get('name'),
-            'given_name': self.userinfo.get('given_name'),
-            'family_name': self.userinfo.get('family_name'),
+            'given_name': self.userinfo.get('given_name') or getattr(self.user, 'first_name', None),
+            'family_name': self.userinfo.get('family_name') or getattr(self.user, 'last_name', None),
             'middle_name': self.userinfo.get('middle_name'),
-            'nickname': self.userinfo.get('nickname'),
+            'nickname': self.userinfo.get('nickname') or getattr(self.user, 'username', None),
             'preferred_username': self.userinfo.get('preferred_username'),
             'profile': self.userinfo.get('profile'),
             'picture': self.userinfo.get('picture'),
@@ -122,7 +125,7 @@ class StandardScopeClaims(ScopeClaims):
     )
     def scope_email(self):
         dic = {
-            'email': self.userinfo.get('email'),
+            'email': self.userinfo.get('email') or getattr(self.user, 'email', None),
             'email_verified': self.userinfo.get('email_verified'),
         }
 

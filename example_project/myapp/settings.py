@@ -32,6 +32,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'oidc_provider.middleware.SessionManagementMiddleware',
 ]
 
 TEMPLATES = [
@@ -87,3 +88,4 @@ LOGIN_REDIRECT_URL = '/'
 # OIDC Provider settings
 
 SITE_URL = 'http://localhost:8000'
+OIDC_SESSION_MANAGEMENT_ENABLE = True

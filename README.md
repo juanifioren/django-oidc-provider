@@ -19,7 +19,7 @@ Support for Python 3 and 2. Also latest versions of django.
 
 ## Contributing
 
-We love contributions, so please feel free to fix bugs, improve things, provide documentation. You SHOULD follow this steps:
+[Join us!](https://github.com/juanifioren/django-oidc-provider/graphs/contributors) we love contributions, so please feel free to fix bugs, improve things, provide documentation. You SHOULD follow this steps:
 
 * Fork the project.
 * Make your feature addition or bug fix.

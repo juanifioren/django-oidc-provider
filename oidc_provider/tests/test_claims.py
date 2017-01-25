@@ -1,6 +1,10 @@
-from django.test import TestCase
+from __future__ import unicode_literals
 
-from oidc_provider.lib.claims import ScopeClaims
+from django.test import TestCase
+from django.utils.six import text_type
+from django.utils.translation import override as override_language
+
+from oidc_provider.lib.claims import ScopeClaims, StandardScopeClaims, STANDARD_CLAIMS
 from oidc_provider.tests.app.utils import create_fake_user, create_fake_client, create_fake_token
 
 
@@ -12,6 +16,13 @@ class ClaimsTestCase(TestCase):
         self.client = create_fake_client('code')
         self.token = create_fake_token(self.user, self.scopes, self.client)
         self.scopeClaims = ScopeClaims(self.token)
+
+    def test_empty_standard_claims(self):
+        for v in [v for k, v in STANDARD_CLAIMS.items() if k != 'address']:
+            self.assertEqual(v, '')
+
+        for v in STANDARD_CLAIMS['address'].values():
+            self.assertEqual(v, '')
 
     def test_clean_dic(self):
         """ assert that _clean_dic function returns a clean dictionnary
@@ -47,3 +58,7 @@ class ClaimsTestCase(TestCase):
                 'email': u'johndoe@example.com'
             }
         )
+
+    def test_locale(self):
+        with override_language('fr'):
+            self.assertEqual(text_type(StandardScopeClaims.info_profile[0]), 'Profil de base')

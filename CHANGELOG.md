@@ -4,6 +4,32 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+##### Added
+- Signals when user accept/decline the authorization page.
+
+##### Fixed
+- Timestamps with unixtime (instead of django timezone).
+- Field refresh_token cannot be primary key if null.
+
+### [0.4.4] - 2016-11-29
+
+##### Fixed
+- Bug in Session Management middleware when using Python 3.
+- Translations handling.
+
+### [0.4.3] - 2016-11-02
+
+##### Added
+- Session Management 1.0 support.
+- post_logout_redirect_uris into admin.
+
+##### Changed
+- Package url names.
+- Rename /logout/ url to /end-session/.
+
+##### Fixed
+- Bug when trying authorize with response_type id_token without openid scope.
+
 ### [0.4.2] - 2016-10-13
 
 ##### Added

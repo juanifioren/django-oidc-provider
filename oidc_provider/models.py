@@ -45,6 +45,22 @@ class Client(models.Model):
     logo = models.FileField(blank=True, default='', upload_to='oidc_provider/clients', verbose_name=_(u'Logo Image'))
 
     _redirect_uris = models.TextField(default='', verbose_name=_(u'Redirect URIs'), help_text=_(u'Enter each URI on a new line.'))
+    def redirect_uris():
+        def fget(self):
+            return self._redirect_uris.splitlines()
+        def fset(self, value):
+            self._redirect_uris = '\n'.join(value)
+        return locals()
+    redirect_uris = property(**redirect_uris())
+
+    _post_logout_redirect_uris = models.TextField(blank=True, default='', verbose_name=_(u'Post Logout Redirect URIs'), help_text=_(u'Enter each URI on a new line.'))
+    def post_logout_redirect_uris():
+        def fget(self):
+            return self._post_logout_redirect_uris.splitlines()
+        def fset(self, value):
+            self._post_logout_redirect_uris = '\n'.join(value)
+        return locals()
+    post_logout_redirect_uris = property(**post_logout_redirect_uris())
 
     class Meta:
         verbose_name = _(u'Client')
@@ -56,15 +72,7 @@ class Client(models.Model):
     def __unicode__(self):
         return self.__str__()
 
-    def redirect_uris():
-        def fget(self):
-            return self._redirect_uris.splitlines()
 
-        def fset(self, value):
-            self._redirect_uris = '\n'.join(value)
-
-        return locals()
-    redirect_uris = property(**redirect_uris())
 
     @property
     def default_redirect_uri(self):
@@ -117,7 +125,7 @@ class Code(BaseCodeTokenModel):
 class Token(BaseCodeTokenModel):
 
     access_token = models.CharField(max_length=255, unique=True, verbose_name=_(u'Access Token'))
-    refresh_token = models.CharField(max_length=255, unique=True, null=True, verbose_name=_(u'Refresh Token'))
+    refresh_token = models.CharField(max_length=255, unique=True, verbose_name=_(u'Refresh Token'))
     _id_token = models.TextField(verbose_name=_(u'ID Token'))
 
     def id_token():

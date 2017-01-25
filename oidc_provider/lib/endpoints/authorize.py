@@ -1,10 +1,15 @@
 from datetime import timedelta
+from hashlib import (
+    md5,
+    sha256,
+)
 import logging
 try:
     from urllib import urlencode
     from urlparse import urlsplit, parse_qs, urlunsplit
 except ImportError:
     from urllib.parse import urlsplit, parse_qs, urlunsplit, urlencode
+from uuid import uuid4
 
 from django.utils import timezone
 
@@ -96,6 +101,11 @@ class AuthorizeEndpoint(object):
             logger.debug('[Authorize] Invalid response type: %s', self.params['response_type'])
             raise AuthorizeError(self.params['redirect_uri'], 'unsupported_response_type', self.grant_type)
 
+        if not self.is_authentication and \
+        (self.grant_type == 'hybrid' or self.params['response_type'] in ['id_token', 'id_token token']):
+            logger.debug('[Authorize] Missing openid scope.')
+            raise AuthorizeError(self.params['redirect_uri'], 'invalid_scope', self.grant_type)
+
         # Nonce parameter validation.
         if self.is_authentication and self.grant_type == 'implicit' and not self.params['nonce']:
             raise AuthorizeError(self.params['redirect_uri'], 'invalid_request', self.grant_type)
@@ -172,6 +182,29 @@ class AuthorizeEndpoint(object):
                 query_fragment['expires_in'] = settings.get('OIDC_TOKEN_EXPIRE')
 
                 query_fragment['state'] = self.params['state'] if self.params['state'] else ''
+
+            if settings.get('OIDC_SESSION_MANAGEMENT_ENABLE'):
+                # Generate client origin URI from the redirect_uri param.
+                redirect_uri_parsed = urlsplit(self.params['redirect_uri'])
+                client_origin = '{0}://{1}'.format(redirect_uri_parsed.scheme, redirect_uri_parsed.netloc)
+
+                # Create random salt.
+                salt = md5(uuid4().hex.encode()).hexdigest()
+
+                # The generation of suitable Session State values is based
+                # on a salted cryptographic hash of Client ID, origin URL,
+                # and OP browser state.
+                session_state = '{client_id} {origin} {browser_state} {salt}'.format(
+                    client_id=self.client.client_id,
+                    origin=client_origin,
+                    browser_state=self.request.COOKIES['op_browser_state'],
+                    salt=salt)
+                session_state = sha256(session_state.encode('utf-8')).hexdigest()
+                session_state += '.' + salt
+                if self.grant_type == 'authorization_code':
+                    query_params['session_state'] = session_state
+                elif self.grant_type in ['implicit', 'hybrid']:
+                    query_fragment['session_state'] = session_state
 
         except Exception as error:
             logger.debug('[Authorize] Error when trying to create response uri: %s', error)

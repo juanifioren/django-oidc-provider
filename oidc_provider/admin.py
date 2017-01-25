@@ -1,4 +1,4 @@
-from hashlib import md5
+from hashlib import sha224
 from random import randint
 from uuid import uuid4
 
@@ -36,12 +36,12 @@ class ClientForm(ModelForm):
 
         if instance and instance.pk:
             if (self.cleaned_data['client_type'] == 'confidential') and not instance.client_secret:
-                secret = md5(uuid4().hex.encode()).hexdigest()
+                secret = sha224(uuid4().hex.encode()).hexdigest()
             elif (self.cleaned_data['client_type'] == 'confidential') and instance.client_secret:
                 secret = instance.client_secret
         else:
             if (self.cleaned_data['client_type'] == 'confidential'):
-                secret = md5(uuid4().hex.encode()).hexdigest()
+                secret = sha224(uuid4().hex.encode()).hexdigest()
 
         return secret
 
@@ -58,6 +58,9 @@ class ClientAdmin(admin.ModelAdmin):
         }],
         [_(u'Information'), {
             'fields': ('contact_email', 'website_url', 'terms_url', 'logo', 'date_created'),
+        }],
+        [_(u'Session Management'), {
+            'fields': ('_post_logout_redirect_uris',),
         }],
     ]
     form = ClientForm
