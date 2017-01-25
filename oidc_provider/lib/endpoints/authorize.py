@@ -112,7 +112,7 @@ class AuthorizeEndpoint(object):
     def create_response_uri(self):
         uri = urlsplit(self.params['redirect_uri'])
         query_params = parse_qs(uri.query)
-        query_fragment = parse_qs(uri.fragment)
+        query_fragment = {}
 
         try:
             if self.grant_type in ['authorization_code', 'hybrid']:
@@ -177,8 +177,7 @@ class AuthorizeEndpoint(object):
             logger.debug('[Authorize] Error when trying to create response uri: %s', error)
             raise AuthorizeError(self.params['redirect_uri'], 'server_error', self.grant_type)
 
-        uri = uri._replace(query=urlencode(query_params, doseq=True))
-        uri = uri._replace(fragment=urlencode(query_fragment, doseq=True))
+        uri = uri._replace(query=urlencode(query_params, doseq=True), fragment=uri.fragment + urlencode(query_fragment, doseq=True))
 
         return urlunsplit(uri)
 
