@@ -31,6 +31,14 @@ class DefaultSettings(object):
         return 'oidc_provider.lib.utils.common.default_after_userlogin_hook'
 
     @property
+    def OIDC_POST_END_SESSION_HOOK(self):
+        """
+        OPTIONAL.  Provide a way to plug into the end session process just before calling
+         Django's logout function, typically to perform some business logic.
+        """
+        return 'oidc_provider.lib.utils.common.default_post_end_session_hook'
+
+    @property
     def OIDC_CODE_EXPIRE(self):
         """
         OPTIONAL. Code expiration time expressed in seconds.
