@@ -60,5 +60,6 @@ The RP application obtains a new access token by sending a POST request to the `
         -H "Content-Type: application/x-www-form-urlencoded" \
         "http://localhost:8000/token/" \
         -d "client_id=651462" \
+        -d "client_secret=37b1c4ff826f8d78bd45e25bad75a2c0" \
         -d "grant_type=refresh_token" \
         -d "refresh_token=0bac2d80d75d46658b0b31d3778039bb"
