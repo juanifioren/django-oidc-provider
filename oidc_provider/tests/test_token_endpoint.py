@@ -251,7 +251,7 @@ class TokenTestCase(TestCase):
         self.assertEqual(response_dict['expires_in'], 120)
         self.assertEqual(response_dict['token_type'], 'bearer')
         self.assertEqual(id_token['sub'], str(self.user.id))
-        self.assertEqual(id_token['aud'], self.client.client_id);
+        self.assertEqual(id_token['aud'], self.client.client_id)
 
     @override_settings(OIDC_TOKEN_EXPIRE=720)
     def test_authorization_code(self):
@@ -276,7 +276,7 @@ class TokenTestCase(TestCase):
         self.assertEqual(response_dic['token_type'], 'bearer')
         self.assertEqual(response_dic['expires_in'], 720)
         self.assertEqual(id_token['sub'], str(self.user.id))
-        self.assertEqual(id_token['aud'], self.client.client_id);
+        self.assertEqual(id_token['aud'], self.client.client_id)
 
     def test_refresh_token(self):
         """
