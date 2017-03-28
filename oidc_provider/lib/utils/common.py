@@ -84,6 +84,33 @@ def default_after_userlogin_hook(request, user, client):
     """
     return None
 
+
+def default_post_end_session_hook(request, id_token=None, post_logout_redirect_uri=None, state=None, client=None, next_page=None):
+    """
+    Default function for setting OIDC_POST_END_SESSION_HOOK.
+
+    :param request: Django request object
+    :type request: django.http.HttpRequest
+
+    :param id_token: token passed by `id_token_hint` url query param - do NOT trust this param or validate token
+    :type id_token: str
+
+    :param post_logout_redirect_uri: redirect url from url query param - do NOT trust this param
+    :type post_logout_redirect_uri: str
+
+    :param state: state param from url query params
+    :type state: str
+
+    :param client: If id_token has `aud` param and associated Client exists, this is an instance of it - do NOT trust this param
+    :type client: oidc_provider.models.Client
+
+    :param next_page: calculated next_page redirection target
+    :type next_page: str
+    :return:
+    """
+    return None
+
+
 def default_idtoken_processing_hook(id_token, user):
     """
     Hook to perform some additional actions ti `id_token` dictionary just before serialization.
