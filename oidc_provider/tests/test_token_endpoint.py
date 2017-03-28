@@ -136,7 +136,7 @@ class TokenTestCase(TestCase):
 
         return userinfo(request)
 
-    def _auth_header(self):
+    def _password_grant_auth_header(self):
         user_pass = self.client.client_id + ':' + self.client.client_secret
         auth = b'Basic ' + b64encode(user_pass.encode('utf-8'))
         auth_header = {'HTTP_AUTHORIZATION': auth.decode('utf-8')}
@@ -169,7 +169,7 @@ class TokenTestCase(TestCase):
 
         response = self._post_request(
             post_data=post_data,
-            extras=self._auth_header()
+            extras=self._password_grant_auth_header()
         )
 
         response_dict = json.loads(response.content.decode('utf-8'))
@@ -184,7 +184,7 @@ class TokenTestCase(TestCase):
 
         response = self._post_request(
             post_data=post_data,
-            extras=self._auth_header()
+            extras=self._password_grant_auth_header()
         )
 
         response_dict = json.loads(response.content.decode('utf-8'))
@@ -194,7 +194,7 @@ class TokenTestCase(TestCase):
     def test_password_grant_get_access_token_with_scope(self):
         response = self._post_request(
             post_data=self._password_grant_post_data(),
-            extras=self._auth_header()
+            extras=self._password_grant_auth_header()
         )
 
         response_dict = json.loads(response.content.decode('utf-8'))
@@ -207,7 +207,7 @@ class TokenTestCase(TestCase):
 
         response = self._post_request(
             post_data=invalid_post,
-            extras=self._auth_header()
+            extras=self._password_grant_auth_header()
         )
 
         response_dict = json.loads(response.content.decode('utf-8'))
@@ -222,7 +222,7 @@ class TokenTestCase(TestCase):
 
         response = self._post_request(
             post_data=self._password_grant_post_data(),
-            extras=self._auth_header()
+            extras=self._password_grant_auth_header()
         )
 
         response_dict = json.loads(response.content.decode('utf-8'))
@@ -241,7 +241,7 @@ class TokenTestCase(TestCase):
 
         response = self._post_request(
             post_data=self._password_grant_post_data(),
-            extras=self._auth_header()
+            extras=self._password_grant_auth_header()
         )
 
         response_dict = json.loads(response.content.decode('utf-8'))
@@ -434,7 +434,7 @@ class TokenTestCase(TestCase):
         del basicauth_data['client_id']
         del basicauth_data['client_secret']
 
-        response = self._post_request(basicauth_data, self._auth_header())
+        response = self._post_request(basicauth_data, self._password_grant_auth_header())
         response.content.decode('utf-8')
 
         self.assertEqual('invalid_client' in response.content.decode('utf-8'),
