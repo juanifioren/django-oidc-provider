@@ -6,10 +6,13 @@ All notable changes to this project will be documented in this file.
 
 ##### Added
 - Signals when user accept/decline the authorization page.
+- `OIDC_POST_END_SESSION_HOOK` setting for additional bussiness logic
+- Feature granttype password
 
 ##### Fixed
 - Timestamps with unixtime (instead of django timezone).
 - Field refresh_token cannot be primary key if null.
+- `create_uri_exceptions` are now being logged at `Exception` level not `DEBUG`
 
 ### [0.4.4] - 2016-11-29
 
