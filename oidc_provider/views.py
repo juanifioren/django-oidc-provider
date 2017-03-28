@@ -28,7 +28,7 @@ from oidc_provider.lib.errors import (
     ClientIdError,
     RedirectUriError,
     TokenError,
-)
+    UserAuthError)
 from oidc_provider.lib.utils.common import (
     redirect,
     get_site_url,
@@ -167,8 +167,10 @@ class TokenView(View):
 
             return TokenEndpoint.response(dic)
 
-        except (TokenError) as error:
+        except TokenError as error:
             return TokenEndpoint.response(error.create_dict(), status=400)
+        except UserAuthError as error:
+            return TokenEndpoint.response(error.create_dict(), status=403)
 
 
 @require_http_methods(['GET', 'POST'])
