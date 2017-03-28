@@ -211,7 +211,6 @@ class TokenTestCase(TestCase):
         )
 
         response_dict = json.loads(response.content.decode('utf-8'))
-        print(response_dict)
 
         self.assertEqual(403, response.status_code)
         self.assertEqual('access_denied', response_dict['error'])
@@ -246,7 +245,6 @@ class TokenTestCase(TestCase):
 
         response_dict = json.loads(response.content.decode('utf-8'))
         id_token = JWS().verify_compact(response_dict['id_token'].encode('utf-8'), self._get_keys())
-        print(id_token)
 
         self.assertEqual(response_dict['access_token'], 'fake_token')
         self.assertEqual(response_dict['refresh_token'], 'fake_token')
