@@ -106,8 +106,7 @@ class TokenEndpoint(object):
 
             if not (self.code.client == self.client) \
                or self.code.has_expired():
-                logger.debug('[Token] Invalid code: invalid client or code has expired',
-                             self.params['redirect_uri'])
+                logger.debug('[Token] Invalid code: invalid client or code has expired')
                 raise TokenError('invalid_grant')
 
             # Validate PKCE parameters.
