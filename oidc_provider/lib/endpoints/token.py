@@ -2,7 +2,7 @@ from base64 import b64decode, urlsafe_b64encode
 import hashlib
 import logging
 import re
-
+from django.contrib.auth import authenticate
 from oidc_provider.lib.utils.common import cleanup_url_from_query_string
 
 try:
@@ -14,6 +14,7 @@ from django.http import JsonResponse
 
 from oidc_provider.lib.errors import (
     TokenError,
+    UserAuthError,
 )
 from oidc_provider.lib.utils.token import (
     create_id_token,
@@ -27,15 +28,14 @@ from oidc_provider.models import (
 )
 from oidc_provider import settings
 
-
 logger = logging.getLogger(__name__)
 
 
 class TokenEndpoint(object):
-
     def __init__(self, request):
         self.request = request
         self.params = {}
+        self.user = None
         self._extract_params()
 
     def _extract_params(self):
@@ -52,6 +52,9 @@ class TokenEndpoint(object):
         self.params['refresh_token'] = self.request.POST.get('refresh_token', '')
         # PKCE parameter.
         self.params['code_verifier'] = self.request.POST.get('code_verifier')
+
+        self.params['username'] = self.request.POST.get('username', '')
+        self.params['password'] = self.request.POST.get('password', '')
 
     def _extract_client_auth(self):
         """
@@ -120,6 +123,20 @@ class TokenEndpoint(object):
                 if not (new_code_challenge == self.code.code_challenge):
                     raise TokenError('invalid_grant')
 
+        elif self.params['grant_type'] == 'password':
+            if not settings.get('OIDC_GRANT_TYPE_PASSWORD_ENABLE'):
+                raise TokenError('unsupported_grant_type')
+
+            user = authenticate(
+                username=self.params['username'],
+                password=self.params['password']
+            )
+
+            if not user:
+                raise UserAuthError()
+
+            self.user = user
+
         elif self.params['grant_type'] == 'refresh_token':
             if not self.params['refresh_token']:
                 logger.debug('[Token] Missing refresh token')
@@ -142,6 +159,34 @@ class TokenEndpoint(object):
             return self.create_code_response_dic()
         elif self.params['grant_type'] == 'refresh_token':
             return self.create_refresh_response_dic()
+        elif self.params['grant_type'] == 'password':
+            return self.create_access_token_response_dic()
+
+    def create_access_token_response_dic(self):
+        token = create_token(
+            self.user,
+            self.client,
+            self.params['scope'].split(' '))
+
+        id_token_dic = create_id_token(
+            user=self.user,
+            aud=self.client.client_id,
+            nonce='self.code.nonce',
+            at_hash=token.at_hash,
+            request=self.request,
+            scope=self.params['scope'],
+        )
+
+        token.id_token = id_token_dic
+        token.save()
+
+        return {
+            'access_token': token.access_token,
+            'refresh_token': token.refresh_token,
+            'expires_in': settings.get('OIDC_TOKEN_EXPIRE'),
+            'token_type': 'bearer',
+            'id_token': encode_id_token(id_token_dic, token.client),
+        }
 
     def create_code_response_dic(self):
         token = create_token(

@@ -8,6 +8,7 @@ Also implements the following specifications:
 * `OpenID Connect Discovery 1.0 <https://openid.net/specs/openid-connect-discovery-1_0.html>`_
 * `OpenID Connect Session Management 1.0 <https://openid.net/specs/openid-connect-session-1_0.html>`_
 * `OAuth 2.0 for Native Apps <https://tools.ietf.org/html/draft-ietf-oauth-native-apps-01>`_
+* `OAuth 2.0 Resource Owner Password Credentials Grant <https://tools.ietf.org/html/rfc6749#section-4.3>`_
 * `Proof Key for Code Exchange by OAuth Public Clients <https://tools.ietf.org/html/rfc7636>`_
 
 --------------------------------------------------------------------------------
@@ -16,6 +17,7 @@ Before getting started there are some important things that you should know:
 
 * Despite that implementation MUST support TLS. You can make request without using SSL. There is no control on that.
 * Supports only for requesting Claims using Scope values.
+* If you enable the Resource Owner Password Credentials Grant, you MUST implement protection against brute force attacks on the token endpoint
 
 --------------------------------------------------------------------------------
 
