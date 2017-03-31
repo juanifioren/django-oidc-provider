@@ -36,6 +36,18 @@ Return ``None`` if you want to continue with the flow.
 The typical situation will be checking some state of the user or maybe redirect him somewhere.
 With request you have access to all OIDC parameters. Remember that if you redirect the user to another place then you need to take him back to the authorize endpoint (use ``request.get_full_path()`` as the value for a "next" parameter).
 
+OIDC_AFTER_END_SESSION_HOOK
+===========================
+
+OPTIONAL. ``str``. A string with the location of your function. Provide a way to plug into the log out process just before calling Django's log out function, typically to perform some business logic.
+
+Default is::
+
+    def default_after_end_session_hook(request, id_token=None, post_logout_redirect_uri=None, state=None, client=None, next_page=None):
+        return None
+
+Return ``None`` if you want to continue with the flow.
+
 OIDC_CODE_EXPIRE
 ================
 

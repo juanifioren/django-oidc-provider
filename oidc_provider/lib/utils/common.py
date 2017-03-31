@@ -85,9 +85,9 @@ def default_after_userlogin_hook(request, user, client):
     return None
 
 
-def default_post_end_session_hook(request, id_token=None, post_logout_redirect_uri=None, state=None, client=None, next_page=None):
+def default_after_end_session_hook(request, id_token=None, post_logout_redirect_uri=None, state=None, client=None, next_page=None):
     """
-    Default function for setting OIDC_POST_END_SESSION_HOOK.
+    Default function for setting OIDC_AFTER_END_SESSION_HOOK.
 
     :param request: Django request object
     :type request: django.http.HttpRequest
