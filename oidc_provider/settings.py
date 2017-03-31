@@ -4,16 +4,14 @@ from django.conf import settings
 
 
 class DefaultSettings(object):
-    required_attrs = (
-        'LOGIN_URL',
-    )
+    required_attrs = ()
 
     @property
-    def LOGIN_URL(self):
+    def OIDC_LOGIN_URL(self):
         """
-        REQUIRED. Used to log the user in.
+        REQUIRED. Used to log the user in. By default Django's LOGIN_URL will be used.
         """
-        return None
+        return settings.LOGIN_URL
 
     @property
     def SITE_URL(self):

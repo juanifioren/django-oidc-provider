@@ -122,7 +122,7 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         response = self._auth_request('get', data)
 
         # Check if user was redirected to the login view.
-        self.assertIn(settings.get('LOGIN_URL'), response['Location'])
+        self.assertIn(settings.get('OIDC_LOGIN_URL'), response['Location'])
 
     def test_user_consent_inputs(self):
         """

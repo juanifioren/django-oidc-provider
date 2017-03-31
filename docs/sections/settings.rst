@@ -5,12 +5,12 @@ Settings
 
 Customize your provider so fit your project needs.
 
-LOGIN_URL
+OIDC_LOGIN_URL
 =========
 
-REQUIRED. ``str``. Used to log the user in. `Read more in Django docs <https://docs.djangoproject.com/en/1.7/ref/settings/#login-url>`_
+OPTIONAL. ``str``. Used to log the user in. By default Django's ``LOGIN_URL`` will be used. `Read more in Django docs <https://docs.djangoproject.com/en/1.7/ref/settings/#login-url>`_
 
-``str``. Default is ``/accounts/login/``.
+``str``. Default is ``/accounts/login/`` (Django's ``LOGIN_URL``).
 
 SITE_URL
 ========
