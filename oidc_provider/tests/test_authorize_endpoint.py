@@ -61,7 +61,9 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         self.factory = RequestFactory()
         self.user = create_fake_user()
         self.client = create_fake_client(response_type='code')
+        self.client_with_no_consent = create_fake_client(response_type='code', require_consent=False)
         self.client_public = create_fake_client(response_type='code', is_public=True)
+        self.client_public_with_no_consent = create_fake_client(response_type='code', is_public=True, require_consent=False)
         self.state = uuid.uuid4().hex
         self.nonce = uuid.uuid4().hex
 
@@ -212,8 +214,8 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         authorization multiple times, the server skip it.
         """
         data = {
-            'client_id': self.client.client_id,
-            'redirect_uri': self.client.default_redirect_uri,
+            'client_id': self.client_with_no_consent.client_id,
+            'redirect_uri': self.client_with_no_consent.default_redirect_uri,
             'response_type': 'code',
             'scope': 'openid email',
             'state': self.state,
@@ -225,16 +227,15 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         # Simulate that the user is logged.
         request.user = self.user
 
-        with self.settings(OIDC_SKIP_CONSENT_ALWAYS=True):
-            response = self._auth_request('post', data, is_user_authenticated=True)
+        response = self._auth_request('post', data, is_user_authenticated=True)
 
-            self.assertIn('code', response['Location'], msg='Code is missing in the returned url.')
+        self.assertIn('code', response['Location'], msg='Code is missing in the returned url.')
 
         response = self._auth_request('post', data, is_user_authenticated=True)
 
         is_code_ok = is_code_valid(url=response['Location'],
                                    user=self.user,
-                                   client=self.client)
+                                   client=self.client_with_no_consent)
         self.assertEqual(is_code_ok, True, msg='Code returned is invalid.')
 
         del data['allow']
@@ -242,7 +243,7 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
 
         is_code_ok = is_code_valid(url=response['Location'],
                                    user=self.user,
-                                   client=self.client)
+                                   client=self.client_with_no_consent)
         self.assertEqual(is_code_ok, True, msg='Code returned is invalid or missing.')
 
     def test_response_uri_is_properly_constructed(self):
@@ -264,15 +265,14 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         It's recommended not auto-approving requests for non-confidential clients.
         """
         data = {
-            'client_id': self.client_public.client_id,
+            'client_id': self.client_public_with_no_consent.client_id,
             'response_type': 'code',
-            'redirect_uri': self.client_public.default_redirect_uri,
+            'redirect_uri': self.client_public_with_no_consent.default_redirect_uri,
             'scope': 'openid email',
             'state': self.state,
         }
 
-        with self.settings(OIDC_SKIP_CONSENT_ALWAYS=True):
-            response = self._auth_request('get', data, is_user_authenticated=True)
+        response = self._auth_request('get', data, is_user_authenticated=True)
 
         self.assertIn('Request for Permission', response.content.decode('utf-8'))
 
