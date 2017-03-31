@@ -269,7 +269,7 @@ class EndSessionView(View):
         client = None
 
         next_page = settings.get('LOGIN_URL')
-        post_end_session_hook = settings.get('OIDC_POST_END_SESSION_HOOK', import_str=True)
+        after_end_session_hook = settings.get('OIDC_AFTER_END_SESSION_HOOK', import_str=True)
 
         if id_token_hint:
             client_id = client_id_from_id_token(id_token_hint)
@@ -287,7 +287,7 @@ class EndSessionView(View):
             except Client.DoesNotExist:
                 pass
 
-        post_end_session_hook(
+        after_end_session_hook(
             request=request,
             id_token=id_token_hint,
             post_logout_redirect_uri=post_logout_redirect_uri,
