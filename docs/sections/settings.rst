@@ -176,3 +176,15 @@ Credentials Grant. https://tools.ietf.org/html/rfc6749#section-4.3
     decide what works best for you, so you will have to implement a solution for
     this that suits your needs.
 
+OIDC_TEMPLATES
+==============
+OPTIONAL. A dictionary pointing to templates for authorize and error pages.
+Default is::
+
+    {
+        'authorize': 'oidc_provider/authorize.html',
+        'error': 'oidc_provider/error.html'
+    }
+
+.. note::
+    The templates that are not specified here will use the default ones.

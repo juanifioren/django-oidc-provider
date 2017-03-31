@@ -139,6 +139,13 @@ class DefaultSettings(object):
         """
         return False
 
+    @property
+    def OIDC_TEMPLATES(self):
+        return {
+            'authorize': 'oidc_provider/authorize.html',
+            'error': 'oidc_provider/error.html'
+        }
+
 default_settings = DefaultSettings()
 
 
@@ -161,12 +168,19 @@ def get(name, import_str=False):
     Helper function to use inside the package.
     """
     value = None
+    default_value = getattr(default_settings, name)
+
     try:
-        value = getattr(default_settings, name)
         value = getattr(settings, name)
     except AttributeError:
-        if value is None and name in default_settings.required_attrs:
+        if name in default_settings.required_attrs:
             raise Exception('You must set ' + name + ' in your settings.')
+    finally:
+        if isinstance(default_value, dict) and value:
+            default_value.update(value)
+            value = default_value
+
+        value = value or default_value
 
     value = import_from_str(value) if import_str else value
 
