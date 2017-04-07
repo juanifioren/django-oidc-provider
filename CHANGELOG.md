@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ##### Added
 - Signals when user accept/decline the authorization page.
-- `OIDC_POST_END_SESSION_HOOK` setting for additional bussiness logic
+- `OIDC_AFTER_END_SESSION_HOOK` setting for additional business logic
 - Feature granttype password
 
 ##### Fixed

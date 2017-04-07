@@ -46,9 +46,9 @@ class EndSessionTestCase(TestCase):
         response = self.client.get(self.url, query_params)
         self.assertRedirects(response, self.LOGOUT_URL, fetch_redirect_response=False)
 
-    @mock.patch(settings.get('OIDC_POST_END_SESSION_HOOK'))
+    @mock.patch(settings.get('OIDC_AFTER_END_SESSION_HOOK'))
     def test_call_post_end_session_hook(self, hook_function):
         self.client.get(self.url)
-        self.assertTrue(hook_function.called, 'OIDC_POST_END_SESSION_HOOK should be called')
-        self.assertTrue(hook_function.call_count == 1, 'OIDC_POST_END_SESSION_HOOK should be called once but was {}'.format(hook_function.call_count))
+        self.assertTrue(hook_function.called, 'OIDC_AFTER_END_SESSION_HOOK should be called')
+        self.assertTrue(hook_function.call_count == 1, 'OIDC_AFTER_END_SESSION_HOOK should be called once but was {}'.format(hook_function.call_count))
 

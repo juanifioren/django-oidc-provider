@@ -7,6 +7,7 @@ from django.utils import timezone
 from oidc_provider.lib.utils.common import get_issuer
 from oidc_provider.lib.utils.token import create_id_token
 from oidc_provider.tests.app.utils import create_fake_user
+from django.test import override_settings
 
 
 class Request(object):
@@ -59,6 +60,7 @@ class TokenTest(TestCase):
     def setUp(self):
         self.user = create_fake_user()
 
+    @override_settings(OIDC_IDTOKEN_EXPIRE=600)
     def test_create_id_token(self):
         start_time = int(time.time())
         login_timestamp = start_time - 1234
