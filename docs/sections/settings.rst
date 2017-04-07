@@ -6,7 +6,7 @@ Settings
 Customize your provider so fit your project needs.
 
 OIDC_LOGIN_URL
-=========
+==============
 
 OPTIONAL. ``str``. Used to log the user in. By default Django's ``LOGIN_URL`` will be used. `Read more in Django docs <https://docs.djangoproject.com/en/1.7/ref/settings/#login-url>`_
 
