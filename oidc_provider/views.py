@@ -79,7 +79,7 @@ class AuthorizeView(View):
                     raise AuthorizeError(authorize.params['redirect_uri'], 'interaction_required', authorize.grant_type)
 
                 if authorize.params['prompt'] == 'login':
-                    return redirect_to_login(request.get_full_path())
+                    return redirect_to_login(request.get_full_path(), settings.get('OIDC_LOGIN_URL'))
 
                 if authorize.params['prompt'] == 'select_account':
                     # TODO: see how we can support multiple accounts for the end-user.
@@ -108,7 +108,7 @@ class AuthorizeView(View):
                 if authorize.params['prompt'] == 'none':
                     raise AuthorizeError(authorize.params['redirect_uri'], 'login_required', authorize.grant_type)
 
-                return redirect_to_login(request.get_full_path())
+                return redirect_to_login(request.get_full_path(), settings.get('OIDC_LOGIN_URL'))
 
         except (ClientIdError, RedirectUriError) as error:
             context = {
@@ -268,7 +268,7 @@ class EndSessionView(View):
         state = request.GET.get('state', '')
         client = None
 
-        next_page = settings.get('LOGIN_URL')
+        next_page = settings.get('OIDC_LOGIN_URL')
         after_end_session_hook = settings.get('OIDC_AFTER_END_SESSION_HOOK', import_str=True)
 
         if id_token_hint:
