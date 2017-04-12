@@ -47,6 +47,8 @@ from oidc_provider import signals
 
 logger = logging.getLogger(__name__)
 
+OIDC_TEMPLATES = settings.get('OIDC_TEMPLATES')
+
 
 class AuthorizeView(View):
 
@@ -103,7 +105,7 @@ class AuthorizeView(View):
                     'scopes': authorize.get_scopes_information(),
                 }
 
-                return render(request, 'oidc_provider/authorize.html', context)
+                return render(request, OIDC_TEMPLATES['authorize'], context)
             else:
                 if authorize.params['prompt'] == 'none':
                     raise AuthorizeError(authorize.params['redirect_uri'], 'login_required', authorize.grant_type)
@@ -116,7 +118,7 @@ class AuthorizeView(View):
                 'description': error.description,
             }
 
-            return render(request, 'oidc_provider/error.html', context)
+            return render(request, OIDC_TEMPLATES['error'], context)
 
         except (AuthorizeError) as error:
             uri = error.create_uri(
