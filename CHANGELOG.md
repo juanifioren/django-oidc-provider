@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 ##### Added
 - Signals when user accept/decline the authorization page.
+- require_consent and reuse_consent are added to Client model.
+
+##### Changed
+- OIDC_SKIP_CONSENT_ALWAYS and OIDC_SKIP_CONSENT_ENABLE are removed from settings.
 
 ##### Fixed
 - Timestamps with unixtime (instead of django timezone).
