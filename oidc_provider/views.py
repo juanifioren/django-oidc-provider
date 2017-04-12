@@ -37,7 +37,7 @@ from oidc_provider.lib.utils.common import (
 from oidc_provider.lib.utils.oauth2 import protected_resource_view
 from oidc_provider.lib.utils.token import client_id_from_id_token
 from oidc_provider.models import (
-    Client,
+    Client, Token,
     RESPONSE_TYPE_CHOICES,
     RSAKey,
 )
@@ -268,9 +268,22 @@ class EndSessionView(View):
         next_page = settings.get('LOGIN_URL')
 
         if id_token_hint:
-            client_id = client_id_from_id_token(id_token_hint)
-            try:
-                client = Client.objects.get(client_id=client_id)
+            client = None
+            if '.' in id_token_hint:
+                # looks like JWT
+                try:
+                    client = Client.objects.get(
+                        client_id=client_id_from_id_token(id_token_hint)
+                    )
+                except Client.DoesNotExist:
+                    pass
+            else:
+                # in hope it's access_token
+                try:
+                    client = Token.objects.select_related('client').get(access_token=id_token_hint).client
+                except Token.DoesNotExist:
+                    pass
+            if client is not None:
                 if post_logout_redirect_uri in client.post_logout_redirect_uris:
                     if state:
                         uri = urlsplit(post_logout_redirect_uri)
@@ -280,8 +293,6 @@ class EndSessionView(View):
                         next_page = urlunsplit(uri)
                     else:
                         next_page = post_logout_redirect_uri
-            except Client.DoesNotExist:
-                pass
 
         return logout(request, next_page=next_page)
 
