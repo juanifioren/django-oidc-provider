@@ -23,7 +23,10 @@ All notable changes to this project will be documented in this file.
 
 ##### Changed
 - `LOGIN_URL` has been changed to `OIDC_LOGIN_URL`
-- `OIDC_SKIP_CONSENT_ALWAYS` setting behavior. Server will NEVER ask for consent if client is confidentail
+
+##### Removed
+- `OIDC_SKIP_CONSENT_ALWAYS` setting. Now is client based configuration
+
 
 ### [0.4.4] - 2016-11-29
 
