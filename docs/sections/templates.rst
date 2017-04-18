@@ -33,3 +33,6 @@ You can copy the sample html here and edit them with your own styles.
 
     <h3>{{ error }}</h3>
     <p>{{ description }}</p>
+
+You can also customize paths to your custom templates by putting them in ``OIDC_TEMPLATES`` in the settings.
+

@@ -28,7 +28,7 @@ from oidc_provider.lib.errors import (
     ClientIdError,
     RedirectUriError,
     TokenError,
-)
+    UserAuthError)
 from oidc_provider.lib.utils.common import (
     redirect,
     get_site_url,
@@ -46,6 +46,8 @@ from oidc_provider import signals
 
 
 logger = logging.getLogger(__name__)
+
+OIDC_TEMPLATES = settings.get('OIDC_TEMPLATES')
 
 
 class AuthorizeView(View):
@@ -79,7 +81,7 @@ class AuthorizeView(View):
                     raise AuthorizeError(authorize.params['redirect_uri'], 'interaction_required', authorize.grant_type)
 
                 if authorize.params['prompt'] == 'login':
-                    return redirect_to_login(request.get_full_path())
+                    return redirect_to_login(request.get_full_path(), settings.get('OIDC_LOGIN_URL'))
 
                 if authorize.params['prompt'] == 'select_account':
                     # TODO: see how we can support multiple accounts for the end-user.
@@ -103,12 +105,12 @@ class AuthorizeView(View):
                     'scopes': authorize.get_scopes_information(),
                 }
 
-                return render(request, 'oidc_provider/authorize.html', context)
+                return render(request, OIDC_TEMPLATES['authorize'], context)
             else:
                 if authorize.params['prompt'] == 'none':
                     raise AuthorizeError(authorize.params['redirect_uri'], 'login_required', authorize.grant_type)
 
-                return redirect_to_login(request.get_full_path())
+                return redirect_to_login(request.get_full_path(), settings.get('OIDC_LOGIN_URL'))
 
         except (ClientIdError, RedirectUriError) as error:
             context = {
@@ -116,7 +118,7 @@ class AuthorizeView(View):
                 'description': error.description,
             }
 
-            return render(request, 'oidc_provider/error.html', context)
+            return render(request, OIDC_TEMPLATES['error'], context)
 
         except (AuthorizeError) as error:
             uri = error.create_uri(
@@ -167,8 +169,10 @@ class TokenView(View):
 
             return TokenEndpoint.response(dic)
 
-        except (TokenError) as error:
+        except TokenError as error:
             return TokenEndpoint.response(error.create_dict(), status=400)
+        except UserAuthError as error:
+            return TokenEndpoint.response(error.create_dict(), status=403)
 
 
 @require_http_methods(['GET', 'POST'])
@@ -264,8 +268,10 @@ class EndSessionView(View):
         id_token_hint = request.GET.get('id_token_hint', '')
         post_logout_redirect_uri = request.GET.get('post_logout_redirect_uri', '')
         state = request.GET.get('state', '')
+        client = None
 
-        next_page = settings.get('LOGIN_URL')
+        next_page = settings.get('OIDC_LOGIN_URL')
+        after_end_session_hook = settings.get('OIDC_AFTER_END_SESSION_HOOK', import_str=True)
 
         if id_token_hint:
             client_id = client_id_from_id_token(id_token_hint)
@@ -282,6 +288,15 @@ class EndSessionView(View):
                         next_page = post_logout_redirect_uri
             except Client.DoesNotExist:
                 pass
+
+        after_end_session_hook(
+            request=request,
+            id_token=id_token_hint,
+            post_logout_redirect_uri=post_logout_redirect_uri,
+            state=state,
+            client=client,
+            next_page=next_page
+        )
 
         return logout(request, next_page=next_page)
 

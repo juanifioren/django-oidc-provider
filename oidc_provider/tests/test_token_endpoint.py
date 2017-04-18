@@ -18,7 +18,7 @@ from django.test import TestCase
 from jwkest.jwk import KEYS
 from jwkest.jws import JWS
 from jwkest.jwt import JWT
-from mock import patch
+from mock import patch, Mock
 
 from oidc_provider.lib.utils.token import create_code
 from oidc_provider.models import Token
@@ -49,6 +49,14 @@ class TokenTestCase(TestCase):
         self.factory = RequestFactory()
         self.user = create_fake_user()
         self.client = create_fake_client(response_type='code')
+
+    def _password_grant_post_data(self):
+        return {
+            'username': 'johndoe',
+            'password': '1234',
+            'grant_type': 'password',
+            'scope': 'openid email',
+        }
 
     def _auth_code_post_data(self, code):
         """
@@ -127,6 +135,123 @@ class TokenTestCase(TestCase):
 
         return userinfo(request)
 
+    def _password_grant_auth_header(self):
+        user_pass = self.client.client_id + ':' + self.client.client_secret
+        auth = b'Basic ' + b64encode(user_pass.encode('utf-8'))
+        auth_header = {'HTTP_AUTHORIZATION': auth.decode('utf-8')}
+        return auth_header
+
+    # Resource Owner Password Credentials Grant
+    # requirements to satisfy in all test_password_grant methods
+    # https://tools.ietf.org/html/rfc6749#section-4.3.2
+    #
+    # grant_type
+    #       REQUIRED.  Value MUST be set to "password".
+    # username
+    #       REQUIRED.  The resource owner username.
+    # password
+    #       REQUIRED.  The resource owner password.
+    # scope
+    #       OPTIONAL.  The scope of the access request as described by
+    #       Section 3.3.
+    #
+    # The authorization server MUST:
+    # o  require client authentication for confidential clients or for any
+    #    client that was issued client credentials (or with other
+    #    authentication requirements),
+    # o  authenticate the client if client authentication is included, and
+    # o  validate the resource owner password credentials using its
+    #    existing password validation algorithm.
+
+    def test_default_setting_does_not_allow_grant_type_password(self):
+        post_data = self._password_grant_post_data()
+
+        response = self._post_request(
+            post_data=post_data,
+            extras=self._password_grant_auth_header()
+        )
+
+        response_dict = json.loads(response.content.decode('utf-8'))
+
+        self.assertEqual(400, response.status_code)
+        self.assertEqual('unsupported_grant_type', response_dict['error'])
+
+    @override_settings(OIDC_GRANT_TYPE_PASSWORD_ENABLE=True)
+    def test_password_grant_get_access_token_without_scope(self):
+        post_data = self._password_grant_post_data()
+        del (post_data['scope'])
+
+        response = self._post_request(
+            post_data=post_data,
+            extras=self._password_grant_auth_header()
+        )
+
+        response_dict = json.loads(response.content.decode('utf-8'))
+        self.assertIn('access_token', response_dict)
+
+    @override_settings(OIDC_GRANT_TYPE_PASSWORD_ENABLE=True)
+    def test_password_grant_get_access_token_with_scope(self):
+        response = self._post_request(
+            post_data=self._password_grant_post_data(),
+            extras=self._password_grant_auth_header()
+        )
+
+        response_dict = json.loads(response.content.decode('utf-8'))
+        self.assertIn('access_token', response_dict)
+
+    @override_settings(OIDC_GRANT_TYPE_PASSWORD_ENABLE=True)
+    def test_password_grant_get_access_token_invalid_user_credentials(self):
+        invalid_post = self._password_grant_post_data()
+        invalid_post['password'] = 'wrong!'
+
+        response = self._post_request(
+            post_data=invalid_post,
+            extras=self._password_grant_auth_header()
+        )
+
+        response_dict = json.loads(response.content.decode('utf-8'))
+
+        self.assertEqual(403, response.status_code)
+        self.assertEqual('access_denied', response_dict['error'])
+
+    def test_password_grant_get_access_token_invalid_client_credentials(self):
+        self.client.client_id = 'foo'
+        self.client.client_secret = 'bar'
+
+        response = self._post_request(
+            post_data=self._password_grant_post_data(),
+            extras=self._password_grant_auth_header()
+        )
+
+        response_dict = json.loads(response.content.decode('utf-8'))
+
+        self.assertEqual(400, response.status_code)
+        self.assertEqual('invalid_client', response_dict['error'])
+
+    @patch('oidc_provider.lib.utils.token.uuid')
+    @override_settings(OIDC_TOKEN_EXPIRE=120,
+                       OIDC_GRANT_TYPE_PASSWORD_ENABLE=True)
+    def test_password_grant_full_response(self, mock_uuid):
+        test_hex = 'fake_token'
+        mock_uuid4 = Mock(spec=uuid.uuid4)
+        mock_uuid4.hex = test_hex
+        mock_uuid.uuid4.return_value = mock_uuid4
+
+        response = self._post_request(
+            post_data=self._password_grant_post_data(),
+            extras=self._password_grant_auth_header()
+        )
+
+        response_dict = json.loads(response.content.decode('utf-8'))
+        id_token = JWS().verify_compact(response_dict['id_token'].encode('utf-8'), self._get_keys())
+
+        self.assertEqual(response_dict['access_token'], 'fake_token')
+        self.assertEqual(response_dict['refresh_token'], 'fake_token')
+        self.assertEqual(response_dict['expires_in'], 120)
+        self.assertEqual(response_dict['token_type'], 'bearer')
+        self.assertEqual(id_token['sub'], str(self.user.id))
+        self.assertEqual(id_token['aud'], self.client.client_id)
+
     @override_settings(OIDC_TOKEN_EXPIRE=720)
     def test_authorization_code(self):
         """
@@ -150,7 +275,7 @@ class TokenTestCase(TestCase):
         self.assertEqual(response_dic['token_type'], 'bearer')
         self.assertEqual(response_dic['expires_in'], 720)
         self.assertEqual(id_token['sub'], str(self.user.id))
-        self.assertEqual(id_token['aud'], self.client.client_id);
+        self.assertEqual(id_token['aud'], self.client.client_id)
 
     def test_refresh_token(self):
         """
@@ -308,12 +433,7 @@ class TokenTestCase(TestCase):
         del basicauth_data['client_id']
         del basicauth_data['client_secret']
 
-        # Generate HTTP Basic Auth header with id and secret.
-        user_pass = self.client.client_id + ':' + self.client.client_secret
-        auth_header = b'Basic ' + b64encode(user_pass.encode('utf-8'))
-        response = self._post_request(basicauth_data, {
-            'HTTP_AUTHORIZATION': auth_header.decode('utf-8'),
-        })
+        response = self._post_request(basicauth_data, self._password_grant_auth_header())
         response.content.decode('utf-8')
 
         self.assertEqual('invalid_client' in response.content.decode('utf-8'),
