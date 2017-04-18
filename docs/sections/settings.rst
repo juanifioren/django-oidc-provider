@@ -110,6 +110,13 @@ OPTIONAL. ``bool``. Enables OpenID Connect Session Management 1.0 in your provid
 
 Default is ``False``.
 
+OIDC_UNAUTHENTICATED_SESSION_MANAGEMENT_KEY
+===========================================
+
+OPTIONAL. Supply a fixed string to use as browser-state key for unauthenticated clients. Read :ref:`sessionmanagement` section.
+
+Default is a string generated at startup.
+
 OIDC_SKIP_CONSENT_ALWAYS
 ========================
 

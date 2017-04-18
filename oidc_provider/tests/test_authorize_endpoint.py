@@ -7,7 +7,7 @@ try:
 except ImportError:
     from urlparse import parse_qs, urlsplit
 import uuid
-from mock import patch
+from mock import patch, mock
 
 from django.contrib.auth.models import AnonymousUser
 from django.core.management import call_command
@@ -537,3 +537,14 @@ class TestCreateResponseURI(TestCase):
             authorization_endpoint.create_response_uri()
 
         log_exception.assert_called_once_with('[Authorize] Error when trying to create response uri: %s', exception)
+
+    @override_settings(OIDC_SESSION_MANAGEMENT_ENABLE=True)
+    def test_create_response_uri_generates_session_state_if_session_management_enabled(self):
+        # RequestFactory doesn't support sessions, so we mock it
+        self.request.session = mock.Mock(session_key=None)
+
+        authorization_endpoint = AuthorizeEndpoint(self.request)
+        authorization_endpoint.validate_params()
+
+        uri = authorization_endpoint.create_response_uri()
+        self.assertIn('session_state=', uri)
