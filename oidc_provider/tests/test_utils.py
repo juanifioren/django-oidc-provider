@@ -1,13 +1,15 @@
 import time
 from datetime import datetime
+from hashlib import sha224
 
-from django.test import TestCase
+from django.http import HttpRequest
+from django.test import TestCase, override_settings
 from django.utils import timezone
+from mock import mock
 
-from oidc_provider.lib.utils.common import get_issuer
+from oidc_provider.lib.utils.common import get_issuer, get_browser_state_or_default
 from oidc_provider.lib.utils.token import create_id_token
 from oidc_provider.tests.app.utils import create_fake_user
-from django.test import override_settings
 
 
 class Request(object):
@@ -78,3 +80,19 @@ class TokenTest(TestCase):
             'iss': 'http://localhost:8000/openid',
             'sub': str(self.user.id),
         })
+
+
+class BrowserStateTest(TestCase):
+
+    @override_settings(OIDC_UNAUTHENTICATED_SESSION_MANAGEMENT_KEY='my_static_key')
+    def test_get_browser_state_uses_value_from_settings_to_calculate_browser_state(self):
+        request = HttpRequest()
+        request.session = mock.Mock(session_key=None)
+        state = get_browser_state_or_default(request)
+        self.assertEqual(state, sha224('my_static_key'.encode('utf-8')).hexdigest())
+
+    def test_get_browser_state_uses_session_key_to_calculate_browser_state_if_available(self):
+        request = HttpRequest()
+        request.session = mock.Mock(session_key='my_session_key')
+        state = get_browser_state_or_default(request)
+        self.assertEqual(state, sha224('my_session_key'.encode('utf-8')).hexdigest())

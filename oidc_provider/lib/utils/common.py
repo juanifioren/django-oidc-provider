@@ -1,3 +1,5 @@
+from hashlib import sha224
+
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 
@@ -49,6 +51,7 @@ def get_site_url(site_url=None, request=None):
         raise Exception('Either pass `site_url`, '
                         'or set `SITE_URL` in settings, '
                         'or pass `request` object.')
+
 
 def get_issuer(site_url=None, request=None):
     """
@@ -125,3 +128,11 @@ def default_idtoken_processing_hook(id_token, user):
     :rtype dict
     """
     return id_token
+
+
+def get_browser_state_or_default(request):
+    """
+    Determine value to use as session state.
+    """
+    key = request.session.session_key or settings.get('OIDC_UNAUTHENTICATED_SESSION_MANAGEMENT_KEY')
+    return sha224(key.encode('utf-8')).hexdigest()
