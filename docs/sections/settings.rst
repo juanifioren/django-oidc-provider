@@ -110,6 +110,13 @@ OPTIONAL. ``bool``. Enables OpenID Connect Session Management 1.0 in your provid
 
 Default is ``False``.
 
+OIDC_UNAUTHENTICATED_SESSION_MANAGEMENT_KEY
+===========================================
+
+OPTIONAL. Supply a fixed string to use as browser-state key for unauthenticated clients. Read :ref:`sessionmanagement` section.
+
+Default is a string generated at startup.
+
 OIDC_SKIP_CONSENT_ALWAYS
 ========================
 
@@ -176,3 +183,31 @@ Credentials Grant. https://tools.ietf.org/html/rfc6749#section-4.3
     decide what works best for you, so you will have to implement a solution for
     this that suits your needs.
 
+OIDC_TEMPLATES
+==============
+OPTIONAL. A dictionary pointing to templates for authorize and error pages.
+Default is::
+
+    {
+        'authorize': 'oidc_provider/authorize.html',
+        'error': 'oidc_provider/error.html'
+    }
+
+The following contexts will be passed to the ``authorize`` and ``error`` templates respectively::
+
+    # For authorize template
+    {
+        'client': 'an instance of Client for the auth request',
+        'hidden_inputs': 'a rendered html with all the hidden inputs needed for AuthorizeEndpoint',
+        'params': 'a dict containing the params in the auth request',
+        'scopes': 'a list of scopes'
+    }
+
+    # For error template
+    {
+        'error': 'string stating the error',
+        'description': 'string stating description of the error'
+    }
+
+.. note::
+    The templates that are not specified here will use the default ones.

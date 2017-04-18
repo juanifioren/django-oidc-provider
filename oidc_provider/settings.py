@@ -1,10 +1,15 @@
 import importlib
+import random
+import string
 
 from django.conf import settings
 
 
 class DefaultSettings(object):
     required_attrs = ()
+
+    def __init__(self):
+        self._unauthenticated_session_management_key = None
 
     @property
     def OIDC_LOGIN_URL(self):
@@ -75,6 +80,18 @@ class DefaultSettings(object):
         return False
 
     @property
+    def OIDC_UNAUTHENTICATED_SESSION_MANAGEMENT_KEY(self):
+        """
+        OPTIONAL. Supply a fixed string to use as browser-state key for unauthenticated clients.
+        """
+
+        # Memoize generated value
+        if not self._unauthenticated_session_management_key:
+            self._unauthenticated_session_management_key = ''.join(
+                random.choice(string.ascii_uppercase + string.digits) for _ in range(100))
+        return self._unauthenticated_session_management_key
+
+    @property
     def OIDC_SKIP_CONSENT_ALWAYS(self):
         """
         OPTIONAL. If enabled, the Server will NEVER ask the user for consent.
@@ -137,6 +154,13 @@ class DefaultSettings(object):
         """
         return False
 
+    @property
+    def OIDC_TEMPLATES(self):
+        return {
+            'authorize': 'oidc_provider/authorize.html',
+            'error': 'oidc_provider/error.html'
+        }
+
 default_settings = DefaultSettings()
 
 
@@ -159,13 +183,19 @@ def get(name, import_str=False):
     Helper function to use inside the package.
     """
     value = None
+    default_value = getattr(default_settings, name)
+
     try:
-        value = getattr(default_settings, name)
         value = getattr(settings, name)
     except AttributeError:
-        if value is None and name in default_settings.required_attrs:
+        if name in default_settings.required_attrs:
             raise Exception('You must set ' + name + ' in your settings.')
 
-    value = import_from_str(value) if import_str else value
+    if isinstance(default_value, dict) and value:
+        default_value.update(value)
+        value = default_value
+    else:
+        value = value or default_value
+        value = import_from_str(value) if import_str else value
 
     return value
