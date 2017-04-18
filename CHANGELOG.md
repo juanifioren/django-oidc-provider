@@ -6,14 +6,26 @@ All notable changes to this project will be documented in this file.
 
 ##### Added
 - Signals when user accept/decline the authorization page.
-- require_consent and reuse_consent are added to Client model.
-
-##### Changed
-- OIDC_SKIP_CONSENT_ALWAYS and OIDC_SKIP_CONSENT_ENABLE are removed from settings.
+- `OIDC_AFTER_END_SESSION_HOOK` setting for additional business logic
+- Feature granttype password
+- `OIDC_UNAUTHENTICATED_SESSION_MANAGEMENT_KEY` setting for OpenId Connect Session Management. This value will be used for unauthenticated users as session state key only when Session Management is enabled.
+- `OIDC_SESSION_MANAGEMENT_ENABLE` setting enables OpenID Connect Session Management feature
+- `OIDC_GRANT_TYPE_PASSWORD_ENABLE` setting enables Resource Owner Password Credentials Grant
+- `OIDC_TEMPLATES` setting contains dictionary with names of templates for authorize and error pages
+- `reuse_consent` to client model. If enabled, the Server will save the user consent given to a specific client, so that user won't be prompted for the same authorization multiple times. Default: `True`
+- `require_consent` to client model. If disabled, the Server will NEVER ask the user for consent. Default: `True`
 
 ##### Fixed
 - Timestamps with unixtime (instead of django timezone).
 - Field refresh_token cannot be primary key if null.
+- `create_uri_exceptions` are now being logged at `Exception` level not `DEBUG`
+- `SessionManagementMiddleware` by hiding `DJANGO_SECRET` and using `OIDC_UNAUTHENTICATED_SESSION_MANAGEMENT_KEY` instead
+
+
+##### Changed
+- `LOGIN_URL` has been changed to `OIDC_LOGIN_URL`
+- `OIDC_SKIP_CONSENT_ALWAYS` setting behavior. Server will NEVER ask for consent if client is confidentail
+
 
 ### [0.4.4] - 2016-11-29
 
