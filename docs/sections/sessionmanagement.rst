@@ -18,7 +18,6 @@ Somewhere in your Django ``settings.py``::
 
     OIDC_SESSION_MANAGEMENT_ENABLE = True
 
-
 If you're in a multi-server setup, you might also want to add ``OIDC_UNAUTHENTICATED_SESSION_MANAGEMENT_KEY`` to your settings and set it to some random but fixed string. While authenticated clients have a session that can be used to calculate the browser state, there is no such thing for unauthenticated clients. Hence this value. By default a value is generated randomly on startup, so this will be different on each server. To get a consistent value across all servers you should set this yourself.
 
 

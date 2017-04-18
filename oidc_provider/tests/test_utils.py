@@ -81,7 +81,6 @@ class TokenTest(TestCase):
             'sub': str(self.user.id),
         })
 
-
 class BrowserStateTest(TestCase):
 
     @override_settings(OIDC_UNAUTHENTICATED_SESSION_MANAGEMENT_KEY='my_static_key')

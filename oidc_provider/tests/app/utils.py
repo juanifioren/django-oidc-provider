@@ -36,7 +36,7 @@ def create_fake_user():
     return user
 
 
-def create_fake_client(response_type, is_public=False):
+def create_fake_client(response_type, is_public=False, require_consent=True):
     """
     Create a test client, response_type argument MUST be:
     'code', 'id_token' or 'id_token token'.
@@ -53,6 +53,7 @@ def create_fake_client(response_type, is_public=False):
         client.client_secret = str(random.randint(1, 999999)).zfill(6)
     client.response_type = response_type
     client.redirect_uris = ['http://example.com/']
+    client.require_consent = require_consent
 
     client.save()
 
