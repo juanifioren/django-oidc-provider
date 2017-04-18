@@ -21,11 +21,9 @@ All notable changes to this project will be documented in this file.
 - `create_uri_exceptions` are now being logged at `Exception` level not `DEBUG`
 - `SessionManagementMiddleware` by hiding `DJANGO_SECRET` and using `OIDC_UNAUTHENTICATED_SESSION_MANAGEMENT_KEY` instead
 
-
 ##### Changed
 - `LOGIN_URL` has been changed to `OIDC_LOGIN_URL`
 - `OIDC_SKIP_CONSENT_ALWAYS` setting behavior. Server will NEVER ask for consent if client is confidentail
-
 
 ### [0.4.4] - 2016-11-29
 

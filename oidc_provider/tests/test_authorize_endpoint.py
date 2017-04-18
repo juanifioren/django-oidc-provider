@@ -7,6 +7,7 @@ try:
 except ImportError:
     from urlparse import parse_qs, urlsplit
 import uuid
+from mock import patch, mock
 
 from django.contrib.auth.models import AnonymousUser
 from django.core.management import call_command
@@ -26,6 +27,7 @@ from oidc_provider.tests.app.utils import (
     is_code_valid,
 )
 from oidc_provider.views import AuthorizeView
+from oidc_provider.lib.endpoints.authorize import AuthorizeEndpoint
 
 
 class AuthorizeEndpointMixin(object):
@@ -122,7 +124,7 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         response = self._auth_request('get', data)
 
         # Check if user was redirected to the login view.
-        self.assertIn(settings.get('LOGIN_URL'), response['Location'])
+        self.assertIn(settings.get('OIDC_LOGIN_URL'), response['Location'])
 
     def test_user_consent_inputs(self):
         """
@@ -498,3 +500,51 @@ class AuthorizationHybridFlowTestCase(TestCase, AuthorizeEndpointMixin):
         response = self._auth_request('post', self.data, is_user_authenticated=True)
 
         self.assertIn('expires_in=36000', response['Location'])
+
+
+class TestCreateResponseURI(TestCase):
+    def setUp(self):
+        url = reverse('oidc_provider:authorize')
+        user = create_fake_user()
+        client = create_fake_client(response_type='code', is_public=True)
+
+        # Base data to create a uri response
+        data = {
+            'client_id': client.client_id,
+            'redirect_uri': client.default_redirect_uri,
+            'response_type': client.response_type,
+        }
+
+        factory = RequestFactory()
+        self.request = factory.post(url, data=data)
+        self.request.user = user
+
+    @patch('oidc_provider.lib.endpoints.authorize.create_code')
+    @patch('oidc_provider.lib.endpoints.authorize.logger.exception')
+    def test_create_response_uri_logs_to_error(self, log_exception, create_code):
+        """
+        A lot can go wrong when creating a response uri and this is caught with a general Exception error. The
+        information contained within this error should show up in the error log so production servers have something
+        to work with when things don't work as expected.
+        """
+        exception = Exception("Something went wrong!")
+        create_code.side_effect = exception
+
+        authorization_endpoint = AuthorizeEndpoint(self.request)
+        authorization_endpoint.validate_params()
+
+        with self.assertRaises(Exception):
+            authorization_endpoint.create_response_uri()
+
+        log_exception.assert_called_once_with('[Authorize] Error when trying to create response uri: %s', exception)
+
+    @override_settings(OIDC_SESSION_MANAGEMENT_ENABLE=True)
+    def test_create_response_uri_generates_session_state_if_session_management_enabled(self):
+        # RequestFactory doesn't support sessions, so we mock it
+        self.request.session = mock.Mock(session_key=None)
+
+        authorization_endpoint = AuthorizeEndpoint(self.request)
+        authorization_endpoint.validate_params()
+
+        uri = authorization_endpoint.create_response_uri()
+        self.assertIn('session_state=', uri)
