@@ -30,8 +30,7 @@ from oidc_provider.models import (
     UserConsent,
 )
 from oidc_provider import settings
-from oidc_provider.lib.utils.common import cleanup_url_from_query_string
-
+from oidc_provider.lib.utils.common import cleanup_url_from_query_string, get_browser_state_or_default
 
 logger = logging.getLogger(__name__)
 
@@ -197,7 +196,7 @@ class AuthorizeEndpoint(object):
                 session_state = '{client_id} {origin} {browser_state} {salt}'.format(
                     client_id=self.client.client_id,
                     origin=client_origin,
-                    browser_state=self.request.COOKIES['op_browser_state'],
+                    browser_state=get_browser_state_or_default(self.request),
                     salt=salt)
                 session_state = sha256(session_state.encode('utf-8')).hexdigest()
                 session_state += '.' + salt
