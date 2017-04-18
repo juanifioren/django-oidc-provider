@@ -1,6 +1,6 @@
 from django.conf.urls import url
 from django.test import TestCase, override_settings
-from django.views import View
+from django.views.generic import View
 from mock import mock
 
 
@@ -10,10 +10,13 @@ class StubbedViews:
 
     urlpatterns = [url('^test/', SampleView.as_view())]
 
+MW_CLASSES = ('django.contrib.sessions.middleware.SessionMiddleware',
+              'oidc_provider.middleware.SessionManagementMiddleware')
+
 
 @override_settings(ROOT_URLCONF=StubbedViews,
-                   MIDDLEWARE=('django.contrib.sessions.middleware.SessionMiddleware',
-                               'oidc_provider.middleware.SessionManagementMiddleware'),
+                   MIDDLEWARE=MW_CLASSES,
+                   MIDDLEWARE_CLASSES=MW_CLASSES,
                    OIDC_SESSION_MANAGEMENT_ENABLE=True)
 class MiddlewareTestCase(TestCase):
 
