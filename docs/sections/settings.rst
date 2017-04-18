@@ -98,20 +98,6 @@ OPTIONAL. ``bool``. Enables OpenID Connect Session Management 1.0 in your provid
 
 Default is ``False``.
 
-OIDC_SKIP_CONSENT_ALWAYS
-========================
-
-OPTIONAL. ``bool``. If enabled, the Server will NEVER ask the user for consent.
-
-Default is ``False``.
-
-OIDC_SKIP_CONSENT_ENABLE
-========================
-
-OPTIONAL. ``bool``. If enabled, the Server will save the user consent given to a specific client, so that user won't be prompted for the same authorization multiple times.
-
-Default is ``True``.
-
 OIDC_SKIP_CONSENT_EXPIRE
 ========================
 

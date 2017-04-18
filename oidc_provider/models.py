@@ -43,6 +43,8 @@ class Client(models.Model):
     terms_url = models.CharField(max_length=255, blank=True, default='', verbose_name=_(u'Terms URL'), help_text=_(u'External reference to the privacy policy of the client.'))
     contact_email = models.CharField(max_length=255, blank=True, default='', verbose_name=_(u'Contact Email'))
     logo = models.FileField(blank=True, default='', upload_to='oidc_provider/clients', verbose_name=_(u'Logo Image'))
+    reuse_consent = models.BooleanField(default=True, verbose_name=_('Reuse Consent?'), help_text=_('If enabled, the Server will save the user consent given to a specific client, so that user won\'t be prompted for the same authorization multiple times.'))
+    require_consent = models.BooleanField(default=True, verbose_name=_('Require Consent?'), help_text=_('If disabled, the Server will NEVER ask the user for consent.'))
 
     _redirect_uris = models.TextField(default='', verbose_name=_(u'Redirect URIs'), help_text=_(u'Enter each URI on a new line.'))
     def redirect_uris():

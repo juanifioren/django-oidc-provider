@@ -22,6 +22,8 @@ Properties
 * ``jwt_alg``: Clients can choose wich algorithm will be used to sign id_tokens. Values are ``HS256`` and ``RS256``.
 * ``date_created``: Date automatically added when created.
 * ``redirect_uris``: List of redirect URIs.
+* ``require_consent``: If checked, the Server will never ask for consent (only applies to confidential clients).
+* ``reuse_consent``: If enabled, the Server will save the user consent given to a specific client, so that user won't be prompted for the same authorization multiple times.
 
 Optional information:
 
