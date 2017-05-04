@@ -93,21 +93,7 @@ class Command(BaseCommand):
             help='Logo Image'
         )
         parser.add_argument(
-            '--reuse-consent',
-            action='store_true',
-            dest='reuse_consent',
-            default=True,
-            help='If enabled, the Server will save the user consent given to a specific client, so that user won\'t be prompted for the same authorization multiple times.'
-        )
-        parser.add_argument(
-            '--require-consent',
-            action='store_true',
-            dest='require_consent',
-            default=True,
-            help='If disabled, the Server will NEVER ask the user for consent.'
-        )
-        parser.add_argument(
-            '--redirect_uris',
+            '--redirect-uris',
             action='store',
             dest='redirect_uris',
             default='',
@@ -136,8 +122,6 @@ class Command(BaseCommand):
                 'terms_url': options['terms_url'],
                 'contact_email': options['contact_email'],
                 'logo': options['logo'],
-                'reuse_consent': options['reuse_consent'],
-                'require_consent': options['require_consent'],
                 'redirect_uris': options['redirect_uris'],
                 'post_logout_redirect_uris': options['post_logout_redirect_uris'],
             }
