@@ -17,6 +17,7 @@ class Command(BaseCommand):
             '--name',
             action='store',
             dest='name',
+            required=True,
             type=str,
             help='Client Name'
         )
@@ -96,7 +97,7 @@ class Command(BaseCommand):
             '--redirect-uris',
             action='store',
             dest='redirect_uris',
-            default='',
+            required=True,
             type=str,
             help='Enter each URI on a new line.'
         )
