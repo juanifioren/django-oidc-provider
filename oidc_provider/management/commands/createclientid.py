@@ -123,8 +123,8 @@ class Command(BaseCommand):
                 'terms_url': options['terms_url'],
                 'contact_email': options['contact_email'],
                 'logo': options['logo'],
-                'redirect_uris': options['redirect_uris'],
-                'post_logout_redirect_uris': options['post_logout_redirect_uris'],
+                'redirect_uris': options['redirect_uris'].split(' '),
+                'post_logout_redirect_uris': options['post_logout_redirect_uris'].split(' '),
             }
             client = Client(**data)
             client.save()
