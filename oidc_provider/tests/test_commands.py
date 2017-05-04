@@ -19,3 +19,9 @@ class CommandsTest(TestCase):
         out = StringIO()
         call_command('createclientid', '--name=BrandNewClient', '--redirect-uris=http://domain.com/callback', stdout=out)
         self.assertIn('OAuth2 Client ID successfully created', out.getvalue())
+
+    def test_createrclientid_redirect_uris_output(self):
+        out = StringIO()
+        call_command('createclientid', '--name=BrandNewClient', '--redirect-uris=http://domain.com/callback http://webhooks.domain.com/callback', stdout=out)
+        self.assertIn('OAuth2 Client ID successfully created', out.getvalue())
+        self.assertIn("['http://domain.com/callback',\n                   'http://webhooks.domain.com/callback']", out.getvalue())
