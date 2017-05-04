@@ -128,6 +128,6 @@ class Command(BaseCommand):
             }
             client = Client(**data)
             client.save()
-            self.stdout.write(u'OAuth2  Client ID successfully created: {}'.format(client))
+            self.stdout.write(u'OAuth2 Client ID successfully created: {client.name}, {client.client_id}, {client.client_secret}, {client.redirect_uris}'.format(client=client))
         except Exception as e:
             self.stdout.write('Something goes wrong: {0}'.format(e))

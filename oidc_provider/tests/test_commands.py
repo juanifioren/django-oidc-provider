@@ -14,3 +14,8 @@ class CommandsTest(TestCase):
         out = StringIO()
         call_command('makemigrations', 'oidc_provider', stdout=out)
         self.assertIn('No changes detected in app', out.getvalue())
+
+    def test_createrclientid_output(self):
+        out = StringIO()
+        call_command('createclientid', '--name=BrandNewClient', '--redirect-uris=http://domain.com/callback', stdout=out)
+        self.assertIn('OAuth2 Client ID successfully created', out.getvalue())
