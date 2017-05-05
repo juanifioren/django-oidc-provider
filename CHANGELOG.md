@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 - Signals when user accept/decline the authorization page.
 - `OIDC_AFTER_END_SESSION_HOOK` setting for additional business logic
 - Feature granttype password
+- require_consent and reuse_consent are added to Client model.
+
+##### Changed
+- OIDC_SKIP_CONSENT_ALWAYS and OIDC_SKIP_CONSENT_ENABLE are removed from settings.
 
 ##### Fixed
 - Timestamps with unixtime (instead of django timezone).

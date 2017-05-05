@@ -117,20 +117,6 @@ OPTIONAL. Supply a fixed string to use as browser-state key for unauthenticated 
 
 Default is a string generated at startup.
 
-OIDC_SKIP_CONSENT_ALWAYS
-========================
-
-OPTIONAL. ``bool``. If enabled, the Server will NEVER ask the user for consent if the client is confidential.
-
-Default is ``False``.
-
-OIDC_SKIP_CONSENT_ENABLE
-========================
-
-OPTIONAL. ``bool``. If enabled, the Server will save the user consent given to a specific client, so that user won't be prompted for the same authorization multiple times.
-
-Default is ``True``.
-
 OIDC_SKIP_CONSENT_EXPIRE
 ========================
 

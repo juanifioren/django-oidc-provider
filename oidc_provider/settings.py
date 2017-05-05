@@ -91,23 +91,6 @@ class DefaultSettings(object):
                 random.choice(string.ascii_uppercase + string.digits) for _ in range(100))
         return self._unauthenticated_session_management_key
 
-    @property
-    def OIDC_SKIP_CONSENT_ALWAYS(self):
-        """
-        OPTIONAL. If enabled, the Server will NEVER ask the user for consent.
-        """
-        return False
-
-    @property
-    def OIDC_SKIP_CONSENT_ENABLE(self):
-        """
-        OPTIONAL. If enabled, the Server will save the user consent
-        given to a specific client, so that user won't be prompted for
-        the same authorization multiple times.
-        """
-        return True
-
-    @property
     def OIDC_SKIP_CONSENT_EXPIRE(self):
         """
         OPTIONAL. User consent expiration after been granted.
