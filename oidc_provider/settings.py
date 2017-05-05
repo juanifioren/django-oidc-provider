@@ -91,6 +91,7 @@ class DefaultSettings(object):
                 random.choice(string.ascii_uppercase + string.digits) for _ in range(100))
         return self._unauthenticated_session_management_key
 
+    @property
     def OIDC_SKIP_CONSENT_EXPIRE(self):
         """
         OPTIONAL. User consent expiration after been granted.
