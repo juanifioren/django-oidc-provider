@@ -11,6 +11,7 @@ from oidc_provider.tests.app.utils import (
     create_fake_client,
     create_fake_user,
 )
+import mock
 
 
 class EndSessionTestCase(TestCase):
@@ -35,7 +36,7 @@ class EndSessionTestCase(TestCase):
         }
         response = self.client.get(self.url, query_params)
         # With no id_token the OP MUST NOT redirect to the requested redirect_uri.
-        self.assertRedirects(response, settings.get('LOGIN_URL'), fetch_redirect_response=False)
+        self.assertRedirects(response, settings.get('OIDC_LOGIN_URL'), fetch_redirect_response=False)
 
         id_token_dic = create_id_token(user=self.user, aud=self.oidc_client.client_id)
         id_token = encode_id_token(id_token_dic, self.oidc_client)
@@ -44,3 +45,10 @@ class EndSessionTestCase(TestCase):
 
         response = self.client.get(self.url, query_params)
         self.assertRedirects(response, self.LOGOUT_URL, fetch_redirect_response=False)
+
+    @mock.patch(settings.get('OIDC_AFTER_END_SESSION_HOOK'))
+    def test_call_post_end_session_hook(self, hook_function):
+        self.client.get(self.url)
+        self.assertTrue(hook_function.called, 'OIDC_AFTER_END_SESSION_HOOK should be called')
+        self.assertTrue(hook_function.call_count == 1, 'OIDC_AFTER_END_SESSION_HOOK should be called once but was {}'.format(hook_function.call_count))
+
