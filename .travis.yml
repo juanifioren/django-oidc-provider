@@ -3,18 +3,14 @@ python:
   - "2.7"
   - "3.4"
   - "3.5"
-  - "3.6"
 env:
   - DJANGO=1.7
   - DJANGO=1.8
   - DJANGO=1.9
   - DJANGO=1.10
-  - DJANGO=1.11
 matrix:
   exclude:
     - python: "3.5"
-      env: DJANGO=1.7
-    - python: "3.6"
       env: DJANGO=1.7
 install:
   - pip install tox coveralls
