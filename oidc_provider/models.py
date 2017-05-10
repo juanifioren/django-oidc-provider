@@ -83,8 +83,8 @@ class Client(models.Model):
 
 class BaseCodeTokenModel(models.Model):
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'User'))
-    client = models.ForeignKey(Client, verbose_name=_(u'Client'))
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'User'), on_delete=models.CASCADE)
+    client = models.ForeignKey(Client, verbose_name=_(u'Client'), on_delete=models.CASCADE)
     expires_at = models.DateTimeField(verbose_name=_(u'Expiration Date'))
     _scope = models.TextField(default='', verbose_name=_(u'Scopes'))
 
