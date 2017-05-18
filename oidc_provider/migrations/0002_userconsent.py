@@ -19,8 +19,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('expires_at', models.DateTimeField()),
                 ('_scope', models.TextField(default=b'')),
-                ('client', models.ForeignKey(to='oidc_provider.Client')),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('client', models.ForeignKey(to='oidc_provider.Client', on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
                 'abstract': False,
