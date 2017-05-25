@@ -4,8 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [0.5.0] - 2017-05-18
+
 ##### Added
 - Signals when user accept/decline the authorization page.
+- `OIDC_AFTER_END_SESSION_HOOK` setting for additional business logic.
+- Feature granttype password.
 - require_consent and reuse_consent are added to Client model.
 
 ##### Changed
@@ -14,6 +18,7 @@ All notable changes to this project will be documented in this file.
 ##### Fixed
 - Timestamps with unixtime (instead of django timezone).
 - Field refresh_token cannot be primary key if null.
+- `create_uri_exceptions` are now being logged at `Exception` level not `DEBUG`.
 
 ### [0.4.4] - 2016-11-29
 

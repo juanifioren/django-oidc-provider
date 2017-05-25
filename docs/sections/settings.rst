@@ -5,12 +5,12 @@ Settings
 
 Customize your provider so fit your project needs.
 
-LOGIN_URL
-=========
+OIDC_LOGIN_URL
+==============
 
-REQUIRED. ``str``. Used to log the user in. `Read more in Django docs <https://docs.djangoproject.com/en/1.7/ref/settings/#login-url>`_
+OPTIONAL. ``str``. Used to log the user in. By default Django's ``LOGIN_URL`` will be used. `Read more in Django docs <https://docs.djangoproject.com/en/1.7/ref/settings/#login-url>`_
 
-``str``. Default is ``/accounts/login/``.
+``str``. Default is ``/accounts/login/`` (Django's ``LOGIN_URL``).
 
 SITE_URL
 ========
@@ -35,6 +35,18 @@ Return ``None`` if you want to continue with the flow.
 
 The typical situation will be checking some state of the user or maybe redirect him somewhere.
 With request you have access to all OIDC parameters. Remember that if you redirect the user to another place then you need to take him back to the authorize endpoint (use ``request.get_full_path()`` as the value for a "next" parameter).
+
+OIDC_AFTER_END_SESSION_HOOK
+===========================
+
+OPTIONAL. ``str``. A string with the location of your function. Provide a way to plug into the log out process just before calling Django's log out function, typically to perform some business logic.
+
+Default is::
+
+    def default_after_end_session_hook(request, id_token=None, post_logout_redirect_uri=None, state=None, client=None, next_page=None):
+        return None
+
+Return ``None`` if you want to continue with the flow.
 
 OIDC_CODE_EXPIRE
 ================
@@ -98,6 +110,13 @@ OPTIONAL. ``bool``. Enables OpenID Connect Session Management 1.0 in your provid
 
 Default is ``False``.
 
+OIDC_UNAUTHENTICATED_SESSION_MANAGEMENT_KEY
+===========================================
+
+OPTIONAL. Supply a fixed string to use as browser-state key for unauthenticated clients. Read :ref:`sessionmanagement` section.
+
+Default is a string generated at startup.
+
 OIDC_SKIP_CONSENT_EXPIRE
 ========================
 
@@ -133,3 +152,48 @@ Example usage::
 
 .. note::
     Please **DO NOT** add extra keys or delete the existing ones in the ``claims`` dict. If you want to add extra claims to some scopes you can use the ``OIDC_EXTRA_SCOPE_CLAIMS`` setting.
+
+OIDC_GRANT_TYPE_PASSWORD_ENABLE
+===============================
+OPTIONAL. A boolean to set whether to allow the Resource Owner Password
+Credentials Grant. https://tools.ietf.org/html/rfc6749#section-4.3
+
+.. important::
+    From the specification:
+    "Since this access token request utilizes the resource owner's
+    password, the authorization server **MUST** protect the endpoint
+    against brute force attacks (e.g., using rate-limitation or
+    generating alerts)."
+
+    There are many ways to implement brute force attack prevention. We cannot
+    decide what works best for you, so you will have to implement a solution for
+    this that suits your needs.
+
+OIDC_TEMPLATES
+==============
+OPTIONAL. A dictionary pointing to templates for authorize and error pages.
+Default is::
+
+    {
+        'authorize': 'oidc_provider/authorize.html',
+        'error': 'oidc_provider/error.html'
+    }
+
+The following contexts will be passed to the ``authorize`` and ``error`` templates respectively::
+
+    # For authorize template
+    {
+        'client': 'an instance of Client for the auth request',
+        'hidden_inputs': 'a rendered html with all the hidden inputs needed for AuthorizeEndpoint',
+        'params': 'a dict containing the params in the auth request',
+        'scopes': 'a list of scopes'
+    }
+
+    # For error template
+    {
+        'error': 'string stating the error',
+        'description': 'string stating description of the error'
+    }
+
+.. note::
+    The templates that are not specified here will use the default ones.
