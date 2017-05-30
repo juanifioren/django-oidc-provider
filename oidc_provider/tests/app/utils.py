@@ -11,7 +11,8 @@ from django.contrib.auth.models import User
 from oidc_provider.models import (
     Client,
     Code,
-    Token)
+    Token,
+    UserConsent)
 
 
 FAKE_NONCE = 'cb584e44c43ed6bd0bc2d9c7e242837d'
@@ -68,6 +69,20 @@ def create_fake_token(user, scopes, client):
     token.save()
 
     return token
+
+
+def create_fake_consent(user, client, scopes):
+    expires_at = timezone.now() + timezone.timedelta(minutes=60)
+    date_given = timezone.now()
+
+    uc = UserConsent(
+        user=user,
+        client=client,
+        expires_at=expires_at,
+        date_given=date_given,
+        scope=scopes
+    )
+    uc.save()
 
 
 def is_code_valid(url, user, client):

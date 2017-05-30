@@ -23,6 +23,7 @@ from oidc_provider import settings
 from oidc_provider.tests.app.utils import (
     create_fake_user,
     create_fake_client,
+    create_fake_consent,
     FAKE_CODE_CHALLENGE,
     is_code_valid,
 )
@@ -302,6 +303,25 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
 
         # An error is returned if the Client does not have pre-configured consent for the requested Claims.
         self.assertIn('interaction_required', response['Location'])
+
+    def test_prompt_parameter_none_and_consent_given(self):
+        data = {
+            'client_id': self.client.client_id,
+            'response_type': self.client.response_type,
+            'redirect_uri': self.client.default_redirect_uri,
+            'scope': 'openid email',
+            'state': self.state,
+        }
+
+
+        create_fake_consent(self.user, self.client, ["openid", "email"])
+
+        data['prompt'] = 'none'
+
+        response = self._auth_request('get', data, is_user_authenticated=True)
+
+        self.assertNotIn('interaction_required', response['Location'])
+        self.assertNotIn('login_required', response['Location'])
 
 
 class AuthorizationImplicitFlowTestCase(TestCase, AuthorizeEndpointMixin):
