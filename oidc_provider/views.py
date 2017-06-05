@@ -11,6 +11,7 @@ from django.contrib.auth.views import (
     redirect_to_login,
     logout,
 )
+from django.contrib.auth import logout as django_user_logout
 from django.core.urlresolvers import reverse
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -66,25 +67,35 @@ class AuthorizeView(View):
                 if hook_resp:
                     return hook_resp
 
-                if not authorize.client.require_consent and not (authorize.client.client_type == 'public') \
-                        and not (authorize.params['prompt'] == 'consent'):
-                    return redirect(authorize.create_response_uri())
+                if 'login' in authorize.params['prompt']:
+                    if 'none' in authorize.params['prompt']:
+                        raise AuthorizeError(authorize.params['redirect_uri'], 'login_required', authorize.grant_type)
+                    else:
+                        django_user_logout(request)
+                        return redirect_to_login(request.get_full_path(), settings.get('OIDC_LOGIN_URL'))
 
-                if authorize.client.reuse_consent:
-                    # Check if user previously give consent.
-                    if authorize.client_has_user_consent() and not (authorize.client.client_type == 'public') \
-                            and not (authorize.params['prompt'] == 'consent'):
+                if 'select_account' in authorize.params['prompt']:
+                    # TODO: see how we can support multiple accounts for the end-user.
+                    if 'none' in authorize.params['prompt']:
+                        raise AuthorizeError(authorize.params['redirect_uri'], 'account_selection_required', authorize.grant_type)
+                    else:
+                        django_user_logout(request)
+                        return redirect_to_login(request.get_full_path(), settings.get('OIDC_LOGIN_URL'))
+
+                if {'none', 'consent'}.issubset(authorize.params['prompt']):
+                    raise AuthorizeError(authorize.params['redirect_uri'], 'consent_required', authorize.grant_type)
+
+                if 'consent' not in authorize.params['prompt']:
+                    if not authorize.client.require_consent and not (authorize.client.client_type == 'public'):
                         return redirect(authorize.create_response_uri())
 
-                if authorize.params['prompt'] == 'none':
-                    raise AuthorizeError(authorize.params['redirect_uri'], 'interaction_required', authorize.grant_type)
+                    if authorize.client.reuse_consent:
+                        # Check if user previously give consent.
+                        if authorize.client_has_user_consent() and not (authorize.client.client_type == 'public'):
+                            return redirect(authorize.create_response_uri())
 
-                if authorize.params['prompt'] == 'login':
-                    return redirect_to_login(request.get_full_path(), settings.get('OIDC_LOGIN_URL'))
-
-                if authorize.params['prompt'] == 'select_account':
-                    # TODO: see how we can support multiple accounts for the end-user.
-                    raise AuthorizeError(authorize.params['redirect_uri'], 'account_selection_required', authorize.grant_type)
+                if 'none' in authorize.params['prompt']:
+                    raise AuthorizeError(authorize.params['redirect_uri'], 'consent_required', authorize.grant_type)
 
                 # Generate hidden inputs for the form.
                 context = {
@@ -106,7 +117,7 @@ class AuthorizeView(View):
 
                 return render(request, OIDC_TEMPLATES['authorize'], context)
             else:
-                if authorize.params['prompt'] == 'none':
+                if 'none' in authorize.params['prompt']:
                     raise AuthorizeError(authorize.params['redirect_uri'], 'login_required', authorize.grant_type)
 
                 return redirect_to_login(request.get_full_path(), settings.get('OIDC_LOGIN_URL'))
