@@ -36,6 +36,7 @@ logger = logging.getLogger(__name__)
 
 
 class AuthorizeEndpoint(object):
+    _allowed_prompt_params = {'none', 'login', 'consent', 'select_account'}
 
     def __init__(self, request):
         self.request = request
@@ -74,7 +75,9 @@ class AuthorizeEndpoint(object):
         self.params['scope'] = query_dict.get('scope', '').split()
         self.params['state'] = query_dict.get('state', '')
         self.params['nonce'] = query_dict.get('nonce', '')
-        self.params['prompt'] = query_dict.get('prompt', '')
+
+        self.params['prompt'] = self._allowed_prompt_params.intersection(set(query_dict.get('prompt', '').split()))
+
         self.params['code_challenge'] = query_dict.get('code_challenge', '')
         self.params['code_challenge_method'] = query_dict.get('code_challenge_method', '')
 
