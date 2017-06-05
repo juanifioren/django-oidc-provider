@@ -10,7 +10,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-oidc-provider',
-    version='0.4.4',
+    version='0.5.0',
     packages=find_packages(),
     include_package_data=True,
     license='MIT License',
@@ -31,16 +31,17 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
     test_suite='runtests.runtests',
     tests_require=[
-        'pyjwkest==1.3.0',
-        'mock==2.0.0',
+        'pyjwkest>=1.3.0',
+        'mock>=2.0.0',
     ],
 
     install_requires=[
-        'pyjwkest==1.3.0',
+        'pyjwkest>=1.3.0',
     ],
 )
