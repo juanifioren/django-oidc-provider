@@ -1,4 +1,5 @@
 import logging
+
 try:
     from urllib import urlencode
     from urlparse import urlsplit, parse_qs, urlunsplit
@@ -44,14 +45,12 @@ from oidc_provider.models import (
 from oidc_provider import settings
 from oidc_provider import signals
 
-
 logger = logging.getLogger(__name__)
 
 OIDC_TEMPLATES = settings.get('OIDC_TEMPLATES')
 
 
 class AuthorizeView(View):
-
     def get(self, request, *args, **kwargs):
 
         authorize = AuthorizeEndpoint(request)
@@ -68,13 +67,13 @@ class AuthorizeView(View):
                     return hook_resp
 
                 if not authorize.client.require_consent and not (authorize.client.client_type == 'public') \
-                and not (authorize.params['prompt'] == 'consent'):
+                        and not (authorize.params['prompt'] == 'consent'):
                     return redirect(authorize.create_response_uri())
 
                 if authorize.client.reuse_consent:
                     # Check if user previously give consent.
                     if authorize.client_has_user_consent() and not (authorize.client.client_type == 'public') \
-                    and not (authorize.params['prompt'] == 'consent'):
+                            and not (authorize.params['prompt'] == 'consent'):
                         return redirect(authorize.create_response_uri())
 
                 if authorize.params['prompt'] == 'none':
@@ -120,7 +119,7 @@ class AuthorizeView(View):
 
             return render(request, OIDC_TEMPLATES['error'], context)
 
-        except (AuthorizeError) as error:
+        except AuthorizeError as error:
             uri = error.create_uri(
                 authorize.params['redirect_uri'],
                 authorize.params['state'])
@@ -158,7 +157,6 @@ class AuthorizeView(View):
 
 
 class TokenView(View):
-
     def post(self, request, *args, **kwargs):
         token = TokenEndpoint(request)
 
@@ -206,7 +204,6 @@ def userinfo(request, *args, **kwargs):
 
 
 class ProviderInfoView(View):
-
     def get(self, request, *args, **kwargs):
         dic = dict()
 
@@ -241,7 +238,6 @@ class ProviderInfoView(View):
 
 
 class JwksView(View):
-
     def get(self, request, *args, **kwargs):
         dic = dict(keys=[])
 
@@ -263,7 +259,6 @@ class JwksView(View):
 
 
 class EndSessionView(View):
-
     def get(self, request, *args, **kwargs):
         id_token_hint = request.GET.get('id_token_hint', '')
         post_logout_redirect_uri = request.GET.get('post_logout_redirect_uri', '')
@@ -302,7 +297,6 @@ class EndSessionView(View):
 
 
 class CheckSessionIframeView(View):
-
     @method_decorator(xframe_options_exempt)
     def dispatch(self, request, *args, **kwargs):
         return super(CheckSessionIframeView, self).dispatch(request, *args, **kwargs)
