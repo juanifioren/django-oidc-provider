@@ -278,7 +278,7 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
 
         self.assertIn('Request for Permission', response.content.decode('utf-8'))
 
-    def test_prompt_parameter(self):
+    def test_prompt_none_parameter(self):
         """
         Specifies whether the Authorization Server prompts the End-User for reauthentication and consent.
         See: http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
@@ -289,9 +289,8 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
             'redirect_uri': self.client.default_redirect_uri,
             'scope': 'openid email',
             'state': self.state,
+            'prompt': 'none'
         }
-
-        data['prompt'] = 'none'
 
         response = self._auth_request('get', data)
 
@@ -301,7 +300,92 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         response = self._auth_request('get', data, is_user_authenticated=True)
 
         # An error is returned if the Client does not have pre-configured consent for the requested Claims.
-        self.assertIn('interaction_required', response['Location'])
+        self.assertIn('consent_required', response['Location'])
+
+    @patch('oidc_provider.views.django_user_logout')
+    def test_prompt_login_parameter(self, logout_function):
+        """
+        Specifies whether the Authorization Server prompts the End-User for reauthentication and consent.
+        See: http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
+        """
+        data = {
+            'client_id': self.client.client_id,
+            'response_type': self.client.response_type,
+            'redirect_uri': self.client.default_redirect_uri,
+            'scope': 'openid email',
+            'state': self.state,
+            'prompt': 'login'
+        }
+
+        response = self._auth_request('get', data)
+        self.assertIn(settings.get('OIDC_LOGIN_URL'), response['Location'])
+
+        response = self._auth_request('get', data, is_user_authenticated=True)
+        self.assertIn(settings.get('OIDC_LOGIN_URL'), response['Location'])
+        self.assertTrue(logout_function.called_once())
+
+    def test_prompt_login_none_parameter(self):
+        """
+        Specifies whether the Authorization Server prompts the End-User for reauthentication and consent.
+        See: http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
+        """
+        data = {
+            'client_id': self.client.client_id,
+            'response_type': self.client.response_type,
+            'redirect_uri': self.client.default_redirect_uri,
+            'scope': 'openid email',
+            'state': self.state,
+            'prompt': 'login none'
+        }
+
+        response = self._auth_request('get', data)
+        self.assertIn('login_required', response['Location'])
+
+        response = self._auth_request('get', data, is_user_authenticated=True)
+        self.assertIn('login_required', response['Location'])
+
+    @patch('oidc_provider.views.render')
+    def test_prompt_consent_parameter(self, render_patched):
+        """
+        Specifies whether the Authorization Server prompts the End-User for reauthentication and consent.
+        See: http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
+        """
+        data = {
+            'client_id': self.client.client_id,
+            'response_type': self.client.response_type,
+            'redirect_uri': self.client.default_redirect_uri,
+            'scope': 'openid email',
+            'state': self.state,
+            'prompt': 'consent'
+        }
+
+        response = self._auth_request('get', data)
+        self.assertIn(settings.get('OIDC_LOGIN_URL'), response['Location'])
+
+        response = self._auth_request('get', data, is_user_authenticated=True)
+        render_patched.assert_called_once()
+        self.assertTrue(render_patched.call_args[0][1], settings.get('OIDC_TEMPLATES')['authorize'])
+
+    def test_prompt_consent_none_parameter(self):
+        """
+        Specifies whether the Authorization Server prompts the End-User for reauthentication and consent.
+        See: http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
+        """
+        data = {
+            'client_id': self.client.client_id,
+            'response_type': self.client.response_type,
+            'redirect_uri': self.client.default_redirect_uri,
+            'scope': 'openid email',
+            'state': self.state,
+            'prompt': 'consent none'
+        }
+
+        response = self._auth_request('get', data)
+        self.assertIn('login_required', response['Location'])
+
+        response = self._auth_request('get', data, is_user_authenticated=True)
+        self.assertIn('consent_required', response['Location'])
+
 
 
 class AuthorizationImplicitFlowTestCase(TestCase, AuthorizeEndpointMixin):
