@@ -67,14 +67,21 @@ class AuthorizeView(View):
                 if hook_resp:
                     return hook_resp
 
-                if not authorize.client.require_consent and not (authorize.client.client_type == 'public') \
-                and not (authorize.params['prompt'] == 'consent'):
+                implicit_flow_resp_types = set(['id_token', 'id_token token'])
+                allow_skipping_consent = (
+                    authorize.client.client_type != 'public' or
+                    authorize.client.response_type in implicit_flow_resp_types)
+
+                if not authorize.client.require_consent and (
+                        allow_skipping_consent and
+                        'consent' not in authorize.params['prompt']):
                     return redirect(authorize.create_response_uri())
 
                 if authorize.client.reuse_consent:
                     # Check if user previously give consent.
-                    if authorize.client_has_user_consent() and not (authorize.client.client_type == 'public') \
-                    and not (authorize.params['prompt'] == 'consent'):
+                    if authorize.client_has_user_consent() and (
+                            allow_skipping_consent and
+                            'consent' not in authorize.params['prompt']):
                         return redirect(authorize.create_response_uri())
 
                 if authorize.params['prompt'] == 'none':

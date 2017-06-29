@@ -264,7 +264,7 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
 
     def test_public_client_auto_approval(self):
         """
-        It's recommended not auto-approving requests for non-confidential clients.
+        It's recommended not auto-approving requests for non-confidential clients using Authorization Code.
         """
         data = {
             'client_id': self.client_public_with_no_consent.client_id,
@@ -315,6 +315,9 @@ class AuthorizationImplicitFlowTestCase(TestCase, AuthorizeEndpointMixin):
         self.user = create_fake_user()
         self.client = create_fake_client(response_type='id_token token')
         self.client_public = create_fake_client(response_type='id_token token', is_public=True)
+        self.client_public_no_consent = create_fake_client(
+            response_type='id_token token', is_public=True,
+            require_consent=False)
         self.client_no_access = create_fake_client(response_type='id_token')
         self.client_public_no_access = create_fake_client(response_type='id_token', is_public=True)
         self.state = uuid.uuid4().hex
@@ -447,6 +450,28 @@ class AuthorizationImplicitFlowTestCase(TestCase, AuthorizeEndpointMixin):
         id_token = JWT().unpack(fragment["id_token"][0].encode('utf-8')).payload()
 
         self.assertNotIn('at_hash', id_token)
+
+    def test_public_client_implicit_auto_approval(self):
+        """
+        Public clients using Implicit Flow should be able to reuse consent.
+        """
+        data = {
+            'client_id': self.client_public_no_consent.client_id,
+            'response_type': self.client_public_no_consent.response_type,
+            'redirect_uri': self.client_public_no_consent.default_redirect_uri,
+            'scope': 'openid email',
+            'state': self.state,
+            'nonce': self.nonce,
+        }
+
+        response = self._auth_request('get', data, is_user_authenticated=True)
+        response_text = response.content.decode('utf-8')
+        self.assertEquals(response_text, '')
+        components = urlsplit(response['Location'])
+        fragment = parse_qs(components[4])
+        self.assertIn('access_token', fragment)
+        self.assertIn('id_token', fragment)
+        self.assertIn('expires_in', fragment)
 
 
 class AuthorizationHybridFlowTestCase(TestCase, AuthorizeEndpointMixin):
