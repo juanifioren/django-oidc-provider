@@ -249,9 +249,13 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         self.assertEqual(is_code_ok, True, msg='Code returned is invalid or missing.')
 
     def test_response_uri_is_properly_constructed(self):
+        """
+        Check that the redirect_uri matches the one configured for the client.
+        Only 'state' and 'code' should be appended.
+        """
         data = {
             'client_id': self.client.client_id,
-            'redirect_uri': self.client.default_redirect_uri + "?redirect_state=xyz",
+            'redirect_uri': self.client.default_redirect_uri,
             'response_type': 'code',
             'scope': 'openid email',
             'state': self.state,
@@ -260,7 +264,20 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
 
         response = self._auth_request('post', data, is_user_authenticated=True)
 
-        # TODO
+        parsed = urlsplit(response['Location'])
+        params = parse_qs(parsed.query or parsed.fragment)
+        state = params['state'][0]
+        self.assertEquals(self.state, state, msg="State returned is invalid or missing")
+
+        is_code_ok = is_code_valid(url=response['Location'],
+                                   user=self.user,
+                                   client=self.client)
+        self.assertTrue(is_code_ok, msg='Code returned is invalid or missing')
+
+        self.assertEquals(set(params.keys()), set(['state', 'code']), msg='More than state or code appended as query params')
+
+        self.assertTrue(response['Location'].startswith(self.client.default_redirect_uri), msg='Different redirect_uri returned')
+
 
     def test_public_client_auto_approval(self):
         """
