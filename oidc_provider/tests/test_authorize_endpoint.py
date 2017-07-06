@@ -1,3 +1,5 @@
+from oidc_provider.lib.errors import RedirectUriError
+
 try:
     from urllib.parse import urlencode
 except ImportError:
@@ -278,6 +280,37 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
 
         self.assertTrue(response['Location'].startswith(self.client.default_redirect_uri), msg='Different redirect_uri returned')
 
+    def test_unknown_redirect_uris_are_rejected(self):
+        """
+        If a redirect_uri is not registered with the client the request must be rejected.
+        See http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest.
+        """
+        data = {
+            'client_id': self.client.client_id,
+            'response_type': 'code',
+            'redirect_uri': 'http://neverseenthis.com',
+            'scope': 'openid email',
+            'state': self.state,
+        }
+
+        response = self._auth_request('get', data)
+        self.assertIn(RedirectUriError.error, response.content.decode('utf-8'), msg='No redirect_uri error')
+
+    def test_manipulated_redirect_uris_are_rejected(self):
+        """
+        If a redirect_uri does not exactly match the registered uri it must be rejected.
+        See http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest.
+        """
+        data = {
+            'client_id': self.client.client_id,
+            'response_type': 'code',
+            'redirect_uri': self.client.default_redirect_uri + "?some=query",
+            'scope': 'openid email',
+            'state': self.state,
+        }
+
+        response = self._auth_request('get', data)
+        self.assertIn(RedirectUriError.error, response.content.decode('utf-8'), msg='No redirect_uri error')
 
     def test_public_client_auto_approval(self):
         """
