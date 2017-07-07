@@ -339,12 +339,12 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
         self.assertIn('invalid_grant', response.content.decode('utf-8'))
 
-    def test_client_redirect_url(self):
+    def test_client_redirect_uri(self):
         """
-        Validate that client redirect URIs with query strings match registered
-        URIs, and that unregistered URIs are rejected.
-
-        source: https://github.com/jerrykan/django-oidc-provider/blob/2f54e537666c689dd8448f8bbc6a3a0244b01a97/oidc_provider/tests/test_token_endpoint.py
+        Validate that client redirect URIs exactly match registered
+        URIs, and that unregistered URIs or URIs with query parameters are rejected.
+        See http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest and
+        http://openid.net/specs/openid-connect-core-1_0.html#HybridTokenRequest.
         """
         SIGKEYS = self._get_keys()
         code = self._create_code()
@@ -354,15 +354,19 @@ class TokenTestCase(TestCase):
         post_data['redirect_uri'] = 'http://invalid.example.org'
 
         response = self._post_request(post_data)
+        self.assertIn('invalid_client', response.content.decode('utf-8'))
 
-        self.assertIn('invalid_client', response.content.decode('utf-8')),
-
-        # Registered URI contained a query string
-        post_data['redirect_uri'] = 'http://example.com/?client=OidcClient'
+        # Registered URI, but with query string appended
+        post_data['redirect_uri'] = self.client.default_redirect_uri + '?foo=bar'
 
         response = self._post_request(post_data)
+        self.assertIn('invalid_client', response.content.decode('utf-8'))
 
-        self.assertNotIn('invalid_client', response.content.decode('utf-8')),
+        # Registered URI
+        post_data['redirect_uri'] = self.client.default_redirect_uri
+
+        response = self._post_request(post_data)
+        self.assertNotIn('invalid_client', response.content.decode('utf-8'))
 
     def test_request_methods(self):
         """
@@ -439,29 +443,6 @@ class TokenTestCase(TestCase):
         self.assertEqual('invalid_client' in response.content.decode('utf-8'),
                 False,
                 msg='Client authentication fails using HTTP Basic Auth.')
-
-    def test_client_redirect_url(self):
-        """
-        Validate that client redirect URIs with query strings match registered
-        URIs, and that unregistered URIs are rejected.
-        """
-        SIGKEYS = self._get_keys()
-        code = self._create_code()
-        post_data = self._auth_code_post_data(code=code.code)
-
-        # Unregistered URI
-        post_data['redirect_uri'] = 'http://invalid.example.org'
-
-        response = self._post_request(post_data)
-
-        self.assertIn('invalid_client', response.content.decode('utf-8')),
-
-        # Registered URI contained a query string
-        post_data['redirect_uri'] = 'http://example.com/?client=OidcClient'
-
-        response = self._post_request(post_data)
-
-        self.assertNotIn('invalid_client', response.content.decode('utf-8')),
 
     def test_access_token_contains_nonce(self):
         """
