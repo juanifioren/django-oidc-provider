@@ -114,7 +114,7 @@ def default_after_end_session_hook(request, id_token=None, post_logout_redirect_
     return None
 
 
-def default_idtoken_processing_hook(id_token, user):
+def default_idtoken_processing_hook(id_token, user, scope=None):
     """
     Hook to perform some additional actions ti `id_token` dictionary just before serialization.
 
@@ -123,6 +123,9 @@ def default_idtoken_processing_hook(id_token, user):
 
     :param user: user for whom id_token is generated
     :type user: User
+
+    :param scope: scope for the token
+    :type scope: list[str]|None
 
     :return: custom modified dictionary of values for `id_token`
     :rtype dict

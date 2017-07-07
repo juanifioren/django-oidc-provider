@@ -734,6 +734,26 @@ class TokenTestCase(TestCase):
         self.assertEqual(id_token.get('test_idtoken_processing_hook2'), FAKE_RANDOM_STRING)
         self.assertEqual(id_token.get('test_idtoken_processing_hook_user_email2'), self.user.email)
 
+    @override_settings(
+        OIDC_IDTOKEN_PROCESSING_HOOK=(
+                'oidc_provider.tests.app.utils.fake_idtoken_processing_hook3'))
+    def test_additional_idtoken_processing_hook_scope_param(self):
+        """
+        Test scope parameter is passed to OIDC_IDTOKEN_PROCESSING_HOOK.
+        """
+        code = self._create_code(['openid', 'email', 'profile', 'dummy'])
+
+        post_data = self._auth_code_post_data(code=code.code)
+
+        response = self._post_request(post_data)
+
+        response_dic = json.loads(response.content.decode('utf-8'))
+        id_token = JWT().unpack(response_dic['id_token'].encode('utf-8')).payload()
+
+        self.assertEqual(
+            id_token.get('scope_passed_to_processing_hook'),
+            ['openid', 'email', 'profile', 'dummy'])
+
     def test_pkce_parameters(self):
         """
         Test Proof Key for Code Exchange by OAuth Public Clients.

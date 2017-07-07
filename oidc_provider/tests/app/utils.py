@@ -107,7 +107,7 @@ def fake_sub_generator(user):
     return user.email
 
 
-def fake_idtoken_processing_hook(id_token, user):
+def fake_idtoken_processing_hook(id_token, user, scope=None):
     """
     Fake function for inserting some keys into token. Testing OIDC_IDTOKEN_PROCESSING_HOOK.
     """
@@ -116,10 +116,18 @@ def fake_idtoken_processing_hook(id_token, user):
     return id_token
 
 
-def fake_idtoken_processing_hook2(id_token, user):
+def fake_idtoken_processing_hook2(id_token, user, scope=None):
     """
     Fake function for inserting some keys into token. Testing OIDC_IDTOKEN_PROCESSING_HOOK - tuple or list as param
     """
     id_token['test_idtoken_processing_hook2'] = FAKE_RANDOM_STRING
     id_token['test_idtoken_processing_hook_user_email2'] = user.email
+    return id_token
+
+
+def fake_idtoken_processing_hook3(id_token, user, scope=None):
+    """
+    Fake function for checking scope is passed to processing hook.
+    """
+    id_token['scope_passed_to_processing_hook'] = scope
     return id_token
