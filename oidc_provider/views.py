@@ -66,7 +66,7 @@ class AuthorizeView(View):
                     client=authorize.client)
                 if hook_resp:
                     return hook_resp
-
+                  
                 if 'login' in authorize.params['prompt']:
                     if 'none' in authorize.params['prompt']:
                         raise AuthorizeError(authorize.params['redirect_uri'], 'login_required', authorize.grant_type)
@@ -85,14 +85,22 @@ class AuthorizeView(View):
                 if {'none', 'consent'}.issubset(authorize.params['prompt']):
                     raise AuthorizeError(authorize.params['redirect_uri'], 'consent_required', authorize.grant_type)
 
-                if 'consent' not in authorize.params['prompt']:
-                    if not authorize.client.require_consent and not (authorize.client.client_type == 'public'):
-                        return redirect(authorize.create_response_uri())
+                implicit_flow_resp_types = set(['id_token', 'id_token token'])
+                allow_skipping_consent = (
+                    authorize.client.client_type != 'public' or
+                    authorize.client.response_type in implicit_flow_resp_types)
 
-                    if authorize.client.reuse_consent:
-                        # Check if user previously give consent.
-                        if authorize.client_has_user_consent() and not (authorize.client.client_type == 'public'):
-                            return redirect(authorize.create_response_uri())
+                if not authorize.client.require_consent and (
+                        allow_skipping_consent and
+                        'consent' not in authorize.params['prompt']):
+                    return redirect(authorize.create_response_uri())
+
+                if authorize.client.reuse_consent:
+                    # Check if user previously give consent.
+                    if authorize.client_has_user_consent() and (
+                            allow_skipping_consent and
+                            'consent' not in authorize.params['prompt']):
+                        return redirect(authorize.create_response_uri())
 
                 if 'none' in authorize.params['prompt']:
                     raise AuthorizeError(authorize.params['redirect_uri'], 'consent_required', authorize.grant_type)
