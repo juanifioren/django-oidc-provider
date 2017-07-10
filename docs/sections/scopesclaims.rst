@@ -78,7 +78,7 @@ Let's say that you want add your custom ``foo`` scope for your OAuth2/OpenID pro
 
 Somewhere in your Django ``settings.py``::
 
-    OIDC_USERINFO = 'yourproject.oidc_provider_settings.CustomScopeClaims'
+    OIDC_EXTRA_SCOPE_CLAIMS = 'yourproject.oidc_provider_settings.CustomScopeClaims'
 
 Inside your oidc_provider_settings.py file add the following class::
 

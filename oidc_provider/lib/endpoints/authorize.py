@@ -30,12 +30,13 @@ from oidc_provider.models import (
     UserConsent,
 )
 from oidc_provider import settings
-from oidc_provider.lib.utils.common import cleanup_url_from_query_string, get_browser_state_or_default
+from oidc_provider.lib.utils.common import get_browser_state_or_default
 
 logger = logging.getLogger(__name__)
 
 
 class AuthorizeEndpoint(object):
+    _allowed_prompt_params = {'none', 'login', 'consent', 'select_account'}
 
     def __init__(self, request):
         self.request = request
@@ -74,7 +75,9 @@ class AuthorizeEndpoint(object):
         self.params['scope'] = query_dict.get('scope', '').split()
         self.params['state'] = query_dict.get('state', '')
         self.params['nonce'] = query_dict.get('nonce', '')
-        self.params['prompt'] = query_dict.get('prompt', '')
+
+        self.params['prompt'] = self._allowed_prompt_params.intersection(set(query_dict.get('prompt', '').split()))
+
         self.params['code_challenge'] = query_dict.get('code_challenge', '')
         self.params['code_challenge_method'] = query_dict.get('code_challenge_method', '')
 
@@ -90,8 +93,7 @@ class AuthorizeEndpoint(object):
         if self.is_authentication and not self.params['redirect_uri']:
             logger.debug('[Authorize] Missing redirect uri.')
             raise RedirectUriError()
-        clean_redirect_uri = cleanup_url_from_query_string(self.params['redirect_uri'])
-        if not (clean_redirect_uri in self.client.redirect_uris):
+        if not (self.params['redirect_uri'] in self.client.redirect_uris):
             logger.debug('[Authorize] Invalid redirect uri: %s', self.params['redirect_uri'])
             raise RedirectUriError()
 

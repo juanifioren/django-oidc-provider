@@ -3,7 +3,6 @@ import hashlib
 import logging
 import re
 from django.contrib.auth import authenticate
-from oidc_provider.lib.utils.common import cleanup_url_from_query_string
 
 try:
     from urllib.parse import unquote
@@ -43,8 +42,7 @@ class TokenEndpoint(object):
 
         self.params['client_id'] = client_id
         self.params['client_secret'] = client_secret
-        self.params['redirect_uri'] = unquote(
-            self.request.POST.get('redirect_uri', '').split('?', 1)[0])
+        self.params['redirect_uri'] = self.request.POST.get('redirect_uri', '')
         self.params['grant_type'] = self.request.POST.get('grant_type', '')
         self.params['code'] = self.request.POST.get('code', '')
         self.params['state'] = self.request.POST.get('state', '')
@@ -93,8 +91,7 @@ class TokenEndpoint(object):
                 raise TokenError('invalid_client')
 
         if self.params['grant_type'] == 'authorization_code':
-            clean_redirect_uri = cleanup_url_from_query_string(self.params['redirect_uri'])
-            if not (clean_redirect_uri in self.client.redirect_uris):
+            if not (self.params['redirect_uri'] in self.client.redirect_uris):
                 logger.debug('[Token] Invalid redirect uri: %s', self.params['redirect_uri'])
                 raise TokenError('invalid_client')
 
@@ -162,6 +159,8 @@ class TokenEndpoint(object):
             return self.create_access_token_response_dic()
 
     def create_access_token_response_dic(self):
+        # See https://tools.ietf.org/html/rfc6749#section-4.3
+
         token = create_token(
             self.user,
             self.client,
@@ -173,7 +172,7 @@ class TokenEndpoint(object):
             nonce='self.code.nonce',
             at_hash=token.at_hash,
             request=self.request,
-            scope=self.params['scope'],
+            scope=token.scope,
         )
 
         token.id_token = id_token_dic
@@ -188,6 +187,8 @@ class TokenEndpoint(object):
         }
 
     def create_code_response_dic(self):
+        # See https://tools.ietf.org/html/rfc6749#section-4.1
+
         token = create_token(
             user=self.code.user,
             client=self.code.client,
@@ -200,7 +201,7 @@ class TokenEndpoint(object):
                 nonce=self.code.nonce,
                 at_hash=token.at_hash,
                 request=self.request,
-                scope=self.params['scope'],
+                scope=token.scope,
             )
         else:
             id_token_dic = {}
@@ -223,10 +224,18 @@ class TokenEndpoint(object):
         return dic
 
     def create_refresh_response_dic(self):
+        # See https://tools.ietf.org/html/rfc6749#section-6
+
+        scope_param = self.params['scope']
+        scope = (scope_param.split(' ') if scope_param else self.token.scope)
+        unauthorized_scopes = set(scope) - set(self.token.scope)
+        if unauthorized_scopes:
+            raise TokenError('invalid_scope')
+
         token = create_token(
             user=self.token.user,
             client=self.token.client,
-            scope=self.token.scope)
+            scope=scope)
 
         # If the Token has an id_token it's an Authentication request.
         if self.token.id_token:
@@ -236,7 +245,7 @@ class TokenEndpoint(object):
                 nonce=None,
                 at_hash=token.at_hash,
                 request=self.request,
-                scope=self.params['scope'],
+                scope=token.scope,
             )
         else:
             id_token_dic = {}
