@@ -159,6 +159,8 @@ class TokenEndpoint(object):
             return self.create_access_token_response_dic()
 
     def create_access_token_response_dic(self):
+        # See https://tools.ietf.org/html/rfc6749#section-4.3
+
         token = create_token(
             self.user,
             self.client,
@@ -170,7 +172,7 @@ class TokenEndpoint(object):
             nonce='self.code.nonce',
             at_hash=token.at_hash,
             request=self.request,
-            scope=self.params['scope'],
+            scope=token.scope,
         )
 
         token.id_token = id_token_dic
@@ -185,6 +187,8 @@ class TokenEndpoint(object):
         }
 
     def create_code_response_dic(self):
+        # See https://tools.ietf.org/html/rfc6749#section-4.1
+
         token = create_token(
             user=self.code.user,
             client=self.code.client,
@@ -197,7 +201,7 @@ class TokenEndpoint(object):
                 nonce=self.code.nonce,
                 at_hash=token.at_hash,
                 request=self.request,
-                scope=self.params['scope'],
+                scope=token.scope,
             )
         else:
             id_token_dic = {}
@@ -220,10 +224,18 @@ class TokenEndpoint(object):
         return dic
 
     def create_refresh_response_dic(self):
+        # See https://tools.ietf.org/html/rfc6749#section-6
+
+        scope_param = self.params['scope']
+        scope = (scope_param.split(' ') if scope_param else self.token.scope)
+        unauthorized_scopes = set(scope) - set(self.token.scope)
+        if unauthorized_scopes:
+            raise TokenError('invalid_scope')
+
         token = create_token(
             user=self.token.user,
             client=self.token.client,
-            scope=self.token.scope)
+            scope=scope)
 
         # If the Token has an id_token it's an Authentication request.
         if self.token.id_token:
@@ -233,7 +245,7 @@ class TokenEndpoint(object):
                 nonce=None,
                 at_hash=token.at_hash,
                 request=self.request,
-                scope=self.params['scope'],
+                scope=token.scope,
             )
         else:
             id_token_dic = {}

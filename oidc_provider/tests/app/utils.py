@@ -29,6 +29,8 @@ def create_fake_user():
     user = User()
     user.username = 'johndoe'
     user.email = 'johndoe@example.com'
+    user.first_name = 'John'
+    user.last_name = 'Doe'
     user.set_password('1234')
 
     user.save()
