@@ -7,16 +7,16 @@ All notable changes to this project will be documented in this file.
 ### [0.5.1] - 2017-07-11
 
 ##### Changed
-- Documentation template to `Read The Docs`.
+- Documentation template changed to `Read The Docs`.
 
 ##### Fixed
 - `install_requires` has not longer pinned versions.
-- Removed infinity loop during authorization przez `prompt=login` has been send.
+- Removed infinity loop during authorization stage when `prompt=login` has been send.
 - Changed `prompt` handling as set of options instead of regular string.
-- Redirect URIs must match exactly with query params.
-- Stored user consent are usefull for public clients too.
+- Redirect URI must match exactly with given in query parameter.
+- Stored user consent are useful for public clients too.
 - Fixed documentation for custom scopes handling.
-- Scopes during refresh and code exchange are being taken from authorization request and not from query params
+- Scopes during refresh and code exchange are being taken from authorization request and not from query parameters.
 
 ### [0.5.0] - 2017-05-18
 
