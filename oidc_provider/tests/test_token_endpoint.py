@@ -50,15 +50,18 @@ class TokenTestCase(TestCase):
         self.user = create_fake_user()
         self.client = create_fake_client(response_type='code')
 
-    def _password_grant_post_data(self):
-        return {
+    def _password_grant_post_data(self, scope=None):
+        result = {
             'username': 'johndoe',
             'password': '1234',
             'grant_type': 'password',
             'scope': 'openid email',
         }
+        if scope is not None:
+            result['scope'] = ' '.join(scope)
+        return result
 
-    def _auth_code_post_data(self, code):
+    def _auth_code_post_data(self, code, scope=None):
         """
         All the data that will be POSTed to the Token Endpoint.
         """
@@ -70,10 +73,12 @@ class TokenTestCase(TestCase):
             'code': code,
             'state': uuid.uuid4().hex,
         }
+        if scope is not None:
+            post_data['scope'] = ' '.join(scope)
 
         return post_data
 
-    def _refresh_token_post_data(self, refresh_token):
+    def _refresh_token_post_data(self, refresh_token, scope=None):
         """
         All the data that will be POSTed to the Token Endpoint.
         """
@@ -83,6 +88,8 @@ class TokenTestCase(TestCase):
             'grant_type': 'refresh_token',
             'refresh_token': refresh_token,
         }
+        if scope is not None:
+            post_data['scope'] = ' '.join(scope)
 
         return post_data
 
@@ -103,14 +110,14 @@ class TokenTestCase(TestCase):
 
         return response
 
-    def _create_code(self):
+    def _create_code(self, scope=None):
         """
         Generate a valid grant code.
         """
         code = create_code(
             user=self.user,
             client=self.client,
-            scope=['openid', 'email'],
+            scope=(scope if scope else ['openid', 'email']),
             nonce=FAKE_NONCE,
             is_authentication=True)
         code.save()
@@ -228,29 +235,40 @@ class TokenTestCase(TestCase):
         self.assertEqual(400, response.status_code)
         self.assertEqual('invalid_client', response_dict['error'])
 
-    @patch('oidc_provider.lib.utils.token.uuid')
+    def test_password_grant_full_response(self):
+        self.check_password_grant(scope=['openid', 'email'])
+
+    def test_password_grant_scope(self):
+        self.check_password_grant(scope=['openid', 'profile'])
+
     @override_settings(OIDC_TOKEN_EXPIRE=120,
                        OIDC_GRANT_TYPE_PASSWORD_ENABLE=True)
-    def test_password_grant_full_response(self, mock_uuid):
-        test_hex = 'fake_token'
-        mock_uuid4 = Mock(spec=uuid.uuid4)
-        mock_uuid4.hex = test_hex
-        mock_uuid.uuid4.return_value = mock_uuid4
-
+    def check_password_grant(self, scope):
         response = self._post_request(
-            post_data=self._password_grant_post_data(),
+            post_data=self._password_grant_post_data(scope),
             extras=self._password_grant_auth_header()
         )
 
         response_dict = json.loads(response.content.decode('utf-8'))
         id_token = JWS().verify_compact(response_dict['id_token'].encode('utf-8'), self._get_keys())
 
-        self.assertEqual(response_dict['access_token'], 'fake_token')
-        self.assertEqual(response_dict['refresh_token'], 'fake_token')
+        token = Token.objects.get(user=self.user)
+        self.assertEqual(response_dict['access_token'], token.access_token)
+        self.assertEqual(response_dict['refresh_token'], token.refresh_token)
         self.assertEqual(response_dict['expires_in'], 120)
         self.assertEqual(response_dict['token_type'], 'bearer')
         self.assertEqual(id_token['sub'], str(self.user.id))
         self.assertEqual(id_token['aud'], self.client.client_id)
+
+        # Check the scope is honored by checking the claims in the userinfo
+        userinfo_response = self._get_userinfo(response_dict['access_token'])
+        userinfo = json.loads(userinfo_response.content.decode('utf-8'))
+
+        for (scope_param, claim) in [('email', 'email'), ('profile', 'name')]:
+            if scope_param in scope:
+                self.assertIn(claim, userinfo)
+            else:
+                self.assertNotIn(claim, userinfo)
 
     @override_settings(OIDC_TOKEN_EXPIRE=720)
     def test_authorization_code(self):
@@ -277,16 +295,64 @@ class TokenTestCase(TestCase):
         self.assertEqual(id_token['sub'], str(self.user.id))
         self.assertEqual(id_token['aud'], self.client.client_id)
 
+    @override_settings(OIDC_TOKEN_EXPIRE=720)
+    def test_scope_is_ignored_for_auth_code(self):
+        """
+        Scope is ignored for token respones to auth code grant type.
+        """
+        SIGKEYS = self._get_keys()
+        for code_scope in [['openid'], ['openid', 'email']]:
+            code = self._create_code(code_scope)
+
+            post_data = self._auth_code_post_data(
+                code=code.code, scope=['openid', 'profile'])
+
+            response = self._post_request(post_data)
+            response_dic = json.loads(response.content.decode('utf-8'))
+
+            self.assertEqual(response.status_code, 200)
+
+            id_token = JWS().verify_compact(response_dic['id_token'].encode('utf-8'), SIGKEYS)
+
+            if 'email' in code_scope:
+                self.assertIn('email', id_token)
+            else:
+                self.assertNotIn('email', id_token)
+
     def test_refresh_token(self):
         """
         A request to the Token Endpoint can also use a Refresh Token
         by using the grant_type value refresh_token, as described in
         Section 6 of OAuth 2.0 [RFC6749].
         """
+        self.do_refresh_token_check()
+
+    def test_refresh_token_invalid_scope(self):
+        """
+        Extending scope in refresh token is not allowed.
+
+        Try to get a refresh token with "profile" in the scope even
+        though the original authorized scope in the authorization code
+        request is only ['openid', 'email'].
+        """
+        self.do_refresh_token_check(scope=['openid', 'profile'])
+
+    def test_refresh_token_narrowed_scope(self):
+        """
+        Narrowing scope in refresh token is allowed.
+
+        Try to get a refresh token with just "openid" in the scope even
+        though the original authorized scope in the authorization code
+        request is ['openid', 'email'].
+        """
+        self.do_refresh_token_check(scope=['openid'])
+
+    def do_refresh_token_check(self, scope=None):
         SIGKEYS = self._get_keys()
 
         # Retrieve refresh token
         code = self._create_code()
+        self.assertEqual(code.scope, ['openid', 'email'])
         post_data = self._auth_code_post_data(code=code.code)
         start_time = time.time()
         with patch('oidc_provider.lib.utils.token.time.time') as time_func:
@@ -297,13 +363,28 @@ class TokenTestCase(TestCase):
         id_token1 = JWS().verify_compact(response_dic1['id_token'].encode('utf-8'), SIGKEYS)
 
         # Use refresh token to obtain new token
-        post_data = self._refresh_token_post_data(response_dic1['refresh_token'])
+        post_data = self._refresh_token_post_data(
+            response_dic1['refresh_token'], scope)
         with patch('oidc_provider.lib.utils.token.time.time') as time_func:
             time_func.return_value = start_time + 600
             response = self._post_request(post_data)
 
         response_dic2 = json.loads(response.content.decode('utf-8'))
+
+        if scope and set(scope) - set(code.scope): # too broad scope
+            self.assertEqual(response.status_code, 400)  # Bad Request
+            self.assertIn('error', response_dic2)
+            self.assertEqual(response_dic2['error'], 'invalid_scope')
+            return  # No more checks
+
         id_token2 = JWS().verify_compact(response_dic2['id_token'].encode('utf-8'), SIGKEYS)
+
+        if scope and 'email' not in scope:  # narrowed scope The auth
+            # The auth code request had email in scope, so it should be
+            # in the first id token
+            self.assertIn('email', id_token1)
+            # but the refresh request had no email in scope
+            self.assertNotIn('email', id_token2, 'email was not requested')
 
         self.assertNotEqual(response_dic1['id_token'], response_dic2['id_token'])
         self.assertNotEqual(response_dic1['access_token'], response_dic2['access_token'])
@@ -339,12 +420,12 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
         self.assertIn('invalid_grant', response.content.decode('utf-8'))
 
-    def test_client_redirect_url(self):
+    def test_client_redirect_uri(self):
         """
-        Validate that client redirect URIs with query strings match registered
-        URIs, and that unregistered URIs are rejected.
-
-        source: https://github.com/jerrykan/django-oidc-provider/blob/2f54e537666c689dd8448f8bbc6a3a0244b01a97/oidc_provider/tests/test_token_endpoint.py
+        Validate that client redirect URIs exactly match registered
+        URIs, and that unregistered URIs or URIs with query parameters are rejected.
+        See http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest and
+        http://openid.net/specs/openid-connect-core-1_0.html#HybridTokenRequest.
         """
         SIGKEYS = self._get_keys()
         code = self._create_code()
@@ -354,15 +435,19 @@ class TokenTestCase(TestCase):
         post_data['redirect_uri'] = 'http://invalid.example.org'
 
         response = self._post_request(post_data)
+        self.assertIn('invalid_client', response.content.decode('utf-8'))
 
-        self.assertIn('invalid_client', response.content.decode('utf-8')),
-
-        # Registered URI contained a query string
-        post_data['redirect_uri'] = 'http://example.com/?client=OidcClient'
+        # Registered URI, but with query string appended
+        post_data['redirect_uri'] = self.client.default_redirect_uri + '?foo=bar'
 
         response = self._post_request(post_data)
+        self.assertIn('invalid_client', response.content.decode('utf-8'))
 
-        self.assertNotIn('invalid_client', response.content.decode('utf-8')),
+        # Registered URI
+        post_data['redirect_uri'] = self.client.default_redirect_uri
+
+        response = self._post_request(post_data)
+        self.assertNotIn('invalid_client', response.content.decode('utf-8'))
 
     def test_request_methods(self):
         """
@@ -439,29 +524,6 @@ class TokenTestCase(TestCase):
         self.assertEqual('invalid_client' in response.content.decode('utf-8'),
                 False,
                 msg='Client authentication fails using HTTP Basic Auth.')
-
-    def test_client_redirect_url(self):
-        """
-        Validate that client redirect URIs with query strings match registered
-        URIs, and that unregistered URIs are rejected.
-        """
-        SIGKEYS = self._get_keys()
-        code = self._create_code()
-        post_data = self._auth_code_post_data(code=code.code)
-
-        # Unregistered URI
-        post_data['redirect_uri'] = 'http://invalid.example.org'
-
-        response = self._post_request(post_data)
-
-        self.assertIn('invalid_client', response.content.decode('utf-8')),
-
-        # Registered URI contained a query string
-        post_data['redirect_uri'] = 'http://example.com/?client=OidcClient'
-
-        response = self._post_request(post_data)
-
-        self.assertNotIn('invalid_client', response.content.decode('utf-8')),
 
     def test_access_token_contains_nonce(self):
         """
