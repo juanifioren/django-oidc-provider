@@ -66,13 +66,14 @@ class AuthorizeView(View):
                     client=authorize.client)
                 if hook_resp:
                     return hook_resp
-                  
+
                 if 'login' in authorize.params['prompt']:
                     if 'none' in authorize.params['prompt']:
                         raise AuthorizeError(authorize.params['redirect_uri'], 'login_required', authorize.grant_type)
                     else:
                         django_user_logout(request)
-                        return redirect_to_login(request.get_full_path(), settings.get('OIDC_LOGIN_URL'))
+                        next_page = self.strip_prompt_login(request.get_full_path())
+                        return redirect_to_login(next_page, settings.get('OIDC_LOGIN_URL'))
 
                 if 'select_account' in authorize.params['prompt']:
                     # TODO: see how we can support multiple accounts for the end-user.
@@ -127,6 +128,9 @@ class AuthorizeView(View):
             else:
                 if 'none' in authorize.params['prompt']:
                     raise AuthorizeError(authorize.params['redirect_uri'], 'login_required', authorize.grant_type)
+                if 'login' in authorize.params['prompt']:
+                    next_page = self.strip_prompt_login(request.get_full_path())
+                    return redirect_to_login(next_page, settings.get('OIDC_LOGIN_URL'))
 
                 return redirect_to_login(request.get_full_path(), settings.get('OIDC_LOGIN_URL'))
 
@@ -173,6 +177,20 @@ class AuthorizeView(View):
                 authorize.params['state'])
 
             return redirect(uri)
+
+    @staticmethod
+    def strip_prompt_login(path):
+        """
+        Strips 'login' from the 'prompt' query parameter.
+        """
+        uri = urlsplit(path)
+        query_params = parse_qs(uri.query)
+        prompt = query_params['prompt']
+        prompt.remove('login')
+        if prompt:
+            query_params['prompt'] = prompt
+        uri = uri._replace(query=urlencode(query_params, doseq=True))
+        return urlunsplit(uri)
 
 
 class TokenView(View):
