@@ -190,6 +190,8 @@ class AuthorizeView(View):
             prompt.remove('login')
         if prompt:
             query_params['prompt'] = prompt
+        else:
+            del query_params['prompt']
         uri = uri._replace(query=urlencode(query_params, doseq=True))
         return urlunsplit(uri)
 
