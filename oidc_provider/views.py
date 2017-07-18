@@ -185,12 +185,9 @@ class AuthorizeView(View):
         """
         uri = urlsplit(path)
         query_params = parse_qs(uri.query)
-        prompt = query_params['prompt']
-        if 'login' in prompt:
-            prompt.remove('login')
-        if prompt:
-            query_params['prompt'] = prompt
-        else:
+        if 'login' in query_params['prompt']:
+            query_params['prompt'].remove('login')
+        if not query_params['prompt']:
             del query_params['prompt']
         uri = uri._replace(query=urlencode(query_params, doseq=True))
         return urlunsplit(uri)
