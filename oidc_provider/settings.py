@@ -145,6 +145,7 @@ class DefaultSettings(object):
             'error': 'oidc_provider/error.html'
         }
 
+
 default_settings = DefaultSettings()
 
 

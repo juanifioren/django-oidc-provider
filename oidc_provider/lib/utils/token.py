@@ -18,12 +18,14 @@ from oidc_provider.models import (
 from oidc_provider import settings
 
 
-def create_id_token(user, aud, nonce='', at_hash='', request=None, scope=[]):
+def create_id_token(user, aud, nonce='', at_hash='', request=None, scope=None):
     """
     Creates the id_token dictionary.
     See: http://openid.net/specs/openid-connect-core-1_0.html#IDToken
     Return a dic.
     """
+    if scope is None:
+        scope = []
     sub = settings.get('OIDC_IDTOKEN_SUB_GENERATOR', import_str=True)(user=user)
 
     expires_in = settings.get('OIDC_IDTOKEN_EXPIRE')
@@ -63,6 +65,7 @@ def create_id_token(user, aud, nonce='', at_hash='', request=None, scope=[]):
 
     return dic
 
+
 def encode_id_token(payload, client):
     """
     Represent the ID Token as a JSON Web Token (JWT).
@@ -72,6 +75,7 @@ def encode_id_token(payload, client):
     _jws = JWS(payload, alg=client.jwt_alg)
     return _jws.sign_compact(keys)
 
+
 def decode_id_token(token, client):
     """
     Represent the ID Token as a JSON Web Token (JWT).
@@ -80,6 +84,7 @@ def decode_id_token(token, client):
     keys = get_client_alg_keys(client)
     return JWS().verify_compact(token, keys=keys)
 
+
 def client_id_from_id_token(id_token):
     """
     Extracts the client id from a JSON Web Token (JWT).
@@ -87,6 +92,7 @@ def client_id_from_id_token(id_token):
     """
     payload = JWT().unpack(id_token).payload()
     return payload.get('aud', None)
+
 
 def create_token(user, client, scope, id_token_dic=None):
     """
@@ -107,6 +113,7 @@ def create_token(user, client, scope, id_token_dic=None):
     token.scope = scope
 
     return token
+
 
 def create_code(user, client, scope, nonce, is_authentication,
                 code_challenge=None, code_challenge_method=None):
@@ -131,6 +138,7 @@ def create_code(user, client, scope, nonce, is_authentication,
     code.is_authentication = is_authentication
 
     return code
+
 
 def get_client_alg_keys(client):
     """

@@ -33,36 +33,66 @@ JWT_ALGS = [
 class Client(models.Model):
 
     name = models.CharField(max_length=100, default='', verbose_name=_(u'Name'))
-    client_type = models.CharField(max_length=30, choices=CLIENT_TYPE_CHOICES, default='confidential', verbose_name=_(u'Client Type'), help_text=_(u'<b>Confidential</b> clients are capable of maintaining the confidentiality of their credentials. <b>Public</b> clients are incapable.'))
+    client_type = models.CharField(
+        max_length=30,
+        choices=CLIENT_TYPE_CHOICES,
+        default='confidential',
+        verbose_name=_(u'Client Type'),
+        help_text=_(u'<b>Confidential</b> clients are capable of maintaining the confidentiality of their credentials. '
+                    u'<b>Public</b> clients are incapable.'))
     client_id = models.CharField(max_length=255, unique=True, verbose_name=_(u'Client ID'))
     client_secret = models.CharField(max_length=255, blank=True, verbose_name=_(u'Client SECRET'))
     response_type = models.CharField(max_length=30, choices=RESPONSE_TYPE_CHOICES, verbose_name=_(u'Response Type'))
-    jwt_alg = models.CharField(max_length=10, choices=JWT_ALGS, default='RS256', verbose_name=_(u'JWT Algorithm'), help_text=_(u'Algorithm used to encode ID Tokens.'))
+    jwt_alg = models.CharField(
+        max_length=10,
+        choices=JWT_ALGS,
+        default='RS256',
+        verbose_name=_(u'JWT Algorithm'),
+        help_text=_(u'Algorithm used to encode ID Tokens.'))
     date_created = models.DateField(auto_now_add=True, verbose_name=_(u'Date Created'))
     website_url = models.CharField(max_length=255, blank=True, default='', verbose_name=_(u'Website URL'))
-    terms_url = models.CharField(max_length=255, blank=True, default='', verbose_name=_(u'Terms URL'), help_text=_(u'External reference to the privacy policy of the client.'))
+    terms_url = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+        verbose_name=_(u'Terms URL'),
+        help_text=_(u'External reference to the privacy policy of the client.'))
     contact_email = models.CharField(max_length=255, blank=True, default='', verbose_name=_(u'Contact Email'))
     logo = models.FileField(blank=True, default='', upload_to='oidc_provider/clients', verbose_name=_(u'Logo Image'))
-    reuse_consent = models.BooleanField(default=True, verbose_name=_('Reuse Consent?'), help_text=_('If enabled, the Server will save the user consent given to a specific client, so that user won\'t be prompted for the same authorization multiple times.'))
-    require_consent = models.BooleanField(default=True, verbose_name=_('Require Consent?'), help_text=_('If disabled, the Server will NEVER ask the user for consent.'))
+    reuse_consent = models.BooleanField(
+        default=True,
+        verbose_name=_('Reuse Consent?'),
+        help_text=_('If enabled, the Server will save the user consent given to a specific client, so that'
+                    ' user won\'t be prompted for the same authorization multiple times.'))
+    require_consent = models.BooleanField(
+        default=True,
+        verbose_name=_('Require Consent?'),
+        help_text=_('If disabled, the Server will NEVER ask the user for consent.'))
 
-    _redirect_uris = models.TextField(default='', verbose_name=_(u'Redirect URIs'), help_text=_(u'Enter each URI on a new line.'))
-    def redirect_uris():
-        def fget(self):
-            return self._redirect_uris.splitlines()
-        def fset(self, value):
-            self._redirect_uris = '\n'.join(value)
-        return locals()
-    redirect_uris = property(**redirect_uris())
+    _redirect_uris = models.TextField(
+        default='', verbose_name=_(u'Redirect URIs'), help_text=_(u'Enter each URI on a new line.'))
 
-    _post_logout_redirect_uris = models.TextField(blank=True, default='', verbose_name=_(u'Post Logout Redirect URIs'), help_text=_(u'Enter each URI on a new line.'))
-    def post_logout_redirect_uris():
-        def fget(self):
-            return self._post_logout_redirect_uris.splitlines()
-        def fset(self, value):
-            self._post_logout_redirect_uris = '\n'.join(value)
-        return locals()
-    post_logout_redirect_uris = property(**post_logout_redirect_uris())
+    @property
+    def redirect_uris(self):
+        return self._redirect_uris.splitlines()
+
+    @redirect_uris.setter
+    def redirect_uris(self, value):
+        self._redirect_uris = '\n'.join(value)
+
+    _post_logout_redirect_uris = models.TextField(
+        blank=True,
+        default='',
+        verbose_name=_(u'Post Logout Redirect URIs'),
+        help_text=_(u'Enter each URI on a new line.'))
+
+    @property
+    def post_logout_redirect_uris(self):
+        return self._post_logout_redirect_uris.splitlines()
+
+    @post_logout_redirect_uris.setter
+    def post_logout_redirect_uris(self, value):
+        self._post_logout_redirect_uris = '\n'.join(value)
 
     class Meta:
         verbose_name = _(u'Client')
@@ -73,8 +103,6 @@ class Client(models.Model):
 
     def __unicode__(self):
         return self.__str__()
-
-
 
     @property
     def default_redirect_uri(self):
@@ -88,15 +116,13 @@ class BaseCodeTokenModel(models.Model):
     expires_at = models.DateTimeField(verbose_name=_(u'Expiration Date'))
     _scope = models.TextField(default='', verbose_name=_(u'Scopes'))
 
-    def scope():
-        def fget(self):
-            return self._scope.split()
+    @property
+    def scope(self):
+        return self._scope.split()
 
-        def fset(self, value):
-            self._scope = ' '.join(value)
-
-        return locals()
-    scope = property(**scope())
+    @scope.setter
+    def scope(self, value):
+        self._scope = ' '.join(value)
 
     def has_expired(self):
         return timezone.now() >= self.expires_at
@@ -130,16 +156,13 @@ class Token(BaseCodeTokenModel):
     refresh_token = models.CharField(max_length=255, unique=True, verbose_name=_(u'Refresh Token'))
     _id_token = models.TextField(verbose_name=_(u'ID Token'))
 
-    def id_token():
+    @property
+    def id_token(self):
+        return json.loads(self._id_token)
 
-        def fget(self):
-            return json.loads(self._id_token)
-
-        def fset(self, value):
-            self._id_token = json.dumps(value)
-
-        return locals()
-    id_token = property(**id_token())
+    @id_token.setter
+    def id_token(self, value):
+        self._id_token = json.dumps(value)
 
     class Meta:
         verbose_name = _(u'Token')

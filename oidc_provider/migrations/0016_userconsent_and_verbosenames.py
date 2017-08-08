@@ -19,13 +19,15 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='userconsent',
             name='date_given',
-            field=models.DateTimeField(default=datetime.datetime(2016, 6, 10, 17, 53, 48, 889808, tzinfo=utc), verbose_name='Date Given'),
+            field=models.DateTimeField(
+                default=datetime.datetime(2016, 6, 10, 17, 53, 48, 889808, tzinfo=utc), verbose_name='Date Given'),
             preserve_default=False,
         ),
         migrations.AlterField(
             model_name='client',
             name='_redirect_uris',
-            field=models.TextField(default=b'', help_text='Enter each URI on a new line.', verbose_name='Redirect URIs'),
+            field=models.TextField(
+                default=b'', help_text='Enter each URI on a new line.', verbose_name='Redirect URIs'),
         ),
         migrations.AlterField(
             model_name='client',
@@ -40,7 +42,13 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='client',
             name='client_type',
-            field=models.CharField(choices=[(b'confidential', b'Confidential'), (b'public', b'Public')], default=b'confidential', help_text='<b>Confidential</b> clients are capable of maintaining the confidentiality of their credentials. <b>Public</b> clients are incapable.', max_length=30, verbose_name='Client Type'),
+            field=models.CharField(
+                choices=[(b'confidential', b'Confidential'), (b'public', b'Public')],
+                default=b'confidential',
+                help_text='<b>Confidential</b> clients are capable of maintaining the confidentiality of their '
+                          'credentials. <b>Public</b> clients are incapable.',
+                max_length=30,
+                verbose_name='Client Type'),
         ),
         migrations.AlterField(
             model_name='client',
@@ -55,7 +63,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='client',
             name='response_type',
-            field=models.CharField(choices=[(b'code', b'code (Authorization Code Flow)'), (b'id_token', b'id_token (Implicit Flow)'), (b'id_token token', b'id_token token (Implicit Flow)')], max_length=30, verbose_name='Response Type'),
+            field=models.CharField(
+                choices=[
+                    (b'code', b'code (Authorization Code Flow)'), (b'id_token', b'id_token (Implicit Flow)'),
+                    (b'id_token token', b'id_token token (Implicit Flow)')],
+                max_length=30,
+                verbose_name='Response Type'),
         ),
         migrations.AlterField(
             model_name='code',
@@ -65,7 +78,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='code',
             name='client',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='oidc_provider.Client', verbose_name='Client'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to='oidc_provider.Client', verbose_name='Client'),
         ),
         migrations.AlterField(
             model_name='code',
@@ -100,7 +114,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='code',
             name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='User'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='User'),
         ),
         migrations.AlterField(
             model_name='rsakey',
@@ -125,7 +140,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='token',
             name='client',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='oidc_provider.Client', verbose_name='Client'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to='oidc_provider.Client', verbose_name='Client'),
         ),
         migrations.AlterField(
             model_name='token',
@@ -140,7 +156,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='token',
             name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='User'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='User'),
         ),
         migrations.AlterField(
             model_name='userconsent',
@@ -150,7 +167,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='userconsent',
             name='client',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='oidc_provider.Client', verbose_name='Client'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to='oidc_provider.Client', verbose_name='Client'),
         ),
         migrations.AlterField(
             model_name='userconsent',
@@ -160,6 +178,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='userconsent',
             name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='User'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='User'),
         ),
     ]

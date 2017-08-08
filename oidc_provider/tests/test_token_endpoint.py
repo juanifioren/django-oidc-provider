@@ -18,7 +18,7 @@ from django.test import TestCase
 from jwkest.jwk import KEYS
 from jwkest.jws import JWS
 from jwkest.jwt import JWT
-from mock import patch, Mock
+from mock import patch
 
 from oidc_provider.lib.utils.token import create_code
 from oidc_provider.models import Token
@@ -101,7 +101,8 @@ class TokenTestCase(TestCase):
         """
         url = reverse('oidc_provider:token')
 
-        request = self.factory.post(url,
+        request = self.factory.post(
+            url,
             data=urlencode(post_data),
             content_type='application/x-www-form-urlencoded',
             **extras)
@@ -371,7 +372,7 @@ class TokenTestCase(TestCase):
 
         response_dic2 = json.loads(response.content.decode('utf-8'))
 
-        if scope and set(scope) - set(code.scope): # too broad scope
+        if scope and set(scope) - set(code.scope):  # too broad scope
             self.assertEqual(response.status_code, 400)  # Bad Request
             self.assertIn('error', response_dic2)
             self.assertEqual(response_dic2['error'], 'invalid_scope')
@@ -427,7 +428,6 @@ class TokenTestCase(TestCase):
         See http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest and
         http://openid.net/specs/openid-connect-core-1_0.html#HybridTokenRequest.
         """
-        SIGKEYS = self._get_keys()
         code = self._create_code()
         post_data = self._auth_code_post_data(code=code.code)
 
@@ -465,15 +465,13 @@ class TokenTestCase(TestCase):
         for request in requests:
             response = TokenView.as_view()(request)
 
-            self.assertEqual(response.status_code == 405, True,
-                msg=request.method + ' request does not return a 405 status.')
+            self.assertEqual(response.status_code, 405, msg=request.method + ' request does not return a 405 status.')
 
         request = self.factory.post(url)
 
         response = TokenView.as_view()(request)
 
-        self.assertEqual(response.status_code == 400, True,
-                msg=request.method + ' request does not return a 400 status.')
+        self.assertEqual(response.status_code, 400, msg=request.method + ' request does not return a 400 status.')
 
     def test_client_authentication(self):
         """
@@ -490,9 +488,10 @@ class TokenTestCase(TestCase):
 
         response = self._post_request(post_data)
 
-        self.assertEqual('invalid_client' in response.content.decode('utf-8'),
-                False,
-                msg='Client authentication fails using request-body credentials.')
+        self.assertNotIn(
+            'invalid_client',
+            response.content.decode('utf-8'),
+            msg='Client authentication fails using request-body credentials.')
 
         # Now, test with an invalid client_id.
         invalid_data = post_data.copy()
@@ -504,9 +503,10 @@ class TokenTestCase(TestCase):
 
         response = self._post_request(invalid_data)
 
-        self.assertEqual('invalid_client' in response.content.decode('utf-8'),
-                True,
-                msg='Client authentication success with an invalid "client_id".')
+        self.assertIn(
+            'invalid_client',
+            response.content.decode('utf-8'),
+            msg='Client authentication success with an invalid "client_id".')
 
         # Now, test using HTTP Basic Authentication method.
         basicauth_data = post_data.copy()
@@ -521,9 +521,10 @@ class TokenTestCase(TestCase):
         response = self._post_request(basicauth_data, self._password_grant_auth_header())
         response.content.decode('utf-8')
 
-        self.assertEqual('invalid_client' in response.content.decode('utf-8'),
-                False,
-                msg='Client authentication fails using HTTP Basic Auth.')
+        self.assertNotIn(
+            'invalid_client',
+            response.content.decode('utf-8'),
+            msg='Client authentication fails using HTTP Basic Auth.')
 
     def test_access_token_contains_nonce(self):
         """
@@ -588,7 +589,7 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
         response_dic = json.loads(response.content.decode('utf-8'))
 
-        id_token = JWS().verify_compact(response_dic['id_token'].encode('utf-8'), RSAKEYS)
+        JWS().verify_compact(response_dic['id_token'].encode('utf-8'), RSAKEYS)
 
     @override_settings(OIDC_IDTOKEN_SUB_GENERATOR='oidc_provider.tests.app.utils.fake_sub_generator')
     def test_custom_sub_generator(self):
@@ -732,4 +733,4 @@ class TokenTestCase(TestCase):
 
         response = self._post_request(post_data)
 
-        response_dic = json.loads(response.content.decode('utf-8'))
+        json.loads(response.content.decode('utf-8'))

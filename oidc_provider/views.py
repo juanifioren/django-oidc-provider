@@ -66,7 +66,7 @@ class AuthorizeView(View):
                     client=authorize.client)
                 if hook_resp:
                     return hook_resp
-                  
+
                 if 'login' in authorize.params['prompt']:
                     if 'none' in authorize.params['prompt']:
                         raise AuthorizeError(authorize.params['redirect_uri'], 'login_required', authorize.grant_type)
@@ -77,7 +77,8 @@ class AuthorizeView(View):
                 if 'select_account' in authorize.params['prompt']:
                     # TODO: see how we can support multiple accounts for the end-user.
                     if 'none' in authorize.params['prompt']:
-                        raise AuthorizeError(authorize.params['redirect_uri'], 'account_selection_required', authorize.grant_type)
+                        raise AuthorizeError(
+                            authorize.params['redirect_uri'], 'account_selection_required', authorize.grant_type)
                     else:
                         django_user_logout(request)
                         return redirect_to_login(request.get_full_path(), settings.get('OIDC_LOGIN_URL'))
@@ -85,7 +86,7 @@ class AuthorizeView(View):
                 if {'none', 'consent'}.issubset(authorize.params['prompt']):
                     raise AuthorizeError(authorize.params['redirect_uri'], 'consent_required', authorize.grant_type)
 
-                implicit_flow_resp_types = set(['id_token', 'id_token token'])
+                implicit_flow_resp_types = {'id_token', 'id_token token'}
                 allow_skipping_consent = (
                     authorize.client.client_type != 'public' or
                     authorize.client.response_type in implicit_flow_resp_types)
@@ -152,13 +153,15 @@ class AuthorizeView(View):
             authorize.validate_params()
 
             if not request.POST.get('allow'):
-                signals.user_decline_consent.send(self.__class__, user=request.user, client=authorize.client, scope=authorize.params['scope'])
+                signals.user_decline_consent.send(
+                    self.__class__, user=request.user, client=authorize.client, scope=authorize.params['scope'])
 
                 raise AuthorizeError(authorize.params['redirect_uri'],
                                      'access_denied',
                                      authorize.grant_type)
 
-            signals.user_accept_consent.send(self.__class__, user=request.user, client=authorize.client, scope=authorize.params['scope'])
+            signals.user_accept_consent.send(
+                self.__class__, user=request.user, client=authorize.client, scope=authorize.params['scope'])
 
             # Save the user consent given to the client.
             authorize.set_client_user_consent()
@@ -167,7 +170,7 @@ class AuthorizeView(View):
 
             return redirect(uri)
 
-        except (AuthorizeError) as error:
+        except AuthorizeError as error:
             uri = error.create_uri(
                 authorize.params['redirect_uri'],
                 authorize.params['state'])

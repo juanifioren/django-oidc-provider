@@ -20,7 +20,9 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(default=b'', max_length=100)),
                 ('client_id', models.CharField(unique=True, max_length=255)),
                 ('client_secret', models.CharField(unique=True, max_length=255)),
-                ('response_type', models.CharField(max_length=30, choices=[(b'code', b'code (Authorization Code Flow)'), (b'id_token', b'id_token (Implicit Flow)'), (b'id_token token', b'id_token token (Implicit Flow)')])),
+                ('response_type', models.CharField(max_length=30, choices=[
+                    (b'code', b'code (Authorization Code Flow)'), (b'id_token', b'id_token (Implicit Flow)'),
+                    (b'id_token token', b'id_token token (Implicit Flow)')])),
                 ('_redirect_uris', models.TextField(default=b'')),
             ],
             options={
