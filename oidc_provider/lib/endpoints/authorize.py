@@ -102,8 +102,8 @@ class AuthorizeEndpoint(object):
             logger.debug('[Authorize] Invalid response type: %s', self.params['response_type'])
             raise AuthorizeError(self.params['redirect_uri'], 'unsupported_response_type', self.grant_type)
 
-        if not self.is_authentication and \
-        (self.grant_type == 'hybrid' or self.params['response_type'] in ['id_token', 'id_token token']):
+        if (not self.is_authentication and
+                (self.grant_type == 'hybrid' or self.params['response_type'] in ['id_token', 'id_token token'])):
             logger.debug('[Authorize] Missing openid scope.')
             raise AuthorizeError(self.params['redirect_uri'], 'invalid_scope', self.grant_type)
 
@@ -165,7 +165,8 @@ class AuthorizeEndpoint(object):
                     id_token_dic = create_id_token(**kwargs)
 
                     # Check if response_type must include id_token in the response.
-                    if self.params['response_type'] in ['id_token', 'id_token token', 'code id_token', 'code id_token token']:
+                    if self.params['response_type'] in [
+                            'id_token', 'id_token token', 'code id_token', 'code id_token token']:
                         query_fragment['id_token'] = encode_id_token(id_token_dic, self.client)
                 else:
                     id_token_dic = {}
@@ -211,7 +212,8 @@ class AuthorizeEndpoint(object):
             logger.exception('[Authorize] Error when trying to create response uri: %s', error)
             raise AuthorizeError(self.params['redirect_uri'], 'server_error', self.grant_type)
 
-        uri = uri._replace(query=urlencode(query_params, doseq=True), fragment=uri.fragment + urlencode(query_fragment, doseq=True))
+        uri = uri._replace(
+            query=urlencode(query_params, doseq=True), fragment=uri.fragment + urlencode(query_fragment, doseq=True))
 
         return urlunsplit(uri)
 
@@ -264,7 +266,8 @@ class AuthorizeEndpoint(object):
         """
         scopes = StandardScopeClaims.get_scopes_info(self.params['scope'])
         if settings.get('OIDC_EXTRA_SCOPE_CLAIMS'):
-            scopes_extra = settings.get('OIDC_EXTRA_SCOPE_CLAIMS', import_str=True).get_scopes_info(self.params['scope'])
+            scopes_extra = settings.get('OIDC_EXTRA_SCOPE_CLAIMS', import_str=True).get_scopes_info(
+                self.params['scope'])
             for index_extra, scope_extra in enumerate(scopes_extra):
                 for index, scope in enumerate(scopes[:]):
                     if scope_extra['scope'] == scope['scope']:

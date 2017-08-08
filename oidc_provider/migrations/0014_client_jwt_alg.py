@@ -15,6 +15,10 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='client',
             name='jwt_alg',
-            field=models.CharField(choices=[(b'HS256', b'HS256'), (b'RS256', b'RS256')], default=b'RS256', max_length=10, verbose_name='JWT Algorithm'),
+            field=models.CharField(
+                choices=[(b'HS256', b'HS256'), (b'RS256', b'RS256')],
+                default=b'RS256',
+                max_length=10,
+                verbose_name='JWT Algorithm'),
         ),
     ]

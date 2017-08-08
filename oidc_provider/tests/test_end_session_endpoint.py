@@ -50,5 +50,6 @@ class EndSessionTestCase(TestCase):
     def test_call_post_end_session_hook(self, hook_function):
         self.client.get(self.url)
         self.assertTrue(hook_function.called, 'OIDC_AFTER_END_SESSION_HOOK should be called')
-        self.assertTrue(hook_function.call_count == 1, 'OIDC_AFTER_END_SESSION_HOOK should be called once but was {}'.format(hook_function.call_count))
-
+        self.assertTrue(
+            hook_function.call_count == 1,
+            'OIDC_AFTER_END_SESSION_HOOK should be called once but was {}'.format(hook_function.call_count))

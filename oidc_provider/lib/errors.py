@@ -31,6 +31,7 @@ class UserAuthError(Exception):
             'error_description': self.description,
         }
 
+
 class AuthorizeError(Exception):
 
     _errors = {
