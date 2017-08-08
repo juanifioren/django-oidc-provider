@@ -1,9 +1,6 @@
-import os
-
 from Cryptodome.PublicKey import RSA
 from django.core.management.base import BaseCommand
 
-from oidc_provider import settings
 from oidc_provider.models import RSAKey
 
 
