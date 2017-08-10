@@ -11,8 +11,14 @@ from django.contrib.auth.views import (
     redirect_to_login,
     logout,
 )
+
+import django
+if django.VERSION >= (1, 11):
+    from django.urls import reverse
+else:
+    from django.core.urlresolvers import reverse
+
 from django.contrib.auth import logout as django_user_logout
-from django.core.urlresolvers import reverse
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string

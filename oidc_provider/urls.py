@@ -6,7 +6,7 @@ from oidc_provider import (
     views,
 )
 
-
+app_name = 'oidc_provider'
 urlpatterns = [
     url(r'^authorize/?$', views.AuthorizeView.as_view(), name='authorize'),
     url(r'^token/?$', csrf_exempt(views.TokenView.as_view()), name='token'),
