@@ -34,7 +34,9 @@ from oidc_provider.lib.endpoints.authorize import AuthorizeEndpoint
 
 class AuthorizeEndpointMixin(object):
 
-    def _auth_request(self, method, data={}, is_user_authenticated=False):
+    def _auth_request(self, method, data=None, is_user_authenticated=False):
+        if data is None:
+            data = {}
         url = reverse('oidc_provider:authorize')
 
         if method.lower() == 'get':
@@ -67,7 +69,8 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         self.client = create_fake_client(response_type='code')
         self.client_with_no_consent = create_fake_client(response_type='code', require_consent=False)
         self.client_public = create_fake_client(response_type='code', is_public=True)
-        self.client_public_with_no_consent = create_fake_client(response_type='code', is_public=True, require_consent=False)
+        self.client_public_with_no_consent = create_fake_client(
+            response_type='code', is_public=True, require_consent=False)
         self.state = uuid.uuid4().hex
         self.nonce = uuid.uuid4().hex
 
@@ -163,8 +166,7 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
 
         for key, value in iter(to_check.items()):
             is_input_ok = input_html.format(key, value) in response.content.decode('utf-8')
-            self.assertEqual(is_input_ok, True,
-                msg='Hidden input for "' + key + '" fails.')
+            self.assertEqual(is_input_ok, True, msg='Hidden input for "' + key + '" fails.')
 
     def test_user_consent_response(self):
         """
@@ -204,8 +206,7 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         is_code_ok = is_code_valid(url=response['Location'],
                                    user=self.user,
                                    client=self.client)
-        self.assertEqual(is_code_ok, True,
-            msg='Code returned is invalid.')
+        self.assertEqual(is_code_ok, True, msg='Code returned is invalid.')
 
         # Check if the state is returned.
         state = (response['Location'].split('state='))[1].split('&')[0]
@@ -276,9 +277,10 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
                                    client=self.client)
         self.assertTrue(is_code_ok, msg='Code returned is invalid or missing')
 
-        self.assertEquals(set(params.keys()), set(['state', 'code']), msg='More than state or code appended as query params')
+        self.assertEquals(set(params.keys()), {'state', 'code'}, msg='More than state or code appended as query params')
 
-        self.assertTrue(response['Location'].startswith(self.client.default_redirect_uri), msg='Different redirect_uri returned')
+        self.assertTrue(
+            response['Location'].startswith(self.client.default_redirect_uri), msg='Different redirect_uri returned')
 
     def test_unknown_redirect_uris_are_rejected(self):
         """
@@ -445,7 +447,6 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
 
         response = self._auth_request('get', data, is_user_authenticated=True)
         self.assertIn('consent_required', response['Location'])
-
 
 
 class AuthorizationImplicitFlowTestCase(TestCase, AuthorizeEndpointMixin):

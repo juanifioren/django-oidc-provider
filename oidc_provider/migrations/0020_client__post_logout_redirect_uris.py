@@ -15,6 +15,10 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='client',
             name='_post_logout_redirect_uris',
-            field=models.TextField(blank=True, default='', help_text='Enter each URI on a new line.', verbose_name='Post Logout Redirect URIs'),
+            field=models.TextField(
+                blank=True,
+                default='',
+                help_text='Enter each URI on a new line.',
+                verbose_name='Post Logout Redirect URIs'),
         ),
     ]

@@ -25,7 +25,13 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='client',
             name='client_type',
-            field=models.CharField(choices=[('confidential', 'Confidential'), ('public', 'Public')], default='confidential', help_text='<b>Confidential</b> clients are capable of maintaining the confidentiality of their credentials. <b>Public</b> clients are incapable.', max_length=30, verbose_name='Client Type'),
+            field=models.CharField(
+                choices=[('confidential', 'Confidential'), ('public', 'Public')],
+                default='confidential',
+                help_text='<b>Confidential</b> clients are capable of maintaining the confidentiality of their '
+                          'credentials. <b>Public</b> clients are incapable.',
+                max_length=30,
+                verbose_name='Client Type'),
         ),
         migrations.AlterField(
             model_name='client',
@@ -35,7 +41,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='client',
             name='response_type',
-            field=models.CharField(choices=[('code', 'code (Authorization Code Flow)'), ('id_token', 'id_token (Implicit Flow)'), ('id_token token', 'id_token token (Implicit Flow)')], max_length=30, verbose_name='Response Type'),
+            field=models.CharField(
+                choices=[
+                    ('code', 'code (Authorization Code Flow)'), ('id_token', 'id_token (Implicit Flow)'),
+                    ('id_token token', 'id_token token (Implicit Flow)')],
+                max_length=30,
+                verbose_name='Response Type'),
         ),
         migrations.AlterField(
             model_name='code',
