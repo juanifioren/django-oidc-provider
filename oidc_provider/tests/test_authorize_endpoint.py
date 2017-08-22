@@ -1,9 +1,9 @@
 from oidc_provider.lib.errors import RedirectUriError
 
 try:
-    from urllib.parse import urlencode
+    from urllib.parse import urlencode, quote
 except ImportError:
-    from urllib import urlencode
+    from urllib import urlencode, quote
 try:
     from urllib.parse import parse_qs, urlsplit
 except ImportError:
@@ -369,10 +369,20 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
 
         response = self._auth_request('get', data)
         self.assertIn(settings.get('OIDC_LOGIN_URL'), response['Location'])
+        self.assertNotIn(
+            quote('prompt=login'),
+            response['Location'],
+            "Found prompt=login, this leads to infinite login loop. See https://github.com/juanifioren/django-oidc-provider/issues/197."
+        )
 
         response = self._auth_request('get', data, is_user_authenticated=True)
         self.assertIn(settings.get('OIDC_LOGIN_URL'), response['Location'])
         self.assertTrue(logout_function.called_once())
+        self.assertNotIn(
+            quote('prompt=login'),
+            response['Location'],
+            "Found prompt=login, this leads to infinite login loop. See https://github.com/juanifioren/django-oidc-provider/issues/197."
+        )
 
     def test_prompt_login_none_parameter(self):
         """

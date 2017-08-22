@@ -1,6 +1,12 @@
 from hashlib import sha224
 
-from django.core.urlresolvers import reverse
+import django
+
+if django.VERSION >= (1, 11):
+    from django.urls import reverse
+else:
+    from django.core.urlresolvers import reverse
+
 from django.http import HttpResponse
 
 from oidc_provider import settings

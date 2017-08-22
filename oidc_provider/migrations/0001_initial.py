@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
                 ('expires_at', models.DateTimeField()),
                 ('_scope', models.TextField(default=b'')),
                 ('code', models.CharField(unique=True, max_length=255)),
-                ('client', models.ForeignKey(to='oidc_provider.Client')),
+                ('client', models.ForeignKey(to='oidc_provider.Client', on_delete=models.CASCADE)),
             ],
             options={
                 'abstract': False,
@@ -49,7 +49,7 @@ class Migration(migrations.Migration):
                 ('_scope', models.TextField(default=b'')),
                 ('access_token', models.CharField(unique=True, max_length=255)),
                 ('_id_token', models.TextField()),
-                ('client', models.ForeignKey(to='oidc_provider.Client')),
+                ('client', models.ForeignKey(to='oidc_provider.Client', on_delete=models.CASCADE)),
             ],
             options={
                 'abstract': False,
@@ -59,7 +59,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='UserInfo',
             fields=[
-                ('user', models.OneToOneField(primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL)),
+                ('user', models.OneToOneField(primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
                 ('given_name', models.CharField(max_length=255, null=True, blank=True)),
                 ('family_name', models.CharField(max_length=255, null=True, blank=True)),
                 ('middle_name', models.CharField(max_length=255, null=True, blank=True)),
@@ -89,13 +89,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='token',
             name='user',
-            field=models.ForeignKey(to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='code',
             name='user',
-            field=models.ForeignKey(to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]
