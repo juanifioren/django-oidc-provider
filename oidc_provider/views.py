@@ -12,10 +12,9 @@ from django.contrib.auth.views import (
     logout,
 )
 
-import django
-if django.VERSION >= (1, 11):
+try:
     from django.urls import reverse
-else:
+except ImportError:
     from django.core.urlresolvers import reverse
 
 from django.contrib.auth import logout as django_user_logout

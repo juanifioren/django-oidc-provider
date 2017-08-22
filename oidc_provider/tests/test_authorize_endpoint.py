@@ -374,7 +374,8 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         self.assertNotIn(
             quote('prompt=login'),
             response['Location'],
-            "Found prompt=login, this leads to infinite login loop. See https://github.com/juanifioren/django-oidc-provider/issues/197."
+            "Found prompt=login, this leads to infinite login loop. See "
+            "https://github.com/juanifioren/django-oidc-provider/issues/197."
         )
 
         response = self._auth_request('get', data, is_user_authenticated=True)
@@ -383,7 +384,8 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         self.assertNotIn(
             quote('prompt=login'),
             response['Location'],
-            "Found prompt=login, this leads to infinite login loop. See https://github.com/juanifioren/django-oidc-provider/issues/197."
+            "Found prompt=login, this leads to infinite login loop. "
+            "See https://github.com/juanifioren/django-oidc-provider/issues/197."
         )
 
     def test_prompt_login_none_parameter(self):
