@@ -51,7 +51,9 @@ class ClientAdmin(admin.ModelAdmin):
 
     fieldsets = [
         [_(u''), {
-            'fields': ('name', 'client_type', 'response_type','_redirect_uris', 'jwt_alg', 'require_consent', 'reuse_consent'),
+            'fields': (
+                'name', 'client_type', 'response_type', '_redirect_uris', 'jwt_alg', 'require_consent',
+                'reuse_consent'),
         }],
         [_(u'Credentials'), {
             'fields': ('client_id', 'client_secret'),

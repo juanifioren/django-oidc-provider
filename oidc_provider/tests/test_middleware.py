@@ -10,6 +10,7 @@ class StubbedViews:
 
     urlpatterns = [url('^test/', SampleView.as_view())]
 
+
 MW_CLASSES = ('django.contrib.sessions.middleware.SessionMiddleware',
               'oidc_provider.middleware.SessionManagementMiddleware')
 
