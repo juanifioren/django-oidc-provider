@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+
+### [0.5.2] - 2017-08-22
+
+##### Fixed
+- Fix infinite login loop if "prompt=login" (#198)
+- Fix Django 2.0 deprecation warnings (#185) 
+
+
+### [0.5.1] - 2017-07-11
+
+##### Changed
+- Documentation template changed to `Read The Docs`.
+
+##### Fixed
+- `install_requires` has not longer pinned versions.
+- Removed infinity loop during authorization stage when `prompt=login` has been send.
+- Changed `prompt` handling as set of options instead of regular string.
+- Redirect URI must match exactly with given in query parameter.
+- Stored user consent are useful for public clients too.
+- Fixed documentation for custom scopes handling.
+- Scopes during refresh and code exchange are being taken from authorization request and not from query parameters.
+
 ### [0.5.0] - 2017-05-18
 
 ##### Added
