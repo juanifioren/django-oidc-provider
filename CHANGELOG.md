@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+##### Added
+- Add pep8 compliance and checker
 
 ### [0.5.2] - 2017-08-22
 
