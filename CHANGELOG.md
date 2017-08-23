@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file.
 ### [0.5.2] - 2017-08-22
 
 ##### Fixed
--	Fix infinite login loop if "prompt=login" (#198)
+- Fix infinite login loop if "prompt=login" (#198)
 - Fix Django 2.0 deprecation warnings (#185) 
 
 
