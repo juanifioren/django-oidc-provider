@@ -4,11 +4,6 @@ import logging
 import re
 from django.contrib.auth import authenticate
 
-try:
-    from urllib.parse import unquote
-except ImportError:
-    from urllib import unquote
-
 from django.http import JsonResponse
 
 from oidc_provider.lib.errors import (
