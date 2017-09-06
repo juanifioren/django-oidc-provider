@@ -1,10 +1,9 @@
 from hashlib import sha224
 
-import django
 
-if django.VERSION >= (1, 11):
+try:
     from django.urls import reverse
-else:
+except ImportError:
     from django.core.urlresolvers import reverse
 
 from django.http import HttpResponse

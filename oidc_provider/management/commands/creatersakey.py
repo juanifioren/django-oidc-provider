@@ -1,4 +1,6 @@
-from Cryptodome.PublicKey import RSA
+from cryptography.hazmat.primitives.asymmetric.rsa import generate_private_key
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.backends import default_backend
 from django.core.management.base import BaseCommand
 
 from oidc_provider.models import RSAKey
@@ -9,8 +11,12 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            key = RSA.generate(1024)
-            rsakey = RSAKey(key=key.exportKey('PEM').decode('utf8'))
+            key = generate_private_key(public_exponent=65537, key_size=2048, backend=default_backend())
+            rsakey = RSAKey(
+                key=key.private_bytes(
+                    encoding=serialization.Encoding.PEM,
+                    format=serialization.PrivateFormat.TraditionalOpenSSL,
+                    encryption_algorithm=serialization.NoEncryption()).decode('utf8'))
             rsakey.save()
             self.stdout.write(u'RSA key successfully created with kid: {0}'.format(rsakey.kid))
         except Exception as e:

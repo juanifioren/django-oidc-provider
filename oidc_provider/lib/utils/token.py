@@ -2,12 +2,10 @@ from datetime import timedelta
 import time
 import uuid
 
-from Cryptodome.PublicKey.RSA import importKey
 from django.utils import dateformat, timezone
-from jwkest.jwk import RSAKey as jwk_RSAKey
-from jwkest.jwk import SYMKey
-from jwkest.jws import JWS
-from jwkest.jwt import JWT
+import jwt
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.backends import default_backend
 
 from oidc_provider.lib.utils.common import get_issuer
 from oidc_provider.models import (
@@ -71,18 +69,17 @@ def encode_id_token(payload, client):
     Represent the ID Token as a JSON Web Token (JWT).
     Return a hash.
     """
-    keys = get_client_alg_keys(client)
-    _jws = JWS(payload, alg=client.jwt_alg)
-    return _jws.sign_compact(keys)
-
-
-def decode_id_token(token, client):
-    """
-    Represent the ID Token as a JSON Web Token (JWT).
-    Return a hash.
-    """
-    keys = get_client_alg_keys(client)
-    return JWS().verify_compact(token, keys=keys)
+    key = client.client_secret
+    if client.jwt_alg == 'RS256':
+        rsakeys = RSAKey.objects.all()
+        if not rsakeys:
+            raise Exception('You must have an RSA Key.')
+        rsakey = rsakeys[0]
+        key = serialization.load_pem_private_key(rsakey.key.encode(), None, default_backend()).private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.TraditionalOpenSSL,
+            encryption_algorithm=serialization.NoEncryption()).decode('utf8')
+    return jwt.encode(payload, key, algorithm=client.jwt_alg).decode()
 
 
 def client_id_from_id_token(id_token):
@@ -90,8 +87,7 @@ def client_id_from_id_token(id_token):
     Extracts the client id from a JSON Web Token (JWT).
     Returns a string or None.
     """
-    payload = JWT().unpack(id_token).payload()
-    return payload.get('aud', None)
+    return jwt.decode(id_token, verify=False).get('aud', None)
 
 
 def create_token(user, client, scope, id_token_dic=None):
@@ -138,22 +134,3 @@ def create_code(user, client, scope, nonce, is_authentication,
     code.is_authentication = is_authentication
 
     return code
-
-
-def get_client_alg_keys(client):
-    """
-    Takes a client and returns the set of keys associated with it.
-    Returns a list of keys.
-    """
-    if client.jwt_alg == 'RS256':
-        keys = []
-        for rsakey in RSAKey.objects.all():
-            keys.append(jwk_RSAKey(key=importKey(rsakey.key), kid=rsakey.kid))
-        if not keys:
-            raise Exception('You must add at least one RSA Key.')
-    elif client.jwt_alg == 'HS256':
-        keys = [SYMKey(key=client.client_secret, alg=client.jwt_alg)]
-    else:
-        raise Exception('Unsupported key algorithm.')
-
-    return keys
