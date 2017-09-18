@@ -46,6 +46,15 @@ class EndSessionTestCase(TestCase):
         response = self.client.get(self.url, query_params)
         self.assertRedirects(response, self.LOGOUT_URL, fetch_redirect_response=False)
 
+        # Check with 'aud' containing a list of str
+        id_token_dic['aud'] = [id_token_dic['aud']]
+        id_token = encode_id_token(id_token_dic, self.oidc_client)
+        query_params['id_token_hint'] = id_token
+        response = self.client.get(self.url, query_params)
+        self.assertRedirects(
+            response, self.LOGOUT_URL, fetch_redirect_response=False)
+
+
     @mock.patch(settings.get('OIDC_AFTER_END_SESSION_HOOK'))
     def test_call_post_end_session_hook(self, hook_function):
         self.client.get(self.url)
