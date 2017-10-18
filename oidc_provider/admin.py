@@ -52,8 +52,8 @@ class ClientAdmin(admin.ModelAdmin):
     fieldsets = [
         [_(u''), {
             'fields': (
-                'name', 'client_type', 'response_type', '_redirect_uris', 'jwt_alg', 'require_consent',
-                'reuse_consent'),
+                'name', 'owner', 'client_type', 'response_type', '_redirect_uris', 'jwt_alg',
+                'require_consent', 'reuse_consent'),
         }],
         [_(u'Credentials'), {
             'fields': ('client_id', 'client_secret'),
@@ -69,6 +69,7 @@ class ClientAdmin(admin.ModelAdmin):
     list_display = ['name', 'client_id', 'response_type', 'date_created']
     readonly_fields = ['date_created']
     search_fields = ['name']
+    raw_id_fields = ['owner']
 
 
 @admin.register(Code)
