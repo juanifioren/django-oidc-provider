@@ -33,7 +33,7 @@ JWT_ALGS = [
 class Client(models.Model):
 
     name = models.CharField(max_length=100, default='', verbose_name=_(u'Name'))
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'Owner'), blank = True, null = True, default = None, on_delete=models.SET_NULL)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'Owner'), blank = True, null = True, default = None, on_delete=models.SET_NULL, related_name='oidc_clients_set')
     client_type = models.CharField(
         max_length=30,
         choices=CLIENT_TYPE_CHOICES,
