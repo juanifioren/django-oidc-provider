@@ -6,16 +6,17 @@ try:
 except ImportError:
     from urllib.parse import urlsplit, parse_qs, urlunsplit, urlencode
 
-from Cryptodome.PublicKey import RSA
+from base64 import urlsafe_b64encode
 from django.contrib.auth.views import (
     redirect_to_login,
     logout,
 )
 
-import django
-if django.VERSION >= (1, 11):
+from struct import pack
+
+try:
     from django.urls import reverse
-else:
+except ImportError:
     from django.core.urlresolvers import reverse
 
 from django.contrib.auth import logout as django_user_logout
@@ -26,7 +27,9 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
-from jwkest import long_to_base64
+
+from cryptography.hazmat.primitives.serialization import load_pem_private_key
+from cryptography.hazmat.backends import default_backend
 
 from oidc_provider.lib.claims import StandardScopeClaims
 from oidc_provider.lib.endpoints.authorize import AuthorizeEndpoint
@@ -284,18 +287,29 @@ class ProviderInfoView(View):
 
 
 class JwksView(View):
+    def _num_to_b64_string(self, value):
+        int_array = []
+        while value:
+            value, r = divmod(value, 256)
+            int_array.insert(0, r)
+        char_array = pack('B'*len(int_array), *int_array)
+        return urlsafe_b64encode(char_array).rstrip(b'=').decode("ascii")
+
     def get(self, request, *args, **kwargs):
         dic = dict(keys=[])
 
         for rsakey in RSAKey.objects.all():
-            public_key = RSA.importKey(rsakey.key).publickey()
+            public_numbers = load_pem_private_key(
+                rsakey.key.encode(),
+                None,
+                default_backend()).public_key().public_numbers()
             dic['keys'].append({
                 'kty': 'RSA',
                 'alg': 'RS256',
                 'use': 'sig',
                 'kid': rsakey.kid,
-                'n': long_to_base64(public_key.n),
-                'e': long_to_base64(public_key.e),
+                'n': self._num_to_b64_string(public_numbers.n),
+                'e': self._num_to_b64_string(public_numbers.e),
             })
 
         response = JsonResponse(dic)
