@@ -91,7 +91,12 @@ def client_id_from_id_token(id_token):
     Returns a string or None.
     """
     payload = JWT().unpack(id_token).payload()
-    return payload.get('aud', None)
+    aud = payload.get('aud', None)
+    if aud is None:
+        return None
+    if isinstance(aud, list):
+        return aud[0]
+    return aud
 
 
 def create_token(user, client, scope, id_token_dic=None):

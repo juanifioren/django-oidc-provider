@@ -30,21 +30,40 @@ class EndSessionTestCase(TestCase):
 
         self.url = reverse('oidc_provider:end-session')
 
-    def test_redirects(self):
+    def test_redirects_when_aud_is_str(self):
         query_params = {
             'post_logout_redirect_uri': self.LOGOUT_URL,
         }
         response = self.client.get(self.url, query_params)
-        # With no id_token the OP MUST NOT redirect to the requested redirect_uri.
-        self.assertRedirects(response, settings.get('OIDC_LOGIN_URL'), fetch_redirect_response=False)
+        # With no id_token the OP MUST NOT redirect to the requested
+        # redirect_uri.
+        self.assertRedirects(
+            response, settings.get('OIDC_LOGIN_URL'),
+            fetch_redirect_response=False)
 
-        id_token_dic = create_id_token(user=self.user, aud=self.oidc_client.client_id)
+        id_token_dic = create_id_token(
+            user=self.user, aud=self.oidc_client.client_id)
         id_token = encode_id_token(id_token_dic, self.oidc_client)
 
         query_params['id_token_hint'] = id_token
 
         response = self.client.get(self.url, query_params)
-        self.assertRedirects(response, self.LOGOUT_URL, fetch_redirect_response=False)
+        self.assertRedirects(
+            response, self.LOGOUT_URL, fetch_redirect_response=False)
+
+    def test_redirects_when_aud_is_list(self):
+        """Check with 'aud' containing a list of str."""
+        query_params = {
+            'post_logout_redirect_uri': self.LOGOUT_URL,
+        }
+        id_token_dic = create_id_token(
+            user=self.user, aud=self.oidc_client.client_id)
+        id_token_dic['aud'] = [id_token_dic['aud']]
+        id_token = encode_id_token(id_token_dic, self.oidc_client)
+        query_params['id_token_hint'] = id_token
+        response = self.client.get(self.url, query_params)
+        self.assertRedirects(
+            response, self.LOGOUT_URL, fetch_redirect_response=False)
 
     @mock.patch(settings.get('OIDC_AFTER_END_SESSION_HOOK'))
     def test_call_post_end_session_hook(self, hook_function):
