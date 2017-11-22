@@ -1,5 +1,9 @@
 import random
 import string
+
+import django
+from django.contrib.auth.backends import ModelBackend
+
 try:
     from urlparse import parse_qs, urlsplit
 except ImportError:
@@ -131,3 +135,10 @@ def fake_idtoken_processing_hook2(id_token, user):
 def fake_introspection_processing_hook(response_dict, client, id_token):
     response_dict['test_introspection_processing_hook'] = FAKE_RANDOM_STRING
     return response_dict
+
+
+class TestAuthBackend:
+    def authenticate(self, *args, **kwargs):
+        if django.VERSION[0] >= 2 or (django.VERSION[0] == 1 and django.VERSION[1] >= 11):
+            assert len(args) > 0 and args[0]
+        return ModelBackend().authenticate(*args, **kwargs)

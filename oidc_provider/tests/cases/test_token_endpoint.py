@@ -3,6 +3,7 @@ import time
 import uuid
 
 from base64 import b64encode
+
 try:
     from urllib.parse import urlencode
 except ImportError:
@@ -255,6 +256,17 @@ class TokenTestCase(TestCase):
                 self.assertIn(claim, userinfo)
             else:
                 self.assertNotIn(claim, userinfo)
+
+    @override_settings(OIDC_GRANT_TYPE_PASSWORD_ENABLE=True,
+                       AUTHENTICATION_BACKENDS=("oidc_provider.tests.app.utils.TestAuthBackend",))
+    def test_password_grant_passes_request_to_backend(self):
+        response = self._post_request(
+            post_data=self._password_grant_post_data(),
+            extras=self._password_grant_auth_header()
+        )
+
+        response_dict = json.loads(response.content.decode('utf-8'))
+        self.assertIn('access_token', response_dict)
 
     @override_settings(OIDC_TOKEN_EXPIRE=720)
     def test_authorization_code(self):
