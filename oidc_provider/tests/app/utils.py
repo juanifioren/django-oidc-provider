@@ -96,6 +96,7 @@ def userinfo(claims, user):
     claims['family_name'] = 'Doe'
     claims['name'] = '{0} {1}'.format(claims['given_name'], claims['family_name'])
     claims['email'] = user.email
+    claims['email_verified'] = True
     claims['address']['country'] = 'Argentina'
     return claims
 

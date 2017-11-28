@@ -295,13 +295,43 @@ class TokenTestCase(TestCase):
         self.assertEqual(id_token['sub'], str(self.user.id))
         self.assertEqual(id_token['aud'], self.client.client_id)
 
+    @override_settings(OIDC_TOKEN_EXPIRE=720, OIDC_USERINFO='oidc_provider.tests.app.utils.userinfo')
+    def test_claims_includes_other_scopes(self):
+        """
+        Scope is ignored for token respones to auth code grant type.
+        """
+        SIGKEYS = self._get_keys()
+        for code_scope in [['openid'], ['openid', 'email'], ['openid', 'profile']]:
+            code = self._create_code(code_scope)
+
+            post_data = self._auth_code_post_data(
+                code=code.code, scope=['openid', 'profile'])
+
+            response = self._post_request(post_data)
+            response_dic = json.loads(response.content.decode('utf-8'))
+
+            self.assertEqual(response.status_code, 200)
+
+            id_token = JWS().verify_compact(response_dic['id_token'].encode('utf-8'), SIGKEYS)
+
+            if 'email' in code_scope:
+                self.assertIn('email', id_token)
+                self.assertIn('email_verified', id_token)
+            else:
+                self.assertNotIn('email', id_token)
+
+            if 'profile' in code_scope:
+                self.assertIn('name', id_token)
+            else:
+                self.assertNotIn('name', id_token)
+
     @override_settings(OIDC_TOKEN_EXPIRE=720)
     def test_scope_is_ignored_for_auth_code(self):
         """
         Scope is ignored for token respones to auth code grant type.
         """
         SIGKEYS = self._get_keys()
-        for code_scope in [['openid'], ['openid', 'email']]:
+        for code_scope in [['openid'], ['openid', 'email'], ['openid', 'profile']]:
             code = self._create_code(code_scope)
 
             post_data = self._auth_code_post_data(
