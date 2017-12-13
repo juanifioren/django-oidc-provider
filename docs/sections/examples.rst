@@ -15,7 +15,7 @@ You can use the example project code to run your OIDC Provider at ``localhost:80
 Go to the admin site and create a public client with a response_type ``id_token token`` and a redirect_uri ``http://localhost:3000``.
 
 .. note::
-    Remember to create at least one **RSA Key** for the server. ``python manage.py creatersakey``
+    Remember to create at least one **RSA Key** for the server with ``python manage.py creatersakey``
 
 **02. Create the client**
 
