@@ -3,12 +3,12 @@
 Settings
 ########
 
-Customize your provider so fit your project needs.
+Customize django-oidc-provider so that it fits your project's needs.
 
 OIDC_LOGIN_URL
 ==============
 
-OPTIONAL. ``str``. Used to log the user in. By default Django's ``LOGIN_URL`` will be used. `Read more in Django docs <https://docs.djangoproject.com/en/1.7/ref/settings/#login-url>`_
+OPTIONAL. ``str``. Used to log the user in. By default Django's ``LOGIN_URL`` will be used. `Read more in the Django docs <https://docs.djangoproject.com/en/1.11/ref/settings/#login-url>`_
 
 ``str``. Default is ``/accounts/login/`` (Django's ``LOGIN_URL``).
 
@@ -17,7 +17,7 @@ SITE_URL
 
 OPTIONAL. ``str``. The OP server url.
 
-If not specified will be automatically generated using ``request.scheme`` and ``request.get_host()``.
+If not specified, it will be automatically generated using ``request.scheme`` and ``request.get_host()``.
 
 For example ``http://localhost:8000``.
 
@@ -34,7 +34,7 @@ Default is::
 Return ``None`` if you want to continue with the flow.
 
 The typical situation will be checking some state of the user or maybe redirect him somewhere.
-With request you have access to all OIDC parameters. Remember that if you redirect the user to another place then you need to take him back to the authorize endpoint (use ``request.get_full_path()`` as the value for a "next" parameter).
+With ``request`` you have access to all OIDC parameters. Remember that if you redirect the user to another place then you need to take him back to the authorize endpoint (use ``request.get_full_path()`` as the value for a "next" parameter).
 
 OIDC_AFTER_END_SESSION_HOOK
 ===========================
@@ -120,14 +120,14 @@ Default is a string generated at startup.
 OIDC_SKIP_CONSENT_EXPIRE
 ========================
 
-OPTIONAL. ``int``. User consent expiration after been granted.
+OPTIONAL. ``int``. How soon User Consent expires after being granted.
 
 Expressed in days. Default is ``30*3``.
 
 OIDC_TOKEN_EXPIRE
 =================
 
-OPTIONAL. ``int``. Token object (access token) expiration after been created.
+OPTIONAL. ``int``. Token object (access token) expiration after being created.
 
 Expressed in seconds. Default is ``60*60``.
 
@@ -155,7 +155,7 @@ Example usage::
 
 OIDC_GRANT_TYPE_PASSWORD_ENABLE
 ===============================
-OPTIONAL. A boolean to set whether to allow the Resource Owner Password
+OPTIONAL. A boolean whether to allow the Resource Owner Password
 Credentials Grant. https://tools.ietf.org/html/rfc6749#section-4.3
 
 .. important::

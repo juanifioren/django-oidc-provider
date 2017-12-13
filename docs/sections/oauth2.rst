@@ -3,7 +3,7 @@
 OAuth2 Server
 #############
 
-Because OIDC is a layer on top of the OAuth 2.0 protocol, this package gives you a simple but effective OAuth2 server that you can use not only for logging in your users on multiple platforms, also to protect some resources you want to expose.
+Because OIDC is a layer on top of the OAuth 2.0 protocol, this package also gives you a simple but effective OAuth2 server that you can use not only for logging in your users on multiple platforms, but also to protect other resources you want to expose.
 
 Protecting Views
 ================
