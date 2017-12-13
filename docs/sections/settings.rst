@@ -106,14 +106,14 @@ Default is::
 OIDC_SESSION_MANAGEMENT_ENABLE
 ==============================
 
-OPTIONAL. ``bool``. Enables OpenID Connect Session Management 1.0 in your provider. Read :ref:`sessionmanagement` section.
+OPTIONAL. ``bool``. Enables OpenID Connect Session Management 1.0 in your provider. See the :ref:`sessionmanagement` section.
 
 Default is ``False``.
 
 OIDC_UNAUTHENTICATED_SESSION_MANAGEMENT_KEY
 ===========================================
 
-OPTIONAL. Supply a fixed string to use as browser-state key for unauthenticated clients. Read :ref:`sessionmanagement` section.
+OPTIONAL. Supply a fixed string to use as browser-state key for unauthenticated clients. See the :ref:`sessionmanagement` section.
 
 Default is a string generated at startup.
 
@@ -134,7 +134,7 @@ Expressed in seconds. Default is ``60*60``.
 OIDC_USERINFO
 =============
 
-OPTIONAL. ``str``. A string with the location of your function. Read :ref:`scopesclaims` section.
+OPTIONAL. ``str``. A string with the location of your function. See the :ref:`scopesclaims` section.
 
 The function receives a ``claims`` dictionary with all the standard claims and ``user`` instance. Must returns the ``claims`` dict again.
 
