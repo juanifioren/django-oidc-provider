@@ -4,7 +4,7 @@ Templates
 #########
 
 Add your own templates files inside a folder named ``templates/oidc_provider/``.
-You can copy the sample html here and edit them with your own styles.
+You can copy the sample html files here and customize them with your own style.
 
 **authorize.html**::
 
@@ -19,7 +19,7 @@ You can copy the sample html here and edit them with your own styles.
         {{ hidden_inputs }}
 
         <ul>
-        {% for scope in params.scope %}
+        {% for scope in scopes %}
             <li><strong>{{ scope.name }}</strong><br><i>{{ scope.description }}</i></li>
         {% endfor %}
         </ul>
@@ -35,4 +35,3 @@ You can copy the sample html here and edit them with your own styles.
     <p>{{ description }}</p>
 
 You can also customize paths to your custom templates by putting them in ``OIDC_TEMPLATES`` in the settings.
-
