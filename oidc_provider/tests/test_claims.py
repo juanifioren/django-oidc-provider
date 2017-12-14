@@ -15,7 +15,7 @@ class ClaimsTestCase(TestCase):
         self.scopes = ['openid', 'address', 'email', 'phone', 'profile']
         self.client = create_fake_client('code')
         self.token = create_fake_token(self.user, self.scopes, self.client)
-        self.scopeClaims = ScopeClaims(self.token)
+        self.scopeClaims = ScopeClaims(self.token.user, self.token.scope)
 
     def test_empty_standard_claims(self):
         for v in [v for k, v in STANDARD_CLAIMS.items() if k != 'address']:

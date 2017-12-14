@@ -300,13 +300,14 @@ class TokenTestCase(TestCase):
     def test_scope_is_ignored_for_auth_code(self):
         """
         Scope is ignored for token respones to auth code grant type.
+        This comes down to that the scopes requested in authorize are returned.
         """
         SIGKEYS = self._get_keys()
-        for code_scope in [['openid'], ['openid', 'email']]:
+        for code_scope in [['openid'], ['openid', 'email'], ['openid', 'profile']]:
             code = self._create_code(code_scope)
 
             post_data = self._auth_code_post_data(
-                code=code.code, scope=['openid', 'profile'])
+                code=code.code, scope=code_scope)
 
             response = self._post_request(post_data)
             response_dic = json.loads(response.content.decode('utf-8'))
@@ -317,8 +318,14 @@ class TokenTestCase(TestCase):
 
             if 'email' in code_scope:
                 self.assertIn('email', id_token)
+                self.assertIn('email_verified', id_token)
             else:
                 self.assertNotIn('email', id_token)
+
+            if 'profile' in code_scope:
+                self.assertIn('given_name', id_token)
+            else:
+                self.assertNotIn('given_name', id_token)
 
     def test_refresh_token(self):
         """

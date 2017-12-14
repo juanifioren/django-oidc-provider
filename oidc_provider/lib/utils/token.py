@@ -10,6 +10,7 @@ from jwkest.jws import JWS
 from jwkest.jwt import JWT
 
 from oidc_provider.lib.utils.common import get_issuer
+from oidc_provider.lib.claims import StandardScopeClaims
 from oidc_provider.models import (
     Code,
     RSAKey,
@@ -52,8 +53,13 @@ def create_id_token(user, aud, nonce='', at_hash='', request=None, scope=None):
     if at_hash:
         dic['at_hash'] = at_hash
 
-    if ('email' in scope) and getattr(user, 'email', None):
-        dic['email'] = user.email
+    if settings.get('OIDC_EXTRA_SCOPE_CLAIMS'):
+        custom_claims = settings.get('OIDC_EXTRA_SCOPE_CLAIMS', import_str=True)(user, scope)
+        claims = custom_claims.create_response_dic()
+    else:
+        claims = StandardScopeClaims(user=user, scope=scope).create_response_dic()
+
+    dic.update(claims)  # modifies dic, adding all requested claims
 
     processing_hook = settings.get('OIDC_IDTOKEN_PROCESSING_HOOK')
 

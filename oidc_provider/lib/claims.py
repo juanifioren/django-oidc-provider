@@ -16,12 +16,11 @@ STANDARD_CLAIMS = {
 
 class ScopeClaims(object):
 
-    def __init__(self, token):
-        self.user = token.user
+    def __init__(self, user, scope):
+        self.user = user
         claims = copy.deepcopy(STANDARD_CLAIMS)
         self.userinfo = settings.get('OIDC_USERINFO', import_str=True)(claims, self.user)
-        self.scopes = token.scope
-        self.client = token.client
+        self.scopes = scope
 
     def create_response_dic(self):
         """

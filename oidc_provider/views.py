@@ -234,7 +234,7 @@ def userinfo(request, *args, **kwargs):
         'sub': token.id_token.get('sub'),
     }
 
-    standard_claims = StandardScopeClaims(token)
+    standard_claims = StandardScopeClaims(user=token.user, scope=token.scope)
     dic.update(standard_claims.create_response_dic())
 
     if settings.get('OIDC_EXTRA_SCOPE_CLAIMS'):
