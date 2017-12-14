@@ -7,7 +7,7 @@ We love contributions, so please feel free to fix bugs, improve things, provide 
 
 * Fork the project.
 * Make your feature addition or bug fix.
-* Add tests for it inside ``oidc_provider/tests``. Then run all and ensure everything is OK (read docs for how to test in all envs).
+* Add tests for it inside ``oidc_provider/tests``. Then run all tests and ensure everything is OK (see the section below on how to test in all envs).
 * Send pull request to the specific version branch.
 
 Running Tests
@@ -24,7 +24,7 @@ Use `tox <https://pypi.python.org/pypi/tox>`_ for running tests in each of the e
     # Run single test file.
     $ python runtests.py oidc_provider.tests.test_authorize_endpoint
 
-Also tests run on every commit to the project, we use `travis <https://travis-ci.org/juanifioren/django-oidc-provider/>`_ for this.
+We also use `travis <https://travis-ci.org/juanifioren/django-oidc-provider/>`_ to automatically test every commit to the project,
 
 Improve Documentation
 =====================
@@ -34,4 +34,4 @@ We use `Sphinx <http://www.sphinx-doc.org/>`_ for generate this documentation. I
 * Install Sphinx (``pip install sphinx``) and the auto-build tool (``pip install sphinx-autobuild``).
 * Move inside the docs folder. ``cd docs/``
 * Generate and watch docs by running ``sphinx-autobuild . _build/``.
-* Open ``http://127.0.0.1:8000`` on a browser.
+* Open ``http://127.0.0.1:8000`` in a browser.
