@@ -65,7 +65,7 @@ class AuthorizeView(View):
         try:
             authorize.validate_params()
 
-            if request.user.is_authenticated():
+            if (request.user.is_authenticated if django.VERSION >= (1, 10) else request.user.is_authenticated()):
                 # Check if there's a hook setted.
                 hook_resp = settings.get('OIDC_AFTER_USERLOGIN_HOOK', import_str=True)(
                     request=request, user=request.user,
