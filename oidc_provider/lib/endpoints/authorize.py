@@ -155,6 +155,7 @@ class AuthorizeEndpoint(object):
                     kwargs = {
                         'user': self.request.user,
                         'aud': self.client.client_id,
+                        'token': token,
                         'nonce': self.params['nonce'],
                         'request': self.request,
                         'scope': self.params['scope'],
