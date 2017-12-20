@@ -30,7 +30,7 @@ JWT_ALGS = [
 ]
 
 
-class Client(models.Model):
+class AbstractClient(models.Model):
 
     name = models.CharField(max_length=100, default='', verbose_name=_(u'Name'))
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'Owner'), blank = True, null = True, default = None, on_delete=models.SET_NULL, related_name='oidc_clients_set')
@@ -98,6 +98,7 @@ class Client(models.Model):
     class Meta:
         verbose_name = _(u'Client')
         verbose_name_plural = _(u'Clients')
+        abstract = True
 
     def __str__(self):
         return u'{0}'.format(self.name)
@@ -108,6 +109,12 @@ class Client(models.Model):
     @property
     def default_redirect_uri(self):
         return self.redirect_uris[0] if self.redirect_uris else ''
+
+
+class Client(AbstractClient):
+
+    class Meta(AbstractClient.Meta):
+        swappable = "OIDC_CLIENT_MODEL"
 
 
 class BaseCodeTokenModel(models.Model):
