@@ -66,6 +66,7 @@ DEFAULT_SETTINGS = dict(
         'django.contrib.messages',
         'django.contrib.admin',
         'oidc_provider',
+        'oidc_provider.tests',
     ],
 
     SECRET_KEY='this-should-be-top-secret',
@@ -84,6 +85,9 @@ DEFAULT_SETTINGS = dict(
     OIDC_USERINFO='oidc_provider.tests.app.utils.userinfo',
 
 )
+
+if django.VERSION >= (1, 11):
+    DEFAULT_SETTINGS['MIDDLEWARE'] = DEFAULT_SETTINGS['MIDDLEWARE_CLASSES']
 
 
 def runtests(*test_args):

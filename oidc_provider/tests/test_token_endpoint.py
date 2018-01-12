@@ -8,8 +8,13 @@ try:
 except ImportError:
     from urllib import urlencode
 
+import django
+if django.VERSION >= (1, 11):
+    from django.urls import reverse
+else:
+    from django.core.urlresolvers import reverse
+
 from django.core.management import call_command
-from django.core.urlresolvers import reverse
 from django.test import (
     RequestFactory,
     override_settings,

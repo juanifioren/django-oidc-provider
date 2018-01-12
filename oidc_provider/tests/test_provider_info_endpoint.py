@@ -1,4 +1,8 @@
-from django.core.urlresolvers import reverse
+import django
+if django.VERSION >= (1, 11):
+    from django.urls import reverse
+else:
+    from django.core.urlresolvers import reverse
 from django.test import RequestFactory
 from django.test import TestCase
 
