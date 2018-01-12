@@ -17,13 +17,14 @@ from oidc_provider.lib.utils.token import (
     encode_id_token,
 )
 from oidc_provider.models import (
-    Client,
     Code,
     Token,
+    get_client_model
 )
 from oidc_provider import settings
 
 logger = logging.getLogger(__name__)
+Client = get_client_model()
 
 
 class TokenEndpoint(object):
