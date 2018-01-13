@@ -24,7 +24,7 @@ from oidc_provider.models import (
 
 Client = get_client_model()
 Code = get_code_model()
-Client = get_client_model()
+Token = get_token_model()
 
 logger = logging.getLogger(__name__)
 
