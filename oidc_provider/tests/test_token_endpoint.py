@@ -21,7 +21,7 @@ from jwkest.jwt import JWT
 from mock import patch
 
 from oidc_provider.lib.utils.token import create_code
-from oidc_provider.models import Token
+from oidc_provider.models import get_token_model
 from oidc_provider.tests.app.utils import (
     create_fake_user,
     create_fake_client,
@@ -35,6 +35,8 @@ from oidc_provider.views import (
     TokenView,
     userinfo,
 )
+
+Token = get_token_model()
 
 
 class TokenTestCase(TestCase):
