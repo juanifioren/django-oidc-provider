@@ -9,9 +9,14 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 from oidc_provider.models import (
-    Client,
-    Code,
-    Token)
+    get_client_model,
+    get_code_model,
+    get_token_model,
+)
+
+Client = get_client_model()
+Code = get_code_model()
+Token = get_token_model()
 
 
 FAKE_NONCE = 'cb584e44c43ed6bd0bc2d9c7e242837d'

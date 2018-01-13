@@ -45,12 +45,14 @@ from oidc_provider.lib.utils.common import (
 from oidc_provider.lib.utils.oauth2 import protected_resource_view
 from oidc_provider.lib.utils.token import client_id_from_id_token
 from oidc_provider.models import (
-    Client,
+    get_client_model,
     RESPONSE_TYPE_CHOICES,
     RSAKey,
 )
 from oidc_provider import settings
 from oidc_provider import signals
+
+Client = get_client_model()
 
 logger = logging.getLogger(__name__)
 

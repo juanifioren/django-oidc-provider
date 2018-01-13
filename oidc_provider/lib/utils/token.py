@@ -11,11 +11,14 @@ from jwkest.jwt import JWT
 
 from oidc_provider.lib.utils.common import get_issuer
 from oidc_provider.models import (
-    Code,
+    get_code_model,
     RSAKey,
-    Token,
+    get_token_model,
 )
 from oidc_provider import settings
+
+Code = get_code_model()
+Token = get_token_model()
 
 
 def create_id_token(user, aud, nonce='', at_hash='', request=None, scope=None):

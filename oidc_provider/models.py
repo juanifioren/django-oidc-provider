@@ -5,10 +5,12 @@ from hashlib import md5, sha256
 import json
 
 from django.db import models
+from django.apps import apps
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
+CLIENT_MODEL = getattr(settings, "OIDC_CLIENT_MODEL", "oidc_provider.Client")
 
 CLIENT_TYPE_CHOICES = [
     ('confidential', 'Confidential'),
@@ -114,13 +116,14 @@ class AbstractClient(models.Model):
 class Client(AbstractClient):
 
     class Meta(AbstractClient.Meta):
+        verbose_name = _(u'Client')
+        verbose_name_plural = _(u'Clients')
         swappable = "OIDC_CLIENT_MODEL"
-
 
 class BaseCodeTokenModel(models.Model):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'User'), on_delete=models.CASCADE)
-    client = models.ForeignKey(Client, verbose_name=_(u'Client'), on_delete=models.CASCADE)
+    client = models.ForeignKey(CLIENT_MODEL, verbose_name=_(u'Client'), on_delete=models.CASCADE)
     expires_at = models.DateTimeField(verbose_name=_(u'Expiration Date'))
     _scope = models.TextField(default='', verbose_name=_(u'Scopes'))
 
@@ -145,7 +148,7 @@ class BaseCodeTokenModel(models.Model):
         abstract = True
 
 
-class Code(BaseCodeTokenModel):
+class AbstractCode(BaseCodeTokenModel):
 
     code = models.CharField(max_length=255, unique=True, verbose_name=_(u'Code'))
     nonce = models.CharField(max_length=255, blank=True, default='', verbose_name=_(u'Nonce'))
@@ -156,9 +159,18 @@ class Code(BaseCodeTokenModel):
     class Meta:
         verbose_name = _(u'Authorization Code')
         verbose_name_plural = _(u'Authorization Codes')
+        abstract = True
 
 
-class Token(BaseCodeTokenModel):
+class Code(AbstractCode):
+
+    class Meta:
+        verbose_name = _(u'Authorization Code')
+        verbose_name_plural = _(u'Authorization Codes')
+        swappable = "OIDC_CODE_MODEL"
+
+
+class AbstractToken(BaseCodeTokenModel):
 
     access_token = models.CharField(max_length=255, unique=True, verbose_name=_(u'Access Token'))
     refresh_token = models.CharField(max_length=255, unique=True, verbose_name=_(u'Refresh Token'))
@@ -175,6 +187,7 @@ class Token(BaseCodeTokenModel):
     class Meta:
         verbose_name = _(u'Token')
         verbose_name_plural = _(u'Tokens')
+        abstract = True
 
     @property
     def at_hash(self):
@@ -187,6 +200,14 @@ class Token(BaseCodeTokenModel):
                 hashed_access_token[:len(hashed_access_token) // 2]
             )
         ).rstrip(b'=').decode('ascii')
+
+
+class Token(AbstractToken):
+
+    class Meta:
+        verbose_name = _(u'Token')
+        verbose_name_plural = _(u'Tokens')
+        swappable = "OIDC_TOKEN_MODEL"
 
 
 class UserConsent(BaseCodeTokenModel):
@@ -214,3 +235,12 @@ class RSAKey(models.Model):
     @property
     def kid(self):
         return u'{0}'.format(md5(self.key.encode('utf-8')).hexdigest() if self.key else '')
+
+def get_client_model():
+    return apps.get_model(getattr(settings, 'OIDC_CLIENT_MODEL', 'oidc_provider.Client'))
+
+def get_code_model():
+    return apps.get_model(getattr(settings, 'OIDC_CODE_MODEL', 'oidc_provider.Code'))
+
+def get_token_model():
+    return apps.get_model(getattr(settings, 'OIDC_TOKEN_MODEL', 'oidc_provider.Token'))
