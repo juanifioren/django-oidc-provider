@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate
 
 from django.http import JsonResponse
 
+from oidc_provider import settings
 from oidc_provider.lib.errors import (
     TokenError,
     UserAuthError,
@@ -16,11 +17,14 @@ from oidc_provider.lib.utils.token import (
     encode_id_token,
 )
 from oidc_provider.models import (
-    Client,
-    Code,
-    Token,
+    get_code_model,
+    get_token_model,
+    get_client_model,
 )
-from oidc_provider import settings
+
+Client = get_client_model()
+Code = get_code_model()
+Token = get_token_model()
 
 logger = logging.getLogger(__name__)
 
