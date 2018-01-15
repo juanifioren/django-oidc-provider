@@ -20,6 +20,11 @@ DEFAULT_SETTINGS = dict(
 
     SITE_ID=1,
 
+    MIDDLEWARE=[
+        'django.middleware.common.CommonMiddleware',
+        'django.contrib.sessions.middleware.SessionMiddleware',
+        'django.contrib.auth.middleware.AuthenticationMiddleware',
+    ],
     MIDDLEWARE_CLASSES=[
         'django.middleware.common.CommonMiddleware',
         'django.contrib.sessions.middleware.SessionMiddleware',
