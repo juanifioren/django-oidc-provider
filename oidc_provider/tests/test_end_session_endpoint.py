@@ -1,5 +1,8 @@
 from django.core.management import call_command
-from django.core.urlresolvers import reverse
+try:
+    from django.urls import reverse
+except ImportError:
+    from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from oidc_provider.lib.utils.token import (
@@ -51,4 +54,3 @@ class EndSessionTestCase(TestCase):
         self.client.get(self.url)
         self.assertTrue(hook_function.called, 'OIDC_AFTER_END_SESSION_HOOK should be called')
         self.assertTrue(hook_function.call_count == 1, 'OIDC_AFTER_END_SESSION_HOOK should be called once but was {}'.format(hook_function.call_count))
-
