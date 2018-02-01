@@ -9,24 +9,30 @@ from django.conf import settings
 
 DEFAULT_SETTINGS = dict(
 
-    DEBUG = False,
+    DEBUG=False,
 
-    DATABASES = {
+    DATABASES={
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': ':memory:',
         }
     },
 
-    SITE_ID = 1,
+    SITE_ID=1,
 
-    MIDDLEWARE_CLASSES = [
+    MIDDLEWARE_CLASSES=[
         'django.middleware.common.CommonMiddleware',
         'django.contrib.sessions.middleware.SessionMiddleware',
         'django.contrib.auth.middleware.AuthenticationMiddleware',
     ],
 
-    TEMPLATES = [
+    MIDDLEWARE=[
+        'django.middleware.common.CommonMiddleware',
+        'django.contrib.sessions.middleware.SessionMiddleware',
+        'django.contrib.auth.middleware.AuthenticationMiddleware',
+    ],
+
+    TEMPLATES=[
         {
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
             'DIRS': [],
@@ -42,7 +48,7 @@ DEFAULT_SETTINGS = dict(
         },
     ],
 
-    LOGGING = {
+    LOGGING={
         'version': 1,
         'disable_existing_loggers': False,
         'handlers': {
@@ -58,7 +64,7 @@ DEFAULT_SETTINGS = dict(
         },
     },
 
-    INSTALLED_APPS = [
+    INSTALLED_APPS=[
         'django.contrib.auth',
         'django.contrib.contenttypes',
         'django.contrib.sessions',
@@ -68,20 +74,20 @@ DEFAULT_SETTINGS = dict(
         'oidc_provider',
     ],
 
-    SECRET_KEY = 'this-should-be-top-secret',
+    SECRET_KEY='this-should-be-top-secret',
 
-    ROOT_URLCONF = 'oidc_provider.tests.app.urls',
+    ROOT_URLCONF='oidc_provider.tests.app.urls',
 
-    TEMPLATE_DIRS = [
+    TEMPLATE_DIRS=[
         'oidc_provider/tests/templates',
     ],
 
-    USE_TZ = True,
+    USE_TZ=True,
 
     # OIDC Provider settings.
 
-    SITE_URL = 'http://localhost:8000',
-    OIDC_USERINFO = 'oidc_provider.tests.app.utils.userinfo',
+    SITE_URL='http://localhost:8000',
+    OIDC_USERINFO='oidc_provider.tests.app.utils.userinfo',
 
 )
 
