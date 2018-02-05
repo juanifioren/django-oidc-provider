@@ -1,5 +1,7 @@
 import logging
 
+from django.views.decorators.csrf import csrf_exempt
+
 from oidc_provider.lib.endpoints.introspection import TokenIntrospectionEndpoint
 try:
     from urllib import urlencode
@@ -381,6 +383,10 @@ class CheckSessionIframeView(View):
 
 
 class TokenIntrospectionView(View):
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(TokenIntrospectionView, self).dispatch(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
         introspection = TokenIntrospectionEndpoint(request)
 
