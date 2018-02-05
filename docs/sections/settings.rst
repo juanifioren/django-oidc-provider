@@ -21,6 +21,21 @@ If not specified, it will be automatically generated using ``request.scheme`` an
 
 For example ``http://localhost:8000``.
 
+OIDC_RESOURCE_MODEL
+===================
+
+OPTIONAL. ``str``. Path to a custom API resource model.
+
+Default is ``oidc_provider.Resource``.
+
+Similar to the Django custom user model, you can extend the default model by adding ``AbstractResource`` as a mixin.
+
+For example::
+
+    class CustomResource(AbstractResource):
+        custom_field = models.CharField(max_length=255, _(u'Some Custom Field'))
+
+
 OIDC_AFTER_USERLOGIN_HOOK
 =========================
 
@@ -89,6 +104,22 @@ Default is::
     def default_idtoken_processing_hook(id_token, user):
 
         return id_token
+
+OIDC_INTROSPECTION_PROCESSING_HOOK
+==================================
+
+OPTIONAL. ``str`` or ``(list, tuple)``.
+
+A string with the location of your function hook or ``list`` or ``tuple`` with hook functions.
+Here you can add extra dictionary values specific to your valid response value for token introspection.
+
+The function receives an ``introspection_response`` dictionary, a ``resource`` instance and an ``id_token`` dictionary.
+
+Default is::
+
+    def default_introspection_processing_hook(introspection_response, resource, id_token):
+
+        return introspection_response
 
 OIDC_IDTOKEN_SUB_GENERATOR
 ==========================

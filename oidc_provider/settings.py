@@ -130,6 +130,10 @@ class DefaultSettings(object):
         return 'oidc_provider.lib.utils.common.default_idtoken_processing_hook'
 
     @property
+    def OIDC_INTROSPECTION_PROCESSING_HOOK(self):
+        return 'oidc_provider.lib.utils.common.default_introspection_processing_hook'
+
+    @property
     def OIDC_GRANT_TYPE_PASSWORD_ENABLE(self):
         """
         OPTIONAL. A boolean to set whether to allow the Resource Owner Password
@@ -151,6 +155,14 @@ class DefaultSettings(object):
             'authorize': 'oidc_provider/authorize.html',
             'error': 'oidc_provider/error.html'
         }
+
+    @property
+    def OIDC_RESOURCE_MODEL(self):
+        """
+        Model w
+        :return:
+        """
+        return 'oidc_provider.Resource'
 
 
 default_settings = DefaultSettings()

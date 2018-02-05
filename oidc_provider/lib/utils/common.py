@@ -1,7 +1,11 @@
+from base64 import b64decode
 from hashlib import sha224
+from django.http import HttpResponse
+from oidc_provider import settings
 
 import django
 from django.http import HttpResponse
+import re
 
 from oidc_provider import settings
 
@@ -10,6 +14,9 @@ if django.VERSION >= (1, 11):
     from django.urls import reverse
 else:
     from django.core.urlresolvers import reverse
+
+
+basic_re = re.compile('^Basic\s(.+)$', re.I)
 
 
 def redirect(uri):
@@ -123,6 +130,17 @@ def default_idtoken_processing_hook(id_token, user):
     return id_token
 
 
+def default_introspection_processing_hook(introspection_response, resource, id_token):
+    """
+    Hook to customise the returned data from the token introspection endpoint
+    :param introspection_response:
+    :param resource:
+    :param id_token:
+    :return:
+    """
+    return introspection_response
+
+
 def get_browser_state_or_default(request):
     """
     Determine value to use as session state.
@@ -130,3 +148,38 @@ def get_browser_state_or_default(request):
     key = (request.session.session_key or
            settings.get('OIDC_UNAUTHENTICATED_SESSION_MANAGEMENT_KEY'))
     return sha224(key.encode('utf-8')).hexdigest()
+
+
+def get_basic_client_credentials(request):
+    """
+    Get client credentials using HTTP Basic Authentication method.
+    Or try getting parameters via POST.
+    See: http://tools.ietf.org/html/rfc6750#section-2.1
+
+    :param request:
+    :return: tuple of client_id, client_secret
+    :rtype: tuple
+    """
+    auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+    result = basic_re.match(auth_header)
+    if result:
+        b64_user_pass = result.group(1)
+        try:
+            user_pass = b64decode(b64_user_pass).decode('utf-8').split(':', 1)
+            client_id, client_secret = tuple(user_pass)
+        except (ValueError, UnicodeDecodeError):
+            client_id = client_secret = ''
+    else:
+        client_id = request.POST.get('client_id')
+        client_secret = request.POST.get('client_secret')
+    return client_id, client_secret
+
+
+def run_processing_hook(subject, hook_settings_name, **kwargs):
+    processing_hook = settings.get(hook_settings_name)
+    if isinstance(processing_hook, (list, tuple)):
+        for hook in processing_hook:
+            subject = settings.import_from_str(hook)(subject, **kwargs)
+    else:
+        subject = settings.import_from_str(processing_hook)(subject, **kwargs)
+    return subject

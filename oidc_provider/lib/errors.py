@@ -32,6 +32,15 @@ class UserAuthError(Exception):
         }
 
 
+class TokenIntrospectionError(Exception):
+    """
+    Specific to the introspection endpoint. This error will be converted
+    to an "active: false" response, as per the spec.
+    See https://tools.ietf.org/html/rfc7662
+    """
+    pass
+
+
 class AuthorizeError(Exception):
 
     _errors = {

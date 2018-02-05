@@ -11,7 +11,9 @@ from django.contrib.auth.models import User
 from oidc_provider.models import (
     Client,
     Code,
-    Token)
+    Token, get_resource_model)
+
+Resource = get_resource_model()
 
 
 FAKE_NONCE = 'cb584e44c43ed6bd0bc2d9c7e242837d'
@@ -63,9 +65,22 @@ def create_fake_client(response_type, is_public=False, require_consent=True):
     return client
 
 
+def create_fake_resource(allowed_clients, active=True):
+    resource = Resource(name='Some API',
+                        resource_id=str(random.randint(1, 999999)).zfill(6),
+                        resource_secret=str(random.randint(1, 999999)).zfill(6),
+                        active=active)
+    resource.name = 'Some API'
+    resource.save()
+    resource.allowed_clients.add(*allowed_clients)
+    resource.save()
+
+    return resource
+
+
 def create_fake_token(user, scopes, client):
     expires_at = timezone.now() + timezone.timedelta(seconds=60)
-    token = Token(user=user, client=client, expires_at=expires_at)
+    token = Token(user=user, client=client, expires_at=expires_at, access_token=str(random.randint(1, 999999)).zfill(6))
     token.scope = scopes
 
     token.save()
@@ -126,3 +141,8 @@ def fake_idtoken_processing_hook2(id_token, user):
     id_token['test_idtoken_processing_hook2'] = FAKE_RANDOM_STRING
     id_token['test_idtoken_processing_hook_user_email2'] = user.email
     return id_token
+
+
+def fake_introspection_processing_hook(response_dict, resource, id_token):
+    response_dict['test_introspection_processing_hook'] = FAKE_RANDOM_STRING
+    return response_dict
