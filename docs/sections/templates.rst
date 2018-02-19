@@ -19,7 +19,7 @@ You can copy the sample html here and edit them with your own styles.
         {{ hidden_inputs }}
 
         <ul>
-        {% for scope in params.scope %}
+        {% for scope in scopes %}
             <li><strong>{{ scope.name }}</strong><br><i>{{ scope.description }}</i></li>
         {% endfor %}
         </ul>
