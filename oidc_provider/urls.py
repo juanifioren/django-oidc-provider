@@ -1,4 +1,7 @@
-from django.conf.urls import url
+try:
+    from django.urls import url
+except ImportError:
+    from django.conf.urls import url
 from django.views.decorators.csrf import csrf_exempt
 
 from oidc_provider import (

@@ -6,7 +6,10 @@ try:
 except ImportError:
     from urllib import urlencode
 
-from django.core.urlresolvers import reverse
+try:
+    from django.urls import reverse
+except ImportError:
+    from django.core.urlresolvers import reverse
 from django.test import RequestFactory
 from django.test import TestCase
 from django.utils import timezone
