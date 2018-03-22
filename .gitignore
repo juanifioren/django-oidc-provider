@@ -12,3 +12,4 @@ src/
 docs/_build/
 .eggs/
 .python-version
+.pytest_cache/

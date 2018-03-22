@@ -1,5 +1,8 @@
 from django.core.management import call_command
-from django.core.urlresolvers import reverse
+try:
+    from django.urls import reverse
+except ImportError:
+    from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from oidc_provider.lib.utils.token import (

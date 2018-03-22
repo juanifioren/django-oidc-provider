@@ -9,7 +9,10 @@ except ImportError:
     from urllib import urlencode
 
 from django.core.management import call_command
-from django.core.urlresolvers import reverse
+try:
+    from django.urls import reverse
+except ImportError:
+    from django.core.urlresolvers import reverse
 from django.test import (
     RequestFactory,
     override_settings,

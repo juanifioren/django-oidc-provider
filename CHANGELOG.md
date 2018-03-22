@@ -2,17 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
-### [Unreleased]
+### Unreleased
 
 ##### Added
-- Add pep8 compliance and checker
+- Add pep8 compliance and checker.
+
+##### Changed
+- Test suit now uses pytest.
+
+### [0.5.3] - 2018-03-09
+
+##### Fixed
+- Update project to support Django 2.0
 
 ### [0.5.2] - 2017-08-22
 
 ##### Fixed
 - Fix infinite login loop if "prompt=login" (#198)
-- Fix Django 2.0 deprecation warnings (#185) 
-
+- Fix Django 2.0 deprecation warnings (#185)
 
 ### [0.5.1] - 2017-07-11
 
