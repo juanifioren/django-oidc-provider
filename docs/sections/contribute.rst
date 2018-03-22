@@ -13,16 +13,16 @@ We love contributions, so please feel free to fix bugs, improve things, provide 
 Running Tests
 =============
 
-Use `tox <https://pypi.python.org/pypi/tox>`_ for running tests in each of the environments, also to run coverage among::
+Use `tox <https://pypi.python.org/pypi/tox>`_ for running tests in each of the environments, also to run coverage and flake8 among::
 
     # Run all tests.
     $ tox
 
-    # Run with Python 2.7 and Django 1.9.
-    $ tox -e py27-django19
+    # Run with Python 3.5 and Django 2.0.
+    $ tox -e py35-django20
 
-    # Run single test file.
-    $ python runtests.py oidc_provider.tests.test_authorize_endpoint
+    # Run single test file on specific environment.
+    $ tox -e py35-django20 tests/cases/test_authorize_endpoint.py
 
 We also use `travis <https://travis-ci.org/juanifioren/django-oidc-provider/>`_ to automatically test every commit to the project,
 
