@@ -7,7 +7,8 @@ except ImportError:
 class RedirectUriError(Exception):
 
     error = 'Redirect URI Error'
-    description = 'The request fails due to a missing, invalid, or mismatching redirection URI (redirect_uri).'
+    description = 'The request fails due to a missing, invalid, or mismatching' \
+                  ' redirection URI (redirect_uri).'
 
 
 class ClientIdError(Exception):
