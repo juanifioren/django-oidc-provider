@@ -3,7 +3,7 @@
 
 {% block content %}
 
-<section class="text-xs-center">
+<section>
     <div class="container">
         <h1 class="jumbotron-heading">{% trans 'Welcome' %}{% if user.is_authenticated %} {{ user.username }}{% endif %}!</h1>
         <p class="lead text-muted">{% trans 'This is an example of an OpenID Connect 1.0 Provider. Built with the <a href="https://www.djangoproject.com/" target="_BLANK"><u>Django Framework</u></a> and <a href="https://github.com/juanifioren/django-oidc-provider" target="_BLANK"><u>django-oidc-provider</u></a> package.' %}</p>

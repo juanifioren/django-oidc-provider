@@ -20,7 +20,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'myapp',
+    'app',
     'oidc_provider',
 ]
 
@@ -51,9 +51,9 @@ TEMPLATES = [
     },
 ]
 
-ROOT_URLCONF = 'myapp.urls'
+ROOT_URLCONF = 'app.urls'
 
-WSGI_APPLICATION = 'myapp.wsgi.application'
+WSGI_APPLICATION = 'app.wsgi.application'
 
 # Database
 

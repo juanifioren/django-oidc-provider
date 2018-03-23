@@ -1,2 +1,0 @@
-django==1.10
-https://github.com/juanifioren/django-oidc-provider/archive/v0.4.x.zip
