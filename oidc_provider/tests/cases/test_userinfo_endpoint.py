@@ -148,4 +148,5 @@ class UserInfoTestCase(TestCase):
         response_dic = json.loads(response.content.decode('utf-8'))
 
         self.assertIn('address', response_dic, msg='"address" claim should be in response.')
-        self.assertIn('country', response_dic['address'], msg='"country" claim should be in response.')
+        self.assertIn(
+            'country', response_dic['address'], msg='"country" claim should be in response.')

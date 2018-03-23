@@ -15,7 +15,8 @@ from oidc_provider.models import (
 
 
 FAKE_NONCE = 'cb584e44c43ed6bd0bc2d9c7e242837d'
-FAKE_RANDOM_STRING = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(32))
+FAKE_RANDOM_STRING = ''.join(
+    random.choice(string.ascii_uppercase + string.digits) for _ in range(32))
 FAKE_CODE_CHALLENGE = 'YlYXEqXuRm-Xgi2BOUiK50JW1KsGTX6F1TDnZSC8VTg'
 FAKE_CODE_VERIFIER = 'SmxGa0XueyNh5bDgTcSrqzAh2_FmXEqU8kDT6CuXicw'
 
@@ -82,7 +83,7 @@ def is_code_valid(url, user, client):
         code = params['code'][0]
         code = Code.objects.get(code=code)
         is_code_ok = (code.client == client) and (code.user == user)
-    except:
+    except Exception:
         is_code_ok = False
 
     return is_code_ok
@@ -118,7 +119,8 @@ def fake_idtoken_processing_hook(id_token, user):
 
 def fake_idtoken_processing_hook2(id_token, user):
     """
-    Fake function for inserting some keys into token. Testing OIDC_IDTOKEN_PROCESSING_HOOK - tuple or list as param
+    Fake function for inserting some keys into token.
+    Testing OIDC_IDTOKEN_PROCESSING_HOOK - tuple or list as param
     """
     id_token['test_idtoken_processing_hook2'] = FAKE_RANDOM_STRING
     id_token['test_idtoken_processing_hook_user_email2'] = user.email

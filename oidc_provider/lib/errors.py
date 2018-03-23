@@ -23,8 +23,7 @@ class UserAuthError(Exception):
     the Resource Owners credentials are not valid.
     """
     error = 'access_denied'
-    description = 'The resource owner or authorization server denied ' \
-                  'the request'
+    description = 'The resource owner or authorization server denied the request.'
 
     def create_dict(self):
         return {

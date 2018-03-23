@@ -64,7 +64,7 @@ class TokenEndpoint(object):
             try:
                 user_pass = b64decode(b64_user_pass).decode('utf-8').split(':')
                 client_id, client_secret = tuple(user_pass)
-            except:
+            except Exception:
                 client_id = client_secret = ''
         else:
             client_id = self.request.POST.get('client_id', '')
@@ -138,7 +138,8 @@ class TokenEndpoint(object):
                                                client=self.client)
 
             except Token.DoesNotExist:
-                logger.debug('[Token] Refresh token does not exist: %s', self.params['refresh_token'])
+                logger.debug(
+                    '[Token] Refresh token does not exist: %s', self.params['refresh_token'])
                 raise TokenError('invalid_grant')
 
         else:

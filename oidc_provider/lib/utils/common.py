@@ -1,15 +1,15 @@
 from hashlib import sha224
 
 import django
+from django.http import HttpResponse
+
+from oidc_provider import settings
+
 
 if django.VERSION >= (1, 11):
     from django.urls import reverse
 else:
     from django.core.urlresolvers import reverse
-
-from django.http import HttpResponse
-
-from oidc_provider import settings
 
 
 def redirect(uri):
@@ -77,17 +77,20 @@ def default_after_userlogin_hook(request, user, client):
 
 
 def default_after_end_session_hook(
-        request, id_token=None, post_logout_redirect_uri=None, state=None, client=None, next_page=None):
+        request, id_token=None, post_logout_redirect_uri=None,
+        state=None, client=None, next_page=None):
     """
     Default function for setting OIDC_AFTER_END_SESSION_HOOK.
 
     :param request: Django request object
     :type request: django.http.HttpRequest
 
-    :param id_token: token passed by `id_token_hint` url query param - do NOT trust this param or validate token
+    :param id_token: token passed by `id_token_hint` url query param.
+                     Do NOT trust this param or validate token
     :type id_token: str
 
-    :param post_logout_redirect_uri: redirect url from url query param - do NOT trust this param
+    :param post_logout_redirect_uri: redirect url from url query param.
+                                     Do NOT trust this param
     :type post_logout_redirect_uri: str
 
     :param state: state param from url query params
@@ -124,5 +127,6 @@ def get_browser_state_or_default(request):
     """
     Determine value to use as session state.
     """
-    key = request.session.session_key or settings.get('OIDC_UNAUTHENTICATED_SESSION_MANAGEMENT_KEY')
+    key = (request.session.session_key or
+           settings.get('OIDC_UNAUTHENTICATED_SESSION_MANAGEMENT_KEY'))
     return sha224(key.encode('utf-8')).hexdigest()
