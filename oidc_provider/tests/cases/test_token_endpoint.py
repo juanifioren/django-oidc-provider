@@ -254,7 +254,8 @@ class TokenTestCase(TestCase):
         )
 
         response_dict = json.loads(response.content.decode('utf-8'))
-        id_token = JWS().verify_compact(response_dict['id_token'].encode('utf-8'), self._get_keys())
+        id_token = JWS().verify_compact(
+            response_dict['id_token'].encode('utf-8'), self._get_keys())
 
         token = Token.objects.get(user=self.user)
         self.assertEqual(response_dict['access_token'], token.access_token)
@@ -468,13 +469,17 @@ class TokenTestCase(TestCase):
         for request in requests:
             response = TokenView.as_view()(request)
 
-            self.assertEqual(response.status_code, 405, msg=request.method + ' request does not return a 405 status.')
+            self.assertEqual(
+                response.status_code, 405,
+                msg=request.method + ' request does not return a 405 status.')
 
         request = self.factory.post(url)
 
         response = TokenView.as_view()(request)
 
-        self.assertEqual(response.status_code, 400, msg=request.method + ' request does not return a 400 status.')
+        self.assertEqual(
+            response.status_code, 400,
+            msg=request.method + ' request does not return a 400 status.')
 
     def test_client_authentication(self):
         """
@@ -594,7 +599,8 @@ class TokenTestCase(TestCase):
 
         JWS().verify_compact(response_dic['id_token'].encode('utf-8'), RSAKEYS)
 
-    @override_settings(OIDC_IDTOKEN_SUB_GENERATOR='oidc_provider.tests.app.utils.fake_sub_generator')
+    @override_settings(
+        OIDC_IDTOKEN_SUB_GENERATOR='oidc_provider.tests.app.utils.fake_sub_generator')
     def test_custom_sub_generator(self):
         """
         Test custom function for setting OIDC_IDTOKEN_SUB_GENERATOR.
@@ -610,7 +616,8 @@ class TokenTestCase(TestCase):
 
         self.assertEqual(id_token.get('sub'), self.user.email)
 
-    @override_settings(OIDC_IDTOKEN_PROCESSING_HOOK='oidc_provider.tests.app.utils.fake_idtoken_processing_hook')
+    @override_settings(
+        OIDC_IDTOKEN_PROCESSING_HOOK='oidc_provider.tests.app.utils.fake_idtoken_processing_hook')
     def test_additional_idtoken_processing_hook(self):
         """
         Test custom function for setting OIDC_IDTOKEN_PROCESSING_HOOK.
