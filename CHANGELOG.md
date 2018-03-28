@@ -10,6 +10,9 @@ All notable changes to this project will be documented in this file.
 ##### Changed
 - Test suit now uses pytest.
 
+##### Fixed
+- Infinite callback loop in the check-session iframe.
+
 ### [0.5.3] - 2018-03-09
 
 ##### Fixed
