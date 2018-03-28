@@ -21,7 +21,9 @@ Support for Python 3 and 2. Also latest versions of django.
 
 [Join us!](https://github.com/juanifioren/django-oidc-provider/graphs/contributors) we love contributions, so please feel free to fix bugs, improve things, provide documentation. You SHOULD follow this steps:
 
-* Fork the project.
+* Fork the project and create new branch from `develop`.
 * Make your feature addition or bug fix.
 * Add tests for it inside `oidc_provider/tests`. Then run all and ensure everything is OK (read docs for how to test in all envs).
-* Send pull request to the `develop` branch.
+* Create an issue and explain your changes.
+* Create pull request for the issue to the `develop` branch.
+* Wait for the collaborators to review it.
