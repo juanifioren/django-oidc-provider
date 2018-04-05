@@ -39,6 +39,8 @@ Contents:
    sections/signals
    sections/examples
    sections/contribute
+   sections/contribute
+   sections/changelog
 ..
 
 Indices and tables
