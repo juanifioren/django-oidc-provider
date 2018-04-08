@@ -24,7 +24,7 @@ Use `tox <https://pypi.python.org/pypi/tox>`_ for running tests in each of the e
     # Run single test file on specific environment.
     $ tox -e py35-django20 tests/cases/test_authorize_endpoint.py
 
-We also use `travis <https://travis-ci.org/juanifioren/django-oidc-provider/>`_ to automatically test every commit to the project,
+We also use `travis <https://travis-ci.org/juanifioren/django-oidc-provider/>`_ to automatically test every commit to the project.
 
 Improve Documentation
 =====================

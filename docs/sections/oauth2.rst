@@ -17,7 +17,7 @@ Here we are going to protect a view with a scope called ``testscope``::
 
 
     @require_http_methods(['GET'])
-    @protected_resource_view(['testscope'])
+    @protected_resource_view(['read_books'])
     def protected_api(request, *args, **kwargs):
 
         dic = {
@@ -25,3 +25,37 @@ Here we are going to protect a view with a scope called ``testscope``::
         }
 
         return JsonResponse(dic, status=200)
+
+Client Credentials Grant
+========================
+
+The client can request an access token using only its client credentials (ID and SECRET) when the client is requesting access to the protected resources under its control, that have been previously arranged with the authorization server using the ``client.scope`` field.
+
+.. note::
+    You can use Django admin to manually set the client scope or programmatically::
+
+        client.scope = ['read_books', 'add_books']
+        client.save()
+
+This is how the request should look like::
+
+    POST /token HTTP/1.1
+    Host: localhost:8000
+    Authorization: Basic eWZ3a3c0cWxtaHY0cToyVWE0QjVzRlhmZ3pNeXR5d1FqT01jNUsxYmpWeXhXeXRySVdsTmpQbld3\
+    Content-Type: application/x-www-form-urlencoded
+
+    grant_type=client_credentials
+
+A successful access token response will like this::
+
+    HTTP/1.1 200 OK
+    Content-Type: application/json
+    Cache-Control: no-store
+    Pragma: no-cache
+
+    {
+        "token_type"    : "Bearer",
+        "access_token"  : "eyJhbGciOiJSUzI1NiIsImtpZCI6IjEifQ.eyJzY3AiOlsib3BlbmlkIiw...",
+        "expires_in"    : 3600,
+        "scope"         : "read_books add_books"
+    }
