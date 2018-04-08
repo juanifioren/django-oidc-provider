@@ -8,7 +8,7 @@ Because OIDC is a layer on top of the OAuth 2.0 protocol, this package also give
 Protecting Views
 ================
 
-Here we are going to protect a view with a scope called ``testscope``::
+Here we are going to protect a view with a scope called ``read_books``::
 
     from django.http import JsonResponse
     from django.views.decorators.http import require_http_methods
