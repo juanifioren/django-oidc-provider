@@ -152,28 +152,6 @@ class TokenTestCase(TestCase):
         auth_header = {'HTTP_AUTHORIZATION': auth.decode('utf-8')}
         return auth_header
 
-    # Resource Owner Password Credentials Grant
-    # requirements to satisfy in all test_password_grant methods
-    # https://tools.ietf.org/html/rfc6749#section-4.3.2
-    #
-    # grant_type
-    #       REQUIRED.  Value MUST be set to "password".
-    # username
-    #       REQUIRED.  The resource owner username.
-    # password
-    #       REQUIRED.  The resource owner password.
-    # scope
-    #       OPTIONAL.  The scope of the access request as described by
-    #       Section 3.3.
-    #
-    # The authorization server MUST:
-    # o  require client authentication for confidential clients or for any
-    #    client that was issued client credentials (or with other
-    #    authentication requirements),
-    # o  authenticate the client if client authentication is included, and
-    # o  validate the resource owner password credentials using its
-    #    existing password validation algorithm.
-
     def test_default_setting_does_not_allow_grant_type_password(self):
         post_data = self._password_grant_post_data()
 
@@ -744,3 +722,34 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
 
         json.loads(response.content.decode('utf-8'))
+
+    def test_client_credentials_grant_type(self):
+        fake_scopes_list = ['scopeone', 'scopetwo']
+
+        # Add scope for this client.
+        self.client.scope = fake_scopes_list
+        self.client.save()
+
+        post_data = {
+            'client_id': self.client.client_id,
+            'client_secret': self.client.client_secret,
+            'grant_type': 'client_credentials',
+        }
+        response = self._post_request(post_data)
+        response_dict = json.loads(response.content.decode('utf-8'))
+
+        # Ensure access token exists in the response, also check if scopes are
+        # the ones we registered previously.
+        self.assertTrue('access_token' in response_dict)
+        self.assertEqual(' '.join(fake_scopes_list), response_dict['scope'])
+
+        # Clean scopes for this client.
+        self.client.scope = ''
+        self.client.save()
+
+        response = self._post_request(post_data)
+        response_dict = json.loads(response.content.decode('utf-8'))
+
+        # It should fail when client does not have any scope added.
+        self.assertEqual(400, response.status_code)
+        self.assertEqual('invalid_scope', response_dict['error'])

@@ -56,7 +56,7 @@ class ClientAdmin(admin.ModelAdmin):
                 'require_consent', 'reuse_consent'),
         }],
         [_(u'Credentials'), {
-            'fields': ('client_id', 'client_secret'),
+            'fields': ('client_id', 'client_secret', '_scope'),
         }],
         [_(u'Information'), {
             'fields': ('contact_email', 'website_url', 'terms_url', 'logo', 'date_created'),
