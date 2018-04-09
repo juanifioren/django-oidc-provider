@@ -9,6 +9,7 @@ except ImportError:
     from urllib import urlencode
 
 from django.core.management import call_command
+from django.http import JsonResponse
 try:
     from django.urls import reverse
 except ImportError:
@@ -18,11 +19,13 @@ from django.test import (
     override_settings,
 )
 from django.test import TestCase
+from django.views.decorators.http import require_http_methods
 from jwkest.jwk import KEYS
 from jwkest.jws import JWS
 from jwkest.jwt import JWT
 from mock import patch
 
+from oidc_provider.lib.utils.oauth2 import protected_resource_view
 from oidc_provider.lib.utils.token import create_code
 from oidc_provider.models import Token
 from oidc_provider.tests.app.utils import (
@@ -742,6 +745,24 @@ class TokenTestCase(TestCase):
         # the ones we registered previously.
         self.assertTrue('access_token' in response_dict)
         self.assertEqual(' '.join(fake_scopes_list), response_dict['scope'])
+
+        # Create a protected resource and test the access_token.
+
+        @require_http_methods(['GET'])
+        @protected_resource_view(fake_scopes_list)
+        def protected_api(request, *args, **kwargs):
+            return JsonResponse({'protected': 'information'}, status=200)
+
+        # Deploy view on some url. So, base url could be anything.
+        request = self.factory.get(
+            '/api/protected/?access_token={0}'.format(response_dict['access_token']))
+        response = protected_api(request)
+        response_dict = json.loads(response.content.decode('utf-8'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('protected' in response_dict)
+
+        # Protected resource test ends here.
 
         # Clean scopes for this client.
         self.client.scope = ''
