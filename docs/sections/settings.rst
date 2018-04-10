@@ -103,6 +103,13 @@ Default is::
 
         return str(user.id)
 
+OIDC_IDTOKEN_INCLUDE_CLAIMS
+==============================
+
+OPTIONAL. ``bool``. If enabled, id_token will include standard claims of the user (email, first name, etc.).
+
+Default is ``False``.
+
 OIDC_SESSION_MANAGEMENT_ENABLE
 ==============================
 

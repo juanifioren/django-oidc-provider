@@ -158,6 +158,7 @@ class AuthorizeEndpoint(object):
                 # We don't need id_token if it's an OAuth2 request.
                 if self.is_authentication:
                     kwargs = {
+                        'token': token,
                         'user': self.request.user,
                         'aud': self.client.client_id,
                         'nonce': self.params['nonce'],

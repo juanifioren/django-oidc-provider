@@ -73,6 +73,13 @@ class DefaultSettings(object):
         return 'oidc_provider.lib.utils.common.default_sub_generator'
 
     @property
+    def OIDC_IDTOKEN_INCLUDE_CLAIMS(self):
+        """
+        OPTIONAL. If enabled, id_token will include standard claims of the user.
+        """
+        return False
+
+    @property
     def OIDC_SESSION_MANAGEMENT_ENABLE(self):
         """
         OPTIONAL. If enabled, the Server will support Session Management 1.0 specification.
