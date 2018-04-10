@@ -171,6 +171,7 @@ class TokenEndpoint(object):
             id_token_dic = create_id_token(
                 user=self.code.user,
                 aud=self.client.client_id,
+                token=token,
                 nonce=self.code.nonce,
                 at_hash=token.at_hash,
                 request=self.request,
@@ -215,6 +216,7 @@ class TokenEndpoint(object):
             id_token_dic = create_id_token(
                 user=self.token.user,
                 aud=self.client.client_id,
+                token=token,
                 nonce=None,
                 at_hash=token.at_hash,
                 request=self.request,
@@ -249,6 +251,7 @@ class TokenEndpoint(object):
             self.params['scope'].split(' '))
 
         id_token_dic = create_id_token(
+            token=token,
             user=self.user,
             aud=self.client.client_id,
             nonce='self.code.nonce',

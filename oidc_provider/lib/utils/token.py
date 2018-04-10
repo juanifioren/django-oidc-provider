@@ -10,6 +10,7 @@ from jwkest.jws import JWS
 from jwkest.jwt import JWT
 
 from oidc_provider.lib.utils.common import get_issuer
+from oidc_provider.lib.claims import StandardScopeClaims
 from oidc_provider.models import (
     Code,
     RSAKey,
@@ -18,7 +19,7 @@ from oidc_provider.models import (
 from oidc_provider import settings
 
 
-def create_id_token(user, aud, nonce='', at_hash='', request=None, scope=None):
+def create_id_token(token, user, aud, nonce='', at_hash='', request=None, scope=None):
     """
     Creates the id_token dictionary.
     See: http://openid.net/specs/openid-connect-core-1_0.html#IDToken
@@ -52,8 +53,14 @@ def create_id_token(user, aud, nonce='', at_hash='', request=None, scope=None):
     if at_hash:
         dic['at_hash'] = at_hash
 
-    if ('email' in scope) and getattr(user, 'email', None):
-        dic['email'] = user.email
+    # Inlude (or not) user standard claims in the id_token.
+    if settings.get('OIDC_IDTOKEN_INCLUDE_CLAIMS'):
+        if settings.get('OIDC_EXTRA_SCOPE_CLAIMS'):
+            custom_claims = settings.get('OIDC_EXTRA_SCOPE_CLAIMS', import_str=True)(token)
+            claims = custom_claims.create_response_dic()
+        else:
+            claims = StandardScopeClaims(token).create_response_dic()
+        dic.update(claims)
 
     processing_hook = settings.get('OIDC_IDTOKEN_PROCESSING_HOOK')
 
