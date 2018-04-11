@@ -34,10 +34,10 @@ Unreleased
 
 *2017-07-11*
 
-* Changed: Documentation template changed to `Read The Docs`.
-* Fixed: `install_requires` has not longer pinned versions.
-* Fixed: Removed infinity loop during authorization stage when `prompt=login` has been send.
-* Fixed: Changed `prompt` handling as set of options instead of regular string.
+* Changed: Documentation template changed to Read The Docs.
+* Fixed: install_requires has not longer pinned versions.
+* Fixed: Removed infinity loop during authorization stage when prompt=login has been send.
+* Fixed: Changed prompt handling as set of options instead of regular string.
 * Fixed: Redirect URI must match exactly with given in query parameter.
 * Fixed: Stored user consent are useful for public clients too.
 * Fixed: documentation for custom scopes handling.
@@ -49,13 +49,13 @@ Unreleased
 *2017-05-18*
 
 * Added: signals when user accept/decline the authorization page.
-* Added: `OIDC_AFTER_END_SESSION_HOOK` setting for additional business logic.
+* Added: OIDC_AFTER_END_SESSION_HOOK setting for additional business logic.
 * Added: feature granttype password.
 * Added: require_consent and reuse_consent are added to Client model.
 * Changed: OIDC_SKIP_CONSENT_ALWAYS and OIDC_SKIP_CONSENT_ENABLE are removed from settings.
 * Fixed: timestamps with unixtime (instead of django timezone).
 * Fixed: field refresh_token cannot be primary key if null.
-* Fixed: `create_uri_exceptions` are now being logged at `Exception` level not `DEBUG`.
+* Fixed: create_uri_exceptions are now being logged at Exception level not DEBUG.
 
 0.4.4
 =====
@@ -83,8 +83,8 @@ Unreleased
 
 * Added: support for client redirect URIs with query strings.
 * Fixed: bug when generating secret_key value using admin.
-* Changed: client is available to OIDC_EXTRA_SCOPE_CLAIMS implementations via `self.client`.
-* Changed: the constructor signature for `ScopeClaims` has changed, it now is called with the `Token` as its single argument.
+* Changed: client is available to OIDC_EXTRA_SCOPE_CLAIMS implementations via self.client.
+* Changed: the constructor signature for ScopeClaims has changed, it now is called with the Token as its single argument.
 
 0.4.1
 =====
