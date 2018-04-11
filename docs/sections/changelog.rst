@@ -10,6 +10,7 @@ Unreleased
 
 * Added: OAuth2 grant_type client_credentials support.
 * Added: pep8 compliance and checker.
+* Added: Setting OIDC_IDTOKEN_INCLUDE_CLAIMS supporting claims inside id_token.
 * Changed: Test suit now uses pytest.
 * Fixed: Infinite callback loop in the check-session iframe.
 
