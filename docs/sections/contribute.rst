@@ -3,12 +3,15 @@
 Contribute
 ##########
 
-We love contributions, so please feel free to fix bugs, improve things, provide documentation. You SHOULD follow this steps:
+We love contributions, so please feel free to fix bugs, improve things, provide documentation. These are the steps:
 
-* Fork the project.
+* Create an issue and explain your feature/bugfix.
+* Wait collaborators comments.
+* Fork the project and create new branch from `develop`.
 * Make your feature addition or bug fix.
-* Add tests for it inside ``oidc_provider/tests``. Then run all tests and ensure everything is OK (see the section below on how to test in all envs).
-* Send pull request to the specific version branch.
+* Add tests and documentation if needed.
+* Create pull request for the issue to the `develop` branch.
+* Wait collaborators reviews.
 
 Running Tests
 =============
