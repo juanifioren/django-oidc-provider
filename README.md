@@ -16,4 +16,5 @@ OpenID Connect is a simple identity layer on top of the OAuth 2.0 protocol, whic
 Support for Python 3 and 2. Also latest versions of django.
 
 [Read documentation for more info.](http://django-oidc-provider.readthedocs.org/)
+
 [Do you want to contribute? Please read this.](http://django-oidc-provider.readthedocs.io/en/latest/sections/contribute.html)
