@@ -8,6 +8,11 @@ All notable changes to this project will be documented in this file.
 Unreleased
 ==========
 
+0.6.0
+=====
+
+*2018-04-13*
+
 * Added: OAuth2 grant_type client_credentials support.
 * Added: pep8 compliance and checker.
 * Added: Setting OIDC_IDTOKEN_INCLUDE_CLAIMS supporting claims inside id_token.
