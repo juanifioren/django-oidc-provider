@@ -130,8 +130,6 @@ class Client(models.Model):
 
 class BaseCodeTokenModel(models.Model):
 
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, verbose_name=_(u'User'), on_delete=models.CASCADE)
     client = models.ForeignKey(Client, verbose_name=_(u'Client'), on_delete=models.CASCADE)
     expires_at = models.DateTimeField(verbose_name=_(u'Expiration Date'))
     _scope = models.TextField(default='', verbose_name=_(u'Scopes'))
@@ -159,6 +157,8 @@ class BaseCodeTokenModel(models.Model):
 
 class Code(BaseCodeTokenModel):
 
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, verbose_name=_(u'User'), on_delete=models.CASCADE)
     code = models.CharField(max_length=255, unique=True, verbose_name=_(u'Code'))
     nonce = models.CharField(max_length=255, blank=True, default='', verbose_name=_(u'Nonce'))
     is_authentication = models.BooleanField(default=False, verbose_name=_(u'Is Authentication?'))
@@ -206,6 +206,8 @@ class Token(BaseCodeTokenModel):
 
 class UserConsent(BaseCodeTokenModel):
 
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, verbose_name=_(u'User'), on_delete=models.CASCADE)
     date_given = models.DateTimeField(verbose_name=_(u'Date Given'))
 
     class Meta:
