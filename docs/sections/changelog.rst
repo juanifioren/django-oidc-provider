@@ -8,6 +8,8 @@ All notable changes to this project will be documented in this file.
 Unreleased
 ==========
 
+* Changed: Dropping support for Django versions before 1.8.
+
 0.6.0
 =====
 
