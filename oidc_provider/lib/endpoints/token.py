@@ -1,7 +1,6 @@
-from base64 import b64decode, urlsafe_b64encode
+from base64 import urlsafe_b64encode
 import hashlib
 import logging
-import re
 from django.contrib.auth import authenticate
 
 from django.http import JsonResponse
@@ -10,6 +9,7 @@ from oidc_provider.lib.errors import (
     TokenError,
     UserAuthError,
 )
+from oidc_provider.lib.utils.oauth2 import extract_client_auth
 from oidc_provider.lib.utils.token import (
     create_id_token,
     create_token,
@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 class TokenEndpoint(object):
+
     def __init__(self, request):
         self.request = request
         self.params = {}
@@ -33,7 +34,7 @@ class TokenEndpoint(object):
         self._extract_params()
 
     def _extract_params(self):
-        client_id, client_secret = self._extract_client_auth()
+        client_id, client_secret = extract_client_auth(self.request)
 
         self.params['client_id'] = client_id
         self.params['client_secret'] = client_secret
@@ -48,29 +49,6 @@ class TokenEndpoint(object):
 
         self.params['username'] = self.request.POST.get('username', '')
         self.params['password'] = self.request.POST.get('password', '')
-
-    def _extract_client_auth(self):
-        """
-        Get client credentials using HTTP Basic Authentication method.
-        Or try getting parameters via POST.
-        See: http://tools.ietf.org/html/rfc6750#section-2.1
-
-        Return a string.
-        """
-        auth_header = self.request.META.get('HTTP_AUTHORIZATION', '')
-
-        if re.compile('^Basic\s{1}.+$').match(auth_header):
-            b64_user_pass = auth_header.split()[1]
-            try:
-                user_pass = b64decode(b64_user_pass).decode('utf-8').split(':')
-                client_id, client_secret = tuple(user_pass)
-            except Exception:
-                client_id = client_secret = ''
-        else:
-            client_id = self.request.POST.get('client_id', '')
-            client_secret = self.request.POST.get('client_secret', '')
-
-        return (client_id, client_secret)
 
     def validate_params(self):
         try:
