@@ -1,4 +1,7 @@
 import time
+import random
+
+import django
 from mock import patch
 
 from django.utils.encoding import force_text
@@ -12,16 +15,18 @@ except ImportError:
 
 from django.core.management import call_command
 from django.test import TestCase, RequestFactory, override_settings
-from django.core.urlresolvers import reverse
 from django.utils import timezone
 
 from oidc_provider.tests.app.utils import (
     create_fake_user,
     create_fake_client,
-    create_fake_resource,
     create_fake_token,
     FAKE_RANDOM_STRING)
 from oidc_provider.views import TokenIntrospectionView
+if django.VERSION >= (1, 11):
+    from django.urls import reverse
+else:
+    from django.core.urlresolvers import reverse
 
 
 class IntrospectionTestCase(TestCase):
@@ -31,13 +36,15 @@ class IntrospectionTestCase(TestCase):
         self.factory = RequestFactory()
         self.user = create_fake_user()
         self.client = create_fake_client(response_type='id_token token')
-        self.resource = create_fake_resource(allowed_clients=[self.client])
-        self.scopes = ['openid', 'profile']
-        self.token = create_fake_token(self.user, self.scopes, self.client)
+        self.resource = create_fake_client(response_type='id_token token')
+        self.resource.scope = ['token_introspection', self.client.client_id]
+        self.resource.save()
+        self.token = create_fake_token(self.user, self.client.scope, self.client)
+        self.token.access_token = str(random.randint(1, 999999)).zfill(6)
         self.now = time.time()
         with patch('oidc_provider.lib.utils.token.time.time') as time_func:
             time_func.return_value = self.now
-            self.token.id_token = create_id_token(self.user, self.client.client_id)
+            self.token.id_token = create_id_token(self.token, self.user, self.client.client_id)
         self.token.save()
 
     def test_no_client_params_returns_inactive(self):
@@ -56,14 +63,8 @@ class IntrospectionTestCase(TestCase):
         response = self._make_request(access_token='invalid')
         self._assert_inactive(response)
 
-    def test_no_allowed_clients_returns_inactive(self):
-        self.resource.allowed_clients.clear()
-        self.resource.save()
-        response = self._make_request()
-        self._assert_inactive(response)
-
-    def test_resource_inactive_returns_inactive(self):
-        self.resource.active = False
+    def test_scope_no_audience_returns_inactive(self):
+        self.resource.scope = ['token_introspection']
         self.resource.save()
         response = self._make_request()
         self._assert_inactive(response)
@@ -79,7 +80,7 @@ class IntrospectionTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(force_text(response.content), {
             'active': True,
-            'aud': self.resource.resource_id,
+            'aud': self.resource.client_id,
             'client_id': self.client.client_id,
             'sub': str(self.user.pk),
             'iat': int(self.now),
@@ -87,14 +88,13 @@ class IntrospectionTestCase(TestCase):
             'iss': 'http://localhost:8000/openid',
         })
 
-    @override_settings(
-        OIDC_INTROSPECTION_PROCESSING_HOOK='oidc_provider.tests.app.utils.fake_introspection_processing_hook')
+    @override_settings(OIDC_INTROSPECTION_PROCESSING_HOOK='oidc_provider.tests.app.utils.fake_introspection_processing_hook')  # NOQA
     def test_custom_introspection_hook_called_on_valid_request(self):
         response = self._make_request()
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(force_text(response.content), {
             'active': True,
-            'aud': self.resource.resource_id,
+            'aud': self.resource.client_id,
             'client_id': self.client.client_id,
             'sub': str(self.user.pk),
             'iat': int(self.now),
@@ -110,11 +110,12 @@ class IntrospectionTestCase(TestCase):
     def _make_request(self, **kwargs):
         url = reverse('oidc_provider:token-introspection')
         data = {
-            'client_id': kwargs.get('client_id', self.resource.resource_id),
-            'client_secret': kwargs.get('client_secret', self.resource.resource_secret),
+            'client_id': kwargs.get('client_id', self.resource.client_id),
+            'client_secret': kwargs.get('client_secret', self.resource.client_secret),
             'token': kwargs.get('access_token', self.token.access_token),
         }
 
-        request = self.factory.post(url, data=urlencode(data), content_type='application/x-www-form-urlencoded')
+        request = self.factory.post(url, data=urlencode(data),
+                                    content_type='application/x-www-form-urlencoded')
 
         return TokenIntrospectionView.as_view()(request)

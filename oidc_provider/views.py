@@ -54,24 +54,6 @@ from oidc_provider.models import (
 from oidc_provider import settings
 from oidc_provider import signals
 
-try:
-    from urllib import urlencode
-    from urlparse import urlsplit, parse_qs, urlunsplit
-except ImportError:
-    from urllib.parse import urlsplit, parse_qs, urlunsplit, urlencode
-
-from Cryptodome.PublicKey import RSA
-from django.contrib.auth.views import (
-    redirect_to_login,
-    logout,
-)
-
-import django
-if django.VERSION >= (1, 11):
-    from django.urls import reverse
-else:
-    from django.core.urlresolvers import reverse
-
 
 logger = logging.getLogger(__name__)
 

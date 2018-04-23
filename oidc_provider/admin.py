@@ -6,9 +6,7 @@ from django.forms import ModelForm
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from oidc_provider.models import Client, Code, Token, RSAKey, get_resource_model
-
-Resource = get_resource_model()
+from oidc_provider.models import Client, Code, Token, RSAKey
 
 
 class ClientForm(ModelForm):
@@ -69,43 +67,6 @@ class ClientAdmin(admin.ModelAdmin):
     ]
     form = ClientForm
     list_display = ['name', 'client_id', 'response_type', 'date_created']
-    readonly_fields = ['date_created']
-    search_fields = ['name']
-    raw_id_fields = ['owner']
-
-
-class ResourceForm(ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(ResourceForm, self).__init__(*args, **kwargs)
-        self.fields['resource_secret'].required = False
-
-    def clean_resource_secret(self):
-        if self.cleaned_data['resource_secret']:
-            secret = self.cleaned_data['resource_secret']
-        else:
-            secret = sha224(uuid4().hex.encode()).hexdigest()
-        return secret
-
-    class Meta:
-        model = Resource
-        exclude = []
-
-
-@admin.register(Resource)
-class ResourceAdmin(admin.ModelAdmin):
-    fieldsets = [
-        [None, {
-            'fields': ('name', 'owner', 'active',),
-        }],
-        [_('Credentials'), {
-            'fields': ('resource_id', 'resource_secret',),
-        }],
-        [_('Permissions'), {
-            'fields': ('allowed_clients',),
-        }],
-    ]
-    form = ResourceForm
-    list_display = ['name', 'resource_id', 'date_created']
     readonly_fields = ['date_created']
     search_fields = ['name']
     raw_id_fields = ['owner']

@@ -4,7 +4,6 @@ import binascii
 from hashlib import md5, sha256
 import json
 
-from django.apps import apps
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -129,45 +128,6 @@ class Client(models.Model):
         return self.redirect_uris[0] if self.redirect_uris else ''
 
 
-class AbstractResource(models.Model):
-    name = models.CharField(max_length=100, default='', verbose_name=_(u'Name'))
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL,
-                              verbose_name=_(u'Owner'),
-                              blank=True, null=True, default=None,
-                              on_delete=models.SET_NULL,
-                              related_name='oidc_resource_set')
-
-    resource_id = models.CharField(max_length=255, unique=True, verbose_name=_(u'Resource ID'))
-    resource_secret = models.CharField(max_length=255, verbose_name=_(u'Resource Secret'))
-
-    date_created = models.DateField(auto_now_add=True, verbose_name=_(u'Date Created'))
-    date_updated = models.DateField(auto_now=True, verbose_name=_(u'Date Updated'))
-
-    active = models.BooleanField(default=False, verbose_name=_(u'Is Active'))
-
-    allowed_clients = models.ManyToManyField(Client,
-                                             blank=True,
-                                             verbose_name=_(u'Allowed Clients'),
-                                             related_name='accessible_resources',
-                                             help_text=_(u'Select which clients can be used to access this resource.'))
-
-    def __str__(self):
-        return u'{0}'.format(self.name)
-
-    def __unicode__(self):
-        return self.__str__()
-
-    class Meta:
-        verbose_name = _(u'Resource')
-        verbose_name_plural = _(u'Resources')
-        abstract = True
-
-
-class Resource(AbstractResource):
-    class Meta:
-        swappable = 'OIDC_RESOURCE_MODEL'
-
-
 class BaseCodeTokenModel(models.Model):
 
     client = models.ForeignKey(Client, verbose_name=_(u'Client'), on_delete=models.CASCADE)
@@ -272,7 +232,3 @@ class RSAKey(models.Model):
     @property
     def kid(self):
         return u'{0}'.format(md5(self.key.encode('utf-8')).hexdigest() if self.key else '')
-
-
-def get_resource_model():
-    return apps.get_model(getattr(settings, 'OIDC_RESOURCE_MODEL', 'oidc_provider.Resource'))
