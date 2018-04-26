@@ -123,6 +123,17 @@ def default_idtoken_processing_hook(id_token, user):
     return id_token
 
 
+def default_introspection_processing_hook(introspection_response, client, id_token):
+    """
+    Hook to customise the returned data from the token introspection endpoint
+    :param introspection_response:
+    :param client:
+    :param id_token:
+    :return:
+    """
+    return introspection_response
+
+
 def get_browser_state_or_default(request):
     """
     Determine value to use as session state.
@@ -130,3 +141,13 @@ def get_browser_state_or_default(request):
     key = (request.session.session_key or
            settings.get('OIDC_UNAUTHENTICATED_SESSION_MANAGEMENT_KEY'))
     return sha224(key.encode('utf-8')).hexdigest()
+
+
+def run_processing_hook(subject, hook_settings_name, **kwargs):
+    processing_hook = settings.get(hook_settings_name)
+    if isinstance(processing_hook, (list, tuple)):
+        for hook in processing_hook:
+            subject = settings.import_from_str(hook)(subject, **kwargs)
+    else:
+        subject = settings.import_from_str(processing_hook)(subject, **kwargs)
+    return subject

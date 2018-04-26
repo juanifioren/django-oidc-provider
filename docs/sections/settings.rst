@@ -90,6 +90,33 @@ Default is::
 
         return id_token
 
+OIDC_INTROSPECTION_PROCESSING_HOOK
+==================================
+
+OPTIONAL. ``str`` or ``(list, tuple)``.
+
+A string with the location of your function hook or ``list`` or ``tuple`` with hook functions.
+Here you can add extra dictionary values specific to your valid response value for token introspection.
+
+The function receives an ``introspection_response`` dictionary, a ``client`` instance and an ``id_token`` dictionary.
+
+Default is::
+
+    def default_introspection_processing_hook(introspection_response, client, id_token):
+
+        return introspection_response
+
+
+OIDC_INTROSPECTION_VALIDATE_AUDIENCE_SCOPE
+==========================================
+
+OPTIONAL ``bool``
+
+A flag which toggles whether the audience is matched against the client resource scope when calling the introspection endpoint.
+
+Default is ``True``.
+
+
 OIDC_IDTOKEN_SUB_GENERATOR
 ==========================
 

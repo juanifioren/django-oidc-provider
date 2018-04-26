@@ -17,6 +17,7 @@ urlpatterns = [
     url(r'^end-session/?$', views.EndSessionView.as_view(), name='end-session'),
     url(r'^\.well-known/openid-configuration/?$', views.ProviderInfoView.as_view(),
         name='provider-info'),
+    url(r'^introspect/?$', views.TokenIntrospectionView.as_view(), name='token-introspection'),
     url(r'^jwks/?$', views.JwksView.as_view(), name='jwks'),
 ]
 

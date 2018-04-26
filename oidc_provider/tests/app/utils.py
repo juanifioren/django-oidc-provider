@@ -126,3 +126,8 @@ def fake_idtoken_processing_hook2(id_token, user):
     id_token['test_idtoken_processing_hook2'] = FAKE_RANDOM_STRING
     id_token['test_idtoken_processing_hook_user_email2'] = user.email
     return id_token
+
+
+def fake_introspection_processing_hook(response_dict, client, id_token):
+    response_dict['test_introspection_processing_hook'] = FAKE_RANDOM_STRING
+    return response_dict
