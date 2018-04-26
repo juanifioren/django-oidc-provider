@@ -1,32 +1,27 @@
 import time
 import random
 
-import django
 from mock import patch
-
-from django.utils.encoding import force_text
-
-from oidc_provider.lib.utils.token import create_id_token
-
 try:
     from urllib.parse import urlencode
 except ImportError:
     from urllib import urlencode
-
+from django.utils.encoding import force_text
 from django.core.management import call_command
 from django.test import TestCase, RequestFactory, override_settings
 from django.utils import timezone
+try:
+    from django.urls import reverse
+except ImportError:
+    from django.core.urlresolvers import reverse
 
 from oidc_provider.tests.app.utils import (
     create_fake_user,
     create_fake_client,
     create_fake_token,
     FAKE_RANDOM_STRING)
+from oidc_provider.lib.utils.token import create_id_token
 from oidc_provider.views import TokenIntrospectionView
-if django.VERSION >= (1, 11):
-    from django.urls import reverse
-else:
-    from django.core.urlresolvers import reverse
 
 
 class IntrospectionTestCase(TestCase):
@@ -46,6 +41,23 @@ class IntrospectionTestCase(TestCase):
             time_func.return_value = self.now
             self.token.id_token = create_id_token(self.token, self.user, self.client.client_id)
         self.token.save()
+
+    def _assert_inactive(self, response):
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(force_text(response.content), {'active': False})
+
+    def _make_request(self, **kwargs):
+        url = reverse('oidc_provider:token-introspection')
+        data = {
+            'client_id': kwargs.get('client_id', self.resource.client_id),
+            'client_secret': kwargs.get('client_secret', self.resource.client_secret),
+            'token': kwargs.get('access_token', self.token.access_token),
+        }
+
+        request = self.factory.post(url, data=urlencode(data),
+                                    content_type='application/x-www-form-urlencoded')
+
+        return TokenIntrospectionView.as_view()(request)
 
     def test_no_client_params_returns_inactive(self):
         response = self._make_request(client_id='')
@@ -102,20 +114,3 @@ class IntrospectionTestCase(TestCase):
             'iss': 'http://localhost:8000/openid',
             'test_introspection_processing_hook': FAKE_RANDOM_STRING
         })
-
-    def _assert_inactive(self, response):
-        self.assertEqual(response.status_code, 200)
-        self.assertJSONEqual(force_text(response.content), {'active': False})
-
-    def _make_request(self, **kwargs):
-        url = reverse('oidc_provider:token-introspection')
-        data = {
-            'client_id': kwargs.get('client_id', self.resource.client_id),
-            'client_secret': kwargs.get('client_secret', self.resource.client_secret),
-            'token': kwargs.get('access_token', self.token.access_token),
-        }
-
-        request = self.factory.post(url, data=urlencode(data),
-                                    content_type='application/x-www-form-urlencoded')
-
-        return TokenIntrospectionView.as_view()(request)
