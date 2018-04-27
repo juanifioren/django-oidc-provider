@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file.
 Unreleased
 ==========
 
-* Added: toke instrospection endpoint support.
+* Added: token instrospection endpoint support (RFC7662).
 * Changed: Dropping support for Django versions before 1.8.
 
 0.6.0
