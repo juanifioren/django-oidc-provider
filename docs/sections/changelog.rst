@@ -9,6 +9,7 @@ Unreleased
 ==========
 
 * Added: token instrospection endpoint support (RFC7662).
+* Added: request in password grant authenticate call.
 * Changed: Dropping support for Django versions before 1.8.
 
 0.6.0
