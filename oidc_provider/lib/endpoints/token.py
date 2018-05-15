@@ -1,3 +1,4 @@
+import inspect
 from base64 import urlsafe_b64encode
 import hashlib
 import logging
@@ -96,7 +97,14 @@ class TokenEndpoint(object):
             if not settings.get('OIDC_GRANT_TYPE_PASSWORD_ENABLE'):
                 raise TokenError('unsupported_grant_type')
 
+            auth_args = (self.request,)
+            try:
+                inspect.getcallargs(authenticate, *auth_args)
+            except TypeError:
+                auth_args = ()
+
             user = authenticate(
+                *auth_args,
                 username=self.params['username'],
                 password=self.params['password']
             )
