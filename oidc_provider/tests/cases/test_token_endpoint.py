@@ -735,7 +735,31 @@ class TokenTestCase(TestCase):
         """
         Test scope parameter is passed to OIDC_IDTOKEN_PROCESSING_HOOK.
         """
-        code = self._create_code(['openid', 'email', 'profile', 'dummy'])
+        id_token = self._request_id_token_with_scope(
+            ['openid', 'email', 'profile', 'dummy'])
+        self.assertEqual(
+            id_token.get('scope_passed_to_processing_hook'),
+            ['openid', 'email', 'profile', 'dummy'])
+
+    @override_settings(
+        OIDC_IDTOKEN_PROCESSING_HOOK=(
+                'oidc_provider.tests.app.utils.fake_idtoken_processing_hook4'))
+    def test_additional_idtoken_processing_hook_kwargs(self):
+        """
+        Test correct kwargs are passed to OIDC_IDTOKEN_PROCESSING_HOOK.
+        """
+        id_token = self._request_id_token_with_scope(['openid', 'profile'])
+        kwargs_passed = id_token.get('kwargs_passed_to_processing_hook')
+        assert kwargs_passed
+        self.assertEqual(kwargs_passed.get('scope'),
+                         repr([u'openid', u'profile']))
+        self.assertEqual(kwargs_passed.get('token'),
+                         '<Token: Some Client - johndoe@example.com>')
+        self.assertEqual(kwargs_passed.get('request'),
+                         "<WSGIRequest: POST '/openid/token'>")
+
+    def _request_id_token_with_scope(self, scope):
+        code = self._create_code(scope)
 
         post_data = self._auth_code_post_data(code=code.code)
 
@@ -743,10 +767,7 @@ class TokenTestCase(TestCase):
 
         response_dic = json.loads(response.content.decode('utf-8'))
         id_token = JWT().unpack(response_dic['id_token'].encode('utf-8')).payload()
-
-        self.assertEqual(
-            id_token.get('scope_passed_to_processing_hook'),
-            ['openid', 'email', 'profile', 'dummy'])
+        return id_token
 
     def test_pkce_parameters(self):
         """

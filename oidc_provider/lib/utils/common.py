@@ -107,9 +107,10 @@ def default_after_end_session_hook(
     return None
 
 
-def default_idtoken_processing_hook(id_token, user, scope=None):
+def default_idtoken_processing_hook(
+        id_token, user, scope, token, request, **kwargs):
     """
-    Hook to perform some additional actions ti `id_token` dictionary just before serialization.
+    Hook for modifying `id_token` just before serialization.
 
     :param id_token: dictionary contains values that going to be serialized into `id_token`
     :type id_token: dict
@@ -120,8 +121,14 @@ def default_idtoken_processing_hook(id_token, user, scope=None):
     :param scope: scope for the token
     :type scope: list[str]|None
 
+    :param token: the Token object created for the authentication request
+    :type token: oidc_provider.models.Token
+
+    :param request: the request initiating this ID token processing
+    :type request: django.http.HttpRequest
+
     :return: custom modified dictionary of values for `id_token`
-    :rtype dict
+    :rtype: dict
     """
     return id_token
 

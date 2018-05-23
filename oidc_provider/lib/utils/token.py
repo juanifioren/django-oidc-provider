@@ -64,7 +64,7 @@ def create_id_token(token, user, aud, nonce='', at_hash='', request=None, scope=
 
     dic = run_processing_hook(
         dic, 'OIDC_IDTOKEN_PROCESSING_HOOK',
-        user=user, scope=scope)
+        user=user, scope=scope, token=token, request=request)
 
     return dic
 
