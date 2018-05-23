@@ -9,7 +9,8 @@ from jwkest.jwk import SYMKey
 from jwkest.jws import JWS
 from jwkest.jwt import JWT
 
-from oidc_provider.lib.utils.common import get_issuer
+from oidc_provider.lib.utils.common import get_issuer, run_processing_hook
+from oidc_provider.lib.claims import StandardScopeClaims
 from oidc_provider.models import (
     Code,
     RSAKey,
@@ -18,12 +19,14 @@ from oidc_provider.models import (
 from oidc_provider import settings
 
 
-def create_id_token(user, aud, nonce='', at_hash='', request=None, scope=[]):
+def create_id_token(token, user, aud, nonce='', at_hash='', request=None, scope=None):
     """
     Creates the id_token dictionary.
     See: http://openid.net/specs/openid-connect-core-1_0.html#IDToken
     Return a dic.
     """
+    if scope is None:
+        scope = []
     sub = settings.get('OIDC_IDTOKEN_SUB_GENERATOR', import_str=True)(user=user)
 
     expires_in = settings.get('OIDC_IDTOKEN_EXPIRE')
@@ -50,19 +53,21 @@ def create_id_token(user, aud, nonce='', at_hash='', request=None, scope=[]):
     if at_hash:
         dic['at_hash'] = at_hash
 
-    if ('email' in scope) and getattr(user, 'email', None):
-        dic['email'] = user.email
+    # Inlude (or not) user standard claims in the id_token.
+    if settings.get('OIDC_IDTOKEN_INCLUDE_CLAIMS'):
+        if settings.get('OIDC_EXTRA_SCOPE_CLAIMS'):
+            custom_claims = settings.get('OIDC_EXTRA_SCOPE_CLAIMS', import_str=True)(token)
+            claims = custom_claims.create_response_dic()
+        else:
+            claims = StandardScopeClaims(token).create_response_dic()
+        dic.update(claims)
 
-    processing_hooks = settings.get('OIDC_IDTOKEN_PROCESSING_HOOK')
-
-    if not isinstance(processing_hooks, (list, tuple)):
-        processing_hooks = [processing_hooks]
-
-    for hook_string in processing_hooks:
-        hook = settings.import_from_str(hook_string)
-        dic = hook(dic, user=user, scope=scope)
+    dic = run_processing_hook(
+        dic, 'OIDC_IDTOKEN_PROCESSING_HOOK',
+        user=user, scope=scope)
 
     return dic
+
 
 def encode_id_token(payload, client):
     """
@@ -73,6 +78,7 @@ def encode_id_token(payload, client):
     _jws = JWS(payload, alg=client.jwt_alg)
     return _jws.sign_compact(keys)
 
+
 def decode_id_token(token, client):
     """
     Represent the ID Token as a JSON Web Token (JWT).
@@ -81,13 +87,20 @@ def decode_id_token(token, client):
     keys = get_client_alg_keys(client)
     return JWS().verify_compact(token, keys=keys)
 
+
 def client_id_from_id_token(id_token):
     """
     Extracts the client id from a JSON Web Token (JWT).
     Returns a string or None.
     """
     payload = JWT().unpack(id_token).payload()
-    return payload.get('aud', None)
+    aud = payload.get('aud', None)
+    if aud is None:
+        return None
+    if isinstance(aud, list):
+        return aud[0]
+    return aud
+
 
 def create_token(user, client, scope, id_token_dic=None):
     """
@@ -108,6 +121,7 @@ def create_token(user, client, scope, id_token_dic=None):
     token.scope = scope
 
     return token
+
 
 def create_code(user, client, scope, nonce, is_authentication,
                 code_challenge=None, code_challenge_method=None):
@@ -132,6 +146,7 @@ def create_code(user, client, scope, nonce, is_authentication,
     code.is_authentication = is_authentication
 
     return code
+
 
 def get_client_alg_keys(client):
     """

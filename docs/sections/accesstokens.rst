@@ -3,11 +3,11 @@
 Access Tokens
 #############
 
-At the end of the login process, an access token is generated. This access token is the thing that's passed along with every API call (e.g. userinfo endpoint) as proof that the call was made by a specific person from a specific app.
+At the end of the login process, an access token is generated. This access token is the thing that is passed along with every API call to the openid connect server (e.g. userinfo endpoint) as proof that the call was made by a specific person from a specific app.
 
-Access tokens generally have a lifetime of only a couple of hours, you can use ``OIDC_TOKEN_EXPIRE`` to set custom expiration that suit your needs.
+Access tokens generally have a lifetime of only a couple of hours. You can use ``OIDC_TOKEN_EXPIRE`` to set a custom expiration time that suits your needs.
 
-Obtaining an Access token
+Obtaining an Access Token
 =========================
 
 Go to the admin site and create a confidential client with ``response_type = code`` and ``redirect_uri = http://example.org/``.
@@ -20,7 +20,7 @@ In the redirected URL you should have a ``code`` parameter included as query str
 
     http://example.org/?code=b9cedb346ee04f15ab1d3ac13da92002&state=123123
 
-We use ``code`` value to obtain ``access_token`` and ``refresh_token``::
+We use the ``code`` value to obtain ``access_token`` and ``refresh_token``::
 
     curl -X POST \
         -H "Cache-Control: no-cache" \
@@ -42,7 +42,7 @@ Example response::
         "id_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6..."
     }
 
-Then you can grab the access token and ask user data by doing a GET request to the ``/userinfo`` endpoint::
+Then you can grab the access token and ask for user data by doing a GET request to the ``/userinfo`` endpoint::
 
     curl -X GET \
         -H "Cache-Control: no-cache" \
@@ -51,9 +51,9 @@ Then you can grab the access token and ask user data by doing a GET request to t
 Expiration and Refresh of Access Tokens
 =======================================
 
-If you receive a ``401 Unauthorized`` status when issuing access token probably means that has expired.
+If you receive a ``401 Unauthorized`` status when using the access token, this probably means that your access token has expired.
 
-The RP application obtains a new access token by sending a POST request to the ``/token`` endpoint with the following request parameters::
+The RP application can request a new access token by using the refresh token. Send a POST request to the ``/token`` endpoint with the following request parameters::
 
     curl -X POST \
         -H "Cache-Control: no-cache" \

@@ -9,6 +9,9 @@ The package store some information after the user grant access to some client. F
     >>> UserConsent.objects.filter(user__email='some@email.com')
     [<UserConsent: Example Client - some@email.com>]
 
+Note: the ``UserConsent`` model is not included in the admin.
+
+
 Properties
 ==========
 

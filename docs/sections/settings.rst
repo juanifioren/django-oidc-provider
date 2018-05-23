@@ -3,12 +3,12 @@
 Settings
 ########
 
-Customize your provider so fit your project needs.
+Customize django-oidc-provider so that it fits your project's needs.
 
 OIDC_LOGIN_URL
 ==============
 
-OPTIONAL. ``str``. Used to log the user in. By default Django's ``LOGIN_URL`` will be used. `Read more in Django docs <https://docs.djangoproject.com/en/1.7/ref/settings/#login-url>`_
+OPTIONAL. ``str``. Used to log the user in. By default Django's ``LOGIN_URL`` will be used. `Read more in the Django docs <https://docs.djangoproject.com/en/1.11/ref/settings/#login-url>`_
 
 ``str``. Default is ``/accounts/login/`` (Django's ``LOGIN_URL``).
 
@@ -17,7 +17,7 @@ SITE_URL
 
 OPTIONAL. ``str``. The OP server url.
 
-If not specified will be automatically generated using ``request.scheme`` and ``request.get_host()``.
+If not specified, it will be automatically generated using ``request.scheme`` and ``request.get_host()``.
 
 For example ``http://localhost:8000``.
 
@@ -34,7 +34,7 @@ Default is::
 Return ``None`` if you want to continue with the flow.
 
 The typical situation will be checking some state of the user or maybe redirect him somewhere.
-With request you have access to all OIDC parameters. Remember that if you redirect the user to another place then you need to take him back to the authorize endpoint (use ``request.get_full_path()`` as the value for a "next" parameter).
+With ``request`` you have access to all OIDC parameters. Remember that if you redirect the user to another place then you need to take him back to the authorize endpoint (use ``request.get_full_path()`` as the value for a "next" parameter).
 
 OIDC_AFTER_END_SESSION_HOOK
 ===========================
@@ -90,6 +90,33 @@ Default is::
 
         return id_token
 
+OIDC_INTROSPECTION_PROCESSING_HOOK
+==================================
+
+OPTIONAL. ``str`` or ``(list, tuple)``.
+
+A string with the location of your function hook or ``list`` or ``tuple`` with hook functions.
+Here you can add extra dictionary values specific to your valid response value for token introspection.
+
+The function receives an ``introspection_response`` dictionary, a ``client`` instance and an ``id_token`` dictionary.
+
+Default is::
+
+    def default_introspection_processing_hook(introspection_response, client, id_token):
+
+        return introspection_response
+
+
+OIDC_INTROSPECTION_VALIDATE_AUDIENCE_SCOPE
+==========================================
+
+OPTIONAL ``bool``
+
+A flag which toggles whether the audience is matched against the client resource scope when calling the introspection endpoint.
+
+Default is ``True``.
+
+
 OIDC_IDTOKEN_SUB_GENERATOR
 ==========================
 
@@ -103,38 +130,45 @@ Default is::
 
         return str(user.id)
 
+OIDC_IDTOKEN_INCLUDE_CLAIMS
+==============================
+
+OPTIONAL. ``bool``. If enabled, id_token will include standard claims of the user (email, first name, etc.).
+
+Default is ``False``.
+
 OIDC_SESSION_MANAGEMENT_ENABLE
 ==============================
 
-OPTIONAL. ``bool``. Enables OpenID Connect Session Management 1.0 in your provider. Read :ref:`sessionmanagement` section.
+OPTIONAL. ``bool``. Enables OpenID Connect Session Management 1.0 in your provider. See the :ref:`sessionmanagement` section.
 
 Default is ``False``.
 
 OIDC_UNAUTHENTICATED_SESSION_MANAGEMENT_KEY
 ===========================================
 
-OPTIONAL. Supply a fixed string to use as browser-state key for unauthenticated clients. Read :ref:`sessionmanagement` section.
+OPTIONAL. Supply a fixed string to use as browser-state key for unauthenticated clients. See the :ref:`sessionmanagement` section.
 
 Default is a string generated at startup.
 
 OIDC_SKIP_CONSENT_EXPIRE
 ========================
 
-OPTIONAL. ``int``. User consent expiration after been granted.
+OPTIONAL. ``int``. How soon User Consent expires after being granted.
 
 Expressed in days. Default is ``30*3``.
 
 OIDC_TOKEN_EXPIRE
 =================
 
-OPTIONAL. ``int``. Token object (access token) expiration after been created.
+OPTIONAL. ``int``. Token object (access token) expiration after being created.
 
 Expressed in seconds. Default is ``60*60``.
 
 OIDC_USERINFO
 =============
 
-OPTIONAL. ``str``. A string with the location of your function. Read :ref:`scopesclaims` section.
+OPTIONAL. ``str``. A string with the location of your function. See the :ref:`scopesclaims` section.
 
 The function receives a ``claims`` dictionary with all the standard claims and ``user`` instance. Must returns the ``claims`` dict again.
 
@@ -155,7 +189,7 @@ Example usage::
 
 OIDC_GRANT_TYPE_PASSWORD_ENABLE
 ===============================
-OPTIONAL. A boolean to set whether to allow the Resource Owner Password
+OPTIONAL. A boolean whether to allow the Resource Owner Password
 Credentials Grant. https://tools.ietf.org/html/rfc6749#section-4.3
 
 .. important::
@@ -179,21 +213,6 @@ Default is::
         'error': 'oidc_provider/error.html'
     }
 
-The following contexts will be passed to the ``authorize`` and ``error`` templates respectively::
+See the :ref:`templates` section.
 
-    # For authorize template
-    {
-        'client': 'an instance of Client for the auth request',
-        'hidden_inputs': 'a rendered html with all the hidden inputs needed for AuthorizeEndpoint',
-        'params': 'a dict containing the params in the auth request',
-        'scopes': 'a list of scopes'
-    }
-
-    # For error template
-    {
-        'error': 'string stating the error',
-        'description': 'string stating description of the error'
-    }
-
-.. note::
-    The templates that are not specified here will use the default ones.
+The templates that are not specified here will use the default ones.

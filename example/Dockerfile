@@ -1,4 +1,4 @@
-FROM python:2-onbuild
+FROM python:3-onbuild
 
 RUN [ "python", "manage.py", "migrate" ]
 RUN [ "python", "manage.py", "creatersakey" ]

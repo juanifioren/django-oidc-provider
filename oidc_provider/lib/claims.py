@@ -6,11 +6,32 @@ from oidc_provider import settings
 
 
 STANDARD_CLAIMS = {
-    'name': '', 'given_name': '', 'family_name': '', 'middle_name': '', 'nickname': '',
-    'preferred_username': '', 'profile': '', 'picture': '', 'website': '', 'gender': '',
-    'birthdate': '', 'zoneinfo': '', 'locale': '', 'updated_at': '', 'email': '', 'email_verified': '',
-    'phone_number': '', 'phone_number_verified': '', 'address': { 'formatted': '',
-    'street_address': '', 'locality': '', 'region': '', 'postal_code': '', 'country': '', },
+    'name': '',
+    'given_name': '',
+    'family_name': '',
+    'middle_name': '',
+    'nickname': '',
+    'preferred_username': '',
+    'profile': '',
+    'picture': '',
+    'website': '',
+    'gender': '',
+    'birthdate': '',
+    'zoneinfo': '',
+    'locale': '',
+    'updated_at': '',
+    'email': '',
+    'email_verified': '',
+    'phone_number': '',
+    'phone_number_verified': '',
+    'address': {
+        'formatted': '',
+        'street_address': '',
+        'locality': '',
+        'region': '',
+        'postal_code': '',
+        'country': '',
+    },
 }
 
 
@@ -72,7 +93,9 @@ class ScopeClaims(object):
         return aux_dic
 
     @classmethod
-    def get_scopes_info(cls, scopes=[]):
+    def get_scopes_info(cls, scopes=None):
+        if scopes is None:
+            scopes = []
         scopes_info = []
 
         for name in cls.__dict__:
@@ -97,13 +120,17 @@ class StandardScopeClaims(ScopeClaims):
 
     info_profile = (
         _(u'Basic profile'),
-        _(u'Access to your basic information. Includes names, gender, birthdate and other information.'),
+        _(u'Access to your basic information. Includes names, gender, birthdate'
+          'and other information.'),
     )
+
     def scope_profile(self):
         dic = {
             'name': self.userinfo.get('name'),
-            'given_name': self.userinfo.get('given_name') or getattr(self.user, 'first_name', None),
-            'family_name': self.userinfo.get('family_name') or getattr(self.user, 'last_name', None),
+            'given_name': (self.userinfo.get('given_name') or
+                           getattr(self.user, 'first_name', None)),
+            'family_name': (self.userinfo.get('family_name') or
+                            getattr(self.user, 'last_name', None)),
             'middle_name': self.userinfo.get('middle_name'),
             'nickname': self.userinfo.get('nickname') or getattr(self.user, 'username', None),
             'preferred_username': self.userinfo.get('preferred_username'),
@@ -123,6 +150,7 @@ class StandardScopeClaims(ScopeClaims):
         _(u'Email'),
         _(u'Access to your email address.'),
     )
+
     def scope_email(self):
         dic = {
             'email': self.userinfo.get('email') or getattr(self.user, 'email', None),
@@ -135,6 +163,7 @@ class StandardScopeClaims(ScopeClaims):
         _(u'Phone number'),
         _(u'Access to your phone number.'),
     )
+
     def scope_phone(self):
         dic = {
             'phone_number': self.userinfo.get('phone_number'),
@@ -147,6 +176,7 @@ class StandardScopeClaims(ScopeClaims):
         _(u'Address information'),
         _(u'Access to your address. Includes country, locality, street and other information.'),
     )
+
     def scope_address(self):
         dic = {
             'address': {

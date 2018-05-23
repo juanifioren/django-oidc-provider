@@ -30,12 +30,13 @@ from oidc_provider.models import (
     UserConsent,
 )
 from oidc_provider import settings
-from oidc_provider.lib.utils.common import cleanup_url_from_query_string, get_browser_state_or_default
+from oidc_provider.lib.utils.common import get_browser_state_or_default
 
 logger = logging.getLogger(__name__)
 
 
 class AuthorizeEndpoint(object):
+    _allowed_prompt_params = {'none', 'login', 'consent', 'select_account'}
 
     def __init__(self, request):
         self.request = request
@@ -48,7 +49,8 @@ class AuthorizeEndpoint(object):
             self.grant_type = 'authorization_code'
         elif self.params['response_type'] in ['id_token', 'id_token token', 'token']:
             self.grant_type = 'implicit'
-        elif self.params['response_type'] in ['code token', 'code id_token', 'code id_token token']:
+        elif self.params['response_type'] in [
+             'code token', 'code id_token', 'code id_token token']:
             self.grant_type = 'hybrid'
         else:
             self.grant_type = None
@@ -74,7 +76,10 @@ class AuthorizeEndpoint(object):
         self.params['scope'] = query_dict.get('scope', '').split()
         self.params['state'] = query_dict.get('state', '')
         self.params['nonce'] = query_dict.get('nonce', '')
-        self.params['prompt'] = query_dict.get('prompt', '')
+
+        self.params['prompt'] = self._allowed_prompt_params.intersection(
+            set(query_dict.get('prompt', '').split()))
+
         self.params['code_challenge'] = query_dict.get('code_challenge', '')
         self.params['code_challenge_method'] = query_dict.get('code_challenge_method', '')
 
@@ -90,18 +95,18 @@ class AuthorizeEndpoint(object):
         if self.is_authentication and not self.params['redirect_uri']:
             logger.debug('[Authorize] Missing redirect uri.')
             raise RedirectUriError()
-        clean_redirect_uri = cleanup_url_from_query_string(self.params['redirect_uri'])
-        if not (clean_redirect_uri in self.client.redirect_uris):
+        if not (self.params['redirect_uri'] in self.client.redirect_uris):
             logger.debug('[Authorize] Invalid redirect uri: %s', self.params['redirect_uri'])
             raise RedirectUriError()
 
         # Grant type validation.
         if not self.grant_type:
             logger.debug('[Authorize] Invalid response type: %s', self.params['response_type'])
-            raise AuthorizeError(self.params['redirect_uri'], 'unsupported_response_type', self.grant_type)
+            raise AuthorizeError(
+                self.params['redirect_uri'], 'unsupported_response_type', self.grant_type)
 
-        if not self.is_authentication and \
-        (self.grant_type == 'hybrid' or self.params['response_type'] in ['id_token', 'id_token token']):
+        if (not self.is_authentication and (self.grant_type == 'hybrid' or
+           self.params['response_type'] in ['id_token', 'id_token token'])):
             logger.debug('[Authorize] Missing openid scope.')
             raise AuthorizeError(self.params['redirect_uri'], 'invalid_scope', self.grant_type)
 
@@ -116,7 +121,8 @@ class AuthorizeEndpoint(object):
         # PKCE validation of the transformation method.
         if self.params['code_challenge']:
             if not (self.params['code_challenge_method'] in ['plain', 'S256']):
-                raise AuthorizeError(self.params['redirect_uri'], 'invalid_request', self.grant_type)
+                raise AuthorizeError(
+                    self.params['redirect_uri'], 'invalid_request', self.grant_type)
 
     def create_response_uri(self):
         uri = urlsplit(self.params['redirect_uri'])
@@ -145,12 +151,14 @@ class AuthorizeEndpoint(object):
                     scope=self.params['scope'])
 
                 # Check if response_type must include access_token in the response.
-                if self.params['response_type'] in ['id_token token', 'token', 'code token', 'code id_token token']:
+                if (self.params['response_type'] in
+                   ['id_token token', 'token', 'code token', 'code id_token token']):
                     query_fragment['access_token'] = token.access_token
 
                 # We don't need id_token if it's an OAuth2 request.
                 if self.is_authentication:
                     kwargs = {
+                        'token': token,
                         'user': self.request.user,
                         'aud': self.client.client_id,
                         'nonce': self.params['nonce'],
@@ -163,7 +171,8 @@ class AuthorizeEndpoint(object):
                     id_token_dic = create_id_token(**kwargs)
 
                     # Check if response_type must include id_token in the response.
-                    if self.params['response_type'] in ['id_token', 'id_token token', 'code id_token', 'code id_token token']:
+                    if self.params['response_type'] in [
+                            'id_token', 'id_token token', 'code id_token', 'code id_token token']:
                         query_fragment['id_token'] = encode_id_token(id_token_dic, self.client)
                 else:
                     id_token_dic = {}
@@ -185,7 +194,8 @@ class AuthorizeEndpoint(object):
             if settings.get('OIDC_SESSION_MANAGEMENT_ENABLE'):
                 # Generate client origin URI from the redirect_uri param.
                 redirect_uri_parsed = urlsplit(self.params['redirect_uri'])
-                client_origin = '{0}://{1}'.format(redirect_uri_parsed.scheme, redirect_uri_parsed.netloc)
+                client_origin = '{0}://{1}'.format(
+                    redirect_uri_parsed.scheme, redirect_uri_parsed.netloc)
 
                 # Create random salt.
                 salt = md5(uuid4().hex.encode()).hexdigest()
@@ -209,7 +219,9 @@ class AuthorizeEndpoint(object):
             logger.exception('[Authorize] Error when trying to create response uri: %s', error)
             raise AuthorizeError(self.params['redirect_uri'], 'server_error', self.grant_type)
 
-        uri = uri._replace(query=urlencode(query_params, doseq=True), fragment=uri.fragment + urlencode(query_fragment, doseq=True))
+        uri = uri._replace(
+            query=urlencode(query_params, doseq=True),
+            fragment=uri.fragment + urlencode(query_fragment, doseq=True))
 
         return urlunsplit(uri)
 
@@ -262,7 +274,8 @@ class AuthorizeEndpoint(object):
         """
         scopes = StandardScopeClaims.get_scopes_info(self.params['scope'])
         if settings.get('OIDC_EXTRA_SCOPE_CLAIMS'):
-            scopes_extra = settings.get('OIDC_EXTRA_SCOPE_CLAIMS', import_str=True).get_scopes_info(self.params['scope'])
+            scopes_extra = settings.get(
+                'OIDC_EXTRA_SCOPE_CLAIMS', import_str=True).get_scopes_info(self.params['scope'])
             for index_extra, scope_extra in enumerate(scopes_extra):
                 for index, scope in enumerate(scopes[:]):
                     if scope_extra['scope'] == scope['scope']:

@@ -6,19 +6,19 @@ Installation
 Requirements
 ============
 
-* Python: ``2.7`` ``3.4`` ``3.5``
-* Django: ``1.7`` ``1.8`` ``1.9`` ``1.10``
+* Python: ``2.7`` ``3.4`` ``3.5`` ``3.6``
+* Django: ``1.8`` ``1.9`` ``1.10`` ``1.11`` ``2.0``
 
 Quick Installation
 ==================
 
-If you want to get started fast see our ``/example_project`` folder.
+If you want to get started fast see our ``/example_project`` folder in your local installation. Or look at it `on github <https://github.com/juanifioren/django-oidc-provider/tree/v0.5.x/example_project>`_.
 
 Install the package using pip::
 
     $ pip install django-oidc-provider
 
-Add it to your apps::
+Add it to your apps in your project's django settings::
 
     INSTALLED_APPS = (
         'django.contrib.admin',
@@ -31,7 +31,7 @@ Add it to your apps::
         # ...
     )
 
-Add the provider urls::
+Include our urls to your project's ``urls.py``::
 
     urlpatterns = patterns('',
         # ...
@@ -39,11 +39,11 @@ Add the provider urls::
         # ...
     )
 
-Generate server RSA key and run migrations (if you don't)::
+Run the migrations and generate a server RSA key::
 
     $ python manage.py migrate
     $ python manage.py creatersakey
 
-Add required variables to your project settings::
+Add this required variable to your project's django settings::
 
     LOGIN_URL = '/accounts/login/'

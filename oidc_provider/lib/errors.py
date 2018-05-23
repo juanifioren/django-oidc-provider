@@ -7,7 +7,8 @@ except ImportError:
 class RedirectUriError(Exception):
 
     error = 'Redirect URI Error'
-    description = 'The request fails due to a missing, invalid, or mismatching redirection URI (redirect_uri).'
+    description = 'The request fails due to a missing, invalid, or mismatching' \
+                  ' redirection URI (redirect_uri).'
 
 
 class ClientIdError(Exception):
@@ -22,14 +23,23 @@ class UserAuthError(Exception):
     the Resource Owners credentials are not valid.
     """
     error = 'access_denied'
-    description = 'The resource owner or authorization server denied ' \
-                  'the request'
+    description = 'The resource owner or authorization server denied the request.'
 
     def create_dict(self):
         return {
             'error': self.error,
             'error_description': self.description,
         }
+
+
+class TokenIntrospectionError(Exception):
+    """
+    Specific to the introspection endpoint. This error will be converted
+    to an "active: false" response, as per the spec.
+    See https://tools.ietf.org/html/rfc7662
+    """
+    pass
+
 
 class AuthorizeError(Exception):
 

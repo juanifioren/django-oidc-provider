@@ -3,28 +3,31 @@
 Contribute
 ##########
 
-We love contributions, so please feel free to fix bugs, improve things, provide documentation. You SHOULD follow this steps:
+We love contributions, so please feel free to fix bugs, improve things, provide documentation. These are the steps:
 
-* Fork the project.
+* Create an issue and explain your feature/bugfix.
+* Wait collaborators comments.
+* Fork the project and create new branch from `develop`.
 * Make your feature addition or bug fix.
-* Add tests for it inside ``oidc_provider/tests``. Then run all and ensure everything is OK (read docs for how to test in all envs).
-* Send pull request to the specific version branch.
+* Add tests and documentation if needed.
+* Create pull request for the issue to the `develop` branch.
+* Wait collaborators reviews.
 
 Running Tests
 =============
 
-Use `tox <https://pypi.python.org/pypi/tox>`_ for running tests in each of the environments, also to run coverage among::
+Use `tox <https://pypi.python.org/pypi/tox>`_ for running tests in each of the environments, also to run coverage and flake8 among::
 
     # Run all tests.
     $ tox
 
-    # Run with Python 2.7 and Django 1.9.
-    $ tox -e py27-django19
+    # Run with Python 3.5 and Django 2.0.
+    $ tox -e py35-django20
 
-    # Run single test file.
-    $ python runtests.py oidc_provider.tests.test_authorize_endpoint
+    # Run single test file on specific environment.
+    $ tox -e py35-django20 tests/cases/test_authorize_endpoint.py
 
-Also tests run on every commit to the project, we use `travis <https://travis-ci.org/juanifioren/django-oidc-provider/>`_ for this.
+We also use `travis <https://travis-ci.org/juanifioren/django-oidc-provider/>`_ to automatically test every commit to the project.
 
 Improve Documentation
 =====================
@@ -34,4 +37,4 @@ We use `Sphinx <http://www.sphinx-doc.org/>`_ for generate this documentation. I
 * Install Sphinx (``pip install sphinx``) and the auto-build tool (``pip install sphinx-autobuild``).
 * Move inside the docs folder. ``cd docs/``
 * Generate and watch docs by running ``sphinx-autobuild . _build/``.
-* Open ``http://127.0.0.1:8000`` on a browser.
+* Open ``http://127.0.0.1:8000`` in a browser.

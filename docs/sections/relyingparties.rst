@@ -3,8 +3,9 @@
 Relying Parties
 ###############
 
-Relying Parties (RP) creation it's up to you. This is because is out of the scope in the core implementation of OIDC.
-So, there are different ways to create your Clients (RP). By displaying a HTML form or maybe if you have internal thrusted Clients you can create them programatically.
+Relying Parties (RP) creation is up to you. This is because is out of the scope in the core implementation of OIDC.
+So, there are different ways to create your Clients (RP). By displaying a HTML form or maybe if you have internal trusted Clients you can create them programatically.
+Out of the box, django-oidc-provider enables you to create them by hand in the django admin.
 
 OAuth defines two client types, based on their ability to maintain the confidentiality of their client credentials:
 
@@ -61,4 +62,4 @@ You can create a Client programmatically with Django shell ``python manage.py sh
     >>> c = Client(name='Some Client', client_id='123', client_secret='456', response_type='code', redirect_uris=['http://example.com/'])
     >>> c.save()
 
-`Read more about client creation from OAuth2 spec <http://tools.ietf.org/html/rfc6749#section-2>`_
+`Read more about client creation in the OAuth2 spec <http://tools.ietf.org/html/rfc6749#section-2>`_

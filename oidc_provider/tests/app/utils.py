@@ -1,5 +1,9 @@
 import random
 import string
+
+import django
+from django.contrib.auth.backends import ModelBackend
+
 try:
     from urlparse import parse_qs, urlsplit
 except ImportError:
@@ -15,7 +19,8 @@ from oidc_provider.models import (
 
 
 FAKE_NONCE = 'cb584e44c43ed6bd0bc2d9c7e242837d'
-FAKE_RANDOM_STRING = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(32))
+FAKE_RANDOM_STRING = ''.join(
+    random.choice(string.ascii_uppercase + string.digits) for _ in range(32))
 FAKE_CODE_CHALLENGE = 'YlYXEqXuRm-Xgi2BOUiK50JW1KsGTX6F1TDnZSC8VTg'
 FAKE_CODE_VERIFIER = 'SmxGa0XueyNh5bDgTcSrqzAh2_FmXEqU8kDT6CuXicw'
 
@@ -82,7 +87,7 @@ def is_code_valid(url, user, client):
         code = params['code'][0]
         code = Code.objects.get(code=code)
         is_code_ok = (code.client == client) and (code.user == user)
-    except:
+    except Exception:
         is_code_ok = False
 
     return is_code_ok
@@ -96,6 +101,7 @@ def userinfo(claims, user):
     claims['family_name'] = 'Doe'
     claims['name'] = '{0} {1}'.format(claims['given_name'], claims['family_name'])
     claims['email'] = user.email
+    claims['email_verified'] = True
     claims['address']['country'] = 'Argentina'
     return claims
 
@@ -118,7 +124,8 @@ def fake_idtoken_processing_hook(id_token, user, scope=None):
 
 def fake_idtoken_processing_hook2(id_token, user, scope=None):
     """
-    Fake function for inserting some keys into token. Testing OIDC_IDTOKEN_PROCESSING_HOOK - tuple or list as param
+    Fake function for inserting some keys into token.
+    Testing OIDC_IDTOKEN_PROCESSING_HOOK - tuple or list as param
     """
     id_token['test_idtoken_processing_hook2'] = FAKE_RANDOM_STRING
     id_token['test_idtoken_processing_hook_user_email2'] = user.email
@@ -131,3 +138,15 @@ def fake_idtoken_processing_hook3(id_token, user, scope=None):
     """
     id_token['scope_passed_to_processing_hook'] = scope
     return id_token
+
+
+def fake_introspection_processing_hook(response_dict, client, id_token):
+    response_dict['test_introspection_processing_hook'] = FAKE_RANDOM_STRING
+    return response_dict
+
+
+class TestAuthBackend:
+    def authenticate(self, *args, **kwargs):
+        if django.VERSION[0] >= 2 or (django.VERSION[0] == 1 and django.VERSION[1] >= 11):
+            assert len(args) > 0 and args[0]
+        return ModelBackend().authenticate(*args, **kwargs)

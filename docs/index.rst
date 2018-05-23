@@ -1,7 +1,7 @@
 Welcome to Django OIDC Provider Documentation!
 ==============================================
 
-This tiny (but powerful!) package can help you providing out of the box all the endpoints, data and logic needed to add OpenID Connect capabilities to your Django projects. And as a side effect a fair implementation of OAuth2.0 too. Covers Authorization Code, Implicit and Hybrid flows.
+This tiny (but powerful!) package can help you to provide out of the box all the endpoints, data and logic needed to add OpenID Connect capabilities to your Django projects. And as a side effect a fair implementation of OAuth2.0 too. Covers Authorization Code, Implicit and Hybrid flows.
 
 Also implements the following specifications:
 
@@ -15,8 +15,8 @@ Also implements the following specifications:
 
 Before getting started there are some important things that you should know:
 
-* Despite that implementation MUST support TLS. You can make request without using SSL. There is no control on that.
-* Supports only for requesting Claims using Scope values.
+* Despite that implementation MUST support TLS, you *can* make request without using SSL. There is no control on that.
+* Supports only requesting Claims using Scope values, so you cannot request individual Claims.
 * If you enable the Resource Owner Password Credentials Grant, you MUST implement protection against brute force attacks on the token endpoint
 
 --------------------------------------------------------------------------------
@@ -39,6 +39,7 @@ Contents:
    sections/signals
    sections/examples
    sections/contribute
+   sections/changelog
 ..
 
 Indices and tables

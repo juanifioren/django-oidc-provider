@@ -2,7 +2,7 @@
 
 ![Example Project](https://s17.postimg.org/4jjj8lavj/Screen_Shot_2016_09_07_at_15_58_43.png)
 
-Run your own OIDC provider in a second. This is a Django app with all the necessary things to work with `django-oidc-provider` package.
+On this example you'll be running your own OIDC provider in a second. This is a Django app with all the necessary things to work with `django-oidc-provider` package.
 
 ## Setup & Running
 
@@ -14,15 +14,12 @@ Run your own OIDC provider in a second. This is a Django app with all the necess
 Setup project environment with [virtualenv](https://virtualenv.pypa.io) and [pip](https://pip.pypa.io).
 
 ```bash
-# For Python 2.7.
-$ virtualenv project_env
-# Or Python 3.
-$ virtualenv -p /usr/bin/python3.4 project_env
+$ virtualenv -p /usr/bin/python3 project_env
 
 $ source project_env/bin/activate
 
 $ git clone https://github.com/juanifioren/django-oidc-provider.git
-$ cd django-oidc-provider/example_project
+$ cd django-oidc-provider/example
 $ pip install -r requirements.txt
 ```
 
@@ -53,7 +50,7 @@ After you run `pip install -r requirements.txt`.
 # Remove pypi package.
 $ pip uninstall django-oidc-provider
 
-# Go back and add the package again.
+# Go back to django-oidc-provider/ folder and add the package on editable mode.
 $ cd ..
 $ pip install -e .
 ```

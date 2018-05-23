@@ -25,12 +25,21 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='client',
             name='client_type',
-            field=models.CharField(choices=[('confidential', 'Confidential'), ('public', 'Public')], default='confidential', help_text='<b>Confidential</b> clients are capable of maintaining the confidentiality of their credentials. <b>Public</b> clients are incapable.', max_length=30),
+            field=models.CharField(
+                choices=[('confidential', 'Confidential'), ('public', 'Public')],
+                default='confidential',
+                help_text='<b>Confidential</b> clients are capable of maintaining the confidentiality of their'
+                          ' credentials. <b>Public</b> clients are incapable.',
+                max_length=30),
         ),
         migrations.AlterField(
             model_name='client',
             name='jwt_alg',
-            field=models.CharField(choices=[('HS256', 'HS256'), ('RS256', 'RS256')], default='RS256', max_length=10, verbose_name='JWT Algorithm'),
+            field=models.CharField(
+                choices=[('HS256', 'HS256'), ('RS256', 'RS256')],
+                default='RS256',
+                max_length=10,
+                verbose_name='JWT Algorithm'),
         ),
         migrations.AlterField(
             model_name='client',
@@ -40,7 +49,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='client',
             name='response_type',
-            field=models.CharField(choices=[('code', 'code (Authorization Code Flow)'), ('id_token', 'id_token (Implicit Flow)'), ('id_token token', 'id_token token (Implicit Flow)')], max_length=30),
+            field=models.CharField(
+                choices=[
+                    ('code', 'code (Authorization Code Flow)'), ('id_token', 'id_token (Implicit Flow)'),
+                    ('id_token token', 'id_token token (Implicit Flow)')],
+                max_length=30),
         ),
         migrations.AlterField(
             model_name='code',

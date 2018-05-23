@@ -4,7 +4,7 @@ Templates
 #########
 
 Add your own templates files inside a folder named ``templates/oidc_provider/``.
-You can copy the sample html here and edit them with your own styles.
+You can copy the sample html files here and customize them with your own style.
 
 **authorize.html**::
 
@@ -19,7 +19,7 @@ You can copy the sample html here and edit them with your own styles.
         {{ hidden_inputs }}
 
         <ul>
-        {% for scope in params.scope %}
+        {% for scope in scopes %}
             <li><strong>{{ scope.name }}</strong><br><i>{{ scope.description }}</i></li>
         {% endfor %}
         </ul>
@@ -36,3 +36,18 @@ You can copy the sample html here and edit them with your own styles.
 
 You can also customize paths to your custom templates by putting them in ``OIDC_TEMPLATES`` in the settings.
 
+The following contexts will be passed to the ``authorize`` and ``error`` templates respectively::
+
+    # For authorize template
+    {
+        'client': 'an instance of Client for the auth request',
+        'hidden_inputs': 'a rendered html with all the hidden inputs needed for AuthorizeEndpoint',
+        'params': 'a dict containing the params in the auth request',
+        'scopes': 'a list of scopes'
+    }
+
+    # For error template
+    {
+        'error': 'string stating the error',
+        'description': 'string stating description of the error'
+    }

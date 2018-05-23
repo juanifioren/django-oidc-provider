@@ -1,4 +1,7 @@
-from django.conf.urls import url
+try:
+    from django.urls import url
+except ImportError:
+    from django.conf.urls import url
 from django.test import TestCase, override_settings
 from django.views.generic import View
 from mock import mock
@@ -9,6 +12,7 @@ class StubbedViews:
         pass
 
     urlpatterns = [url('^test/', SampleView.as_view())]
+
 
 MW_CLASSES = ('django.contrib.sessions.middleware.SessionMiddleware',
               'oidc_provider.middleware.SessionManagementMiddleware')

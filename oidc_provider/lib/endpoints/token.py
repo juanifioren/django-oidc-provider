@@ -1,14 +1,8 @@
-from base64 import b64decode, urlsafe_b64encode
+import inspect
+from base64 import urlsafe_b64encode
 import hashlib
 import logging
-import re
 from django.contrib.auth import authenticate
-from oidc_provider.lib.utils.common import cleanup_url_from_query_string
-
-try:
-    from urllib.parse import unquote
-except ImportError:
-    from urllib import unquote
 
 from django.http import JsonResponse
 
@@ -16,6 +10,7 @@ from oidc_provider.lib.errors import (
     TokenError,
     UserAuthError,
 )
+from oidc_provider.lib.utils.oauth2 import extract_client_auth
 from oidc_provider.lib.utils.token import (
     create_id_token,
     create_token,
@@ -32,6 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 class TokenEndpoint(object):
+
     def __init__(self, request):
         self.request = request
         self.params = {}
@@ -39,12 +35,11 @@ class TokenEndpoint(object):
         self._extract_params()
 
     def _extract_params(self):
-        client_id, client_secret = self._extract_client_auth()
+        client_id, client_secret = extract_client_auth(self.request)
 
         self.params['client_id'] = client_id
         self.params['client_secret'] = client_secret
-        self.params['redirect_uri'] = unquote(
-            self.request.POST.get('redirect_uri', '').split('?', 1)[0])
+        self.params['redirect_uri'] = self.request.POST.get('redirect_uri', '')
         self.params['grant_type'] = self.request.POST.get('grant_type', '')
         self.params['code'] = self.request.POST.get('code', '')
         self.params['state'] = self.request.POST.get('state', '')
@@ -55,29 +50,6 @@ class TokenEndpoint(object):
 
         self.params['username'] = self.request.POST.get('username', '')
         self.params['password'] = self.request.POST.get('password', '')
-
-    def _extract_client_auth(self):
-        """
-        Get client credentials using HTTP Basic Authentication method.
-        Or try getting parameters via POST.
-        See: http://tools.ietf.org/html/rfc6750#section-2.1
-
-        Return a string.
-        """
-        auth_header = self.request.META.get('HTTP_AUTHORIZATION', '')
-
-        if re.compile('^Basic\s{1}.+$').match(auth_header):
-            b64_user_pass = auth_header.split()[1]
-            try:
-                user_pass = b64decode(b64_user_pass).decode('utf-8').split(':')
-                client_id, client_secret = tuple(user_pass)
-            except:
-                client_id = client_secret = ''
-        else:
-            client_id = self.request.POST.get('client_id', '')
-            client_secret = self.request.POST.get('client_secret', '')
-
-        return (client_id, client_secret)
 
     def validate_params(self):
         try:
@@ -93,8 +65,7 @@ class TokenEndpoint(object):
                 raise TokenError('invalid_client')
 
         if self.params['grant_type'] == 'authorization_code':
-            clean_redirect_uri = cleanup_url_from_query_string(self.params['redirect_uri'])
-            if not (clean_redirect_uri in self.client.redirect_uris):
+            if not (self.params['redirect_uri'] in self.client.redirect_uris):
                 logger.debug('[Token] Invalid redirect uri: %s', self.params['redirect_uri'])
                 raise TokenError('invalid_client')
 
@@ -126,7 +97,14 @@ class TokenEndpoint(object):
             if not settings.get('OIDC_GRANT_TYPE_PASSWORD_ENABLE'):
                 raise TokenError('unsupported_grant_type')
 
+            auth_args = (self.request,)
+            try:
+                inspect.getcallargs(authenticate, *auth_args)
+            except TypeError:
+                auth_args = ()
+
             user = authenticate(
+                *auth_args,
                 username=self.params['username'],
                 password=self.params['password']
             )
@@ -146,9 +124,13 @@ class TokenEndpoint(object):
                                                client=self.client)
 
             except Token.DoesNotExist:
-                logger.debug('[Token] Refresh token does not exist: %s', self.params['refresh_token'])
+                logger.debug(
+                    '[Token] Refresh token does not exist: %s', self.params['refresh_token'])
                 raise TokenError('invalid_grant')
-
+        elif self.params['grant_type'] == 'client_credentials':
+            if not self.client._scope:
+                logger.debug('[Token] Client using client credentials with empty scope')
+                raise TokenError('invalid_scope')
         else:
             logger.debug('[Token] Invalid grant type: %s', self.params['grant_type'])
             raise TokenError('unsupported_grant_type')
@@ -160,34 +142,8 @@ class TokenEndpoint(object):
             return self.create_refresh_response_dic()
         elif self.params['grant_type'] == 'password':
             return self.create_access_token_response_dic()
-
-    def create_access_token_response_dic(self):
-        # See https://tools.ietf.org/html/rfc6749#section-4.3
-
-        token = create_token(
-            self.user,
-            self.client,
-            self.params['scope'].split(' '))
-
-        id_token_dic = create_id_token(
-            user=self.user,
-            aud=self.client.client_id,
-            nonce='self.code.nonce',
-            at_hash=token.at_hash,
-            request=self.request,
-            scope=token.scope,
-        )
-
-        token.id_token = id_token_dic
-        token.save()
-
-        return {
-            'access_token': token.access_token,
-            'refresh_token': token.refresh_token,
-            'expires_in': settings.get('OIDC_TOKEN_EXPIRE'),
-            'token_type': 'bearer',
-            'id_token': encode_id_token(id_token_dic, token.client),
-        }
+        elif self.params['grant_type'] == 'client_credentials':
+            return self.create_client_credentials_response_dic()
 
     def create_code_response_dic(self):
         # See https://tools.ietf.org/html/rfc6749#section-4.1
@@ -201,6 +157,7 @@ class TokenEndpoint(object):
             id_token_dic = create_id_token(
                 user=self.code.user,
                 aud=self.client.client_id,
+                token=token,
                 nonce=self.code.nonce,
                 at_hash=token.at_hash,
                 request=self.request,
@@ -245,6 +202,7 @@ class TokenEndpoint(object):
             id_token_dic = create_id_token(
                 user=self.token.user,
                 aud=self.client.client_id,
+                token=token,
                 nonce=None,
                 at_hash=token.at_hash,
                 request=self.request,
@@ -269,6 +227,52 @@ class TokenEndpoint(object):
         }
 
         return dic
+
+    def create_access_token_response_dic(self):
+        # See https://tools.ietf.org/html/rfc6749#section-4.3
+
+        token = create_token(
+            self.user,
+            self.client,
+            self.params['scope'].split(' '))
+
+        id_token_dic = create_id_token(
+            token=token,
+            user=self.user,
+            aud=self.client.client_id,
+            nonce='self.code.nonce',
+            at_hash=token.at_hash,
+            request=self.request,
+            scope=token.scope,
+        )
+
+        token.id_token = id_token_dic
+        token.save()
+
+        return {
+            'access_token': token.access_token,
+            'refresh_token': token.refresh_token,
+            'expires_in': settings.get('OIDC_TOKEN_EXPIRE'),
+            'token_type': 'bearer',
+            'id_token': encode_id_token(id_token_dic, token.client),
+        }
+
+    def create_client_credentials_response_dic(self):
+        # See https://tools.ietf.org/html/rfc6749#section-4.4.3
+
+        token = create_token(
+            user=None,
+            client=self.client,
+            scope=self.client.scope)
+
+        token.save()
+
+        return {
+            'access_token': token.access_token,
+            'expires_in': settings.get('OIDC_TOKEN_EXPIRE'),
+            'token_type': 'bearer',
+            'scope': self.client._scope,
+        }
 
     @classmethod
     def response(cls, dic, status=200):
