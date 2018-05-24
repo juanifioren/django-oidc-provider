@@ -81,12 +81,28 @@ Here you can add extra dictionary values specific for your app into id_token.
 
 The ``list`` or ``tuple`` is useful when you want to set multiple hooks, i.e. one for permissions and second for some special field.
 
-The function receives a ``id_token`` dictionary and ``user`` instance
-and returns it with additional fields.
+The hook function receives following arguments:
+
+ * ``id_token``: the ID token dictionary which contains at least the
+   basic claims (``iss``, ``sub``, ``aud``, ``exp``, ``iat``,
+   ``auth_time``), but may also contain other claims.  If several
+   processing hooks are configured, then the claims of the previous hook
+   are also present in the passed dictionary.
+ * ``user``: User object of the authenticating user,
+ * ``scope``: the authorized scopes as list of strings or None,
+ * ``token``: the Token object created for the authentication request, and
+ * ``request``: Django request object of the authentication request.
+
+The hook function should return the modified ID token as dictionary.
+
+.. note::
+    It is a good idea to add ``**kwargs`` to the hook function argument
+    list so that the hook function will work even if new arguments are
+    added to the hook function call signature.
 
 Default is::
 
-    def default_idtoken_processing_hook(id_token, user):
+    def default_idtoken_processing_hook(id_token, user, scope, token, request, **kwargs):
 
         return id_token
 
