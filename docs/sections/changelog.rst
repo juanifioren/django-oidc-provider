@@ -10,7 +10,8 @@ Unreleased
 
 * Added: token instrospection endpoint support (RFC7662).
 * Added: request in password grant authenticate call.
-* Changed: Dropping support for Django versions before 1.8.
+* Changed: dropping support for Django versions before 1.8.
+* Changed: pass scope, token and request to OIDC_IDTOKEN_PROCESSING_HOOK.
 
 0.6.0
 =====
