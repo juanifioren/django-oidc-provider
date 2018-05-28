@@ -12,7 +12,7 @@ Requirements
 Quick Installation
 ==================
 
-If you want to get started fast see our ``/example_project`` folder in your local installation. Or look at it `on github <https://github.com/juanifioren/django-oidc-provider/tree/v0.5.x/example_project>`_.
+If you want to get started fast see our ``/example`` folder in your local installation. Or look at it `on github <https://github.com/juanifioren/django-oidc-provider/tree/master/example>`_.
 
 Install the package using pip::
 
