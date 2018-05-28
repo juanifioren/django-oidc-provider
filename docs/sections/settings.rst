@@ -64,6 +64,13 @@ Used to add extra scopes specific for your app. OpenID Connect RP's will use sco
 
 Read more about how to implement it in :ref:`scopesclaims` section.
 
+OIDC_IDTOKEN_INCLUDE_CLAIMS
+==============================
+
+OPTIONAL. ``bool``. If enabled, id_token will include standard claims of the user (email, first name, etc.).
+
+Default is ``False``.
+
 OIDC_IDTOKEN_EXPIRE
 ===================
 
@@ -106,6 +113,19 @@ Default is::
 
         return id_token
 
+OIDC_IDTOKEN_SUB_GENERATOR
+==========================
+
+OPTIONAL. ``str``. A string with the location of your function. ``sub`` is a locally unique and never reassigned identifier within the Issuer for the End-User, which is intended to be consumed by the Client.
+
+The function receives a ``user`` object and returns a unique ``string`` for the given user.
+
+Default is::
+
+    def default_sub_generator(user):
+
+        return str(user.id)
+
 OIDC_INTROSPECTION_PROCESSING_HOOK
 ==================================
 
@@ -131,27 +151,6 @@ OPTIONAL ``bool``
 A flag which toggles whether the audience is matched against the client resource scope when calling the introspection endpoint.
 
 Default is ``True``.
-
-
-OIDC_IDTOKEN_SUB_GENERATOR
-==========================
-
-OPTIONAL. ``str``. A string with the location of your function. ``sub`` is a locally unique and never reassigned identifier within the Issuer for the End-User, which is intended to be consumed by the Client.
-
-The function receives a ``user`` object and returns a unique ``string`` for the given user.
-
-Default is::
-
-    def default_sub_generator(user):
-
-        return str(user.id)
-
-OIDC_IDTOKEN_INCLUDE_CLAIMS
-==============================
-
-OPTIONAL. ``bool``. If enabled, id_token will include standard claims of the user (email, first name, etc.).
-
-Default is ``False``.
 
 OIDC_SESSION_MANAGEMENT_ENABLE
 ==============================
