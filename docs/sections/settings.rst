@@ -96,7 +96,6 @@ The hook function receives following arguments:
    processing hooks are configured, then the claims of the previous hook
    are also present in the passed dictionary.
  * ``user``: User object of the authenticating user,
- * ``scope``: the authorized scopes as list of strings or None,
  * ``token``: the Token object created for the authentication request, and
  * ``request``: Django request object of the authentication request.
 
@@ -109,7 +108,7 @@ The hook function should return the modified ID token as dictionary.
 
 Default is::
 
-    def default_idtoken_processing_hook(id_token, user, scope, token, request, **kwargs):
+    def default_idtoken_processing_hook(id_token, user, token, request, **kwargs):
 
         return id_token
 

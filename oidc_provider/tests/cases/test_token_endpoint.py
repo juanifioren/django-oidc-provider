@@ -731,14 +731,14 @@ class TokenTestCase(TestCase):
     @override_settings(
         OIDC_IDTOKEN_PROCESSING_HOOK=(
                 'oidc_provider.tests.app.utils.fake_idtoken_processing_hook3'))
-    def test_additional_idtoken_processing_hook_scope_param(self):
+    def test_additional_idtoken_processing_hook_scope_available(self):
         """
-        Test scope parameter is passed to OIDC_IDTOKEN_PROCESSING_HOOK.
+        Test scope is available in OIDC_IDTOKEN_PROCESSING_HOOK.
         """
         id_token = self._request_id_token_with_scope(
             ['openid', 'email', 'profile', 'dummy'])
         self.assertEqual(
-            id_token.get('scope_passed_to_processing_hook'),
+            id_token.get('scope_of_token_passed_to_processing_hook'),
             ['openid', 'email', 'profile', 'dummy'])
 
     @override_settings(
@@ -751,12 +751,11 @@ class TokenTestCase(TestCase):
         id_token = self._request_id_token_with_scope(['openid', 'profile'])
         kwargs_passed = id_token.get('kwargs_passed_to_processing_hook')
         assert kwargs_passed
-        self.assertEqual(kwargs_passed.get('scope'),
-                         repr([u'openid', u'profile']))
         self.assertEqual(kwargs_passed.get('token'),
                          '<Token: Some Client - johndoe@example.com>')
         self.assertEqual(kwargs_passed.get('request'),
                          "<WSGIRequest: POST '/openid/token'>")
+        self.assertEqual(set(kwargs_passed.keys()), {'token', 'request'})
 
     def _request_id_token_with_scope(self, scope):
         code = self._create_code(scope)
