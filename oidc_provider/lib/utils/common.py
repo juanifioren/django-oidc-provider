@@ -108,7 +108,7 @@ def default_after_end_session_hook(
 
 
 def default_idtoken_processing_hook(
-        id_token, user, scope, token, request, **kwargs):
+        id_token, user, token, request, **kwargs):
     """
     Hook for modifying `id_token` just before serialization.
 
@@ -117,9 +117,6 @@ def default_idtoken_processing_hook(
 
     :param user: user for whom id_token is generated
     :type user: User
-
-    :param scope: scope for the token
-    :type scope: list[str]|None
 
     :param token: the Token object created for the authentication request
     :type token: oidc_provider.models.Token

@@ -132,11 +132,11 @@ def fake_idtoken_processing_hook2(id_token, user, **kwargs):
     return id_token
 
 
-def fake_idtoken_processing_hook3(id_token, user, scope=None, **kwargs):
+def fake_idtoken_processing_hook3(id_token, user, token, **kwargs):
     """
     Fake function for checking scope is passed to processing hook.
     """
-    id_token['scope_passed_to_processing_hook'] = scope
+    id_token['scope_of_token_passed_to_processing_hook'] = token.scope
     return id_token
 
 
