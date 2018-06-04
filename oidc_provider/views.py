@@ -1,5 +1,8 @@
 import logging
 
+from django.views.decorators.csrf import csrf_exempt
+
+from oidc_provider.lib.endpoints.introspection import TokenIntrospectionEndpoint
 try:
     from urllib import urlencode
     from urlparse import urlsplit, parse_qs, urlunsplit
@@ -34,7 +37,8 @@ from oidc_provider.lib.errors import (
     ClientIdError,
     RedirectUriError,
     TokenError,
-    UserAuthError)
+    UserAuthError,
+    TokenIntrospectionError)
 from oidc_provider.lib.utils.common import (
     redirect,
     get_site_url,
@@ -49,6 +53,7 @@ from oidc_provider.models import (
 )
 from oidc_provider import settings
 from oidc_provider import signals
+
 
 logger = logging.getLogger(__name__)
 
@@ -230,10 +235,10 @@ class TokenView(View):
 @protected_resource_view(['openid'])
 def userinfo(request, *args, **kwargs):
     """
-    Create a diccionary with all the requested claims about the End-User.
+    Create a dictionary with all the requested claims about the End-User.
     See: http://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse
 
-    Return a diccionary.
+    Return a dictionary.
     """
     token = kwargs['token']
 
@@ -267,6 +272,7 @@ class ProviderInfoView(View):
         dic['token_endpoint'] = site_url + reverse('oidc_provider:token')
         dic['userinfo_endpoint'] = site_url + reverse('oidc_provider:userinfo')
         dic['end_session_endpoint'] = site_url + reverse('oidc_provider:end-session')
+        dic['introspection_endpoint'] = site_url + reverse('oidc_provider:token-introspection')
 
         types_supported = [x[0] for x in RESPONSE_TYPE_CHOICES]
         dic['response_types_supported'] = types_supported
@@ -356,3 +362,19 @@ class CheckSessionIframeView(View):
 
     def get(self, request, *args, **kwargs):
         return render(request, 'oidc_provider/check_session_iframe.html', kwargs)
+
+
+class TokenIntrospectionView(View):
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(TokenIntrospectionView, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        introspection = TokenIntrospectionEndpoint(request)
+
+        try:
+            introspection.validate_params()
+            dic = introspection.create_response_dic()
+            return TokenIntrospectionEndpoint.response(dic)
+        except TokenIntrospectionError:
+            return TokenIntrospectionEndpoint.response({'active': False})

@@ -3,6 +3,7 @@ import time
 import uuid
 
 from base64 import b64encode
+
 try:
     from urllib.parse import urlencode
 except ImportError:
@@ -255,6 +256,17 @@ class TokenTestCase(TestCase):
                 self.assertIn(claim, userinfo)
             else:
                 self.assertNotIn(claim, userinfo)
+
+    @override_settings(OIDC_GRANT_TYPE_PASSWORD_ENABLE=True,
+                       AUTHENTICATION_BACKENDS=("oidc_provider.tests.app.utils.TestAuthBackend",))
+    def test_password_grant_passes_request_to_backend(self):
+        response = self._post_request(
+            post_data=self._password_grant_post_data(),
+            extras=self._password_grant_auth_header()
+        )
+
+        response_dict = json.loads(response.content.decode('utf-8'))
+        self.assertIn('access_token', response_dict)
 
     @override_settings(OIDC_TOKEN_EXPIRE=720)
     def test_authorization_code(self):
@@ -715,6 +727,46 @@ class TokenTestCase(TestCase):
 
         self.assertEqual(id_token.get('test_idtoken_processing_hook2'), FAKE_RANDOM_STRING)
         self.assertEqual(id_token.get('test_idtoken_processing_hook_user_email2'), self.user.email)
+
+    @override_settings(
+        OIDC_IDTOKEN_PROCESSING_HOOK=(
+                'oidc_provider.tests.app.utils.fake_idtoken_processing_hook3'))
+    def test_additional_idtoken_processing_hook_scope_available(self):
+        """
+        Test scope is available in OIDC_IDTOKEN_PROCESSING_HOOK.
+        """
+        id_token = self._request_id_token_with_scope(
+            ['openid', 'email', 'profile', 'dummy'])
+        self.assertEqual(
+            id_token.get('scope_of_token_passed_to_processing_hook'),
+            ['openid', 'email', 'profile', 'dummy'])
+
+    @override_settings(
+        OIDC_IDTOKEN_PROCESSING_HOOK=(
+                'oidc_provider.tests.app.utils.fake_idtoken_processing_hook4'))
+    def test_additional_idtoken_processing_hook_kwargs(self):
+        """
+        Test correct kwargs are passed to OIDC_IDTOKEN_PROCESSING_HOOK.
+        """
+        id_token = self._request_id_token_with_scope(['openid', 'profile'])
+        kwargs_passed = id_token.get('kwargs_passed_to_processing_hook')
+        assert kwargs_passed
+        self.assertEqual(kwargs_passed.get('token'),
+                         '<Token: Some Client - johndoe@example.com>')
+        self.assertEqual(kwargs_passed.get('request'),
+                         "<WSGIRequest: POST '/openid/token'>")
+        self.assertEqual(set(kwargs_passed.keys()), {'token', 'request'})
+
+    def _request_id_token_with_scope(self, scope):
+        code = self._create_code(scope)
+
+        post_data = self._auth_code_post_data(code=code.code)
+
+        response = self._post_request(post_data)
+
+        response_dic = json.loads(response.content.decode('utf-8'))
+        id_token = JWT().unpack(response_dic['id_token'].encode('utf-8')).payload()
+        return id_token
 
     def test_pkce_parameters(self):
         """

@@ -64,6 +64,13 @@ Used to add extra scopes specific for your app. OpenID Connect RP's will use sco
 
 Read more about how to implement it in :ref:`scopesclaims` section.
 
+OIDC_IDTOKEN_INCLUDE_CLAIMS
+==============================
+
+OPTIONAL. ``bool``. If enabled, id_token will include standard claims of the user (email, first name, etc.).
+
+Default is ``False``.
+
 OIDC_IDTOKEN_EXPIRE
 ===================
 
@@ -81,12 +88,27 @@ Here you can add extra dictionary values specific for your app into id_token.
 
 The ``list`` or ``tuple`` is useful when you want to set multiple hooks, i.e. one for permissions and second for some special field.
 
-The function receives a ``id_token`` dictionary and ``user`` instance
-and returns it with additional fields.
+The hook function receives following arguments:
+
+ * ``id_token``: the ID token dictionary which contains at least the
+   basic claims (``iss``, ``sub``, ``aud``, ``exp``, ``iat``,
+   ``auth_time``), but may also contain other claims.  If several
+   processing hooks are configured, then the claims of the previous hook
+   are also present in the passed dictionary.
+ * ``user``: User object of the authenticating user,
+ * ``token``: the Token object created for the authentication request, and
+ * ``request``: Django request object of the authentication request.
+
+The hook function should return the modified ID token as dictionary.
+
+.. note::
+    It is a good idea to add ``**kwargs`` to the hook function argument
+    list so that the hook function will work even if new arguments are
+    added to the hook function call signature.
 
 Default is::
 
-    def default_idtoken_processing_hook(id_token, user):
+    def default_idtoken_processing_hook(id_token, user, token, request, **kwargs):
 
         return id_token
 
@@ -103,12 +125,31 @@ Default is::
 
         return str(user.id)
 
-OIDC_IDTOKEN_INCLUDE_CLAIMS
-==============================
+OIDC_INTROSPECTION_PROCESSING_HOOK
+==================================
 
-OPTIONAL. ``bool``. If enabled, id_token will include standard claims of the user (email, first name, etc.).
+OPTIONAL. ``str`` or ``(list, tuple)``.
 
-Default is ``False``.
+A string with the location of your function hook or ``list`` or ``tuple`` with hook functions.
+Here you can add extra dictionary values specific to your valid response value for token introspection.
+
+The function receives an ``introspection_response`` dictionary, a ``client`` instance and an ``id_token`` dictionary.
+
+Default is::
+
+    def default_introspection_processing_hook(introspection_response, client, id_token):
+
+        return introspection_response
+
+
+OIDC_INTROSPECTION_VALIDATE_AUDIENCE_SCOPE
+==========================================
+
+OPTIONAL ``bool``
+
+A flag which toggles whether the audience is matched against the client resource scope when calling the introspection endpoint.
+
+Default is ``True``.
 
 OIDC_SESSION_MANAGEMENT_ENABLE
 ==============================

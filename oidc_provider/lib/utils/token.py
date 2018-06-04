@@ -9,7 +9,7 @@ from jwkest.jwk import SYMKey
 from jwkest.jws import JWS
 from jwkest.jwt import JWT
 
-from oidc_provider.lib.utils.common import get_issuer
+from oidc_provider.lib.utils.common import get_issuer, run_processing_hook
 from oidc_provider.lib.claims import StandardScopeClaims
 from oidc_provider.models import (
     Code,
@@ -62,13 +62,9 @@ def create_id_token(token, user, aud, nonce='', at_hash='', request=None, scope=
             claims = StandardScopeClaims(token).create_response_dic()
         dic.update(claims)
 
-    processing_hook = settings.get('OIDC_IDTOKEN_PROCESSING_HOOK')
-
-    if isinstance(processing_hook, (list, tuple)):
-        for hook in processing_hook:
-            dic = settings.import_from_str(hook)(dic, user=user)
-    else:
-        dic = settings.import_from_str(processing_hook)(dic, user=user)
+    dic = run_processing_hook(
+        dic, 'OIDC_IDTOKEN_PROCESSING_HOOK',
+        user=user, token=token, request=request)
 
     return dic
 

@@ -7,12 +7,12 @@ Requirements
 ============
 
 * Python: ``2.7`` ``3.4`` ``3.5`` ``3.6``
-* Django: ``1.7`` ``1.8`` ``1.9`` ``1.10`` ``1.11`` ``2.0``
+* Django: ``1.8`` ``1.9`` ``1.10`` ``1.11`` ``2.0``
 
 Quick Installation
 ==================
 
-If you want to get started fast see our ``/example_project`` folder in your local installation. Or look at it `on github <https://github.com/juanifioren/django-oidc-provider/tree/v0.5.x/example_project>`_.
+If you want to get started fast see our ``/example`` folder in your local installation. Or look at it `on github <https://github.com/juanifioren/django-oidc-provider/tree/master/example>`_.
 
 Install the package using pip::
 

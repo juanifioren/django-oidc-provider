@@ -107,7 +107,8 @@ def default_after_end_session_hook(
     return None
 
 
-def default_idtoken_processing_hook(id_token, user):
+def default_idtoken_processing_hook(
+        id_token, user, token, request, **kwargs):
     """
     Hook to perform some additional actions to `id_token` dictionary just before serialization.
 
@@ -117,10 +118,27 @@ def default_idtoken_processing_hook(id_token, user):
     :param user: user for whom id_token is generated
     :type user: User
 
+    :param token: the Token object created for the authentication request
+    :type token: oidc_provider.models.Token
+
+    :param request: the request initiating this ID token processing
+    :type request: django.http.HttpRequest
+
     :return: custom modified dictionary of values for `id_token`
-    :rtype dict
+    :rtype: dict
     """
     return id_token
+
+
+def default_introspection_processing_hook(introspection_response, client, id_token):
+    """
+    Hook to customise the returned data from the token introspection endpoint
+    :param introspection_response:
+    :param client:
+    :param id_token:
+    :return:
+    """
+    return introspection_response
 
 
 def get_browser_state_or_default(request):
@@ -130,3 +148,15 @@ def get_browser_state_or_default(request):
     key = (request.session.session_key or
            settings.get('OIDC_UNAUTHENTICATED_SESSION_MANAGEMENT_KEY'))
     return sha224(key.encode('utf-8')).hexdigest()
+
+
+def run_processing_hook(subject, hook_settings_name, **kwargs):
+    processing_hooks = settings.get(hook_settings_name)
+    if not isinstance(processing_hooks, (list, tuple)):
+        processing_hooks = [processing_hooks]
+
+    for hook_string in processing_hooks:
+        hook = settings.import_from_str(hook_string)
+        subject = hook(subject, **kwargs)
+
+    return subject

@@ -1,5 +1,9 @@
 import random
 import string
+
+import django
+from django.contrib.auth.backends import ModelBackend
+
 try:
     from urlparse import parse_qs, urlsplit
 except ImportError:
@@ -109,7 +113,7 @@ def fake_sub_generator(user):
     return user.email
 
 
-def fake_idtoken_processing_hook(id_token, user):
+def fake_idtoken_processing_hook(id_token, user, **kwargs):
     """
     Fake function for inserting some keys into token. Testing OIDC_IDTOKEN_PROCESSING_HOOK.
     """
@@ -118,7 +122,7 @@ def fake_idtoken_processing_hook(id_token, user):
     return id_token
 
 
-def fake_idtoken_processing_hook2(id_token, user):
+def fake_idtoken_processing_hook2(id_token, user, **kwargs):
     """
     Fake function for inserting some keys into token.
     Testing OIDC_IDTOKEN_PROCESSING_HOOK - tuple or list as param
@@ -126,3 +130,34 @@ def fake_idtoken_processing_hook2(id_token, user):
     id_token['test_idtoken_processing_hook2'] = FAKE_RANDOM_STRING
     id_token['test_idtoken_processing_hook_user_email2'] = user.email
     return id_token
+
+
+def fake_idtoken_processing_hook3(id_token, user, token, **kwargs):
+    """
+    Fake function for checking scope is passed to processing hook.
+    """
+    id_token['scope_of_token_passed_to_processing_hook'] = token.scope
+    return id_token
+
+
+def fake_idtoken_processing_hook4(id_token, user, **kwargs):
+    """
+    Fake function for checking kwargs passed to processing hook.
+    """
+    id_token['kwargs_passed_to_processing_hook'] = {
+        key: repr(value)
+        for (key, value) in kwargs.items()
+    }
+    return id_token
+
+
+def fake_introspection_processing_hook(response_dict, client, id_token):
+    response_dict['test_introspection_processing_hook'] = FAKE_RANDOM_STRING
+    return response_dict
+
+
+class TestAuthBackend:
+    def authenticate(self, *args, **kwargs):
+        if django.VERSION[0] >= 2 or (django.VERSION[0] == 1 and django.VERSION[1] >= 11):
+            assert len(args) > 0 and args[0]
+        return ModelBackend().authenticate(*args, **kwargs)

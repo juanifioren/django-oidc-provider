@@ -1,4 +1,4 @@
-# Django OIDC Provider
+# Django OpenID Connect Provider
 
 [![Python Versions](https://img.shields.io/pypi/pyversions/django-oidc-provider.svg)](https://pypi.python.org/pypi/django-oidc-provider)
 [![PyPI Versions](https://img.shields.io/pypi/v/django-oidc-provider.svg)](https://pypi.python.org/pypi/django-oidc-provider)
@@ -11,7 +11,7 @@ OpenID Connect is a simple identity layer on top of the OAuth 2.0 protocol, whic
 
 ## About the package
 
-`django-oidc-provider` can help you providing out of the box all the endpoints, data and logic needed to add OpenID Connect capabilities to your Django projects.
+`django-oidc-provider` can help you providing out of the box all the endpoints, data and logic needed to add OpenID Connect (and OAuth2) capabilities to your Django projects.
 
 Support for Python 3 and 2. Also latest versions of django.
 

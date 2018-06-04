@@ -20,6 +20,7 @@ setup(
     author='Juan Ignacio Fiorentino',
     author_email='juanifioren@gmail.com',
     classifiers=[
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
         'Framework :: Django',
         'Intended Audience :: Developers',
