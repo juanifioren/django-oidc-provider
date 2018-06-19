@@ -19,7 +19,7 @@ try:
 except ImportError:
     from django.core.urlresolvers import reverse
 from django.contrib.auth import logout as django_user_logout
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
@@ -43,6 +43,7 @@ from oidc_provider.lib.utils.common import (
     redirect,
     get_site_url,
     get_issuer,
+    cors_allow_any,
 )
 from oidc_provider.lib.utils.oauth2 import protected_resource_view
 from oidc_provider.lib.utils.token import client_id_from_id_token
@@ -231,7 +232,7 @@ class TokenView(View):
             return TokenEndpoint.response(error.create_dict(), status=403)
 
 
-@require_http_methods(['GET', 'POST'])
+@require_http_methods(['GET', 'POST', 'OPTIONS'])
 @protected_resource_view(['openid'])
 def userinfo(request, *args, **kwargs):
     """
@@ -240,6 +241,16 @@ def userinfo(request, *args, **kwargs):
 
     Return a dictionary.
     """
+
+    def set_headers(response):
+        response['Cache-Control'] = 'no-store'
+        response['Pragma'] = 'no-cache'
+        cors_allow_any(request, response)
+        return response
+
+    if request.method == 'OPTIONS':
+        return set_headers(HttpResponse())
+
     token = kwargs['token']
 
     dic = {
@@ -253,12 +264,10 @@ def userinfo(request, *args, **kwargs):
         extra_claims = settings.get('OIDC_EXTRA_SCOPE_CLAIMS', import_str=True)(token)
         dic.update(extra_claims.create_response_dic())
 
-    response = JsonResponse(dic, status=200)
-    response['Access-Control-Allow-Origin'] = '*'
-    response['Cache-Control'] = 'no-store'
-    response['Pragma'] = 'no-cache'
+    success_response = JsonResponse(dic, status=200)
+    set_headers(success_response)
 
-    return response
+    return success_response
 
 
 class ProviderInfoView(View):
