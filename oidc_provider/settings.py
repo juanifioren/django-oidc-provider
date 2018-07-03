@@ -203,7 +203,8 @@ def get(name, import_str=False):
         default_value.update(value)
         value = default_value
     else:
-        value = value or default_value
+        if value is None:
+            value = default_value
         value = import_from_str(value) if import_str else value
 
     return value
