@@ -46,6 +46,20 @@ class IntrospectionTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(force_text(response.content), {'active': False})
 
+    def _assert_active(self, response, **kwargs):
+        self.assertEqual(response.status_code, 200)
+        expected_content = {
+            'active': True,
+            'aud': self.resource.client_id,
+            'client_id': self.client.client_id,
+            'sub': str(self.user.pk),
+            'iat': int(self.now),
+            'exp': int(self.now + 600),
+            'iss': 'http://localhost:8000/openid',
+        }
+        expected_content.update(kwargs)
+        self.assertJSONEqual(force_text(response.content), expected_content)
+
     def _make_request(self, **kwargs):
         url = reverse('oidc_provider:token-introspection')
         data = {
@@ -89,28 +103,16 @@ class IntrospectionTestCase(TestCase):
 
     def test_valid_request_returns_default_properties(self):
         response = self._make_request()
-        self.assertEqual(response.status_code, 200)
-        self.assertJSONEqual(force_text(response.content), {
-            'active': True,
-            'aud': self.resource.client_id,
-            'client_id': self.client.client_id,
-            'sub': str(self.user.pk),
-            'iat': int(self.now),
-            'exp': int(self.now + 600),
-            'iss': 'http://localhost:8000/openid',
-        })
+        self._assert_active(response)
 
     @override_settings(OIDC_INTROSPECTION_PROCESSING_HOOK='oidc_provider.tests.app.utils.fake_introspection_processing_hook')  # NOQA
     def test_custom_introspection_hook_called_on_valid_request(self):
         response = self._make_request()
-        self.assertEqual(response.status_code, 200)
-        self.assertJSONEqual(force_text(response.content), {
-            'active': True,
-            'aud': self.resource.client_id,
-            'client_id': self.client.client_id,
-            'sub': str(self.user.pk),
-            'iat': int(self.now),
-            'exp': int(self.now + 600),
-            'iss': 'http://localhost:8000/openid',
-            'test_introspection_processing_hook': FAKE_RANDOM_STRING
-        })
+        self._assert_active(response, test_introspection_processing_hook=FAKE_RANDOM_STRING)
+
+    @override_settings(OIDC_INTROSPECTION_VALIDATE_AUDIENCE_SCOPE=False)
+    def test_disable_audience_validation(self):
+        self.resource.scope = ['token_introspection']
+        self.resource.save()
+        response = self._make_request()
+        self._assert_active(response)
