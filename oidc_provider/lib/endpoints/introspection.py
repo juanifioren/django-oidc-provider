@@ -18,6 +18,7 @@ class TokenIntrospectionEndpoint(object):
     def __init__(self, request):
         self.request = request
         self.params = {}
+        self.token = None
         self.id_token = None
         self.client = None
         self._extract_params()
@@ -37,19 +38,19 @@ class TokenIntrospectionEndpoint(object):
             logger.debug('[Introspection] No token provided')
             raise TokenIntrospectionError()
         try:
-            token = Token.objects.get(access_token=self.params['token'])
+            self.token = Token.objects.get(access_token=self.params['token'])
         except Token.DoesNotExist:
             logger.debug('[Introspection] Token does not exist: %s', self.params['token'])
             raise TokenIntrospectionError()
-        if token.has_expired():
+        if self.token.has_expired():
             logger.debug('[Introspection] Token is not valid: %s', self.params['token'])
             raise TokenIntrospectionError()
-        if not token.id_token:
+        if not self.token.id_token:
             logger.debug('[Introspection] Token not an authentication token: %s',
                          self.params['token'])
             raise TokenIntrospectionError()
 
-        self.id_token = token.id_token
+        self.id_token = self.token.id_token
         audience = self.id_token.get('aud')
         if not audience:
             logger.debug('[Introspection] No audience found for token: %s', self.params['token'])
@@ -74,10 +75,9 @@ class TokenIntrospectionEndpoint(object):
             raise TokenIntrospectionError()
 
     def create_response_dic(self):
-        response_dic = dict((k, self.id_token[k]) for k in ('sub', 'exp', 'iat', 'iss'))
+        response_dic = dict((k, self.id_token[k]) for k in ('aud', 'sub', 'exp', 'iat', 'iss'))
         response_dic['active'] = True
-        response_dic['client_id'] = self.id_token.get('aud')
-        response_dic['aud'] = self.client.client_id
+        response_dic['client_id'] = self.token.client.client_id
 
         response_dic = run_processing_hook(response_dic,
                                            'OIDC_INTROSPECTION_PROCESSING_HOOK',
