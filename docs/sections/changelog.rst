@@ -14,6 +14,7 @@ Unreleased
 * Changed: pass token and request to OIDC_IDTOKEN_PROCESSING_HOOK.
 * Fixed: CORS OPTIONS request blocked on userinfo request.
 * Fixed: fix settings to support falsy valued overrides.
+* Fixed: token introspection "aud" and "client_id" response.
 
 0.6.0
 =====
