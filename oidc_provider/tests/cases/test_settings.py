@@ -23,3 +23,7 @@ class SettingsTest(TestCase):
         key1 = settings.get('OIDC_UNAUTHENTICATED_SESSION_MANAGEMENT_KEY')
         key2 = settings.get('OIDC_UNAUTHENTICATED_SESSION_MANAGEMENT_KEY')
         self.assertEqual(key1, key2)
+
+    @override_settings(OIDC_INTROSPECTION_VALIDATE_AUDIENCE_SCOPE=False)
+    def test_can_override_with_false_value(self):
+        self.assertFalse(settings.get('OIDC_INTROSPECTION_VALIDATE_AUDIENCE_SCOPE'))
