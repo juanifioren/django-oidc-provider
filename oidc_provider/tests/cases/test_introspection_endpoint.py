@@ -30,16 +30,17 @@ class IntrospectionTestCase(TestCase):
         call_command('creatersakey')
         self.factory = RequestFactory()
         self.user = create_fake_user()
+        self.aud = 'testaudience'
         self.client = create_fake_client(response_type='id_token token')
         self.resource = create_fake_client(response_type='id_token token')
-        self.resource.scope = ['token_introspection', self.client.client_id]
+        self.resource.scope = ['token_introspection', self.aud]
         self.resource.save()
         self.token = create_fake_token(self.user, self.client.scope, self.client)
         self.token.access_token = str(random.randint(1, 999999)).zfill(6)
         self.now = time.time()
         with patch('oidc_provider.lib.utils.token.time.time') as time_func:
             time_func.return_value = self.now
-            self.token.id_token = create_id_token(self.token, self.user, self.client.client_id)
+            self.token.id_token = create_id_token(self.token, self.user, self.aud)
         self.token.save()
 
     def _assert_inactive(self, response):
@@ -50,7 +51,7 @@ class IntrospectionTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         expected_content = {
             'active': True,
-            'aud': self.resource.client_id,
+            'aud': self.aud,
             'client_id': self.client.client_id,
             'sub': str(self.user.pk),
             'iat': int(self.now),
