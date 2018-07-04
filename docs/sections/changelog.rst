@@ -13,6 +13,7 @@ Unreleased
 * Changed: dropping support for Django versions before 1.8.
 * Changed: pass token and request to OIDC_IDTOKEN_PROCESSING_HOOK.
 * Fixed: CORS OPTIONS request blocked on userinfo request.
+* Fixed: fix settings to support falsy valued overrides.
 
 0.6.0
 =====
