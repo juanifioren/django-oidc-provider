@@ -117,3 +117,16 @@ class IntrospectionTestCase(TestCase):
         self.resource.save()
         response = self._make_request()
         self._assert_active(response)
+
+    @override_settings(OIDC_INTROSPECTION_VALIDATE_AUDIENCE_SCOPE=False)
+    def test_valid_client_grant_token_without_aud_validation(self):
+        self.token.id_token = None  # client_credentials tokens do not have id_token
+        self.token.save()
+        self.resource.scope = ['token_introspection']
+        self.resource.save()
+        response = self._make_request()
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(force_text(response.content), {
+            'active': True,
+            'client_id': self.client.client_id,
+        })
