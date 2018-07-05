@@ -13,8 +13,9 @@ Unreleased
 * Changed: dropping support for Django versions before 1.8.
 * Changed: pass token and request to OIDC_IDTOKEN_PROCESSING_HOOK.
 * Fixed: CORS OPTIONS request blocked on userinfo request.
-* Fixed: fix settings to support falsy valued overrides.
+* Fixed: settings to support falsy valued overrides.
 * Fixed: token introspection "aud" and "client_id" response.
+* Fixed: Token Model str() crashes when using client credentials grant.
 
 0.6.0
 =====
