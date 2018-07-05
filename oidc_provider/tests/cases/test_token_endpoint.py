@@ -751,8 +751,8 @@ class TokenTestCase(TestCase):
         id_token = self._request_id_token_with_scope(['openid', 'profile'])
         kwargs_passed = id_token.get('kwargs_passed_to_processing_hook')
         assert kwargs_passed
-        self.assertEqual(kwargs_passed.get('token'),
-                         '<Token: Some Client - johndoe@example.com>')
+        self.assertTrue(kwargs_passed.get('token').startswith(
+                        '<Token: Some Client -'))
         self.assertEqual(kwargs_passed.get('request'),
                          "<WSGIRequest: POST '/openid/token'>")
         self.assertEqual(set(kwargs_passed.keys()), {'token', 'request'})
@@ -835,3 +835,18 @@ class TokenTestCase(TestCase):
         # It should fail when client does not have any scope added.
         self.assertEqual(400, response.status_code)
         self.assertEqual('invalid_scope', response_dict['error'])
+
+    def test_printing_token_used_by_client_credentials_grant_type(self):
+        # Add scope for this client.
+        self.client.scope = ['something']
+        self.client.save()
+
+        post_data = {
+            'client_id': self.client.client_id,
+            'client_secret': self.client.client_secret,
+            'grant_type': 'client_credentials',
+        }
+        response = self._post_request(post_data)
+        response_dict = json.loads(response.content.decode('utf-8'))
+        token = Token.objects.get(access_token=response_dict['access_token'])
+        self.assertTrue(str(token))
