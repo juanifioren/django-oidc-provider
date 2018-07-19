@@ -45,16 +45,6 @@ class TokenIntrospectionEndpoint(object):
         if self.token.has_expired():
             logger.debug('[Introspection] Token is not valid: %s', self.params['token'])
             raise TokenIntrospectionError()
-        if not self.token.id_token:
-            logger.debug('[Introspection] Token not an authentication token: %s',
-                         self.params['token'])
-            raise TokenIntrospectionError()
-
-        self.id_token = self.token.id_token
-        audience = self.id_token.get('aud')
-        if not audience:
-            logger.debug('[Introspection] No audience found for token: %s', self.params['token'])
-            raise TokenIntrospectionError()
 
         try:
             self.client = Client.objects.get(
@@ -68,14 +58,31 @@ class TokenIntrospectionEndpoint(object):
             logger.debug('[Introspection] Client %s does not have introspection scope',
                          self.params['client_id'])
             raise TokenIntrospectionError()
-        if settings.get('OIDC_INTROSPECTION_VALIDATE_AUDIENCE_SCOPE') \
-                and audience not in self.client.scope:
-            logger.debug('[Introspection] Client %s does not audience scope %s',
-                         self.params['client_id'], audience)
-            raise TokenIntrospectionError()
+
+        self.id_token = self.token.id_token
+
+        if settings.get('OIDC_INTROSPECTION_VALIDATE_AUDIENCE_SCOPE'):
+            if not self.token.id_token:
+                logger.debug('[Introspection] Token not an authentication token: %s',
+                             self.params['token'])
+                raise TokenIntrospectionError()
+
+            audience = self.token.id_token.get('aud')
+            if not audience:
+                logger.debug('[Introspection] No audience found for token: %s',
+                             self.params['token'])
+                raise TokenIntrospectionError()
+
+            if audience not in self.client.scope:
+                logger.debug('[Introspection] Client %s does not audience scope %s',
+                             self.params['client_id'], audience)
+                raise TokenIntrospectionError()
 
     def create_response_dic(self):
-        response_dic = dict((k, self.id_token[k]) for k in ('aud', 'sub', 'exp', 'iat', 'iss'))
+        response_dic = {}
+        if self.id_token:
+            for k in ('aud', 'sub', 'exp', 'iat', 'iss'):
+                response_dic[k] = self.id_token[k]
         response_dic['active'] = True
         response_dic['client_id'] = self.token.client.client_id
 
