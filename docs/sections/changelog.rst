@@ -8,6 +8,8 @@ All notable changes to this project will be documented in this file.
 Unreleased
 ==========
 
+* Added: support introspection on client credentials tokens.
+
 0.6.1
 =====
 
