@@ -12,7 +12,7 @@ except ImportError:
 from Cryptodome.PublicKey import RSA
 from django.contrib.auth.views import (
     redirect_to_login,
-    logout,
+    LogoutView,
 )
 try:
     from django.urls import reverse
@@ -326,8 +326,8 @@ class JwksView(View):
         return response
 
 
-class EndSessionView(View):
-    def get(self, request, *args, **kwargs):
+class EndSessionView(LogoutView):
+    def dispatch(self, request, *args, **kwargs):
         id_token_hint = request.GET.get('id_token_hint', '')
         post_logout_redirect_uri = request.GET.get('post_logout_redirect_uri', '')
         state = request.GET.get('state', '')
@@ -361,7 +361,8 @@ class EndSessionView(View):
             next_page=next_page
         )
 
-        return logout(request, next_page=next_page)
+        self.next_page = next_page
+        return super(EndSessionView, self).dispatch(request, *args, **kwargs)
 
 
 class CheckSessionIframeView(View):
