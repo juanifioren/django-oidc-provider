@@ -1,22 +1,22 @@
 language: python
-python:
-  - "2.7"
-  - "3.4"
-  - "3.5"
-  - "3.6"
-env:
-  - DJANGO=1.8
-  - DJANGO=1.9
-  - DJANGO=1.10
-  - DJANGO=1.11
-  - DJANGO=2.0
-matrix:
-  exclude:
-    - python: "2.7"
-      env: DJANGO=2.0
+
 install:
   - pip install tox coveralls
+matrix:
+  include:
+    - python: 2.7
+      env:
+          - ENV=docs
+    - python: 2.7
+      env:
+          - ENV=py27-django111
+    - python: 3.5
+      env:
+          - ENV=py35-django111,py35-django20,py35-django21
+    - python: 3.6
+      env:
+          - ENV=py36-django111,py36-django20,py36-django21
 script:
-  - tox -e py${TRAVIS_PYTHON_VERSION//[.]/}-django${DJANGO//[.]/}
+  - tox -e $ENV
 after_success:
   - coveralls

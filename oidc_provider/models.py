@@ -185,7 +185,7 @@ class Token(BaseCodeTokenModel):
 
     @property
     def id_token(self):
-        return json.loads(self._id_token)
+        return json.loads(self._id_token) if self._id_token else None
 
     @id_token.setter
     def id_token(self, value):

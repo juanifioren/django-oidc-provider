@@ -59,3 +59,5 @@ A successful access token response will like this::
         "expires_in"    : 3600,
         "scope"         : "read_books add_books"
     }
+
+Token introspection can be used to validate access tokens requested with client credentials if the ``OIDC_INTROSPECTION_VALIDATE_AUDIENCE_SCOPE`` setting is ``False``.

@@ -26,6 +26,7 @@ from jwkest.jws import JWS
 from jwkest.jwt import JWT
 from mock import patch
 
+from oidc_provider.lib.endpoints.introspection import INTROSPECTION_SCOPE
 from oidc_provider.lib.utils.oauth2 import protected_resource_view
 from oidc_provider.lib.utils.token import create_code
 from oidc_provider.models import Token
@@ -55,6 +56,7 @@ class TokenTestCase(TestCase):
         call_command('creatersakey')
         self.factory = RequestFactory()
         self.user = create_fake_user()
+        self.request_client = self.client
         self.client = create_fake_client(response_type='code')
 
     def _password_grant_post_data(self, scope=None):
@@ -787,8 +789,9 @@ class TokenTestCase(TestCase):
 
         json.loads(response.content.decode('utf-8'))
 
+    @override_settings(OIDC_INTROSPECTION_VALIDATE_AUDIENCE_SCOPE=False)
     def test_client_credentials_grant_type(self):
-        fake_scopes_list = ['scopeone', 'scopetwo']
+        fake_scopes_list = ['scopeone', 'scopetwo', INTROSPECTION_SCOPE]
 
         # Add scope for this client.
         self.client.scope = fake_scopes_list
@@ -807,6 +810,8 @@ class TokenTestCase(TestCase):
         self.assertTrue('access_token' in response_dict)
         self.assertEqual(' '.join(fake_scopes_list), response_dict['scope'])
 
+        access_token = response_dict['access_token']
+
         # Create a protected resource and test the access_token.
 
         @require_http_methods(['GET'])
@@ -816,7 +821,7 @@ class TokenTestCase(TestCase):
 
         # Deploy view on some url. So, base url could be anything.
         request = self.factory.get(
-            '/api/protected/?access_token={0}'.format(response_dict['access_token']))
+            '/api/protected/?access_token={0}'.format(access_token))
         response = protected_api(request)
         response_dict = json.loads(response.content.decode('utf-8'))
 
@@ -824,6 +829,17 @@ class TokenTestCase(TestCase):
         self.assertTrue('protected' in response_dict)
 
         # Protected resource test ends here.
+
+        # Verify access_token can be validated with token introspection
+
+        response = self.request_client.post(
+            reverse('oidc_provider:token-introspection'), data={'token': access_token},
+            **self._password_grant_auth_header())
+        self.assertEqual(response.status_code, 200)
+        response_dict = json.loads(response.content.decode('utf-8'))
+        self.assertTrue(response_dict.get('active'))
+
+        # End token introspection test
 
         # Clean scopes for this client.
         self.client.scope = ''
