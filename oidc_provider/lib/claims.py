@@ -68,7 +68,7 @@ class ScopeClaims(object):
         """
         scopes = []
 
-        for name in self.__class__.__dict__:
+        for name in dir(self.__class__):
             if name.startswith('scope_'):
                 scope = name.split('scope_')[1]
                 scopes.append(scope)
@@ -98,7 +98,7 @@ class ScopeClaims(object):
             scopes = []
         scopes_info = []
 
-        for name in cls.__dict__:
+        for name in dir(cls):
             if name.startswith('info_'):
                 scope_name = name.split('info_')[1]
                 if scope_name in scopes:
