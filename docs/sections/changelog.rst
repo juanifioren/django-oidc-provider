@@ -9,6 +9,8 @@ Unreleased
 ==========
 
 * Added: support introspection on client credentials tokens.
+* Fixed: ScopeClaims class.
+* Fixed: code is not zip safe.
 
 0.6.1
 =====
