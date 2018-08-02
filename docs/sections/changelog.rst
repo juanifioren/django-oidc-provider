@@ -9,6 +9,7 @@ Unreleased
 ==========
 
 * Added: support introspection on client credentials tokens.
+* Changed: accept lowercase "bearer" in Authorization header.
 * Fixed: ScopeClaims class.
 * Fixed: code is not zip safe.
 

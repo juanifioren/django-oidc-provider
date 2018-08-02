@@ -21,7 +21,7 @@ def extract_access_token(request):
     """
     auth_header = request.META.get('HTTP_AUTHORIZATION', '')
 
-    if re.compile('^Bearer\s{1}.+$').match(auth_header):
+    if re.compile('^[Bb]earer\s{1}.+$').match(auth_header):
         access_token = auth_header.split()[1]
     else:
         access_token = request.GET.get('access_token', '')
