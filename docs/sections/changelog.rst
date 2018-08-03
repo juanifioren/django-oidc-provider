@@ -8,6 +8,11 @@ All notable changes to this project will be documented in this file.
 Unreleased
 ==========
 
+0.6.2
+=====
+
+*2018-08-03*
+
 * Added: support introspection on client credentials tokens.
 * Changed: accept lowercase "bearer" in Authorization header.
 * Fixed: ScopeClaims class.
