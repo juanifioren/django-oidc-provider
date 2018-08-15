@@ -49,9 +49,8 @@ from oidc_provider.lib.utils.oauth2 import protected_resource_view
 from oidc_provider.lib.utils.token import client_id_from_id_token
 from oidc_provider.models import (
     Client,
-    RESPONSE_TYPE_CHOICES,
     RSAKey,
-)
+    ResponseType)
 from oidc_provider import settings
 from oidc_provider import signals
 
@@ -105,7 +104,7 @@ class AuthorizeView(View):
                 implicit_flow_resp_types = {'id_token', 'id_token token'}
                 allow_skipping_consent = (
                     authorize.client.client_type != 'public' or
-                    authorize.client.response_type in implicit_flow_resp_types)
+                    authorize.params['response_type'] in implicit_flow_resp_types)
 
                 if not authorize.client.require_consent and (
                         allow_skipping_consent and
@@ -283,7 +282,7 @@ class ProviderInfoView(View):
         dic['end_session_endpoint'] = site_url + reverse('oidc_provider:end-session')
         dic['introspection_endpoint'] = site_url + reverse('oidc_provider:token-introspection')
 
-        types_supported = [x[0] for x in RESPONSE_TYPE_CHOICES]
+        types_supported = [response_type.value for response_type in ResponseType.objects.all()]
         dic['response_types_supported'] = types_supported
 
         dic['jwks_uri'] = site_url + reverse('oidc_provider:jwks')

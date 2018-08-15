@@ -52,7 +52,7 @@ class ClientAdmin(admin.ModelAdmin):
     fieldsets = [
         [_(u''), {
             'fields': (
-                'name', 'owner', 'client_type', 'response_type', '_redirect_uris', 'jwt_alg',
+                'name', 'owner', 'client_type', 'response_types', '_redirect_uris', 'jwt_alg',
                 'require_consent', 'reuse_consent'),
         }],
         [_(u'Credentials'), {
@@ -66,7 +66,7 @@ class ClientAdmin(admin.ModelAdmin):
         }],
     ]
     form = ClientForm
-    list_display = ['name', 'client_id', 'response_type', 'date_created']
+    list_display = ['name', 'client_id', 'response_type_descriptions', 'date_created']
     readonly_fields = ['date_created']
     search_fields = ['name']
     raw_id_fields = ['owner']
