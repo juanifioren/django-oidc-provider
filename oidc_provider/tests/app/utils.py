@@ -64,6 +64,7 @@ def create_fake_client(response_type, is_public=False, require_consent=True):
 
     client.save()
 
+    # check if response_type is a string in a python 2 and 3 compatible way
     if isinstance(response_type, ("".__class__, u"".__class__)):
         response_type = (response_type,)
     for value in response_type:
