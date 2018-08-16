@@ -116,6 +116,7 @@ class Client(models.Model):
         return (response_type.value for response_type in self.response_types.all())
 
     def response_type_descriptions(self):
+        # return as a list, rather than a generator, so descriptions display correctly in admin
         return [response_type.description for response_type in self.response_types.all()]
 
     @property
