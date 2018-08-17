@@ -30,6 +30,20 @@ JWT_ALGS = [
 ]
 
 
+class ResponseType(models.Model):
+    value = models.CharField(
+        max_length=30,
+        choices=RESPONSE_TYPE_CHOICES,
+        unique=True,
+        verbose_name=_(u'Response Type Value'))
+    description = models.CharField(
+        max_length=50,
+    )
+
+    def __str__(self):
+        return u'{0}'.format(self.description)
+
+
 class Client(models.Model):
 
     name = models.CharField(max_length=100, default='', verbose_name=_(u'Name'))
@@ -45,8 +59,7 @@ class Client(models.Model):
                     u' of their credentials. <b>Public</b> clients are incapable.'))
     client_id = models.CharField(max_length=255, unique=True, verbose_name=_(u'Client ID'))
     client_secret = models.CharField(max_length=255, blank=True, verbose_name=_(u'Client SECRET'))
-    response_type = models.CharField(
-        max_length=30, choices=RESPONSE_TYPE_CHOICES, verbose_name=_(u'Response Type'))
+    response_types = models.ManyToManyField(ResponseType)
     jwt_alg = models.CharField(
         max_length=10,
         choices=JWT_ALGS,
@@ -98,6 +111,13 @@ class Client(models.Model):
 
     def __unicode__(self):
         return self.__str__()
+
+    def response_type_values(self):
+        return (response_type.value for response_type in self.response_types.all())
+
+    def response_type_descriptions(self):
+        # return as a list, rather than a generator, so descriptions display correctly in admin
+        return [response_type.description for response_type in self.response_types.all()]
 
     @property
     def redirect_uris(self):

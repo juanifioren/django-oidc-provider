@@ -19,8 +19,8 @@ Properties
 * ``client_type``: Values are ``confidential`` and ``public``.
 * ``client_id``: Client unique identifier.
 * ``client_secret``: Client secret for confidential applications.
-* ``response_type``: Values depends of wich flow you want use.
-* ``jwt_alg``: Clients can choose wich algorithm will be used to sign id_tokens. Values are ``HS256`` and ``RS256``.
+* ``response_types``: The flows and associated ```response_type``` values that can be used by the client.
+* ``jwt_alg``: Clients can choose which algorithm will be used to sign id_tokens. Values are ``HS256`` and ``RS256``.
 * ``date_created``: Date automatically added when created.
 * ``redirect_uris``: List of redirect URIs.
 * ``require_consent``: If checked, the Server will never ask for consent (only applies to confidential clients).
@@ -58,8 +58,9 @@ Programmatically
 
 You can create a Client programmatically with Django shell ``python manage.py shell``::
 
-    >>> from oidc_provider.models import Client
-    >>> c = Client(name='Some Client', client_id='123', client_secret='456', response_type='code', redirect_uris=['http://example.com/'])
+    >>> from oidc_provider.models import Client, ResponseType
+    >>> c = Client(name='Some Client', client_id='123', client_secret='456', redirect_uris=['http://example.com/'])
     >>> c.save()
+    >>> c.response_types.add(ResponseType.objects.get(value='code'))
 
 `Read more about client creation in the OAuth2 spec <http://tools.ietf.org/html/rfc6749#section-2>`_
