@@ -120,7 +120,7 @@ class StandardScopeClaims(ScopeClaims):
 
     info_profile = (
         _(u'Basic profile'),
-        _(u'Access to your basic information. Includes names, gender, birthdate'
+        _(u'Access to your basic information. Includes names, gender, birthdate '
           'and other information.'),
     )
 
