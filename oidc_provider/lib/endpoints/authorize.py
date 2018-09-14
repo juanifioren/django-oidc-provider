@@ -37,6 +37,7 @@ logger = logging.getLogger(__name__)
 
 class AuthorizeEndpoint(object):
     _allowed_prompt_params = {'none', 'login', 'consent', 'select_account'}
+    client_class = Client
 
     def __init__(self, request):
         self.request = request
@@ -86,7 +87,7 @@ class AuthorizeEndpoint(object):
     def validate_params(self):
         # Client validation.
         try:
-            self.client = Client.objects.get(client_id=self.params['client_id'])
+            self.client = self.client_class.objects.get(client_id=self.params['client_id'])
         except Client.DoesNotExist:
             logger.debug('[Authorize] Invalid client identifier: %s', self.params['client_id'])
             raise ClientIdError()

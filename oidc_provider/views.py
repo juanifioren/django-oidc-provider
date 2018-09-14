@@ -61,9 +61,10 @@ OIDC_TEMPLATES = settings.get('OIDC_TEMPLATES')
 
 
 class AuthorizeView(View):
-    def get(self, request, *args, **kwargs):
+    authorize_endpoint_class = AuthorizeEndpoint
 
-        authorize = AuthorizeEndpoint(request)
+    def get(self, request, *args, **kwargs):
+        authorize = self.authorize_endpoint_class(request)
 
         try:
             authorize.validate_params()
