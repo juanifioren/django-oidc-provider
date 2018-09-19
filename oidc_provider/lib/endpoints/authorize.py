@@ -76,6 +76,7 @@ class AuthorizeEndpoint(object):
         self.params['scope'] = query_dict.get('scope', '').split()
         self.params['state'] = query_dict.get('state', '')
         self.params['nonce'] = query_dict.get('nonce', '')
+        self.params['acr_values'] = query_dict.get('acr_values', '')
 
         self.params['prompt'] = self._allowed_prompt_params.intersection(
             set(query_dict.get('prompt', '').split()))
