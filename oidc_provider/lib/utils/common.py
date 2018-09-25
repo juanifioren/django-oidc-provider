@@ -142,6 +142,26 @@ def default_introspection_processing_hook(introspection_response, client, id_tok
     return introspection_response
 
 
+def default_acr_values(user):
+    """
+    Default function for obtaining the acr_values satisfied
+    in a particular authentication instance.
+    :param user:
+    :return:
+    """
+    return ''
+
+
+def default_amr_values(user):
+    """
+    Default function for obtaining the amr_values used
+    in a particular authentication instance.
+    :param user:
+    :return:
+    """
+    return []
+
+
 def get_browser_state_or_default(request):
     """
     Determine value to use as session state.
