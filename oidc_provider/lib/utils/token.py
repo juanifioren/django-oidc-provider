@@ -19,7 +19,8 @@ from oidc_provider.models import (
 from oidc_provider import settings
 
 
-def create_id_token(token, user, aud, nonce='', at_hash='', request=None, scope=None):
+def create_id_token(token, user, aud, nonce='', at_hash='', request=None,
+                    scope=None, acr='', amr=[]):
     """
     Creates the id_token dictionary.
     See: http://openid.net/specs/openid-connect-core-1_0.html#IDToken
@@ -52,6 +53,12 @@ def create_id_token(token, user, aud, nonce='', at_hash='', request=None, scope=
 
     if at_hash:
         dic['at_hash'] = at_hash
+
+    if acr:
+        dic['acr'] = acr
+
+    if amr:
+        dic['amr'] = amr
 
     # Inlude (or not) user standard claims in the id_token.
     if settings.get('OIDC_IDTOKEN_INCLUDE_CLAIMS'):

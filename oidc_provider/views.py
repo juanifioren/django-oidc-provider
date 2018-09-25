@@ -286,6 +286,9 @@ class ProviderInfoView(View):
         if settings.get('OIDC_SESSION_MANAGEMENT_ENABLE'):
             dic['check_session_iframe'] = site_url + reverse('oidc_provider:check-session-iframe')
 
+        if settings.get('OIDC_ACR_VALUES'):
+            dic['acr_values_supported'] = settings.get('OIDC_ACR_VALUES')
+
         response = JsonResponse(dic)
         response['Access-Control-Allow-Origin'] = '*'
 
