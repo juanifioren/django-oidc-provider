@@ -9,6 +9,7 @@ Unreleased
 ==========
 
 * Added: support multiple response types per client.
+* Fixed: OIDC_IDTOKEN_INCLUDE_CLAIMS used with custom claims setting.
 
 0.6.2
 =====
