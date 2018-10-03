@@ -468,6 +468,34 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         response = self._auth_request('get', data, is_user_authenticated=True)
         self.assertIn('consent_required', response['Location'])
 
+    def test_strip_prompt_login(self):
+        """
+        Test for helper method test_strip_prompt_login.
+        """
+        # Original paths
+        path0 = 'http://idp.com/?prompt=login'
+        path1 = 'http://idp.com/?prompt=consent login none'
+        path2 = ('http://idp.com/?response_type=code&client' +
+                 '_id=112233&prompt=consent login')
+        path3 = ('http://idp.com/?response_type=code&client' +
+                 '_id=112233&prompt=login none&redirect_uri' +
+                 '=http://localhost:8000')
+
+        self.assertNotIn('prompt', AuthorizeView.strip_prompt_login(path0))
+
+        self.assertIn('prompt', AuthorizeView.strip_prompt_login(path1))
+        self.assertIn('consent', AuthorizeView.strip_prompt_login(path1))
+        self.assertIn('none', AuthorizeView.strip_prompt_login(path1))
+        self.assertNotIn('login', AuthorizeView.strip_prompt_login(path1))
+
+        self.assertIn('prompt', AuthorizeView.strip_prompt_login(path2))
+        self.assertIn('consent', AuthorizeView.strip_prompt_login(path1))
+        self.assertNotIn('login', AuthorizeView.strip_prompt_login(path2))
+
+        self.assertIn('prompt', AuthorizeView.strip_prompt_login(path3))
+        self.assertIn('none', AuthorizeView.strip_prompt_login(path3))
+        self.assertNotIn('login', AuthorizeView.strip_prompt_login(path3))
+
 
 class AuthorizationImplicitFlowTestCase(TestCase, AuthorizeEndpointMixin):
     """
