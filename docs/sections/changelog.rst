@@ -10,6 +10,7 @@ Unreleased
 
 * Added: support multiple response types per client.
 * Fixed: OIDC_IDTOKEN_INCLUDE_CLAIMS used with custom claims setting.
+* Fixed: bug in prompt parameter (with space-separated values).
 
 0.6.2
 =====
