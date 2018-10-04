@@ -192,6 +192,12 @@ class Code(BaseCodeTokenModel):
     code_challenge = models.CharField(max_length=255, null=True, verbose_name=_(u'Code Challenge'))
     code_challenge_method = models.CharField(
         max_length=255, null=True, verbose_name=_(u'Code Challenge Method'))
+    acr = models.CharField(max_length=255,
+                           null=True,
+                           verbose_name=_(u'Authentication Context Reference'))
+    _amr = models.CharField(max_length=255,
+                            null=True,
+                            verbose_name=_(u'Authentication Method Reference'))
 
     class Meta:
         verbose_name = _(u'Authorization Code')
@@ -199,6 +205,14 @@ class Code(BaseCodeTokenModel):
 
     def __str__(self):
         return u'{0} - {1}'.format(self.client, self.code)
+
+    @property
+    def amr(self):
+        return self._amr.split() if self._amr else None
+
+    @amr.setter
+    def amr(self, value):
+        self._amr = value
 
 
 class Token(BaseCodeTokenModel):
