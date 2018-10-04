@@ -162,10 +162,8 @@ class TokenEndpoint(object):
                 at_hash=token.at_hash,
                 request=self.request,
                 scope=token.scope,
-                acr=settings.get('OIDC_OBTAIN_ACR_VALUES',
-                                 import_str=True)(self.code.user),
-                amr=settings.get('OIDC_OBTAIN_AMR_VALUES',
-                                 import_str=True)(self.code.user)
+                acr=self.code.acr,
+                amr=self.code.amr
             )
         else:
             id_token_dic = {}

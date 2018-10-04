@@ -131,7 +131,8 @@ def create_token(user, client, scope, id_token_dic=None):
 
 
 def create_code(user, client, scope, nonce, is_authentication,
-                code_challenge=None, code_challenge_method=None):
+                code_challenge=None, code_challenge_method=None,
+                acr=None, amr=None):
     """
     Create and populate a Code object.
     Return a Code object.
@@ -151,6 +152,9 @@ def create_code(user, client, scope, nonce, is_authentication,
     code.scope = scope
     code.nonce = nonce
     code.is_authentication = is_authentication
+
+    code.acr = acr
+    code.amr = amr
 
     return code
 

@@ -140,6 +140,11 @@ class AuthorizeEndpoint(object):
 
         try:
             if self.grant_type in ['authorization_code', 'hybrid']:
+                try:
+                    session = self.request.session
+                except AttributeError:
+                    session = {}
+
                 code = create_code(
                     user=self.request.user,
                     client=self.client,
@@ -147,7 +152,9 @@ class AuthorizeEndpoint(object):
                     nonce=self.params['nonce'],
                     is_authentication=self.is_authentication,
                     code_challenge=self.params['code_challenge'],
-                    code_challenge_method=self.params['code_challenge_method'])
+                    code_challenge_method=self.params['code_challenge_method'],
+                    acr=session['acr'] if 'acr' in session else '',
+                    amr=session['amr'] if 'amr' in session else '')
                 code.save()
 
             if self.grant_type == 'authorization_code':

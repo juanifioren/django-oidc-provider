@@ -175,23 +175,6 @@ class DefaultSettings(object):
         """
         return ''
 
-    @property
-    def OIDC_OBTAIN_ACR_VALUES(self):
-        """
-        OPTIONAL. A string with the location of your function.
-        Used to populate acr values associated with a particular
-        sign in instance.
-        """
-        return 'oidc_provider.lib.utils.common.default_acr_values'
-
-    @property
-    def OIDC_OBTAIN_AMR_VALUES(self):
-        """
-        OPTIONAL. A string with the location of your function.
-        Used to populate standard claims with your user information.
-        """
-        return 'oidc_provider.lib.utils.common.default_amr_values'
-
 
 default_settings = DefaultSettings()
 
