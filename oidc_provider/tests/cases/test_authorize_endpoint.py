@@ -31,6 +31,7 @@ from oidc_provider.tests.app.utils import (
     FAKE_CODE_CHALLENGE,
     is_code_valid,
 )
+from oidc_provider.lib.utils.authorize import strip_prompt_login
 from oidc_provider.views import AuthorizeView
 from oidc_provider.lib.endpoints.authorize import AuthorizeEndpoint
 
@@ -481,20 +482,20 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
                  '_id=112233&prompt=login none&redirect_uri' +
                  '=http://localhost:8000')
 
-        self.assertNotIn('prompt', AuthorizeView.strip_prompt_login(path0))
+        self.assertNotIn('prompt', strip_prompt_login(path0))
 
-        self.assertIn('prompt', AuthorizeView.strip_prompt_login(path1))
-        self.assertIn('consent', AuthorizeView.strip_prompt_login(path1))
-        self.assertIn('none', AuthorizeView.strip_prompt_login(path1))
-        self.assertNotIn('login', AuthorizeView.strip_prompt_login(path1))
+        self.assertIn('prompt', strip_prompt_login(path1))
+        self.assertIn('consent', strip_prompt_login(path1))
+        self.assertIn('none', strip_prompt_login(path1))
+        self.assertNotIn('login', strip_prompt_login(path1))
 
-        self.assertIn('prompt', AuthorizeView.strip_prompt_login(path2))
-        self.assertIn('consent', AuthorizeView.strip_prompt_login(path1))
-        self.assertNotIn('login', AuthorizeView.strip_prompt_login(path2))
+        self.assertIn('prompt', strip_prompt_login(path2))
+        self.assertIn('consent', strip_prompt_login(path1))
+        self.assertNotIn('login', strip_prompt_login(path2))
 
-        self.assertIn('prompt', AuthorizeView.strip_prompt_login(path3))
-        self.assertIn('none', AuthorizeView.strip_prompt_login(path3))
-        self.assertNotIn('login', AuthorizeView.strip_prompt_login(path3))
+        self.assertIn('prompt', strip_prompt_login(path3))
+        self.assertIn('none', strip_prompt_login(path3))
+        self.assertNotIn('login', strip_prompt_login(path3))
 
 
 class AuthorizationImplicitFlowTestCase(TestCase, AuthorizeEndpointMixin):
