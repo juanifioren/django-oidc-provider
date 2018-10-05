@@ -9,6 +9,7 @@ Unreleased
 ==========
 
 * Added: support multiple response types per client.
+* Changed: create RSA key command. Increment key size to 2048.
 * Fixed: OIDC_IDTOKEN_INCLUDE_CLAIMS used with custom claims setting.
 * Fixed: bug in prompt parameter (with space-separated values).
 
