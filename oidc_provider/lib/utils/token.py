@@ -55,11 +55,12 @@ def create_id_token(token, user, aud, nonce='', at_hash='', request=None, scope=
 
     # Inlude (or not) user standard claims in the id_token.
     if settings.get('OIDC_IDTOKEN_INCLUDE_CLAIMS'):
-        standard_claims = StandardScopeClaims(token)
-        dic.update(standard_claims.create_response_dic())
+        standard_claims = StandardScopeClaims(token).create_response_dic()
+        dic.update(standard_claims)
         if settings.get('OIDC_EXTRA_SCOPE_CLAIMS'):
             custom_claims = settings.get('OIDC_EXTRA_SCOPE_CLAIMS', import_str=True)(token)
-            dic.update(custom_claims.create_response_dic())
+            custom_claims = custom_claims.create_response_dic()
+            dic.update(custom_claims)
 
     dic = run_processing_hook(
         dic, 'OIDC_IDTOKEN_PROCESSING_HOOK',
