@@ -9,6 +9,8 @@ Unreleased
 ==========
 
 * Added: support multiple response types per client.
+* Added: make version available in code.
+* Added: token introspection docs.
 * Changed: drop support for Django versions lower than 1.11.
 * Changed: create RSA key command. Increment key size to 2048.
 * Fixed: OIDC_IDTOKEN_INCLUDE_CLAIMS used with custom claims setting.
