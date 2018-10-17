@@ -8,6 +8,11 @@ All notable changes to this project will be documented in this file.
 Unreleased
 ==========
 
+0.7.0
+=====
+
+*2018-10-17*
+
 * Added: support multiple response types per client.
 * Added: make version available in code.
 * Added: token introspection docs.
