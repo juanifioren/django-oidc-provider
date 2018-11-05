@@ -129,9 +129,10 @@ class AuthorizeEndpoint(object):
 
         # acr_values parameter validation
         if 'acr_values' in self.params and self.params['acr_values']:
-            if not (self.params['acr_values'] in settings.get('OIDC_ACR_VALUES')):
-                raise AuthorizeError(
-                    self.params['acr_values'], 'invalid_request', self.grant_type)
+            for acr in self.params['acr_values'].split():
+                if not (acr in settings.get('OIDC_ACR_VALUES')):
+                    raise AuthorizeError(
+                        self.params['redirect_uri'], 'invalid_request', self.grant_type)
 
     def create_response_uri(self):
         uri = urlsplit(self.params['redirect_uri'])
