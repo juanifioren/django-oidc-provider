@@ -57,6 +57,7 @@ class IntrospectionTestCase(TestCase):
             'iat': int(self.now),
             'exp': int(self.now + 600),
             'iss': 'http://localhost:8000/openid',
+            'scope': self.resource.scope
         }
         expected_content.update(kwargs)
         self.assertJSONEqual(force_text(response.content), expected_content)
@@ -129,4 +130,5 @@ class IntrospectionTestCase(TestCase):
         self.assertJSONEqual(force_text(response.content), {
             'active': True,
             'client_id': self.client.client_id,
+            'scope': ['token_introspection']
         })
