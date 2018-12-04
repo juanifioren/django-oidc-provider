@@ -168,6 +168,28 @@ class DefaultSettings(object):
             'error': 'oidc_provider/error.html'
         }
 
+    @property
+    def OIDC_INTROSPECT_PASSWORD(self):
+        """
+        OPTIONAL. The password used for authenticating against introspect endpoint
+        """
+        return None
+
+    @property
+    def OIDC_INTERSPECT_USERNAME(self):
+        """
+        OPTIONAL. The username used for authenticating against introspect endpoint
+        """
+        return None
+
+    @property
+    def OIDC_AUTHORIZED_PARTY_CHECK(self):
+        """
+        OPTIONAL. A boolean to set whether to validate AZP when multiple audiences
+        are present
+        """
+        return True
+
 
 default_settings = DefaultSettings()
 
