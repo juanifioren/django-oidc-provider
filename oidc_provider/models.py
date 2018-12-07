@@ -73,7 +73,8 @@ class AbstractClient(models.Model):
                     u' of their credentials. <b>Public</b> clients are incapable.'))
     client_id = models.CharField(max_length=255, unique=True, verbose_name=_(u'Client ID'))
     client_secret = models.CharField(max_length=255, blank=True, verbose_name=_(u'Client SECRET'))
-    response_types = models.ManyToManyField(ResponseType)
+    response_types = models.ManyToManyField(
+        ResponseType, related_name='%(app_label)s_%(class)s_set')
     jwt_alg = models.CharField(
         max_length=10,
         choices=JWT_ALGS,
