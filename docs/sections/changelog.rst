@@ -8,6 +8,9 @@ All notable changes to this project will be documented in this file.
 Unreleased
 ==========
 
+* Added: OIDC_CLIENT_MODEL setting to enable client model swapping.
+* Fixed: example in docs for translatable scopes (ugettext).
+
 0.7.0
 =====
 
