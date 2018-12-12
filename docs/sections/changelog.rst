@@ -9,6 +9,7 @@ Unreleased
 ==========
 
 * Added: OIDC_CLIENT_MODEL setting to enable client model swapping.
+* Fixed: example project on Django 2.1.
 * Fixed: example in docs for translatable scopes (ugettext).
 
 0.7.0
