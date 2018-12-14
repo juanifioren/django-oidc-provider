@@ -171,7 +171,7 @@ class AuthorizeView(View):
             return redirect(uri)
 
     def post(self, request, *args, **kwargs):
-        authorize = AuthorizeEndpoint(request)
+        authorize = self.authorize_endpoint_class(request)
 
         try:
             authorize.validate_params()
@@ -205,20 +205,22 @@ class AuthorizeView(View):
 
 
 class TokenView(View):
+    token_endpoint_class = TokenEndpoint
+
     def post(self, request, *args, **kwargs):
-        token = TokenEndpoint(request)
+        token = self.token_endpoint_class(request)
 
         try:
             token.validate_params()
 
             dic = token.create_response_dic()
 
-            return TokenEndpoint.response(dic)
+            return self.token_endpoint_class.response(dic)
 
         except TokenError as error:
-            return TokenEndpoint.response(error.create_dict(), status=400)
+            return self.token_endpoint_class.response(error.create_dict(), status=400)
         except UserAuthError as error:
-            return TokenEndpoint.response(error.create_dict(), status=403)
+            return self.token_endpoint_class.response(error.create_dict(), status=403)
 
 
 @require_http_methods(['GET', 'POST', 'OPTIONS'])
@@ -364,16 +366,18 @@ class CheckSessionIframeView(View):
 
 
 class TokenIntrospectionView(View):
+    token_instrospection_endpoint_class = TokenIntrospectionEndpoint
+
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         return super(TokenIntrospectionView, self).dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        introspection = TokenIntrospectionEndpoint(request)
+        introspection = self.token_instrospection_endpoint_class(request)
 
         try:
             introspection.validate_params()
             dic = introspection.create_response_dic()
-            return TokenIntrospectionEndpoint.response(dic)
+            return self.token_instrospection_endpoint_class.response(dic)
         except TokenIntrospectionError:
-            return TokenIntrospectionEndpoint.response({'active': False})
+            return self.token_instrospection_endpoint_class.response({'active': False})
