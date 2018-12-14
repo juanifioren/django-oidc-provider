@@ -243,3 +243,35 @@ Default is::
 See the :ref:`templates` section.
 
 The templates that are not specified here will use the default ones.
+
+OIDC_CREATE_CODE (Experimental)
+===============================
+
+OPTIONAL. ``str``. A string with the location of your function.
+Allows overriding creation of the `Code` model instance. See the default implementation
+for further information.
+Default is::
+
+    'oidc_provider.lib.utils.token.default_create_code'
+
+
+OIDC_CREATE_TOKEN (Experimental)
+================================
+
+OPTIONAL. ``str``. A string with the location of your function.
+Allows overriding creation of the `Token` model instance. See the default implementation
+for further information.
+Default is::
+
+    'oidc_provider.lib.utils.token.default_create_token'
+
+
+OIDC_UPDATE_OR_CREATE_USER_CONSENT (Experimental)
+=================================================
+
+OPTIONAL. ``str``. A string with the location of your function.
+Allows overriding creation of the `UserConsent` model instance. See the default implementation
+for further information.
+Default is::
+
+    'oidc_provider.lib.utils.authorize.default_update_or_create_user_consent'

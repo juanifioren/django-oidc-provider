@@ -44,7 +44,8 @@ class UserInfoTestCase(TestCase):
         token = create_token(
             user=self.user,
             client=self.client,
-            scope=scope)
+            scope=scope,
+            request=None)
 
         id_token_dic = create_id_token(
             token=token,

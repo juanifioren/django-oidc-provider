@@ -45,7 +45,7 @@ class EndSessionTestCase(TestCase):
             response, settings.get('OIDC_LOGIN_URL'),
             fetch_redirect_response=False)
 
-        token = create_token(self.user, self.oidc_client, [])
+        token = create_token(self.user, self.oidc_client, [], request=None)
         id_token_dic = create_id_token(
             token=token, user=self.user, aud=self.oidc_client.client_id)
         id_token = encode_id_token(id_token_dic, self.oidc_client)
@@ -61,7 +61,7 @@ class EndSessionTestCase(TestCase):
         query_params = {
             'post_logout_redirect_uri': self.LOGOUT_URL,
         }
-        token = create_token(self.user, self.oidc_client, [])
+        token = create_token(self.user, self.oidc_client, [], request=None)
         id_token_dic = create_id_token(
             token=token, user=self.user, aud=self.oidc_client.client_id)
         id_token_dic['aud'] = [id_token_dic['aud']]

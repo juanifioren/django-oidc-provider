@@ -176,6 +176,27 @@ class DefaultSettings(object):
             'error': 'oidc_provider/error.html'
         }
 
+    @property
+    def OIDC_CREATE_CODE(self):
+        """
+        OPTIONAL. A string with the location of your function to create a new Code model instance.
+        """
+        return 'oidc_provider.lib.utils.token.default_create_code'
+
+    @property
+    def OIDC_CREATE_TOKEN(self):
+        """
+        OPTIONAL. A string with the location of your function to create a new Token model instance.
+        """
+        return 'oidc_provider.lib.utils.token.default_create_token'
+
+    @property
+    def OIDC_UPDATE_OR_CREATE_USER_CONSENT(self):
+        """
+        OPTIONAL. A string with the location of your function to create a new Token model instance.
+        """
+        return 'oidc_provider.lib.utils.authorize.default_update_or_create_user_consent'
+
 
 default_settings = DefaultSettings()
 

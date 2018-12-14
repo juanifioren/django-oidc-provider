@@ -129,8 +129,8 @@ class TokenTestCase(TestCase):
             client=self.client,
             scope=(scope if scope else ['openid', 'email']),
             nonce=FAKE_NONCE,
-            is_authentication=True)
-        code.save()
+            is_authentication=True,
+            request=None)
 
         return code
 
@@ -777,8 +777,8 @@ class TokenTestCase(TestCase):
         """
         code = create_code(user=self.user, client=self.client,
                            scope=['openid', 'email'], nonce=FAKE_NONCE, is_authentication=True,
-                           code_challenge=FAKE_CODE_CHALLENGE, code_challenge_method='S256')
-        code.save()
+                           code_challenge=FAKE_CODE_CHALLENGE, code_challenge_method='S256',
+                           request=None)
 
         post_data = self._auth_code_post_data(code=code.code)
 
