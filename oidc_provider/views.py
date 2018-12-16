@@ -50,8 +50,8 @@ from oidc_provider.lib.utils.oauth2 import protected_resource_view
 from oidc_provider.lib.utils.token import client_id_from_id_token
 from oidc_provider.models import (
     RSAKey,
-    ResponseType,
     get_client_model,
+    RESPONSE_TYPE_CHOICES,
 )
 from oidc_provider import settings
 from oidc_provider import signals
@@ -274,7 +274,7 @@ class ProviderInfoView(View):
         dic['end_session_endpoint'] = site_url + reverse('oidc_provider:end-session')
         dic['introspection_endpoint'] = site_url + reverse('oidc_provider:token-introspection')
 
-        types_supported = [response_type.value for response_type in ResponseType.objects.all()]
+        types_supported = [code for code, description in RESPONSE_TYPE_CHOICES]
         dic['response_types_supported'] = types_supported
 
         dic['jwks_uri'] = site_url + reverse('oidc_provider:jwks')

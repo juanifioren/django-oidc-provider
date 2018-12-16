@@ -11,7 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
 from oidc_provider import settings as oidc_settings
-
+from oidc_provider.fields import JsonMultiSelectModelField
 
 CLIENT_TYPE_CHOICES = [
     ('confidential', 'Confidential'),
@@ -33,30 +33,6 @@ JWT_ALGS = [
 ]
 
 
-class ResponseTypeManager(models.Manager):
-    def get_by_natural_key(self, value):
-        return self.get(value=value)
-
-
-class ResponseType(models.Model):
-    objects = ResponseTypeManager()
-
-    value = models.CharField(
-        max_length=30,
-        choices=RESPONSE_TYPE_CHOICES,
-        unique=True,
-        verbose_name=_(u'Response Type Value'))
-    description = models.CharField(
-        max_length=50,
-    )
-
-    def natural_key(self):
-        return self.value,  # natural_key must return tuple
-
-    def __str__(self):
-        return u'{0}'.format(self.description)
-
-
 class AbstractClient(models.Model):
 
     name = models.CharField(max_length=100, default='', verbose_name=_(u'Name'))
@@ -73,8 +49,8 @@ class AbstractClient(models.Model):
                     u' of their credentials. <b>Public</b> clients are incapable.'))
     client_id = models.CharField(max_length=255, unique=True, verbose_name=_(u'Client ID'))
     client_secret = models.CharField(max_length=255, blank=True, verbose_name=_(u'Client SECRET'))
-    response_types = models.ManyToManyField(
-        ResponseType, related_name='%(app_label)s_%(class)s_set')
+    response_types = JsonMultiSelectModelField(
+        choices=RESPONSE_TYPE_CHOICES, verbose_name=_('Response Types'))
     jwt_alg = models.CharField(
         max_length=10,
         choices=JWT_ALGS,
@@ -129,11 +105,20 @@ class AbstractClient(models.Model):
         return self.__str__()
 
     def response_type_values(self):
-        return (response_type.value for response_type in self.response_types.all())
+        # Return the allowed response types in the same order as they appear in
+        # RESPONSE_TYPE_CHOICES.
+        return [
+            code
+            for code, description in RESPONSE_TYPE_CHOICES
+            if code in self.response_types
+        ]
 
     def response_type_descriptions(self):
-        # return as a list, rather than a generator, so descriptions display correctly in admin
-        return [response_type.description for response_type in self.response_types.all()]
+        response_type_dict = dict(RESPONSE_TYPE_CHOICES)
+        return [
+            response_type_dict[response_type]
+            for response_type in self.response_type_values()
+        ]
 
     @property
     def redirect_uris(self):
