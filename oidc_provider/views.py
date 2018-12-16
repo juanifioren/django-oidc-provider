@@ -57,8 +57,8 @@ from oidc_provider.lib.utils.common import redirect
 from oidc_provider.lib.utils.oauth2 import protected_resource_view
 from oidc_provider.lib.utils.token import client_id_from_id_token
 from oidc_provider.models import Client
-from oidc_provider.models import ResponseType
 from oidc_provider.models import RSAKey
+from oidc_provider.models import RESPONSE_TYPE_CHOICES
 
 logger = logging.getLogger(__name__)
 
@@ -276,16 +276,6 @@ def userinfo(request, *args, **kwargs):
 
 
 class ProviderInfoView(View):
-    _types_supported = None
-
-    @property
-    def types_supported(self):
-        if self._types_supported is None:
-            self._types_supported = [
-                response_type.value for response_type in ResponseType.objects.all()
-            ]
-        return self._types_supported
-
     def _build_response_dict(self, request):
         dic = dict()
 
@@ -298,7 +288,7 @@ class ProviderInfoView(View):
         dic["end_session_endpoint"] = site_url + reverse("oidc_provider:end-session")
         dic["introspection_endpoint"] = site_url + reverse("oidc_provider:token-introspection")
 
-        dic["response_types_supported"] = self.types_supported
+        dic["response_types_supported"] = [code for code, _description in RESPONSE_TYPE_CHOICES]
 
         dic["jwks_uri"] = site_url + reverse("oidc_provider:jwks")
 

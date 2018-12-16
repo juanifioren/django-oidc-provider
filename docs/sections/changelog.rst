@@ -14,6 +14,7 @@ Unreleased
 * Changed: Django 5 added to test matrix.
 * Changed: ID Token JSON encoder improved using DjangoJSONEncoder.
 * Changed: Use unittest.mock in tests. Remove mock library.
+* Changed: Switch Client.response_types to be a JSONField instead of a ManyToManyField. (Run migrations!)
 
 0.8.3
 =====
