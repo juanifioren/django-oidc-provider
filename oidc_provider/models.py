@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import base64
 import binascii
-from hashlib import md5, sha256
+from hashlib import md5
 import json
 
 from django.db import models
@@ -193,8 +193,14 @@ class Token(BaseCodeTokenModel):
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, null=True, verbose_name=_(u'User'), on_delete=models.CASCADE)
-    access_token = models.CharField(max_length=255, unique=True, verbose_name=_(u'Access Token'))
-    refresh_token = models.CharField(max_length=255, unique=True, verbose_name=_(u'Refresh Token'))
+    access_token_hash = models.CharField(
+        max_length=255, unique=True, verbose_name=_(u'Access Token Lookup'),
+        help_text=_('Hashed version of the token for fast database lookups.'))
+    access_token = models.TextField(verbose_name=_(u'Access Token'))
+    refresh_token_hash = models.CharField(
+        max_length=255, unique=True, verbose_name=_(u'Access Token Lookup'),
+        help_text=_('Hashed version of the token for fast database lookups.'))
+    refresh_token = models.TextField(verbose_name=_(u'Refresh Token'))
     _id_token = models.TextField(verbose_name=_(u'ID Token'))
 
     class Meta:
@@ -215,9 +221,12 @@ class Token(BaseCodeTokenModel):
     @property
     def at_hash(self):
         # @@@ d-o-p only supports 256 bits (change this if that changes)
-        hashed_access_token = sha256(
-            self.access_token.encode('ascii')
-        ).hexdigest().encode('ascii')
+        # hashed_access_token = sha256(
+        #     self.access_token.encode('ascii')
+        # ).hexdigest().encode('ascii')
+
+        # Use the already saved sha256 hash on the model
+        hashed_access_token = self.access_token_hash.encode('ascii')
         return base64.urlsafe_b64encode(
             binascii.unhexlify(
                 hashed_access_token[:len(hashed_access_token) // 2]

@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from oidc_provider.lib.errors import TokenIntrospectionError
 from oidc_provider.lib.utils.common import run_processing_hook
 from oidc_provider.lib.utils.oauth2 import extract_client_auth
+from oidc_provider.lib.utils.token import get_by_access_token
 from oidc_provider.models import Token, Client
 from oidc_provider import settings
 
@@ -38,7 +39,7 @@ class TokenIntrospectionEndpoint(object):
             logger.debug('[Introspection] No token provided')
             raise TokenIntrospectionError()
         try:
-            self.token = Token.objects.get(access_token=self.params['token'])
+            self.token = get_by_access_token(self.params['token'])
         except Token.DoesNotExist:
             logger.debug('[Introspection] Token does not exist: %s', self.params['token'])
             raise TokenIntrospectionError()

@@ -28,7 +28,7 @@ from mock import patch
 
 from oidc_provider.lib.endpoints.introspection import INTROSPECTION_SCOPE
 from oidc_provider.lib.utils.oauth2 import protected_resource_view
-from oidc_provider.lib.utils.token import create_code
+from oidc_provider.lib.utils.token import create_code, get_by_access_token
 from oidc_provider.models import Token
 from oidc_provider.tests.app.utils import (
     create_fake_user,
@@ -864,5 +864,5 @@ class TokenTestCase(TestCase):
         }
         response = self._post_request(post_data)
         response_dict = json.loads(response.content.decode('utf-8'))
-        token = Token.objects.get(access_token=response_dict['access_token'])
+        token = get_by_access_token(access_token=response_dict['access_token'])
         self.assertTrue(str(token))
