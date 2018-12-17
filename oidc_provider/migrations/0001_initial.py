@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 from django.db import models, migrations
 from django.conf import settings
-from oidc_provider import settings as oidc_settings
 
 
 class Migration(migrations.Migration):
@@ -11,7 +10,6 @@ class Migration(migrations.Migration):
     dependencies = [
         ('auth', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        migrations.swappable_dependency(oidc_settings.get('OIDC_CLIENT_MODEL')),
     ]
 
     operations = [
@@ -29,7 +27,6 @@ class Migration(migrations.Migration):
             ],
             options={
                 'abstract': False,
-                'swappable': 'OIDC_CLIENT_MODEL'
             },
             bases=(models.Model,),
         ),
@@ -40,7 +37,7 @@ class Migration(migrations.Migration):
                 ('expires_at', models.DateTimeField()),
                 ('_scope', models.TextField(default=b'')),
                 ('code', models.CharField(unique=True, max_length=255)),
-                ('client', models.ForeignKey(oidc_settings.get('OIDC_CLIENT_MODEL'), on_delete=models.CASCADE)),
+                ('client', models.ForeignKey(to='oidc_provider.Client', on_delete=models.CASCADE)),
             ],
             options={
                 'abstract': False,
@@ -55,7 +52,7 @@ class Migration(migrations.Migration):
                 ('_scope', models.TextField(default=b'')),
                 ('access_token', models.CharField(unique=True, max_length=255)),
                 ('_id_token', models.TextField()),
-                ('client', models.ForeignKey(oidc_settings.get('OIDC_CLIENT_MODEL'), on_delete=models.CASCADE)),
+                ('client', models.ForeignKey(to='oidc_provider.Client', on_delete=models.CASCADE)),
             ],
             options={
                 'abstract': False,

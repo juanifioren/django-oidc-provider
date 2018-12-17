@@ -14,14 +14,17 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='client',
-            name='owner',
-            field=models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='oidc_provider_client_set', to=settings.AUTH_USER_MODEL, verbose_name='Owner'),
-        ),
-        migrations.AlterField(
-            model_name='client',
-            name='response_types',
-            field=models.ManyToManyField(related_name='oidc_provider_client_set', to='oidc_provider.ResponseType'),
-        ),
+        # We've reverted this change. Since this migration did not change anything at db
+        # level, it is safe to remove the operations below.
+
+        # migrations.AlterField(
+        #     model_name='client',
+        #     name='owner',
+        #     field=models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='oidc_provider_client_set', to=settings.AUTH_USER_MODEL, verbose_name='Owner'),
+        # ),
+        # migrations.AlterField(
+        #     model_name='client',
+        #     name='response_types',
+        #     field=models.ManyToManyField(related_name='oidc_provider_client_set', to='oidc_provider.ResponseType'),
+        # ),
     ]
