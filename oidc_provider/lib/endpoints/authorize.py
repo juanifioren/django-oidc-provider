@@ -188,7 +188,7 @@ class AuthorizeEndpoint(object):
 
                 query_fragment['token_type'] = 'bearer'
 
-                query_fragment['expires_in'] = settings.get('OIDC_TOKEN_EXPIRE')
+                query_fragment['expires_in'] = token.valid_for.seconds
 
                 query_fragment['state'] = self.params['state'] if self.params['state'] else ''
 
