@@ -266,3 +266,13 @@ for further information.
 Default is::
 
     'oidc_provider.lib.utils.authorize.default_update_or_create_user_consent'
+
+
+OIDC_GET_LOGIN_URL
+==================
+
+OPTIONAL. A string with the location of your function. Allows dynamically generating the login
+url based on context like the `client`.
+Default is::
+
+    'oidc_provider.lib.utils.common.default_get_login_url'

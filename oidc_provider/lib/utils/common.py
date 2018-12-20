@@ -1,7 +1,10 @@
+from django.utils.six.moves.urllib.parse import urlparse, urlunparse
+from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.shortcuts import resolve_url
 from hashlib import sha224
 
 import django
-from django.http import HttpResponse
+from django.http import HttpResponse, QueryDict
 from django.utils.cache import patch_vary_headers
 
 from oidc_provider import settings
@@ -184,3 +187,27 @@ def cors_allow_any(request, response):
         response['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
 
     return response
+
+
+def redirect_to_login(next_page, login_url):
+    """
+    Redirects the user to the login page, passing the given 'next_page'.
+    This is similar to what django.contrib.auth.views.redirect_to_login does, but
+    returns an url instead of a response object.
+    """
+    resolved_url = resolve_url(login_url or settings.get('OIDC_LOGIN_URL'))
+
+    login_url_parts = list(urlparse(resolved_url))
+    querystring = QueryDict(login_url_parts[4], mutable=True)
+    querystring[REDIRECT_FIELD_NAME] = next_page
+    login_url_parts[4] = querystring.urlencode(safe='/')
+
+    return urlunparse(login_url_parts)
+
+
+def default_get_login_url(client, next_page, request):
+    return redirect_to_login(next_page, settings.get('OIDC_LOGIN_URL'))
+
+
+def get_login_url(**kwargs):
+    return settings.get('OIDC_GET_LOGIN_URL', import_str=True)(**kwargs)

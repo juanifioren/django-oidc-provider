@@ -10,10 +10,7 @@ except ImportError:
     from urllib.parse import urlsplit, parse_qs, urlunsplit, urlencode
 
 from Cryptodome.PublicKey import RSA
-from django.contrib.auth.views import (
-    redirect_to_login,
-    LogoutView,
-)
+from django.contrib.auth.views import LogoutView
 try:
     from django.urls import reverse
 except ImportError:
@@ -42,6 +39,7 @@ from oidc_provider.lib.errors import (
 from oidc_provider.lib.utils.authorize import strip_prompt_login
 from oidc_provider.lib.utils.common import (
     redirect,
+    get_login_url,
     get_site_url,
     get_issuer,
     cors_allow_any,
@@ -87,7 +85,10 @@ class AuthorizeView(View):
                     else:
                         django_user_logout(request)
                         next_page = strip_prompt_login(request.get_full_path())
-                        return redirect_to_login(next_page, settings.get('OIDC_LOGIN_URL'))
+                        return redirect(get_login_url(
+                            client=authorize.client,
+                            next_page=next_page,
+                            request=request))
 
                 if 'select_account' in authorize.params['prompt']:
                     # TODO: see how we can support multiple accounts for the end-user.
@@ -97,8 +98,10 @@ class AuthorizeView(View):
                             authorize.grant_type)
                     else:
                         django_user_logout(request)
-                        return redirect_to_login(
-                            request.get_full_path(), settings.get('OIDC_LOGIN_URL'))
+                        return redirect(get_login_url(
+                            client=authorize.client,
+                            next_page=request.get_full_path(),
+                            request=request))
 
                 if {'none', 'consent'}.issubset(authorize.params['prompt']):
                     raise AuthorizeError(
@@ -150,9 +153,15 @@ class AuthorizeView(View):
                         authorize.params['redirect_uri'], 'login_required', authorize.grant_type)
                 if 'login' in authorize.params['prompt']:
                     next_page = strip_prompt_login(request.get_full_path())
-                    return redirect_to_login(next_page, settings.get('OIDC_LOGIN_URL'))
+                    return redirect(get_login_url(
+                        client=authorize.client,
+                        next_page=next_page,
+                        request=request))
 
-                return redirect_to_login(request.get_full_path(), settings.get('OIDC_LOGIN_URL'))
+                return redirect(get_login_url(
+                        client=authorize.client,
+                        next_page=request.get_full_path(),
+                        request=request))
 
         except (ClientIdError, RedirectUriError) as error:
             context = {

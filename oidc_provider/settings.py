@@ -19,6 +19,13 @@ class DefaultSettings(object):
         return settings.LOGIN_URL
 
     @property
+    def OIDC_GET_LOGIN_URL(self):
+        """
+        OPTIONAL. A string with the location of your function.
+        """
+        return 'oidc_provider.lib.utils.common.default_get_login_url'
+
+    @property
     def SITE_URL(self):
         """
         OPTIONAL. The OP server url.
