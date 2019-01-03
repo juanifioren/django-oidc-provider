@@ -61,7 +61,7 @@ class TokenIntrospectionEndpoint(object):
 
         self.id_token = self.token.id_token
 
-        if settings.get('OIDC_INTROSPECTION_VALIDATE_AUDIENCE_SCOPE'):
+        if settings.get('OIDC_INTROSPECTION_VALIDATE_AUDIENCE_SCOPE') and self.token.user:
             if not self.token.id_token:
                 logger.debug('[Introspection] Token not an authentication token: %s',
                              self.params['token'])
