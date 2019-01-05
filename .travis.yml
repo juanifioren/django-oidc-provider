@@ -1,12 +1,11 @@
 language: python
+python:
+  - 2.7
+  - 3.5
+  - 3.6
 
 install:
   - pip install tox tox-travis coveralls
-matrix:
-  include:
-    - python: 2.7
-    - python: 3.5
-    - python: 3.6
 script:
   - tox
 after_success:
