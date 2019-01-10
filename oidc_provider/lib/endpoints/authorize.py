@@ -26,14 +26,13 @@ from oidc_provider.lib.utils.token import (
     encode_id_token,
 )
 from oidc_provider.models import (
+    Client,
     UserConsent,
-    get_client_model
 )
 from oidc_provider import settings
 from oidc_provider.lib.utils.common import get_browser_state_or_default
 
 logger = logging.getLogger(__name__)
-Client = get_client_model()
 
 
 class AuthorizeEndpoint(object):
