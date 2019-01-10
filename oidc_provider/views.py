@@ -49,10 +49,9 @@ from oidc_provider.lib.utils.common import (
 from oidc_provider.lib.utils.oauth2 import protected_resource_view
 from oidc_provider.lib.utils.token import client_id_from_id_token
 from oidc_provider.models import (
+    Client,
     RSAKey,
-    ResponseType,
-    get_client_model,
-)
+    ResponseType)
 from oidc_provider import settings
 from oidc_provider import signals
 
@@ -60,7 +59,6 @@ from oidc_provider import signals
 logger = logging.getLogger(__name__)
 
 OIDC_TEMPLATES = settings.get('OIDC_TEMPLATES')
-Client = get_client_model()
 
 
 class AuthorizeView(View):
