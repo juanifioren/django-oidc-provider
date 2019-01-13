@@ -61,7 +61,7 @@ class TokenIntrospectionEndpoint(object):
 
         self.id_token = self.token.id_token
 
-        if settings.get('OIDC_INTROSPECTION_VALIDATE_AUDIENCE_SCOPE'):
+        if settings.get('OIDC_INTROSPECTION_VALIDATE_AUDIENCE_SCOPE') and self.token.user:
             if not self.token.id_token:
                 logger.debug('[Introspection] Token not an authentication token: %s',
                              self.params['token'])
@@ -85,6 +85,7 @@ class TokenIntrospectionEndpoint(object):
                 response_dic[k] = self.id_token[k]
         response_dic['active'] = True
         response_dic['client_id'] = self.token.client.client_id
+        response_dic['scope'] = ' '.join(self.token.scope)
 
         response_dic = run_processing_hook(response_dic,
                                            'OIDC_INTROSPECTION_PROCESSING_HOOK',
