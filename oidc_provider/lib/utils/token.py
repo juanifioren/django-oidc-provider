@@ -112,7 +112,7 @@ def hash_token(token):
 
 def default_create_token(
         user, client, scope, expires_at, access_token, refresh_token,
-        id_token_dic, code, request, hash_token_function):
+        id_token_dic, code, old_token, request, hash_token_function):
     """
     WARNING: The api of this function is still experimental and may change at any time.
 
@@ -121,6 +121,7 @@ def default_create_token(
     It is safe to replace `access_token` and `refresh_token` here, if you want to customize them.
     You could, for example, generate a JWT instead of just a random string.
     `code` is set if this token is being created as "code response".
+    `old_token` is set if this is a token refresh.
     """
     token = Token(
         user=user,
@@ -151,6 +152,7 @@ def create_token(*args, **kwargs):
         seconds=settings.get('OIDC_TOKEN_EXPIRE'))
     kwargs['id_token_dic'] = kwargs.get('id_token_dic', None)
     kwargs['code'] = kwargs.get('code', None)
+    kwargs['old_token'] = kwargs.get('old_token', None)
     kwargs['hash_token_function'] = hash_token
     return settings.get('OIDC_CREATE_TOKEN', import_str=True)(*args, **kwargs)
 
@@ -237,3 +239,11 @@ def get_by_access_token(access_token, client=None):
 
 def get_by_refresh_token(refresh_token, client=None):
     return _get_token(raw_token=refresh_token, fieldname='refresh_token', client=client)
+
+
+def default_get_valid_refresh_token(refresh_token, client, request):
+    return get_by_refresh_token(refresh_token=refresh_token, client=client)
+
+
+def get_valid_refresh_token(**kwargs):
+    return settings.get('OIDC_GET_VALID_REFRESH_TOKEN', import_str=True)(**kwargs)

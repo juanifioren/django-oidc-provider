@@ -196,6 +196,15 @@ class DefaultSettings(object):
         """
         return 'oidc_provider.lib.utils.authorize.default_update_or_create_user_consent'
 
+    @property
+    def OIDC_GET_VALID_REFRESH_TOKEN(self):
+        """
+        OPTIONAL. A string with the location of your function to get a valid token based on a
+        refresh token value. This can be used to add additional checks to determine if a
+        refresh token is still valid.
+        """
+        return 'oidc_provider.lib.utils.token.default_get_valid_refresh_token'
+
 
 default_settings = DefaultSettings()
 
