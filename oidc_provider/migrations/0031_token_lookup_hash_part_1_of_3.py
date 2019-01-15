@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='token',
             name='refresh_token_hash',
-            field=models.CharField(help_text='Hashed version of the token for fast database lookups.', max_length=255, null=True, unique=True, verbose_name='Access Token Lookup'),
+            field=models.CharField(help_text='Hashed version of the token for fast database lookups.', max_length=255, null=True, unique=True, verbose_name='Refresh Token Lookup'),
         ),
         migrations.AlterField(
             model_name='token',

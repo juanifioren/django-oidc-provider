@@ -206,7 +206,7 @@ class Token(BaseCodeTokenModel):
         help_text=_('Hashed version of the token for fast database lookups.'))
     access_token = models.TextField(verbose_name=_(u'Access Token'))
     refresh_token_hash = models.CharField(
-        max_length=255, unique=True, verbose_name=_(u'Access Token Lookup'),
+        max_length=255, unique=True, verbose_name=_(u'Refresh Token Lookup'),
         help_text=_('Hashed version of the token for fast database lookups.'))
     refresh_token = models.TextField(verbose_name=_(u'Refresh Token'))
     _id_token = models.TextField(verbose_name=_(u'ID Token'))
