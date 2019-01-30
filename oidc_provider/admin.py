@@ -74,6 +74,7 @@ class ClientAdmin(admin.ModelAdmin):
 
 @admin.register(Code)
 class CodeAdmin(admin.ModelAdmin):
+    raw_id_fields = ['user']
 
     def has_add_permission(self, request):
         return False
@@ -81,6 +82,7 @@ class CodeAdmin(admin.ModelAdmin):
 
 @admin.register(Token)
 class TokenAdmin(admin.ModelAdmin):
+    raw_id_fields = ['user']
 
     def has_add_permission(self, request):
         return False
