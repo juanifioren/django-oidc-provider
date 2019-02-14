@@ -211,3 +211,11 @@ def default_get_login_url(client, next_page, request):
 
 def get_login_url(**kwargs):
     return settings.get('OIDC_GET_LOGIN_URL', import_str=True)(**kwargs)
+
+
+def default_redirect_uri_is_valid(client, redirect_uri):
+    return redirect_uri in client.redirect_uris
+
+
+def redirect_uri_is_valid(**kwargs):
+    return settings.get('OIDC_REDIRECT_URI_IS_VALID', import_str=True)(**kwargs)

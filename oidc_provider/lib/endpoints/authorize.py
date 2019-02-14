@@ -23,6 +23,7 @@ from oidc_provider.lib.utils.token import (
     create_token,
     encode_id_token,
 )
+from oidc_provider.lib.utils.common import redirect_uri_is_valid
 from oidc_provider.models import (
     UserConsent,
     Client
@@ -94,7 +95,7 @@ class AuthorizeEndpoint(object):
         if self.is_authentication and not self.params['redirect_uri']:
             logger.debug('[Authorize] Missing redirect uri.')
             raise RedirectUriError()
-        if not (self.params['redirect_uri'] in self.client.redirect_uris):
+        if not redirect_uri_is_valid(client=self.client, redirect_uri=self.params['redirect_uri']):
             logger.debug('[Authorize] Invalid redirect uri: %s', self.params['redirect_uri'])
             raise RedirectUriError()
 

@@ -205,6 +205,16 @@ class DefaultSettings(object):
         """
         return 'oidc_provider.lib.utils.token.default_get_valid_refresh_token'
 
+    @property
+    def OIDC_REDIRECT_URI_IS_VALID(self):
+        """
+        OPTIONAL. A string with the location of your function to check whether a
+        redirect_uri should be allowed for a given client.
+        This can be used if the rules for redirect_uris is more complicated than
+        a static list.
+        """
+        return 'oidc_provider.lib.utils.common.default_redirect_uri_is_valid'
+
 
 default_settings = DefaultSettings()
 
