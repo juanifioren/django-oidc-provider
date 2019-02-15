@@ -231,8 +231,14 @@ class TokenView(View):
             return self.token_endpoint_class.response(error.create_dict(), status=403)
 
 
+def _set_headers(request, response):
+    response['Cache-Control'] = 'no-store'
+    response['Pragma'] = 'no-cache'
+    cors_allow_any(request, response)
+    return response
+
+
 @require_http_methods(['GET', 'POST', 'OPTIONS'])
-@protected_resource_view(['openid'])
 def userinfo(request, *args, **kwargs):
     """
     Create a dictionary with all the requested claims about the End-User.
@@ -240,16 +246,14 @@ def userinfo(request, *args, **kwargs):
 
     Return a dictionary.
     """
-
-    def set_headers(response):
-        response['Cache-Control'] = 'no-store'
-        response['Pragma'] = 'no-cache'
-        cors_allow_any(request, response)
-        return response
-
+    # Always return the cors headers without requiring the id token to be set.
     if request.method == 'OPTIONS':
-        return set_headers(HttpResponse())
+        return _set_headers(request, HttpResponse())
+    return _userinfo(request, *args, **kwargs)
 
+
+@protected_resource_view(['openid'])
+def _userinfo(request, *args, **kwargs):
     token = kwargs['token']
 
     dic = {
@@ -264,7 +268,7 @@ def userinfo(request, *args, **kwargs):
         dic.update(extra_claims.create_response_dic())
 
     success_response = JsonResponse(dic, status=200)
-    set_headers(success_response)
+    _set_headers(request, success_response)
 
     return success_response
 
