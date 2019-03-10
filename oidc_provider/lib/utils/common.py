@@ -145,13 +145,33 @@ def default_introspection_processing_hook(introspection_response, client, id_tok
     return introspection_response
 
 
-def get_browser_state_or_default(request):
+def default_get_browser_state_or_default(request):
     """
-    Determine value to use as session state.
+    The default implementation uses djangos session key as state, since django
+    will cycle the session key at login, logout and password change - which
+    suits us well.
+    If there is no session_key (probably means an anonymous user) we use a
+    static value.
     """
     key = (request.session.session_key or
            settings.get('OIDC_UNAUTHENTICATED_SESSION_MANAGEMENT_KEY'))
     return sha224(key.encode('utf-8')).hexdigest()
+
+
+def get_browser_state_or_default(request):
+    """
+    Determine value to use as browser session state.
+    The OP creates this value which should change whenever a meaningful state
+    change happens at the OP.
+
+    * User logs out
+    * Different user logs in
+    * Session expires
+
+    The RP uses this value to determine if it needs to talk to the OP
+    again to match its state (e.g logout).
+    """
+    return settings.get('OIDC_GET_BROWSER_STATE_OR_DEFAULT', import_str=True)(request)
 
 
 def run_processing_hook(subject, hook_settings_name, **kwargs):

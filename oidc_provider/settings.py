@@ -106,6 +106,10 @@ class DefaultSettings(object):
         return self._unauthenticated_session_management_key
 
     @property
+    def OIDC_GET_BROWSER_STATE_OR_DEFAULT(self):
+        return 'oidc_provider.lib.utils.common.default_get_browser_state_or_default'
+
+    @property
     def OIDC_SKIP_CONSENT_EXPIRE(self):
         """
         OPTIONAL. User consent expiration after been granted.
