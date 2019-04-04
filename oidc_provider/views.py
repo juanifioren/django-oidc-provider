@@ -3,6 +3,8 @@ import logging
 from django.views.decorators.csrf import csrf_exempt
 
 from oidc_provider.lib.endpoints.introspection import TokenIntrospectionEndpoint
+from oidc_provider.lib.endpoints.register import RegisterEndpoint
+
 try:
     from urllib import urlencode
     from urlparse import urlsplit, parse_qs, urlunsplit
@@ -38,7 +40,7 @@ from oidc_provider.lib.errors import (
     RedirectUriError,
     TokenError,
     UserAuthError,
-    TokenIntrospectionError)
+    TokenIntrospectionError, RegisterError)
 from oidc_provider.lib.utils.authorize import strip_prompt_login
 from oidc_provider.lib.utils.common import (
     redirect,
@@ -288,6 +290,9 @@ class ProviderInfoView(View):
         if settings.get('OIDC_SESSION_MANAGEMENT_ENABLE'):
             dic['check_session_iframe'] = site_url + reverse('oidc_provider:check-session-iframe')
 
+        if settings.get('OIDC_REGISTRATION_ENDPOINT_ENABLED'):
+            dic['registration_endpoint'] = site_url + reverse('oidc_provider:register')
+
         response = JsonResponse(dic)
         response['Access-Control-Allow-Origin'] = '*'
 
@@ -379,3 +384,20 @@ class TokenIntrospectionView(View):
             return self.token_instrospection_endpoint_class.response(dic)
         except TokenIntrospectionError:
             return self.token_instrospection_endpoint_class.response({'active': False})
+
+
+class RegisterView(View):
+    def post(self, request, *args, **kwargs):
+
+        register = RegisterEndpoint(request)
+
+        try:
+            register.validate_params()
+            dic = register.create_response_dic()
+            return register.response(dic)
+
+        except RegisterError as error:
+            return RegisterEndpoint.error_response(
+                error.code,
+                error.description,
+                error.status)

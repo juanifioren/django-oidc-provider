@@ -1,3 +1,5 @@
+from oidc_provider.views import RegisterView
+
 try:
     from django.urls import url
 except ImportError:
@@ -19,6 +21,7 @@ urlpatterns = [
         name='provider-info'),
     url(r'^introspect/?$', views.TokenIntrospectionView.as_view(), name='token-introspection'),
     url(r'^jwks/?$', views.JwksView.as_view(), name='jwks'),
+    url(r'^register/$', csrf_exempt(RegisterView.as_view()), name='register'),
 ]
 
 if settings.get('OIDC_SESSION_MANAGEMENT_ENABLE'):

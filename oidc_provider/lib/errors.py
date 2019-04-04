@@ -5,14 +5,12 @@ except ImportError:
 
 
 class RedirectUriError(Exception):
-
     error = 'Redirect URI Error'
     description = 'The request fails due to a missing, invalid, or mismatching' \
                   ' redirection URI (redirect_uri).'
 
 
 class ClientIdError(Exception):
-
     error = 'Client ID Error'
     description = 'The client identifier (client_id) is missing or invalid.'
 
@@ -42,7 +40,6 @@ class TokenIntrospectionError(Exception):
 
 
 class AuthorizeError(Exception):
-
     _errors = {
         # Oauth2 errors.
         # https://tools.ietf.org/html/rfc6749#section-4.1.2.1
@@ -171,6 +168,30 @@ class BearerTokenError(Exception):
     """
 
     _errors = {
+        'invalid_request': (
+            'The request is otherwise malformed', 400
+        ),
+        'invalid_token': (
+            'The access token provided is expired, revoked, malformed, '
+            'or invalid for other reasons', 401
+        ),
+        'insufficient_scope': (
+            'The request requires higher privileges than provided by '
+            'the access token', 403
+        ),
+    }
+
+    def __init__(self, code):
+        self.code = code
+        error_tuple = self._errors.get(code, ('', ''))
+        self.description = error_tuple[0]
+        self.status = error_tuple[1]
+
+
+class RegisterError(Exception):
+    _errors = {
+        # https://openid.net/specs/openid-connect-registration-1_0.html#RegistrationError
+        # https://tools.ietf.org/html/rfc6749#section-5.2
         'invalid_request': (
             'The request is otherwise malformed', 400
         ),
