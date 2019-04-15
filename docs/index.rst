@@ -35,6 +35,7 @@ Contents:
    sections/oauth2
    sections/accesstokens
    sections/sessionmanagement
+   sections/tokenintrospection
    sections/settings
    sections/signals
    sections/examples
