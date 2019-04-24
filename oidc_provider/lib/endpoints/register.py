@@ -23,7 +23,7 @@ class RegisterEndpoint(object):
     def _extract_params(self):
         jsonStr = self.request.body
 
-        paramDic = json.loads(jsonStr)
+        paramDic = json.loads(jsonStr.decode())
 
         self.params['name'] = paramDic.get('client_name', None)
         if 'redirect_uris' in paramDic:
