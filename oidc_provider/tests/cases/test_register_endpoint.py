@@ -58,12 +58,17 @@ class ProviderInfoTestCase(TestCase):
         self.assertEqual(response.status_code, 400)
 
     @override_settings(OIDC_REGISTRATION_ENDPOINT_REQ_TOKEN=False)
+    @override_settings(OIDC_REGISTRATION_ENDPOINT_ALLOW_HTTP_ORIGIN=True)
     def test_register_without_token(self):
         url = reverse('oidc_provider:register')
         request = self.factory.post(url, self.data, content_type="application/json")
+        request.META['HTTP_ORIGIN'] = 'http://origin.com'
         response = RegisterView.as_view()(request)
 
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Access-Control-Allow-Origin"], 'http://origin.com')
+        self.assertEqual(response["Access-Control-Allow-Methods"], 'POST')
+        self.assertEqual(response["Access-Control-Allow-Headers"], 'Content-Type, if-match')
 
     @override_settings(OIDC_REGISTRATION_ENDPOINT_REQ_TOKEN=True)
     def test_register_with__insufficient_scope_token(self):
@@ -103,3 +108,4 @@ class ProviderInfoTestCase(TestCase):
         client = Client.objects.get(name="client_name")
         self.assertEqual(client.response_types.all()[0], ResponseType.objects.get(value="code"))
         self.assertEqual(client._redirect_uris, "http://localhost/")
+        self.assertNotIn('Access-Control-Allow-Origin', response)

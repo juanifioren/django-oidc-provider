@@ -356,7 +356,11 @@ class EndSessionView(LogoutView):
         )
 
         self.next_page = next_page
-        return super(EndSessionView, self).dispatch(request, *args, **kwargs)
+        response = super(EndSessionView, self).dispatch(request, *args, **kwargs)
+
+        cors_allow_any(request, response)
+
+        return response
 
 
 class CheckSessionIframeView(View):
@@ -387,6 +391,16 @@ class TokenIntrospectionView(View):
 
 
 class RegisterView(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        response = super(RegisterView, self).dispatch(request, *args, **kwargs)
+        if settings.get('OIDC_REGISTRATION_ENDPOINT_ALLOW_HTTP_ORIGIN'):
+            response["Access-Control-Allow-Origin"] = request.META.get('HTTP_ORIGIN')
+            response["Access-Control-Allow-Methods"] = "POST"
+            response["Access-Control-Allow-Headers"] = "Content-Type, if-match"
+        return response
+
     def post(self, request, *args, **kwargs):
 
         register = RegisterEndpoint(request)

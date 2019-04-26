@@ -185,6 +185,14 @@ class DefaultSettings(object):
         """
         return True
 
+    @property
+    def OIDC_REGISTRATION_ENDPOINT_ALLOW_HTTP_ORIGIN(self):
+        """
+        OPTIONAL. True if client registration required CORS headers.
+        Useful if the Relying Party is a browser applications
+        """
+        return False
+
 
 default_settings = DefaultSettings()
 
