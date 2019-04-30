@@ -109,7 +109,7 @@ def client_id_from_id_token(id_token):
     return aud
 
 
-def create_token(user, client, scope, id_token_dic=None):
+def create_token(user, client, scope, id_token_dic=None, rid=None):
     """
     Create and populate a Token object.
     Return a Token object.
@@ -118,6 +118,8 @@ def create_token(user, client, scope, id_token_dic=None):
     token.user = user
     token.client = client
     token.access_token = uuid.uuid4().hex
+    if rid is not None:
+        token.rid = rid
 
     if id_token_dic is not None:
         token.id_token = id_token_dic
@@ -132,7 +134,7 @@ def create_token(user, client, scope, id_token_dic=None):
 
 def create_code(user, client, scope, nonce, is_authentication,
                 code_challenge=None, code_challenge_method=None,
-                acr=None, amr=None):
+                acr=None, amr=None, rid=None):
     """
     Create and populate a Code object.
     Return a Code object.
@@ -155,6 +157,7 @@ def create_code(user, client, scope, nonce, is_authentication,
 
     code.acr = acr
     code.amr = amr
+    code.rid = rid
 
     return code
 
