@@ -151,7 +151,8 @@ class TokenEndpoint(object):
         token = create_token(
             user=self.code.user,
             client=self.code.client,
-            scope=self.code.scope)
+            scope=self.code.scope,
+            rid=self.code.rid)
 
         if self.code.is_authentication:
             id_token_dic = create_id_token(
