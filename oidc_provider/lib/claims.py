@@ -40,7 +40,8 @@ class ScopeClaims(object):
     def __init__(self, token):
         self.user = token.user
         claims = copy.deepcopy(STANDARD_CLAIMS)
-        self.userinfo = settings.get('OIDC_USERINFO', import_str=True)(claims, self.user)
+        self.userinfo = settings.get('OIDC_USERINFO', import_str=True)(
+                claims, token, self.__class__.__name__)
         self.scopes = token.scope
         self.client = token.client
 
