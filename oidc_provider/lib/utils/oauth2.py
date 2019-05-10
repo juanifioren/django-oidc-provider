@@ -53,17 +53,26 @@ def extract_client_auth(request):
     return (client_id, client_secret)
 
 
-def protected_resource_view(scopes=None):
+def protected_resource_view(scopes=None, unprotected_methods=None):
     """
     View decorator. The client accesses protected resources by presenting the
     access token to the resource server.
-    https://tools.ietf.org/html/rfc6749#section-7
+    See: https://tools.ietf.org/html/rfc6749#section-7
+
+    Skips all checks if the request-method is in unprotected_methods. This can
+    be useful to authorize unauthenticated OPTIONS requests.
     """
     if scopes is None:
         scopes = []
 
+    if unprotected_methods is None:
+        unprotected_methods = []
+
     def wrapper(view):
         def view_wrapper(request,  *args, **kwargs):
+            if request.method in unprotected_methods:  # skip checking token
+                return view(request,  *args, **kwargs)
+
             access_token = extract_access_token(request)
 
             try:
