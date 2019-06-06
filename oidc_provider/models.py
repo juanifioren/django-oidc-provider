@@ -163,8 +163,8 @@ class BaseCodeTokenModel(models.Model):
     client = models.ForeignKey(Client, verbose_name=_(u'Client'), on_delete=models.CASCADE)
     expires_at = models.DateTimeField(verbose_name=_(u'Expiration Date'))
     _scope = models.TextField(default='', verbose_name=_(u'Scopes'))
-    rid = models.SmallIntegerField(null=True,
-                                   verbose_name=_(u"RID"))
+    ae = models.SmallIntegerField(null=True, verbose_name=_(u"AE"))
+    rid = models.SmallIntegerField(null=True, verbose_name=_(u"RID"))
 
     class Meta:
         abstract = True

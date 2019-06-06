@@ -20,7 +20,7 @@ from oidc_provider import settings
 
 
 def create_id_token(token, user, aud, nonce='', at_hash='', request=None,
-                    scope=None, acr='', amr=[]):
+                    scope=None):
     """
     Creates the id_token dictionary.
     See: http://openid.net/specs/openid-connect-core-1_0.html#IDToken
@@ -53,12 +53,6 @@ def create_id_token(token, user, aud, nonce='', at_hash='', request=None,
 
     if at_hash:
         dic['at_hash'] = at_hash
-
-    if acr:
-        dic['acr'] = acr
-
-    if amr:
-        dic['amr'] = amr
 
     # Inlude (or not) user standard claims in the id_token.
     if settings.get('OIDC_IDTOKEN_INCLUDE_CLAIMS'):
@@ -109,7 +103,7 @@ def client_id_from_id_token(id_token):
     return aud
 
 
-def create_token(user, client, scope, id_token_dic=None, rid=None):
+def create_token(user, client, scope, id_token_dic=None, ae=None, rid=None):
     """
     Create and populate a Token object.
     Return a Token object.
@@ -118,6 +112,10 @@ def create_token(user, client, scope, id_token_dic=None, rid=None):
     token.user = user
     token.client = client
     token.access_token = uuid.uuid4().hex
+
+    if ae is not None:
+        token.ae = ae
+
     if rid is not None:
         token.rid = rid
 
@@ -134,7 +132,7 @@ def create_token(user, client, scope, id_token_dic=None, rid=None):
 
 def create_code(user, client, scope, nonce, is_authentication,
                 code_challenge=None, code_challenge_method=None,
-                acr=None, amr=None, rid=None):
+                acr=None, amr=None, ae=None, rid=None):
     """
     Create and populate a Code object.
     Return a Code object.
@@ -157,6 +155,7 @@ def create_code(user, client, scope, nonce, is_authentication,
 
     code.acr = acr
     code.amr = amr
+    code.ae = ae
     code.rid = rid
 
     return code

@@ -152,6 +152,7 @@ class TokenEndpoint(object):
             user=self.code.user,
             client=self.code.client,
             scope=self.code.scope,
+            ae=self.code.ae,
             rid=self.code.rid)
 
         if self.code.is_authentication:
@@ -163,8 +164,6 @@ class TokenEndpoint(object):
                 at_hash=token.at_hash,
                 request=self.request,
                 scope=token.scope,
-                acr=self.code.acr,
-                amr=self.code.amr
             )
         else:
             id_token_dic = {}
