@@ -33,6 +33,7 @@ Add it to your apps in your project's django settings::
 
 Include our urls to your project's ``urls.py``::
 
+    from django.urls import include
     urlpatterns = patterns('',
         # ...
         url(r'^openid/', include('oidc_provider.urls', namespace='oidc_provider')),
