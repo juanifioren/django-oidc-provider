@@ -156,7 +156,8 @@ class AuthorizeEndpoint(object):
                     code_challenge_method=self.params['code_challenge_method'],
                     acr=session['acr'] if 'acr' in session else '',
                     amr=session['amr'] if 'amr' in session else '',
-                    rid=session['rid'] if 'amr' in session else None)
+                    ae=session['ae'] if 'ae' in session else None,
+                    rid=session['rid'] if 'rid' in session else None)
                 code.save()
 
             if self.grant_type == 'authorization_code':
