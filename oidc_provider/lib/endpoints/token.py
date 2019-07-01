@@ -148,8 +148,8 @@ class TokenEndpoint(object):
                 if scope_requested in self.client.scope:
                     token_scopes.append(scope_requested)
                 else:
-                    logger.debug(f'[Token] The request scope {scope_requested} '
-                                 f'is not supported by client {self.client.client_id}')
+                    logger.debug('[Token] The request scope %s is not supported by client %s',
+                                 scope_requested, self.client.client_id)
                     raise TokenError('invalid_scope')
         # if no scopes requested assign client's scopes
         else:
