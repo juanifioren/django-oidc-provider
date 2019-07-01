@@ -32,7 +32,7 @@ We also use `travis <https://travis-ci.org/juanifioren/django-oidc-provider/>`_ 
 Improve Documentation
 =====================
 
-We use `Sphinx <http://www.sphinx-doc.org/>`_ for generate this documentation. I you want to add or modify something just:
+We use `Sphinx <http://www.sphinx-doc.org/>`_ for generate this documentation. If you want to add or modify something just:
 
 * Install Sphinx (``pip install sphinx``) and the auto-build tool (``pip install sphinx-autobuild``).
 * Move inside the docs folder. ``cd docs/``
