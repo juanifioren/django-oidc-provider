@@ -11,6 +11,7 @@ except ImportError:
 
 from django.core.management import call_command
 from django.http import JsonResponse
+
 try:
     from django.urls import reverse
 except ImportError:
@@ -51,6 +52,8 @@ class TokenTestCase(TestCase):
     Token Request to the Token Endpoint to obtain a Token Response
     when using the Authorization Code Flow.
     """
+    SCOPE = 'openid email'
+    SCOPE_LIST = SCOPE.split(' ')
 
     def setUp(self):
         call_command('creatersakey')
@@ -64,7 +67,7 @@ class TokenTestCase(TestCase):
             'username': 'johndoe',
             'password': '1234',
             'grant_type': 'password',
-            'scope': 'openid email',
+            'scope': TokenTestCase.SCOPE,
         }
         if scope is not None:
             result['scope'] = ' '.join(scope)
@@ -102,6 +105,16 @@ class TokenTestCase(TestCase):
 
         return post_data
 
+    def _client_credentials_post_data(self, scope=None):
+        post_data = {
+            'client_id': self.client.client_id,
+            'client_secret': self.client.client_secret,
+            'grant_type': 'client_credentials',
+        }
+        if scope is not None:
+            post_data['scope'] = ' '.join(scope)
+        return post_data
+
     def _post_request(self, post_data, extras={}):
         """
         Makes a request to the token endpoint by sending the
@@ -127,7 +140,7 @@ class TokenTestCase(TestCase):
         code = create_code(
             user=self.user,
             client=self.client,
-            scope=(scope if scope else ['openid', 'email']),
+            scope=(scope if scope else TokenTestCase.SCOPE_LIST),
             nonce=FAKE_NONCE,
             is_authentication=True)
         code.save()
@@ -227,7 +240,11 @@ class TokenTestCase(TestCase):
         self.check_password_grant(scope=['openid', 'email'])
 
     def test_password_grant_scope(self):
-        self.check_password_grant(scope=['openid', 'profile'])
+        scopes_list = ['openid', 'profile']
+
+        self.client.scope = scopes_list
+        self.client.save()
+        self.check_password_grant(scope=scopes_list)
 
     @override_settings(OIDC_TOKEN_EXPIRE=120,
                        OIDC_GRANT_TYPE_PASSWORD_ENABLE=True)
@@ -361,7 +378,7 @@ class TokenTestCase(TestCase):
 
         # Retrieve refresh token
         code = self._create_code()
-        self.assertEqual(code.scope, ['openid', 'email'])
+        self.assertEqual(code.scope, TokenTestCase.SCOPE_LIST)
         post_data = self._auth_code_post_data(code=code.code)
         start_time = time.time()
         with patch('oidc_provider.lib.utils.token.time.time') as time_func:
@@ -661,7 +678,7 @@ class TokenTestCase(TestCase):
 
     @override_settings(
         OIDC_IDTOKEN_PROCESSING_HOOK=[
-                'oidc_provider.tests.app.utils.fake_idtoken_processing_hook',
+            'oidc_provider.tests.app.utils.fake_idtoken_processing_hook',
         ]
     )
     def test_additional_idtoken_processing_hook_one_element_in_list(self):
@@ -682,8 +699,8 @@ class TokenTestCase(TestCase):
 
     @override_settings(
         OIDC_IDTOKEN_PROCESSING_HOOK=[
-                'oidc_provider.tests.app.utils.fake_idtoken_processing_hook',
-                'oidc_provider.tests.app.utils.fake_idtoken_processing_hook2',
+            'oidc_provider.tests.app.utils.fake_idtoken_processing_hook',
+            'oidc_provider.tests.app.utils.fake_idtoken_processing_hook2',
         ]
     )
     def test_additional_idtoken_processing_hook_two_elements_in_list(self):
@@ -754,7 +771,7 @@ class TokenTestCase(TestCase):
         kwargs_passed = id_token.get('kwargs_passed_to_processing_hook')
         assert kwargs_passed
         self.assertTrue(kwargs_passed.get('token').startswith(
-                        '<Token: Some Client -'))
+            '<Token: Some Client -'))
         self.assertEqual(kwargs_passed.get('request'),
                          "<WSGIRequest: POST '/openid/token'>")
         self.assertEqual(set(kwargs_passed.keys()), {'token', 'request'})
@@ -797,11 +814,7 @@ class TokenTestCase(TestCase):
         self.client.scope = fake_scopes_list
         self.client.save()
 
-        post_data = {
-            'client_id': self.client.client_id,
-            'client_secret': self.client.client_secret,
-            'grant_type': 'client_credentials',
-        }
+        post_data = self._client_credentials_post_data()
         response = self._post_request(post_data)
         response_dict = json.loads(response.content.decode('utf-8'))
 
@@ -857,12 +870,85 @@ class TokenTestCase(TestCase):
         self.client.scope = ['something']
         self.client.save()
 
-        post_data = {
-            'client_id': self.client.client_id,
-            'client_secret': self.client.client_secret,
-            'grant_type': 'client_credentials',
-        }
-        response = self._post_request(post_data)
+        response = self._post_request(self._client_credentials_post_data())
         response_dict = json.loads(response.content.decode('utf-8'))
         token = Token.objects.get(access_token=response_dict['access_token'])
         self.assertTrue(str(token))
+
+    @override_settings(OIDC_GRANT_TYPE_PASSWORD_ENABLE=True)
+    def test_requested_scope(self):
+        # GRANT_TYPE=PASSWORD
+        response = self._post_request(
+            post_data=self._password_grant_post_data(['openid', 'invalid_scope']),
+            extras=self._password_grant_auth_header()
+        )
+
+        response_dict = json.loads(response.content.decode('utf-8'))
+
+        # It should fail when client requested an invalid scope.
+        self.assertEqual(400, response.status_code)
+        self.assertEqual('invalid_scope', response_dict['error'])
+
+        # happy path: no scope
+        response = self._post_request(
+            post_data=self._password_grant_post_data([]),
+            extras=self._password_grant_auth_header()
+        )
+
+        response_dict = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(TokenTestCase.SCOPE, response_dict['scope'])
+
+        # happy path: single scope
+        response = self._post_request(
+            post_data=self._password_grant_post_data(['email']),
+            extras=self._password_grant_auth_header()
+        )
+
+        response_dict = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(200, response.status_code)
+        self.assertEqual('email', response_dict['scope'])
+
+        # happy path: multiple scopes
+        response = self._post_request(
+            post_data=self._password_grant_post_data(['email', 'openid']),
+            extras=self._password_grant_auth_header()
+        )
+
+        # GRANT_TYPE=CLIENT_CREDENTIALS
+        response_dict = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(200, response.status_code)
+        self.assertEqual('email openid', response_dict['scope'])
+
+        response = self._post_request(
+            post_data=self._client_credentials_post_data(['openid', 'invalid_scope'])
+        )
+
+        response_dict = json.loads(response.content.decode('utf-8'))
+
+        # It should fail when client requested an invalid scope.
+        self.assertEqual(400, response.status_code)
+        self.assertEqual('invalid_scope', response_dict['error'])
+
+        # happy path: no scope
+        response = self._post_request(post_data=self._client_credentials_post_data())
+
+        response_dict = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(TokenTestCase.SCOPE, response_dict['scope'])
+
+        # happy path: single scope
+        response = self._post_request(post_data=self._client_credentials_post_data(['email']))
+
+        response_dict = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(200, response.status_code)
+        self.assertEqual('email', response_dict['scope'])
+
+        # happy path: multiple scopes
+        response = self._post_request(
+            post_data=self._client_credentials_post_data(['email', 'openid'])
+        )
+
+        response_dict = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(200, response.status_code)
+        self.assertEqual('email openid', response_dict['scope'])

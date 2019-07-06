@@ -61,7 +61,7 @@ def create_fake_client(response_type, is_public=False, require_consent=True):
         client.client_secret = str(random.randint(1, 999999)).zfill(6)
     client.redirect_uris = ['http://example.com/']
     client.require_consent = require_consent
-
+    client.scope = ['openid', 'email']
     client.save()
 
     # check if response_type is a string in a python 2 and 3 compatible way
