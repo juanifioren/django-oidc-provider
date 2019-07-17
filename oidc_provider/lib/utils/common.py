@@ -18,6 +18,7 @@ def redirect(uri):
     Custom Response object for redirecting to a Non-HTTP url scheme.
     """
     response = HttpResponse('', status=302)
+    response.url = uri  # TestCase.assertRedirects compatibility
     response['Location'] = uri
     return response
 

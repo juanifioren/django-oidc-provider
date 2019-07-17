@@ -26,6 +26,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
+from django.contrib.auth import logout as auth_logout
 from jwkest import long_to_base64
 
 from oidc_provider.compat import get_attr_or_callable
@@ -349,6 +350,13 @@ class EndSessionView(LogoutView):
         )
 
         self.next_page = next_page
+
+        #  Rewrite LogoutView.dispatch to allowing Non-HTTP url scheme redirect
+        auth_logout(request)
+        next_page = self.get_next_page()
+        if next_page:
+            return redirect(next_page)
+
         return super(EndSessionView, self).dispatch(request, *args, **kwargs)
 
 
