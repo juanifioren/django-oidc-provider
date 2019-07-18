@@ -240,7 +240,6 @@ def userinfo(request, *args, **kwargs):
 
     Return a dictionary.
     """
-    logger.info("userinfo hit")
 
     def set_headers(response):
         response['Cache-Control'] = 'no-store'
