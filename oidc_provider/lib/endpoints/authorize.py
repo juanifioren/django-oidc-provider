@@ -77,6 +77,7 @@ class AuthorizeEndpoint(object):
         self.params['scope'] = query_dict.get('scope', '').split()
         self.params['state'] = query_dict.get('state', '')
         self.params['nonce'] = query_dict.get('nonce', '')
+        self.params['response_mode'] = query_dict.get('response_mode', '')
 
         self.params['prompt'] = self._allowed_prompt_params.intersection(
             set(query_dict.get('prompt', '').split()))
@@ -226,6 +227,19 @@ class AuthorizeEndpoint(object):
             fragment=uri.fragment + urlencode(query_fragment, doseq=True))
 
         return urlunsplit(uri)
+
+    def get_form_post_context(self, uri):
+        """
+        Return dict of context for `form_post.html`
+
+        Returns dict:
+            - params: dict of key:value for hidden form_post fields
+            - redirect_url: url for form action
+        """
+        params = parse_qs(urlsplit(uri).fragment)
+        dic = {'redirect_url': self.params['redirect_uri']}
+        dic['params'] = params
+        return dic
 
     def set_client_user_consent(self):
         """

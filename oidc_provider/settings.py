@@ -165,7 +165,8 @@ class DefaultSettings(object):
     def OIDC_TEMPLATES(self):
         return {
             'authorize': 'oidc_provider/authorize.html',
-            'error': 'oidc_provider/error.html'
+            'error': 'oidc_provider/error.html',
+            'form_post': 'oidc_provider/form_post.html',
         }
 
     @property
