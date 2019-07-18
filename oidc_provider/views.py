@@ -203,6 +203,11 @@ class AuthorizeView(View):
             authorize.set_client_user_consent()
 
             uri = authorize.create_response_uri()
+            if authorize.params['response_mode'] == 'form_post':
+                return render(
+                    request,
+                    OIDC_TEMPLATES['form_post'],
+                    authorize.get_form_post_context(uri))
 
             return redirect(uri)
 
