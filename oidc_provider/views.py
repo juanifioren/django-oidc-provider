@@ -111,14 +111,26 @@ class AuthorizeView(View):
                 if not authorize.client.require_consent and (
                         allow_skipping_consent and
                         'consent' not in authorize.params['prompt']):
-                    return redirect(authorize.create_response_uri())
+                    response_uri = authorize.create_response_uri()
+                    if authorize.params['response_mode'] == 'form_post':
+                        return render(
+                            request,
+                            OIDC_TEMPLATES['form_post'],
+                            authorize.get_form_post_context(response_uri))
+                    return redirect(response_uri)
 
                 if authorize.client.reuse_consent:
                     # Check if user previously give consent.
                     if authorize.client_has_user_consent() and (
                             allow_skipping_consent and
                             'consent' not in authorize.params['prompt']):
-                        return redirect(authorize.create_response_uri())
+                        response_uri = authorize.create_response_uri()
+                        if authorize.params['response_mode'] == 'form_post':
+                            return render(
+                                request,
+                                OIDC_TEMPLATES['form_post'],
+                                authorize.get_form_post_context(response_uri))
+                        return redirect(response_uri)
 
                 if 'none' in authorize.params['prompt']:
                     raise AuthorizeError(
@@ -228,6 +240,7 @@ def userinfo(request, *args, **kwargs):
 
     Return a dictionary.
     """
+    logger.info("userinfo hit")
 
     def set_headers(response):
         response['Cache-Control'] = 'no-store'
