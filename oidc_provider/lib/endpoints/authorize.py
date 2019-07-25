@@ -51,7 +51,7 @@ class AuthorizeEndpoint(object):
         elif self.params['response_type'] in ['id_token', 'id_token token', 'token']:
             self.grant_type = 'implicit'
         elif self.params['response_type'] in [
-             'code token', 'code id_token', 'code id_token token']:
+                'code token', 'code id_token', 'code id_token token']:
             self.grant_type = 'hybrid'
         else:
             self.grant_type = None
@@ -233,14 +233,17 @@ class AuthorizeEndpoint(object):
         Return dict of context for `form_post.html`
 
         Returns dict:
-            - params: dict of key:value for hidden form_post fields
+            - params: dict of key: value for hidden form_post fields
             - redirect_url: url for form action
         """
-        params = parse_qs(urlsplit(uri).fragment)
+        split_uri = urlsplit(uri)
+        frag = parse_qs(split_uri.fragment)
+        query = parse_qs(split_uri.query)
+        params = frag if frag else query
         params = {key: value[0] for key, value in params.items()}
         dic = {'redirect_url': self.params['redirect_uri']}
         dic['params'] = params
-        logger.debug("forum_post dict: %s", dic)
+        logger.debug("form_post dict: %s", dic)
         return dic
 
     def set_client_user_consent(self):
