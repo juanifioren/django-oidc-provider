@@ -1,6 +1,4 @@
-import pytest
 from oidc_provider.lib.errors import RedirectUriError
-import logging
 
 try:
     from urllib.parse import urlencode, quote
@@ -21,7 +19,7 @@ except ImportError:
     from django.core.urlresolvers import reverse
 from django.test import (
     RequestFactory,
-    override_settings
+    override_settings,
 )
 from django.test import TestCase
 from jwkest.jwt import JWT
@@ -36,8 +34,6 @@ from oidc_provider.tests.app.utils import (
 from oidc_provider.lib.utils.authorize import strip_prompt_login
 from oidc_provider.views import AuthorizeView
 from oidc_provider.lib.endpoints.authorize import AuthorizeEndpoint
-
-log = logging.getLogger(__name__)
 
 
 class AuthorizeEndpointMixin(object):

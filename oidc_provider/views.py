@@ -157,7 +157,6 @@ class AuthorizeView(View):
                 return render(request, OIDC_TEMPLATES['authorize'], context)
             else:
                 if 'none' in authorize.params['prompt']:
-                    logger.info('prompt is None')
                     raise AuthorizeError(
                         authorize.params['redirect_uri'], 'login_required', authorize.grant_type)
                 if 'login' in authorize.params['prompt']:
