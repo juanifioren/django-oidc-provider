@@ -243,7 +243,6 @@ class AuthorizeEndpoint(object):
         params = {key: value[0] for key, value in params.items()}
         dic = {'redirect_url': self.params['redirect_uri']}
         dic['params'] = params
-        logger.debug("form_post dict: %s", dic)
         return dic
 
     def set_client_user_consent(self):
