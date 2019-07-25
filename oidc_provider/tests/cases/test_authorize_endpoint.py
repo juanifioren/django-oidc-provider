@@ -1,4 +1,6 @@
+import pytest
 from oidc_provider.lib.errors import RedirectUriError
+import logging
 
 try:
     from urllib.parse import urlencode, quote
@@ -19,7 +21,7 @@ except ImportError:
     from django.core.urlresolvers import reverse
 from django.test import (
     RequestFactory,
-    override_settings,
+    override_settings
 )
 from django.test import TestCase
 from jwkest.jwt import JWT
@@ -34,6 +36,8 @@ from oidc_provider.tests.app.utils import (
 from oidc_provider.lib.utils.authorize import strip_prompt_login
 from oidc_provider.views import AuthorizeView
 from oidc_provider.lib.endpoints.authorize import AuthorizeEndpoint
+
+log = logging.getLogger(__name__)
 
 
 class AuthorizeEndpointMixin(object):
@@ -498,6 +502,217 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         self.assertNotIn('login', strip_prompt_login(path3))
 
 
+class TestAuthorizeResponseModeFormPost(TestCase, AuthorizeEndpointMixin):
+    """Test cases authorization endpoint when response_mode=form_post
+
+    If response_mode=form_post, then the response from the server
+    should be a post to the redirect_uri instead of a GET
+
+    This will render a template with variables as input fields and then
+    autosubmit the form via javascript
+    
+    https://openid.net/specs/oauth-v2-form-post-response-mode-1_0.html#FormPostResponseMode
+    """
+
+    def setUp(self):
+        call_command('creatersakey')
+        self.factory = RequestFactory()
+        self.user = create_fake_user()
+        self.client = create_fake_client(response_type='code')
+        self.client_with_no_consent = create_fake_client(
+            response_type='code', require_consent=False)
+        self.client_public = create_fake_client(response_type='code', is_public=True)
+        self.client_public_with_no_consent = create_fake_client(
+            response_type='code', is_public=True, require_consent=False)
+        self.state = uuid.uuid4().hex
+        self.nonce = uuid.uuid4().hex
+
+    def test_success_via_get(self):
+        """
+        Test with response_mode=form_post via GET to authorize
+        """
+
+        data = {
+            'client_id': self.client_with_no_consent.client_id,
+            'response_type': 'code',
+            'response_mode': 'form_post',
+            'redirect_uri': self.client_with_no_consent.default_redirect_uri,
+            'scope': 'openid ',
+            'state': self.state,
+            'prompt': 'none',
+        }
+
+        response = self._auth_request('get', data, is_user_authenticated=True)
+
+        self.assertIn('action="{}"'.format(self.client.redirect_uris[0]), 
+                      response.content.decode('utf-8'))
+        self.assertIn('<input type="hidden" name="state" value="{}" />'.format(self.state), 
+                      response.content.decode('utf-8'))
+        self.assertIn('<input type="hidden" name="code" value='.format(self.state), 
+                      response.content.decode('utf-8'))
+
+    def test_success_via_post(self):
+        """
+        Test with response_mode=form_post via POST to authorize
+        """
+
+        data = {
+            'client_id': self.client.client_id,
+            'response_type': 'code',
+            'response_mode': 'form_post',
+            'redirect_uri': self.client.default_redirect_uri,
+            'scope': 'openid ',
+            'state': self.state,
+            'prompt': 'none',
+            'allow': 'Accept',
+        }
+
+        response = self._auth_request('post', data, is_user_authenticated=True)
+
+        self.assertIn('action="{}"'.format(self.client.redirect_uris[0]), 
+                      response.content.decode('utf-8'))
+        self.assertIn('<input type="hidden" name="state" value="{}" />'.format(self.state), 
+                      response.content.decode('utf-8'))
+        self.assertIn('<input type="hidden" name="code" value='.format(self.state), 
+                      response.content.decode('utf-8'))
+
+    def test_error_via_get(self):
+        """
+        If error occurs when response_mode=form_post via GET at authorize,
+        the response_mode should be honored
+
+        https://openid.net/specs/oauth-v2-multiple-response-types-1_0.html#MultiValueResponseTypes
+
+        Error is that user requires consent
+        """
+
+        data = {
+            'client_id': self.client.client_id,
+            'response_type': 'code',
+            'response_mode': 'form_post',
+            'redirect_uri': self.client.default_redirect_uri,
+            'scope': 'openid ',
+            'state': self.state,
+            'prompt': 'none',
+        }
+
+        response = self._auth_request('get', data, is_user_authenticated=True)
+
+        self.assertIn('action="{}"'.format(self.client.redirect_uris[0]), 
+                      response.content.decode('utf-8'))
+        self.assertIn('<input type="hidden" name="state" value="{}" />'.format(self.state), 
+                      response.content.decode('utf-8'))
+        self.assertIn('<input type="hidden" name="error" value=',
+                      response.content.decode('utf-8'))
+        self.assertIn('<input type="hidden" name="error_description" value=',
+                      response.content.decode('utf-8'))
+        self.assertNotIn('<input type="hidden" name="code"',
+                         response.content.decode('utf-8'))
+
+    def test_user_declines_via_post(self):
+        """
+        If error user does not consent when response_mode=form_post via POST 
+        at authorize, the response_mode should be honored
+
+        https://openid.net/specs/oauth-v2-multiple-response-types-1_0.html#MultiValueResponseTypes
+        """
+
+        data = {
+            'client_id': self.client.client_id,
+            'response_type': 'code',
+            'response_mode': 'form_post',
+            'redirect_uri': self.client.default_redirect_uri,
+            'scope': 'openid ',
+            'state': self.state,
+            'prompt': 'none',
+        }
+
+        response = self._auth_request('post', data, is_user_authenticated=True)
+
+        self.assertIn('action="{}"'.format(self.client.redirect_uris[0]), 
+                      response.content.decode('utf-8'))
+        self.assertIn('<input type="hidden" name="state" value="{}" />'.format(self.state), 
+                      response.content.decode('utf-8'))
+        self.assertIn('<input type="hidden" name="error" value=',
+                      response.content.decode('utf-8'))
+        self.assertIn('<input type="hidden" name="error_description" value=',
+                      response.content.decode('utf-8'))
+        self.assertNotIn('<input type="hidden" name="code"',
+                         response.content.decode('utf-8'))
+
+    def test_error_via_post(self):
+        """
+        If error occurs when response_mode=form_post via POST at authorize,
+        the response_mode should be honored
+
+        https://openid.net/specs/oauth-v2-multiple-response-types-1_0.html#MultiValueResponseTypes
+        """
+
+        data = {
+            'client_id': self.client.client_id,
+            'response_type': 'bad fishy!',
+            'response_mode': 'form_post',
+            'redirect_uri': self.client.default_redirect_uri,
+            'scope': 'openid ',
+            'state': self.state,
+            'prompt': 'none',
+            'allow': 'Accept',
+        }
+
+        response = self._auth_request('post', data, is_user_authenticated=True)
+
+        self.assertIn('action="{}"'.format(self.client.redirect_uris[0]), 
+                      response.content.decode('utf-8'))
+        self.assertIn('<input type="hidden" name="state" value="{}" />'.format(self.state), 
+                      response.content.decode('utf-8'))
+        self.assertIn('<input type="hidden" name="error" value=',
+                      response.content.decode('utf-8'))
+        self.assertIn('<input type="hidden" name="error_description" value=',
+                      response.content.decode('utf-8'))
+        self.assertNotIn('<input type="hidden" name="code"',
+                         response.content.decode('utf-8'))
+
+    def test_success_get_reuse_consent(self):
+        """
+        Test with response_mode=form_post via GET to authorize when reusing 
+        consent
+        """
+
+        self.client.reuse_consent = True
+        self.client.save()
+
+        data = {
+            'client_id': self.client.client_id,
+            'response_type': 'code',
+            'response_mode': 'form_post',
+            'redirect_uri': self.client.default_redirect_uri,
+            'scope': 'openid ',
+            'state': self.state,
+            'prompt': 'none',
+            'allow': 'Accept',
+        }
+
+        response = self._auth_request('post', data, is_user_authenticated=True)
+
+        self.assertIn('action="{}"'.format(self.client.redirect_uris[0]), 
+                      response.content.decode('utf-8'))
+        self.assertIn('<input type="hidden" name="state" value="{}" />'.format(self.state), 
+                      response.content.decode('utf-8'))
+        self.assertIn('<input type="hidden" name="code" value='.format(self.state), 
+                      response.content.decode('utf-8'))
+
+        del data['allow']
+
+        response = self._auth_request('get', data, is_user_authenticated=True)
+
+        self.assertIn('action="{}"'.format(self.client.redirect_uris[0]), 
+                      response.content.decode('utf-8'))
+        self.assertIn('<input type="hidden" name="state" value="{}" />'.format(self.state), 
+                      response.content.decode('utf-8'))
+        self.assertIn('<input type="hidden" name="code" value='.format(self.state), 
+                      response.content.decode('utf-8'))
+
+
 class AuthorizationImplicitFlowTestCase(TestCase, AuthorizeEndpointMixin):
     """
     Test cases for Authorization Endpoint using Implicit Flow.
@@ -799,3 +1014,5 @@ class TestCreateResponseURI(TestCase):
 
         uri = authorization_endpoint.create_response_uri()
         self.assertIn('session_state=', uri)
+
+
