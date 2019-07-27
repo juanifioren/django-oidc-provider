@@ -167,7 +167,7 @@ class DefaultSettings(object):
         RECOMMENDED. A list of Claims names that you may support. Does not need
         to be exhaustive for security reasons.
 
-        https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata 
+        https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata
         """
         return []
 

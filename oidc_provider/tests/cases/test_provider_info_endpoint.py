@@ -32,7 +32,7 @@ class ProviderInfoTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'] == 'application/json', True)
         self.assertEqual(bool(response.content), True)
-    
+
     def test_expected_keys_in_response(self):
         """
         Test that response contains all ncecessary keys
@@ -57,7 +57,7 @@ class ProviderInfoTestCase(TestCase):
         response = ProviderInfoView.as_view()(request)
         resp_keys = set(json.loads(response.content.decode('utf-8')).keys())
         self.assertEqual(required_keys, resp_keys)
-    
+
     def test_claims_supported_not_set(self):
         """
         If OIDC_CLAIMS_SUPPORTED is not set in settings.py, the claims_supported
@@ -82,12 +82,3 @@ class ProviderInfoTestCase(TestCase):
         response = ProviderInfoView.as_view()(request)
         dic = json.loads(response.content.decode('utf-8'))
         self.assertEqual(dic['claims_supported'], expected_claims)
-
-
-
-
-    
-
-
-
-
