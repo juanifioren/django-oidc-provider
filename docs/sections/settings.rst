@@ -247,9 +247,9 @@ Must be ``True`` to include ``scope`` into the successful response
 Default is ``False``.
 
 OIDC_CLAIMS_SUPPORTED
-=================
+=====================
 
-RECOMMENDED. ``list``. RECOMMENDED. List containing a list of the Claim Names of the Claims that the OpenID Provider MAY be able to supply values for. Note that for privacy or other reasons, this might not be an exhaustive list.
+RECOMMENDED. ``list``. List containing a list of the Claim Names of the Claims that the OpenID Provider MAY be able to supply values for. Note that for privacy or other reasons, this might not be an exhaustive list.
 
 https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata
 
