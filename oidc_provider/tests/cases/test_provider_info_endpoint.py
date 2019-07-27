@@ -11,6 +11,11 @@ from oidc_provider.views import ProviderInfoView
 
 class ProviderInfoTestCase(TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        super(ProviderInfoTestCase, cls).setUpClass()
+        cls.url = reverse('oidc_provider:provider-info')
+
     def setUp(self):
         self.factory = RequestFactory()
 
@@ -19,9 +24,8 @@ class ProviderInfoTestCase(TestCase):
         See if the endpoint is returning the corresponding
         server information by checking status, content type, etc.
         """
-        url = reverse('oidc_provider:provider-info')
 
-        request = self.factory.get(url)
+        request = self.factory.get(self.url)
 
         response = ProviderInfoView.as_view()(request)
 
@@ -47,9 +51,8 @@ class ProviderInfoTestCase(TestCase):
             'token_endpoint_auth_methods_supported',
             'claims_supported',
         }
-        url = reverse('oidc_provider:provider-info')
 
-        request = self.factory.get(url)
+        request = self.factory.get(self.url)
 
         response = ProviderInfoView.as_view()(request)
         resp_keys = set(json.loads(response.content.decode('utf-8')).keys())
@@ -60,9 +63,7 @@ class ProviderInfoTestCase(TestCase):
         If OIDC_CLAIMS_SUPPORTED is not set in settings.py, the claims_supported
         entry is an empty list
         """
-        url = reverse('oidc_provider:provider-info')
-
-        request = self.factory.get(url)
+        request = self.factory.get(self.url)
 
         response = ProviderInfoView.as_view()(request)
         dic = json.loads(response.content.decode('utf-8'))
@@ -74,10 +75,9 @@ class ProviderInfoTestCase(TestCase):
         If OIDC_CLAIMS_SUPPORTED is not set in settings.py, the claims_supported
         entry is an empty list
         """
-        url = reverse('oidc_provider:provider-info')
         expected_claims = ['openid', 'email']
 
-        request = self.factory.get(url)
+        request = self.factory.get(self.url)
 
         response = ProviderInfoView.as_view()(request)
         dic = json.loads(response.content.decode('utf-8'))
