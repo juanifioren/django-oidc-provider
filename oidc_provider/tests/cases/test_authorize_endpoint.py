@@ -506,7 +506,7 @@ class TestAuthorizeResponseModeFormPost(TestCase, AuthorizeEndpointMixin):
 
     This will render a template with variables as input fields and then
     autosubmit the form via javascript
-    
+
     https://openid.net/specs/oauth-v2-form-post-response-mode-1_0.html#FormPostResponseMode
     """
 
@@ -540,11 +540,11 @@ class TestAuthorizeResponseModeFormPost(TestCase, AuthorizeEndpointMixin):
 
         response = self._auth_request('get', data, is_user_authenticated=True)
 
-        self.assertIn('action="{}"'.format(self.client.redirect_uris[0]), 
+        self.assertIn('action="{}"'.format(self.client.redirect_uris[0]),
                       response.content.decode('utf-8'))
-        self.assertIn('<input type="hidden" name="state" value="{}" />'.format(self.state), 
+        self.assertIn('<input type="hidden" name="state" value="{}" />'.format(self.state),
                       response.content.decode('utf-8'))
-        self.assertIn('<input type="hidden" name="code" value='.format(self.state), 
+        self.assertIn('<input type="hidden" name="code" value='.format(self.state),
                       response.content.decode('utf-8'))
 
     def test_success_via_post(self):
@@ -565,11 +565,11 @@ class TestAuthorizeResponseModeFormPost(TestCase, AuthorizeEndpointMixin):
 
         response = self._auth_request('post', data, is_user_authenticated=True)
 
-        self.assertIn('action="{}"'.format(self.client.redirect_uris[0]), 
+        self.assertIn('action="{}"'.format(self.client.redirect_uris[0]),
                       response.content.decode('utf-8'))
-        self.assertIn('<input type="hidden" name="state" value="{}" />'.format(self.state), 
+        self.assertIn('<input type="hidden" name="state" value="{}" />'.format(self.state),
                       response.content.decode('utf-8'))
-        self.assertIn('<input type="hidden" name="code" value='.format(self.state), 
+        self.assertIn('<input type="hidden" name="code" value='.format(self.state),
                       response.content.decode('utf-8'))
 
     def test_error_via_get(self):
@@ -594,9 +594,9 @@ class TestAuthorizeResponseModeFormPost(TestCase, AuthorizeEndpointMixin):
 
         response = self._auth_request('get', data, is_user_authenticated=True)
 
-        self.assertIn('action="{}"'.format(self.client.redirect_uris[0]), 
+        self.assertIn('action="{}"'.format(self.client.redirect_uris[0]),
                       response.content.decode('utf-8'))
-        self.assertIn('<input type="hidden" name="state" value="{}" />'.format(self.state), 
+        self.assertIn('<input type="hidden" name="state" value="{}" />'.format(self.state),
                       response.content.decode('utf-8'))
         self.assertIn('<input type="hidden" name="error" value=',
                       response.content.decode('utf-8'))
@@ -607,7 +607,7 @@ class TestAuthorizeResponseModeFormPost(TestCase, AuthorizeEndpointMixin):
 
     def test_user_declines_via_post(self):
         """
-        If error user does not consent when response_mode=form_post via POST 
+        If error user does not consent when response_mode=form_post via POST
         at authorize, the response_mode should be honored
 
         https://openid.net/specs/oauth-v2-multiple-response-types-1_0.html#MultiValueResponseTypes
@@ -625,9 +625,9 @@ class TestAuthorizeResponseModeFormPost(TestCase, AuthorizeEndpointMixin):
 
         response = self._auth_request('post', data, is_user_authenticated=True)
 
-        self.assertIn('action="{}"'.format(self.client.redirect_uris[0]), 
+        self.assertIn('action="{}"'.format(self.client.redirect_uris[0]),
                       response.content.decode('utf-8'))
-        self.assertIn('<input type="hidden" name="state" value="{}" />'.format(self.state), 
+        self.assertIn('<input type="hidden" name="state" value="{}" />'.format(self.state),
                       response.content.decode('utf-8'))
         self.assertIn('<input type="hidden" name="error" value=',
                       response.content.decode('utf-8'))
@@ -657,9 +657,9 @@ class TestAuthorizeResponseModeFormPost(TestCase, AuthorizeEndpointMixin):
 
         response = self._auth_request('post', data, is_user_authenticated=True)
 
-        self.assertIn('action="{}"'.format(self.client.redirect_uris[0]), 
+        self.assertIn('action="{}"'.format(self.client.redirect_uris[0]),
                       response.content.decode('utf-8'))
-        self.assertIn('<input type="hidden" name="state" value="{}" />'.format(self.state), 
+        self.assertIn('<input type="hidden" name="state" value="{}" />'.format(self.state),
                       response.content.decode('utf-8'))
         self.assertIn('<input type="hidden" name="error" value=',
                       response.content.decode('utf-8'))
@@ -670,7 +670,7 @@ class TestAuthorizeResponseModeFormPost(TestCase, AuthorizeEndpointMixin):
 
     def test_success_get_reuse_consent(self):
         """
-        Test with response_mode=form_post via GET to authorize when reusing 
+        Test with response_mode=form_post via GET to authorize when reusing
         consent
         """
 
@@ -690,22 +690,22 @@ class TestAuthorizeResponseModeFormPost(TestCase, AuthorizeEndpointMixin):
 
         response = self._auth_request('post', data, is_user_authenticated=True)
 
-        self.assertIn('action="{}"'.format(self.client.redirect_uris[0]), 
+        self.assertIn('action="{}"'.format(self.client.redirect_uris[0]),
                       response.content.decode('utf-8'))
-        self.assertIn('<input type="hidden" name="state" value="{}" />'.format(self.state), 
+        self.assertIn('<input type="hidden" name="state" value="{}" />'.format(self.state),
                       response.content.decode('utf-8'))
-        self.assertIn('<input type="hidden" name="code" value='.format(self.state), 
+        self.assertIn('<input type="hidden" name="code" value='.format(self.state),
                       response.content.decode('utf-8'))
 
         del data['allow']
 
         response = self._auth_request('get', data, is_user_authenticated=True)
 
-        self.assertIn('action="{}"'.format(self.client.redirect_uris[0]), 
+        self.assertIn('action="{}"'.format(self.client.redirect_uris[0]),
                       response.content.decode('utf-8'))
-        self.assertIn('<input type="hidden" name="state" value="{}" />'.format(self.state), 
+        self.assertIn('<input type="hidden" name="state" value="{}" />'.format(self.state),
                       response.content.decode('utf-8'))
-        self.assertIn('<input type="hidden" name="code" value='.format(self.state), 
+        self.assertIn('<input type="hidden" name="code" value='.format(self.state),
                       response.content.decode('utf-8'))
 
 
