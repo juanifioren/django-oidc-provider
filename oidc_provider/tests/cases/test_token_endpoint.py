@@ -57,7 +57,7 @@ class TokenTestCase(TestCase):
         self.factory = RequestFactory()
         self.user = create_fake_user()
         self.request_client = self.client
-        self.client = create_fake_client(response_type='code')
+        self.client = create_fake_client(response_type='password')
 
     def _password_grant_post_data(self, scope=None):
         result = {

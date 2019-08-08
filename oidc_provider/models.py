@@ -22,6 +22,7 @@ RESPONSE_TYPE_CHOICES = [
     ('code token', 'code token (Hybrid Flow)'),
     ('code id_token', 'code id_token (Hybrid Flow)'),
     ('code id_token token', 'code id_token token (Hybrid Flow)'),
+    ('password', 'password (Password grant type)'),
 ]
 
 JWT_ALGS = [

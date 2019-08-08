@@ -94,7 +94,8 @@ class TokenEndpoint(object):
                     raise TokenError('invalid_grant')
 
         elif self.params['grant_type'] == 'password':
-            if not settings.get('OIDC_GRANT_TYPE_PASSWORD_ENABLE'):
+            if not (settings.get('OIDC_GRANT_TYPE_PASSWORD_ENABLE')
+                    and 'password' in self.client.response_type_values()):
                 raise TokenError('unsupported_grant_type')
 
             auth_args = (self.request,)
