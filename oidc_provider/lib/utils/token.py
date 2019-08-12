@@ -20,7 +20,7 @@ from oidc_provider import settings
 
 
 def create_id_token(token, user, aud, nonce='', at_hash='', request=None,
-                    scope=None):
+                    scope=None, amr=None, acr=None):
     """
     Creates the id_token dictionary.
     See: http://openid.net/specs/openid-connect-core-1_0.html#IDToken
@@ -46,6 +46,8 @@ def create_id_token(token, user, aud, nonce='', at_hash='', request=None,
         'exp': exp_time,
         'iat': iat_time,
         'auth_time': auth_time,
+        'amr': amr,
+        'acr': acr,
     }
 
     if nonce:
