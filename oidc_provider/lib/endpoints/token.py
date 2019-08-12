@@ -197,7 +197,9 @@ class TokenEndpoint(object):
         token = create_token(
             user=self.token.user,
             client=self.token.client,
-            scope=scope)
+            scope=scope,
+            ae=self.token.ae,
+            rid=self.token.rid)
 
         # If the Token has an id_token it's an Authentication request.
         if self.token.id_token:
@@ -209,6 +211,8 @@ class TokenEndpoint(object):
                 at_hash=token.at_hash,
                 request=self.request,
                 scope=token.scope,
+                acr=self.token.id_token.get('acr'),
+                amr=self.token.id_token.get('amr')
             )
         else:
             id_token_dic = {}
