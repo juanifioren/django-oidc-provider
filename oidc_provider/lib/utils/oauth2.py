@@ -7,7 +7,6 @@ from django.http import HttpResponse
 from oidc_provider.lib.errors import BearerTokenError
 from oidc_provider.models import Token
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -21,7 +20,7 @@ def extract_access_token(request):
     """
     auth_header = request.META.get('HTTP_AUTHORIZATION', '')
 
-    if re.compile('^[Bb]earer\s{1}.+$').match(auth_header):
+    if re.compile(r'^[Bb]earer\s{1}.+$').match(auth_header):
         access_token = auth_header.split()[1]
     else:
         access_token = request.GET.get('access_token', '')
@@ -39,7 +38,7 @@ def extract_client_auth(request):
     """
     auth_header = request.META.get('HTTP_AUTHORIZATION', '')
 
-    if re.compile('^Basic\s{1}.+$').match(auth_header):
+    if re.compile(r'^Basic\s{1}.+$').match(auth_header):
         b64_user_pass = auth_header.split()[1]
         try:
             user_pass = b64decode(b64_user_pass).decode('utf-8').split(':')
@@ -63,7 +62,7 @@ def protected_resource_view(scopes=None):
         scopes = []
 
     def wrapper(view):
-        def view_wrapper(request,  *args, **kwargs):
+        def view_wrapper(request, *args, **kwargs):
             access_token = extract_access_token(request)
 
             try:
@@ -86,7 +85,7 @@ def protected_resource_view(scopes=None):
                     error.code, error.description)
                 return response
 
-            return view(request,  *args, **kwargs)
+            return view(request, *args, **kwargs)
 
         return view_wrapper
 
