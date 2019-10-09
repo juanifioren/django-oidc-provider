@@ -114,6 +114,19 @@ class DefaultSettings(object):
         return 60*60
 
     @property
+    def OIDC_REFRESH_TOKEN_EXPIRE(self):
+        """
+        OPTIONAL. Refresh token expiration time expressed in seconds.
+
+        Zero: Refresh token doesn't expire.
+        Note: Increasing expiration time settings could make previously
+        expired refresh tokens usable. Hence, increase expiry time with care.
+        Ex: delete existing refresh tokens before increasing
+        refresh token expire time.
+        """
+        return 0
+
+    @property
     def OIDC_USERINFO(self):
         """
         OPTIONAL. A string with the location of your function.

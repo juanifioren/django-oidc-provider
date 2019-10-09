@@ -122,11 +122,15 @@ class TokenEndpoint(object):
             try:
                 self.token = Token.objects.get(refresh_token=self.params['refresh_token'],
                                                client=self.client)
-
             except Token.DoesNotExist:
                 logger.debug(
                     '[Token] Refresh token does not exist: %s', self.params['refresh_token'])
                 raise TokenError('invalid_grant')
+
+            if self.token.has_expired_refresh_token():
+                logger.debug(
+                    '[Token] Refresh token expired: %s', self.params['refresh_token'])
+                raise TokenError('invalid_token')
         elif self.params['grant_type'] == 'client_credentials':
             if not self.client._scope:
                 logger.debug('[Token] Client using client credentials with empty scope')
