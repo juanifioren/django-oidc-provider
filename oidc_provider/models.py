@@ -3,12 +3,13 @@ import base64
 import binascii
 from hashlib import md5, sha256
 import json
+import datetime
 
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
-
+from . import settings as oidc_settings
 
 CLIENT_TYPE_CHOICES = [
     ('confidential', 'Confidential'),
@@ -216,6 +217,24 @@ class Token(BaseCodeTokenModel):
     @property
     def id_token(self):
         return json.loads(self._id_token) if self._id_token else None
+
+    def has_expired_refresh_token(self):
+        if not oidc_settings.get('OIDC_REFRESH_TOKEN_EXPIRE'):
+            return False
+
+        if oidc_settings.get('OIDC_REFRESH_TOKEN_EXPIRE') < oidc_settings.get('OIDC_TOKEN_EXPIRE'):
+            raise ValueError('Invalid setting for OIDC_REFRESH_TOKEN_EXPIRE')
+
+        # Note: Increasing expiration time settings could make previously
+        # expired refresh tokens usable. Therefore, clear all the
+        # refresh tokens when increasing refresh token expire time.
+        offset = (
+                oidc_settings.get('OIDC_REFRESH_TOKEN_EXPIRE')
+                - oidc_settings.get('OIDC_TOKEN_EXPIRE')
+        )
+        expires_at = self.expires_at + datetime.timedelta(seconds=offset)
+
+        return timezone.now() >= expires_at
 
     @id_token.setter
     def id_token(self, value):

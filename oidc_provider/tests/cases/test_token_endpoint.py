@@ -3,6 +3,9 @@ import time
 import uuid
 
 from base64 import b64encode
+from datetime import timedelta
+
+from django.utils import timezone
 
 try:
     from urllib.parse import urlencode
@@ -428,6 +431,53 @@ class TokenTestCase(TestCase):
         del post_data['refresh_token']
         response = self._post_request(post_data)
         self.assertIn('invalid_grant', response.content.decode('utf-8'))
+
+        # Refresh token doesn't expires with default settings
+        post_data = self._refresh_token_post_data(response_dic2['refresh_token'], scope)
+        expiry_time = timezone.now() + timedelta(
+            seconds=24*60*60,
+        )
+        with patch('oidc_provider.models.timezone.now') as time_func:
+            time_func.return_value = expiry_time
+            response = self._post_request(post_data)
+            self.assertIn('refresh_token', response.content.decode('utf-8'))
+
+    @override_settings(OIDC_IDTOKEN_INCLUDE_CLAIMS=True)
+    @override_settings(OIDC_REFRESH_TOKEN_EXPIRE=24 * 60 * 60)
+    def test_refresh_token_expiry(self):
+        """
+        Refresh token expiry
+        Make sure that refresh token expires properly.
+        """
+        response = self._refresh_request(elapsed_time=24 * 60 * 60)
+        self.assertIn('invalid_token', response.content.decode('utf-8'))
+
+    @override_settings(OIDC_IDTOKEN_INCLUDE_CLAIMS=True)
+    @override_settings(OIDC_REFRESH_TOKEN_EXPIRE=24 * 60 * 60)
+    def test_refresh_token_not_expired(self, scope=None):
+        """
+        Refresh token expiry
+        Make sure that refresh token is not expired.
+        """
+        response = self._refresh_request(elapsed_time=(24 * 60 * 60) - 1)
+        self.assertIn('id_token', response.content.decode('utf-8'))
+
+    def _refresh_request(self, elapsed_time):
+        code = self._create_code()
+        self.assertEqual(code.scope, ['openid', 'email'])
+        post_data = self._auth_code_post_data(code=code.code)
+        response = self._post_request(post_data)
+        response_dic1 = json.loads(response.content.decode('utf-8'))
+        # Use refresh token to obtain new token
+        post_data = self._refresh_token_post_data(
+            response_dic1['refresh_token'], code.scope
+        )
+        current_time = timezone.now() + timedelta(seconds=elapsed_time)
+        with patch('oidc_provider.models.timezone.now') as time_func:
+            time_func.return_value = current_time
+            response = self._post_request(post_data)
+
+        return response
 
     def test_client_redirect_uri(self):
         """
