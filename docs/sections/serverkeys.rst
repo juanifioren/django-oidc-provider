@@ -3,7 +3,7 @@
 Server Keys
 ###########
 
-Server RSA keys are used to sign/encrypt ID Tokens. These keys are stored in the ``RSAKey`` model. So the package will automatically generate public keys and expose them in the ``jwks_uri`` endpoint.
+Server RSA keys are used to sign/encrypt ID Tokens. These keys are stored in the ``RSAKey`` model. So the package will automatically generate public keys and expose them in the ``jwks`` endpoint.
 
 You can easily create them with the admin:
 
@@ -12,7 +12,7 @@ You can easily create them with the admin:
 
 Or by using ``python manage.py creatersakey`` command.
 
-Here is an example response from the ``jwks_uri`` endpoint::
+Here is an example response from the ``jwks`` endpoint::
 
     GET /openid/jwks HTTP/1.1
     Host: localhost:8000
