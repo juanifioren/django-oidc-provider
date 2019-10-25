@@ -185,7 +185,7 @@ class BaseCodeTokenModel(models.Model):
 class Code(BaseCodeTokenModel):
 
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, verbose_name=_(u'User'), on_delete=models.CASCADE)
+        settings.AUTH_USER_MODEL, verbose_name=_(u'User'), on_delete=models.CASCADE, related_name='+')
     code = models.CharField(max_length=255, unique=True, verbose_name=_(u'Code'))
     nonce = models.CharField(max_length=255, blank=True, default='', verbose_name=_(u'Nonce'))
     is_authentication = models.BooleanField(default=False, verbose_name=_(u'Is Authentication?'))
@@ -204,7 +204,7 @@ class Code(BaseCodeTokenModel):
 class Token(BaseCodeTokenModel):
 
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, null=True, verbose_name=_(u'User'), on_delete=models.CASCADE)
+        settings.AUTH_USER_MODEL, null=True, verbose_name=_(u'User'), on_delete=models.CASCADE, related_name='+')
     access_token = models.CharField(max_length=255, unique=True, verbose_name=_(u'Access Token'))
     refresh_token = models.CharField(max_length=255, unique=True, verbose_name=_(u'Refresh Token'))
     _id_token = models.TextField(verbose_name=_(u'ID Token'))
