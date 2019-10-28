@@ -260,7 +260,7 @@ def userinfo(request, *args, **kwargs):
 
 class ProviderInfoView(View):
     @cached_property
-    def response_types(self):
+    def supported_response_types(self):
         return [response_type.value for response_type in ResponseType.objects.all()]
 
     def get(self, request, *args, **kwargs):
@@ -275,7 +275,7 @@ class ProviderInfoView(View):
         dic['end_session_endpoint'] = site_url + reverse('oidc_provider:end-session')
         dic['introspection_endpoint'] = site_url + reverse('oidc_provider:token-introspection')
 
-        dic['response_types_supported'] = self.response_types
+        dic['response_types_supported'] = self.supported_response_types
 
         dic['jwks_uri'] = site_url + reverse('oidc_provider:jwks')
 

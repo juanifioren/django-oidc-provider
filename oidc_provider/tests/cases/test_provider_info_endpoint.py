@@ -29,14 +29,14 @@ class ProviderInfoTestCase(TestCase):
         self.assertEqual(response['Content-Type'] == 'application/json', True)
         self.assertEqual(bool(response.content), True)
 
-    def test_response_types(self):
+    def test_supported_response_types_property(self):
         view = ProviderInfoView()
 
-        self.assertEqual(len(view.response_types), 6)
+        self.assertEqual(len(view.supported_response_types), 6)
 
         ResponseType.objects.create(value="foo", description="bar")
 
-        self.assertEqual(len(view.response_types), 6)
+        self.assertEqual(len(view.supported_response_types), 6)
 
-        del view.__dict__['response_types']
-        self.assertEqual(len(view.response_types), 7)
+        del view.__dict__['supported_response_types']
+        self.assertEqual(len(view.supported_response_types), 7)
