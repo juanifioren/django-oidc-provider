@@ -1,5 +1,6 @@
 import logging
 
+from cached_property import cached_property
 from django.views.decorators.csrf import csrf_exempt
 
 from oidc_provider.lib.endpoints.introspection import TokenIntrospectionEndpoint
@@ -258,6 +259,10 @@ def userinfo(request, *args, **kwargs):
 
 
 class ProviderInfoView(View):
+    @cached_property
+    def response_types(self):
+        return [response_type.value for response_type in ResponseType.objects.all()]
+
     def get(self, request, *args, **kwargs):
         dic = dict()
 
@@ -270,8 +275,7 @@ class ProviderInfoView(View):
         dic['end_session_endpoint'] = site_url + reverse('oidc_provider:end-session')
         dic['introspection_endpoint'] = site_url + reverse('oidc_provider:token-introspection')
 
-        types_supported = [response_type.value for response_type in ResponseType.objects.all()]
-        dic['response_types_supported'] = types_supported
+        dic['response_types_supported'] = self.response_types
 
         dic['jwks_uri'] = site_url + reverse('oidc_provider:jwks')
 

@@ -5,6 +5,7 @@ except ImportError:
 from django.test import RequestFactory
 from django.test import TestCase
 
+from oidc_provider.models import ResponseType
 from oidc_provider.views import ProviderInfoView
 
 
@@ -27,3 +28,15 @@ class ProviderInfoTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'] == 'application/json', True)
         self.assertEqual(bool(response.content), True)
+
+    def test_response_types(self):
+        view = ProviderInfoView()
+
+        self.assertEqual(len(view.response_types), 6)
+
+        ResponseType.objects.create(value="foo", description="bar")
+
+        self.assertEqual(len(view.response_types), 6)
+
+        del view.__dict__['response_types']
+        self.assertEqual(len(view.response_types), 7)
