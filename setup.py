@@ -36,16 +36,19 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
     test_suite='runtests.runtests',
     tests_require=[
+        'cached-property>=1.5.0',
         'pyjwkest>=1.3.0',
         'mock>=2.0.0',
     ],
 
     install_requires=[
+        'cached-property>=1.5.0',
         'pyjwkest>=1.3.0',
     ],
 )
