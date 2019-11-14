@@ -1,7 +1,18 @@
 try:
-    from urllib.parse import quote
+    from urllib.parse import (
+        urlparse,
+        urlunparse,
+        urlencode,
+        parse_qsl
+    )
+
 except ImportError:
-    from urllib import quote
+    from urllib import urlencode
+    from urlparse import (
+        urlparse,
+        urlunparse,
+        parse_qsl
+    )
 
 
 class RedirectUriError(Exception):
@@ -105,21 +116,33 @@ class AuthorizeError(Exception):
         self.grant_type = grant_type
 
     def create_uri(self, redirect_uri, state):
-        description = quote(self.description)
+        """Return uri with error, error_description and optional state"""
 
         # See:
         # http://openid.net/specs/openid-connect-core-1_0.html#ImplicitAuthError
-        hash_or_question = '#' if self.grant_type == 'implicit' else '?'
+        ours = dict({
+            'error': self.error, 'error_description': self.description})
+        if state:
+            ours['state'] = state
 
-        uri = '{0}{1}error={2}&error_description={3}'.format(
-            redirect_uri,
-            hash_or_question,
-            self.error,
-            description)
+        parsed = list(urlparse(redirect_uri))
+        query_params = dict(parse_qsl(parsed[4]))
+        # This assumes redirect_url would never contain a non-parameter type
+        # fragment
+        frag_params = dict(parse_qsl(parsed[5]))
 
-        # Add state if present.
-        uri = uri + ('&state={0}'.format(state) if state else '')
+        # Update the appropriate params with ours
+        if self.grant_type == 'implicit':
+            frag_params.update(ours)
+        else:
+            query_params.update(ours)
 
+        # Rebuild the uri with updated query and fragments
+        query_params = urlencode(query_params)
+        frag_params = urlencode(frag_params)
+        parsed[4] = query_params
+        parsed[5] = frag_params
+        uri = urlunparse(parsed)
         return uri
 
 
