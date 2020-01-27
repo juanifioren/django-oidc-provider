@@ -826,6 +826,25 @@ class TokenTestCase(TestCase):
 
         json.loads(response.content.decode('utf-8'))
 
+    def test_pkce_missing_code_verifier(self):
+        """
+        Test that a request to the token endpoint without the PKCE parameter
+        fails when PKCE was used during the authorization request.
+        """
+
+        code = create_code(user=self.user, client=self.client,
+                           scope=['openid', 'email'], nonce=FAKE_NONCE, is_authentication=True,
+                           code_challenge=FAKE_CODE_CHALLENGE, code_challenge_method='S256')
+        code.save()
+
+        post_data = self._auth_code_post_data(code=code.code)
+
+        assert 'code_verifier' not in post_data
+
+        response = self._post_request(post_data)
+
+        assert json.loads(response.content.decode('utf-8')).get('error') == 'invalid_grant'
+
     @override_settings(OIDC_INTROSPECTION_VALIDATE_AUDIENCE_SCOPE=False)
     def test_client_credentials_grant_type(self):
         fake_scopes_list = ['scopeone', 'scopetwo', INTROSPECTION_SCOPE]
