@@ -81,7 +81,10 @@ class TokenEndpoint(object):
                 raise TokenError('invalid_grant')
 
             # Validate PKCE parameters.
-            if self.params['code_verifier']:
+            if self.code.code_challenge:
+                if self.params['code_verifier'] is None:
+                    raise TokenError('invalid_grant')
+
                 if self.code.code_challenge_method == 'S256':
                     new_code_challenge = urlsafe_b64encode(
                         hashlib.sha256(self.params['code_verifier'].encode('ascii')).digest()
