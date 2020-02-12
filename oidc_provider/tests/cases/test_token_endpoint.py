@@ -824,7 +824,7 @@ class TokenTestCase(TestCase):
 
         response = self._post_request(post_data)
 
-        json.loads(response.content.decode('utf-8'))
+        self.assertIn('access_token', json.loads(response.content.decode('utf-8')))
 
     def test_pkce_missing_code_verifier(self):
         """
