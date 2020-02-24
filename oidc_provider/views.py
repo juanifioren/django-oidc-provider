@@ -203,8 +203,10 @@ class AuthorizeView(View):
 
 
 class TokenView(View):
+    token_endpoint_class = TokenEndpoint
+
     def post(self, request, *args, **kwargs):
-        token = TokenEndpoint(request)
+        token = self.token_endpoint_class(request)
 
         try:
             token.validate_params()
