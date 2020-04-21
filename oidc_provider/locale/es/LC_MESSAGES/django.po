@@ -20,13 +20,14 @@ msgstr ""
 
 #: lib/claims.py:92
 msgid "Basic profile"
-msgstr ""
+msgstr "Perfil Básico"
 
 #: lib/claims.py:93
 msgid ""
 "Access to your basic information. Includes names, gender, birthdate and "
 "other information."
-msgstr ""
+msgstr "Acceso a su información básica. Incluye nombres, género, fecha "
+"de nacimiento y otra información"
 
 #: lib/claims.py:116
 msgid "Email"
@@ -34,83 +35,87 @@ msgstr ""
 
 #: lib/claims.py:117
 msgid "Access to your email address."
-msgstr ""
+msgstr "Acceso a su dirección de correo electrónico"
 
 #: lib/claims.py:128
 msgid "Phone number"
-msgstr ""
+msgstr "Número de teléfono"
 
 #: lib/claims.py:129
 msgid "Access to your phone number."
-msgstr ""
+msgstr "Acceso a su número de teléfono"
 
 #: lib/claims.py:140
 msgid "Address information"
-msgstr ""
+msgstr "Información de su dirección postal"
 
 #: lib/claims.py:141
 msgid ""
 "Access to your address. Includes country, locality, street and other "
 "information."
 msgstr ""
+"Acceso a su dirección postal. Incluye país, localidad, calle y otra "
+"información."
 
 #: models.py:29
 msgid "Name"
-msgstr ""
+msgstr "Nombre"
 
 #: models.py:30
 msgid "Client Type"
-msgstr ""
+msgstr "Tipo de Cliente"
 
 #: models.py:30
 msgid ""
 "<b>Confidential</b> clients are capable of maintaining the confidentiality "
 "of their credentials. <b>Public</b> clients are incapable."
 msgstr ""
+"Los clientes <b>Confidenciales</b> son capaces de mantener la confidencialidad "
+"de sus credenciales. Los clientes <b>Públicos</b> no"
 
 #: models.py:31
 msgid "Client ID"
-msgstr ""
+msgstr "ID de Cliente"
 
 #: models.py:32
 msgid "Client SECRET"
-msgstr ""
+msgstr "SECRETO del Cliente"
 
 #: models.py:33
 msgid "Response Type"
-msgstr ""
+msgstr "Tipo de Respuesta"
 
 #: models.py:34
 msgid "JWT Algorithm"
-msgstr ""
+msgstr "Algoritmo JWT"
 
 #: models.py:35
 msgid "Date Created"
-msgstr ""
+msgstr "Fecha de creacion"
 
 #: models.py:37
 msgid "Redirect URIs"
-msgstr ""
+msgstr "URIs de redirección"
 
 #: models.py:37
 msgid "Enter each URI on a new line."
-msgstr ""
+msgstr "Ingrese una URI por línea"
 
 #: models.py:40 models.py:65
 msgid "Client"
-msgstr ""
+msgstr "Cliente"
 
 #: models.py:41
 msgid "Clients"
-msgstr ""
+msgstr "Clientes"
 
 #: models.py:64
 msgid "User"
-msgstr ""
+msgstr "Usuario"
 
 #: models.py:66
 msgid "Expiration Date"
-msgstr ""
+msgstr "Fecha de expiración"
 
 #: models.py:67
 msgid "Scopes"
@@ -118,7 +123,7 @@ msgstr ""
 
 #: models.py:92
 msgid "Code"
-msgstr ""
+msgstr "Código"
 
 #: models.py:93
 msgid "Nonce"
@@ -138,15 +143,15 @@ msgstr ""
 
 #: models.py:99
 msgid "Authorization Code"
-msgstr ""
+msgstr "Código de Autorización"
 
 #: models.py:100
 msgid "Authorization Codes"
-msgstr ""
+msgstr "Códigos de Autorización"
 
 #: models.py:105
 msgid "Access Token"
-msgstr ""
+msgstr "Token de Acceso"
 
 #: models.py:106
 msgid "Refresh Token"
@@ -170,16 +175,16 @@ msgstr ""
 
 #: models.py:131
 msgid "Key"
-msgstr ""
+msgstr "Llave"
 
 #: models.py:131
 msgid "Paste your private RSA Key here."
-msgstr ""
+msgstr "Pegue aquí su clave RSA Privada"
 
 #: models.py:134
 msgid "RSA Key"
-msgstr ""
+msgstr "Clave RSA"
 
 #: models.py:135
 msgid "RSA Keys"
-msgstr ""
+msgstr "Claves RSA"
