@@ -8,7 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <title>VoucherMaster Client</title>
+    <title>{% trans 'OpenID Provider Example' %}</title>
 
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.2/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
@@ -18,7 +18,7 @@
 
     <nav class="navbar navbar-fixed-top navbar-light bg-faded">
         <div class="container">
-            <a class="navbar-brand m-b-0" href="{% url 'home' %}">VoucherMaster Client</a>
+            <a class="navbar-brand m-b-0" href="{% url 'home' %}">{% trans 'OpenID Provider Example' %}</a>
             <form class="form-inline pull-xs-right">
                 <ul class="nav navbar-nav">
                     {% if user.is_authenticated %}
