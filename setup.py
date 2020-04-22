@@ -12,16 +12,16 @@ with open("./oidc_provider/version.py") as fp:
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
-    name='django-oidc-provider',
+    name='django3-oidc-provider',
     version=version['__version__'],
     packages=find_packages(),
     include_package_data=True,
     license='MIT License',
-    description='OpenID Connect Provider implementation for Django.',
-    long_description='http://github.com/juanifioren/django-oidc-provider',
-    url='http://github.com/juanifioren/django-oidc-provider',
-    author='Juan Ignacio Fiorentino',
-    author_email='juanifioren@gmail.com',
+    description='OpenID Connect Provider implementation for Django3.',
+    long_description='http://github.com/nickoarg/django-oidc-provider',
+    url='http://github.com/nickoarg/django-oidc-provider',
+    author='Nicolas BArberis',
+    author_email='nbarberis@gestionamas.com.ar',
     zip_safe=False,
     classifiers=[
         'Development Status :: 5 - Production/Stable',
