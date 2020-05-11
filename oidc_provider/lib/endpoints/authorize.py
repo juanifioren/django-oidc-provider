@@ -123,7 +123,7 @@ class AuthorizeEndpoint(object):
 
         # PKCE validation of the transformation method.
         if self.params['code_challenge']:
-            if not (self.params['code_challenge_method'] in ['plain', 'S256']):
+            if not (self.params['code_challenge_method'] in ['S256']):
                 raise AuthorizeError(
                     self.params['redirect_uri'], 'invalid_request', self.grant_type)
 
