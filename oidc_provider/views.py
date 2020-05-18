@@ -86,7 +86,10 @@ class AuthorizeView(View):
                     else:
                         django_user_logout(request)
                         next_page = strip_prompt_login(request.get_full_path())
-                        return redirect_to_login(next_page, settings.get('OIDC_LOGIN_URL'))
+                        return redirect_to_login(
+                            next_page,
+                            authorize.create_login_url(),
+                        )
 
                 if 'select_account' in authorize.params['prompt']:
                     # TODO: see how we can support multiple accounts for the end-user.
@@ -97,7 +100,9 @@ class AuthorizeView(View):
                     else:
                         django_user_logout(request)
                         return redirect_to_login(
-                            request.get_full_path(), settings.get('OIDC_LOGIN_URL'))
+                            request.get_full_path(),
+                            authorize.create_login_url(),
+                        )
 
                 if {'none', 'consent'}.issubset(authorize.params['prompt']):
                     raise AuthorizeError(
@@ -149,10 +154,15 @@ class AuthorizeView(View):
                         authorize.params['redirect_uri'], 'login_required', authorize.grant_type)
                 if 'login' in authorize.params['prompt']:
                     next_page = strip_prompt_login(request.get_full_path())
-                    return redirect_to_login(next_page, settings.get('OIDC_LOGIN_URL'))
+                    return redirect_to_login(
+                        next_page,
+                        authorize.create_login_url(),
+                    )
 
-                return redirect_to_login(request.get_full_path(), settings.get('OIDC_LOGIN_URL'))
-
+                return redirect_to_login(
+                    request.get_full_path(),
+                    authorize.create_login_url(),
+                )
         except (ClientIdError, RedirectUriError) as error:
             context = {
                 'error': error.error,

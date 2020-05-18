@@ -227,6 +227,10 @@ class AuthorizeEndpoint(object):
 
         return urlunsplit(uri)
 
+    def create_login_url(self):
+        """Generate login url for provider."""
+        return settings.get('OIDC_LOGIN_URL')
+
     def set_client_user_consent(self):
         """
         Save the user consent given to a specific client.
