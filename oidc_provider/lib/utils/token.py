@@ -117,7 +117,11 @@ def create_token(user, client, scope, id_token_dic=None):
 
     token.refresh_token = uuid.uuid4().hex
     token.expires_at = timezone.now() + timedelta(
-        seconds=settings.get('OIDC_TOKEN_EXPIRE'))
+        seconds=settings.get('OIDC_TOKEN_EXPIRE'),
+    )
+    token.refresh_token_expire_at = timezone.now() + timedelta(
+        seconds=settings.get('OIDC_REFRESH_TOKEN_EXPIRE', 0),
+    )
     token.scope = scope
 
     return token
