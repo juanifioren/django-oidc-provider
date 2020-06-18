@@ -1,15 +1,10 @@
 from datetime import timedelta
-from hashlib import (
-    md5,
-    sha256,
-)
 import logging
 try:
     from urllib import urlencode
     from urlparse import urlsplit, parse_qs, urlunsplit
 except ImportError:
     from urllib.parse import urlsplit, parse_qs, urlunsplit, urlencode
-from uuid import uuid4
 
 from django.utils import timezone
 
@@ -30,7 +25,7 @@ from oidc_provider.models import (
     UserConsent,
 )
 from oidc_provider import settings
-from oidc_provider.lib.utils.common import get_browser_state_or_default
+from oidc_provider.lib.utils.common import get_session_state
 
 logger = logging.getLogger(__name__)
 
@@ -194,24 +189,11 @@ class AuthorizeEndpoint(object):
                 query_fragment['state'] = self.params['state'] if self.params['state'] else ''
 
             if settings.get('OIDC_SESSION_MANAGEMENT_ENABLE'):
-                # Generate client origin URI from the redirect_uri param.
-                redirect_uri_parsed = urlsplit(self.params['redirect_uri'])
-                client_origin = '{0}://{1}'.format(
-                    redirect_uri_parsed.scheme, redirect_uri_parsed.netloc)
-
-                # Create random salt.
-                salt = md5(uuid4().hex.encode()).hexdigest()
-
-                # The generation of suitable Session State values is based
-                # on a salted cryptographic hash of Client ID, origin URL,
-                # and OP browser state.
-                session_state = '{client_id} {origin} {browser_state} {salt}'.format(
-                    client_id=self.client.client_id,
-                    origin=client_origin,
-                    browser_state=get_browser_state_or_default(self.request),
-                    salt=salt)
-                session_state = sha256(session_state.encode('utf-8')).hexdigest()
-                session_state += '.' + salt
+                session_state = get_session_state(
+                    request=self.request,
+                    client=self.client,
+                    reference_uri=self.params['redirect_uri'],
+                )
                 if self.grant_type == 'authorization_code':
                     query_params['session_state'] = session_state
                 elif self.grant_type in ['implicit', 'hybrid']:

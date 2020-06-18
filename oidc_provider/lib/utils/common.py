@@ -1,8 +1,11 @@
-from hashlib import sha224
+from hashlib import sha224, md5, sha256
+from urllib.parse import urlsplit
+from uuid import uuid4
 
 import django
 from django.http import HttpResponse
 from django.utils.cache import patch_vary_headers
+from oidc_provider.models import Client
 
 from oidc_provider import settings
 
@@ -184,3 +187,29 @@ def cors_allow_any(request, response):
         response['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
 
     return response
+
+
+def get_session_state(request, client: Client, reference_uri: str):
+    """Get state value for the current session."""
+    # Generate client origin URI from the redirect_uri param.
+    reference_uri_parsed = urlsplit(reference_uri)
+    client_origin = '{0}://{1}'.format(
+        reference_uri_parsed.scheme, reference_uri_parsed.netloc)
+    salt = request.session.get('salt')
+    if not salt:
+        # Create random salt.
+        salt = md5(uuid4().hex.encode()).hexdigest()
+        request.session['salt'] = salt
+
+    # The generation of suitable Session State values is based
+    # on a salted cryptographic hash of Client ID, origin URL,
+    # and OP browser state.
+    session_state = '{client_id} {origin} {browser_state} {salt}'.format(
+        client_id=client.client_id,
+        origin=client_origin,
+        browser_state=get_browser_state_or_default(request),
+        salt=salt)
+    session_state = sha256(session_state.encode('utf-8')).hexdigest()
+    session_state += '.' + salt
+
+    return session_state

@@ -793,6 +793,8 @@ class TestCreateResponseURI(TestCase):
     def test_create_response_uri_generates_session_state_if_session_management_enabled(self):
         # RequestFactory doesn't support sessions, so we mock it
         self.request.session = mock.Mock(session_key=None)
+        # mock `self.request.session.get('salt')`
+        self.request.session.get.return_value = 'TEST'
 
         authorization_endpoint = AuthorizeEndpoint(self.request)
         authorization_endpoint.validate_params()
