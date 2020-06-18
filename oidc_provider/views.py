@@ -30,7 +30,8 @@ from jwkest import long_to_base64
 
 from oidc_provider.compat import get_attr_or_callable
 from oidc_provider.lib.claims import StandardScopeClaims
-from oidc_provider.lib.endpoints.authorize import AuthorizeEndpoint
+from oidc_provider.lib.endpoints.authorize import AuthorizeEndpoint, \
+    EndSessionEndpoint
 from oidc_provider.lib.endpoints.token import TokenEndpoint
 from oidc_provider.lib.errors import (
     AuthorizeError,
@@ -325,40 +326,11 @@ class JwksView(View):
 
 class EndSessionView(LogoutView):
     def dispatch(self, request, *args, **kwargs):
-        id_token_hint = request.GET.get('id_token_hint', '')
-        post_logout_redirect_uri = request.GET.get('post_logout_redirect_uri', '')
-        state = request.GET.get('state', '')
-        client = None
+        endpoint = EndSessionEndpoint(request)
 
-        next_page = settings.get('OIDC_LOGIN_URL')
-        after_end_session_hook = settings.get('OIDC_AFTER_END_SESSION_HOOK', import_str=True)
+        endpoint.call_after_end_session_hook()
 
-        if id_token_hint:
-            client_id = client_id_from_id_token(id_token_hint)
-            try:
-                client = Client.objects.get(client_id=client_id)
-                if post_logout_redirect_uri in client.post_logout_redirect_uris:
-                    if state:
-                        uri = urlsplit(post_logout_redirect_uri)
-                        query_params = parse_qs(uri.query)
-                        query_params['state'] = state
-                        uri = uri._replace(query=urlencode(query_params, doseq=True))
-                        next_page = urlunsplit(uri)
-                    else:
-                        next_page = post_logout_redirect_uri
-            except Client.DoesNotExist:
-                pass
-
-        after_end_session_hook(
-            request=request,
-            id_token=id_token_hint,
-            post_logout_redirect_uri=post_logout_redirect_uri,
-            state=state,
-            client=client,
-            next_page=next_page
-        )
-
-        self.next_page = next_page
+        self.next_page = endpoint.next_page
         return super(EndSessionView, self).dispatch(request, *args, **kwargs)
 
 

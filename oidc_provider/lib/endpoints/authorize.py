@@ -1,3 +1,4 @@
+import typing
 from datetime import timedelta
 import logging
 try:
@@ -18,7 +19,7 @@ from oidc_provider.lib.utils.token import (
     create_code,
     create_id_token,
     create_token,
-    encode_id_token,
+    encode_id_token, client_id_from_id_token,
 )
 from oidc_provider.models import (
     Client,
@@ -272,3 +273,84 @@ class AuthorizeEndpoint(object):
             scopes_extra = []
 
         return scopes + scopes_extra
+
+
+class EndSessionEndpoint:
+    """Logout user for OP and RPs."""
+
+    def __init__(self, request):
+        self.request = request
+        self.params = {}
+
+        self._extract_params()
+        self._client = self._get_client()
+        self._next_page = self._get_next_page()
+
+    @property
+    def next_page(self):
+        return self._next_page
+
+    def call_after_end_session_hook(self):
+        """Call after endsession hook."""
+        after_end_session_hook = settings.get(
+            'OIDC_AFTER_END_SESSION_HOOK',
+            import_str=True,
+        )
+        after_end_session_hook(
+            request=self.request,
+            id_token=self._id_token_hint,
+            post_logout_redirect_uri=self._post_logout_redirect_uri,
+            state=self._state,
+            client=self._client,
+            next_page=self._next_page
+        )
+
+    def _extract_params(self):
+        """
+        Get all the params used by End Session request.
+
+        See: https://openid.net/specs/openid-connect-session-1_0.html#RPLogout
+        """
+        # Because in this endpoint we handle both GET and POST request.
+        query_dict = (self.request.POST if self.request.method == 'POST'
+                      else self.request.GET)
+
+        self._id_token_hint = query_dict.get('id_token_hint', '')
+        self._post_logout_redirect_uri = query_dict.get(
+            'post_logout_redirect_uri', '',
+        )
+        self._state = query_dict.get('state', '')
+
+    def _get_client(self) -> typing.Optional[Client]:
+        client = None
+        if self._id_token_hint:
+            client_id = client_id_from_id_token(self._id_token_hint)
+            try:
+                client = Client.objects.get(client_id=client_id)
+            except Client.DoesNotExist:
+                pass
+
+        return client
+
+    def _get_next_page(self) -> typing.Optional[str]:
+        next_page = settings.get('OIDC_LOGIN_URL')
+        if not self._client:
+            return next_page
+
+        if self._post_logout_redirect_uri in self._client.post_logout_redirect_uris:  # noqa
+            if self._state:
+                uri = urlsplit(self._post_logout_redirect_uri)
+                query_params = parse_qs(uri.query)
+                query_params['state'] = self._state
+                uri = uri._replace(
+                    query=urlencode(query_params, doseq=True),
+                )
+                next_page = urlunsplit(uri)
+            else:
+                next_page = self._post_logout_redirect_uri
+
+        return next_page
+
+    def logout(self):
+        pass
+

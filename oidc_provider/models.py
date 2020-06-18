@@ -118,6 +118,8 @@ class Client(models.Model):
         verbose_name = _(u'Client')
         verbose_name_plural = _(u'Clients')
 
+    objects = models.Manager()
+
     def __str__(self):
         return u'{0}'.format(self.name)
 
