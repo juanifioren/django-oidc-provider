@@ -329,6 +329,7 @@ class EndSessionView(LogoutView):
         endpoint = EndSessionEndpoint(request)
 
         endpoint.call_after_end_session_hook()
+        endpoint.end_session_in_rps()
 
         self.next_page = endpoint.next_page
         return super(EndSessionView, self).dispatch(request, *args, **kwargs)

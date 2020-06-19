@@ -113,6 +113,12 @@ class Client(models.Model):
         default='',
         verbose_name=_(u'Scopes'),
         help_text=_('Specifies the authorized scope values for the client app.'))
+    backchannel_logout_uri = models.URLField(
+        max_length=255,
+        blank=True,
+        default='',
+        verbose_name=_(u'Back-channel logout URI'),
+    )
 
     class Meta:
         verbose_name = _(u'Client')

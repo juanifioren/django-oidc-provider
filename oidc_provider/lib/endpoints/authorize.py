@@ -1,6 +1,9 @@
 import typing
 from datetime import timedelta
 import logging
+
+import requests
+
 try:
     from urllib import urlencode
     from urlparse import urlsplit, parse_qs, urlunsplit
@@ -19,7 +22,8 @@ from oidc_provider.lib.utils.token import (
     create_code,
     create_id_token,
     create_token,
-    encode_id_token, client_id_from_id_token,
+    encode_id_token, client_id_from_id_token, create_logout_token,
+    encode_logout_token,
 )
 from oidc_provider.models import (
     Client,
@@ -305,6 +309,41 @@ class EndSessionEndpoint:
             next_page=self._next_page
         )
 
+    def end_session_in_rps(self):
+        """
+        End session for all the connected RPs.
+
+        https://openid.net/specs/openid-connect-backchannel-1_0.html#BCRequest
+        """
+        queryset = Client.objects.get_queryset()
+        if self._client:
+            queryset = queryset.exclude(client=self._client)
+
+        for client in queryset.all():
+            if client.backchannel_logout_uri:
+                self._end_session_in_rp(client)
+
+    def _end_session_in_rp(self, client: Client):
+        sid = get_session_state(
+            self.request,
+            client, client.backchannel_logout_uri,
+        )
+        logout_token_dic = create_logout_token(
+            user=self.request.user,
+            aud=client.client_id,
+            sid=sid,
+            request=self.request,
+        )
+        logout_token = encode_logout_token(logout_token_dic, client)
+        response = requests.post(
+            client.backchannel_logout_uri,
+            data={
+                'logout_token': logout_token,
+            },
+        )
+        if response.status_code != 200:
+            logger.error(f'Failed to logout RP {client.client_id}')
+
     def _extract_params(self):
         """
         Get all the params used by End Session request.
@@ -350,7 +389,3 @@ class EndSessionEndpoint:
                 next_page = self._post_logout_redirect_uri
 
         return next_page
-
-    def logout(self):
-        pass
-
