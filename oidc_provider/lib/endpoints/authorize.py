@@ -315,6 +315,9 @@ class EndSessionEndpoint:
 
         https://openid.net/specs/openid-connect-backchannel-1_0.html#BCRequest
         """
+        if not settings.get('OIDC_BACKCHANNEL_LOGOUT_ENABLE'):
+            return
+
         queryset = Client.objects.get_queryset()
         if self._client:
             queryset = queryset.exclude(client=self._client)

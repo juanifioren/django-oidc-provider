@@ -297,6 +297,10 @@ class ProviderInfoView(View):
         if settings.get('OIDC_SESSION_MANAGEMENT_ENABLE'):
             dic['check_session_iframe'] = site_url + reverse('oidc_provider:check-session-iframe')
 
+        if settings.get('OIDC_BACKCHANNEL_LOGOUT_ENABLE'):
+            dic['backchannel_logout_supported'] = True
+            dic['backchannel_logout_session_supported'] = True
+
         response = JsonResponse(dic)
         response['Access-Control-Allow-Origin'] = '*'
 
