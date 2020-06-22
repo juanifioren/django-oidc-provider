@@ -3,11 +3,6 @@ import logging
 from django.views.decorators.csrf import csrf_exempt
 
 from oidc_provider.lib.endpoints.introspection import TokenIntrospectionEndpoint
-try:
-    from urllib import urlencode
-    from urlparse import urlsplit, parse_qs, urlunsplit
-except ImportError:
-    from urllib.parse import urlsplit, parse_qs, urlunsplit, urlencode
 
 from Cryptodome.PublicKey import RSA
 from django.contrib.auth.views import (
@@ -48,9 +43,7 @@ from oidc_provider.lib.utils.common import (
     cors_allow_any,
 )
 from oidc_provider.lib.utils.oauth2 import protected_resource_view
-from oidc_provider.lib.utils.token import client_id_from_id_token
 from oidc_provider.models import (
-    Client,
     RSAKey,
     ResponseType)
 from oidc_provider import settings
