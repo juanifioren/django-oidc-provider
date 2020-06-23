@@ -3,10 +3,10 @@ import base64
 import binascii
 from hashlib import md5, sha256
 import json
-import datetime
 
 from django.db import models
 from django.utils import timezone
+from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from . import settings as oidc_settings
@@ -112,10 +112,18 @@ class Client(models.Model):
         default='',
         verbose_name=_(u'Scopes'),
         help_text=_('Specifies the authorized scope values for the client app.'))
+    backchannel_logout_uri = models.URLField(
+        max_length=255,
+        blank=True,
+        default='',
+        verbose_name=_(u'Back-channel logout URI'),
+    )
 
     class Meta:
         verbose_name = _(u'Client')
         verbose_name_plural = _(u'Clients')
+
+    objects = models.Manager()
 
     def __str__(self):
         return u'{0}'.format(self.name)
@@ -208,6 +216,10 @@ class Token(BaseCodeTokenModel):
         settings.AUTH_USER_MODEL, null=True, verbose_name=_(u'User'), on_delete=models.CASCADE)
     access_token = models.CharField(max_length=255, unique=True, verbose_name=_(u'Access Token'))
     refresh_token = models.CharField(max_length=255, unique=True, verbose_name=_(u'Refresh Token'))
+    refresh_token_expire_at = models.DateTimeField(
+        verbose_name=_(u'Refresh Token Expiration Date'),
+        default=now,
+    )
     _id_token = models.TextField(verbose_name=_(u'ID Token'))
 
     class Meta:
@@ -225,16 +237,7 @@ class Token(BaseCodeTokenModel):
         if oidc_settings.get('OIDC_REFRESH_TOKEN_EXPIRE') < oidc_settings.get('OIDC_TOKEN_EXPIRE'):
             raise ValueError('Invalid setting for OIDC_REFRESH_TOKEN_EXPIRE')
 
-        # Note: Increasing expiration time settings could make previously
-        # expired refresh tokens usable. Therefore, clear all the
-        # refresh tokens when increasing refresh token expire time.
-        offset = (
-                oidc_settings.get('OIDC_REFRESH_TOKEN_EXPIRE')
-                - oidc_settings.get('OIDC_TOKEN_EXPIRE')
-        )
-        expires_at = self.expires_at + datetime.timedelta(seconds=offset)
-
-        return timezone.now() >= expires_at
+        return timezone.now() >= self.refresh_token_expire_at
 
     @id_token.setter
     def id_token(self, value):

@@ -62,7 +62,7 @@ class ClientAdmin(admin.ModelAdmin):
             'fields': ('contact_email', 'website_url', 'terms_url', 'logo', 'date_created'),
         }],
         [_(u'Session Management'), {
-            'fields': ('_post_logout_redirect_uris',),
+            'fields': ('_post_logout_redirect_uris', 'backchannel_logout_uri'),
         }],
     ]
     form = ClientForm

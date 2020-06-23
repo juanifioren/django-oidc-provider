@@ -1,15 +1,14 @@
+import typing
 from datetime import timedelta
-from hashlib import (
-    md5,
-    sha256,
-)
 import logging
+
+import requests
+
 try:
     from urllib import urlencode
     from urlparse import urlsplit, parse_qs, urlunsplit
 except ImportError:
     from urllib.parse import urlsplit, parse_qs, urlunsplit, urlencode
-from uuid import uuid4
 
 from django.utils import timezone
 
@@ -23,14 +22,15 @@ from oidc_provider.lib.utils.token import (
     create_code,
     create_id_token,
     create_token,
-    encode_id_token,
+    encode_id_token, client_id_from_id_token, create_logout_token,
+    encode_logout_token,
 )
 from oidc_provider.models import (
     Client,
     UserConsent,
 )
 from oidc_provider import settings
-from oidc_provider.lib.utils.common import get_browser_state_or_default
+from oidc_provider.lib.utils.common import get_session_state
 
 logger = logging.getLogger(__name__)
 
@@ -194,24 +194,11 @@ class AuthorizeEndpoint(object):
                 query_fragment['state'] = self.params['state'] if self.params['state'] else ''
 
             if settings.get('OIDC_SESSION_MANAGEMENT_ENABLE'):
-                # Generate client origin URI from the redirect_uri param.
-                redirect_uri_parsed = urlsplit(self.params['redirect_uri'])
-                client_origin = '{0}://{1}'.format(
-                    redirect_uri_parsed.scheme, redirect_uri_parsed.netloc)
-
-                # Create random salt.
-                salt = md5(uuid4().hex.encode()).hexdigest()
-
-                # The generation of suitable Session State values is based
-                # on a salted cryptographic hash of Client ID, origin URL,
-                # and OP browser state.
-                session_state = '{client_id} {origin} {browser_state} {salt}'.format(
-                    client_id=self.client.client_id,
-                    origin=client_origin,
-                    browser_state=get_browser_state_or_default(self.request),
-                    salt=salt)
-                session_state = sha256(session_state.encode('utf-8')).hexdigest()
-                session_state += '.' + salt
+                session_state = get_session_state(
+                    request=self.request,
+                    client=self.client,
+                    reference_uri=self.params['redirect_uri'],
+                )
                 if self.grant_type == 'authorization_code':
                     query_params['session_state'] = session_state
                 elif self.grant_type in ['implicit', 'hybrid']:
@@ -290,3 +277,118 @@ class AuthorizeEndpoint(object):
             scopes_extra = []
 
         return scopes + scopes_extra
+
+
+class EndSessionEndpoint:
+    """Logout user for OP and RPs."""
+
+    def __init__(self, request):
+        self.request = request
+        self.params = {}
+
+        self._extract_params()
+        self._client = self._get_client()
+        self._next_page = self._get_next_page()
+
+    @property
+    def next_page(self):
+        return self._next_page
+
+    def call_after_end_session_hook(self):
+        """Call after endsession hook."""
+        after_end_session_hook = settings.get(
+            'OIDC_AFTER_END_SESSION_HOOK',
+            import_str=True,
+        )
+        after_end_session_hook(
+            request=self.request,
+            id_token=self._id_token_hint,
+            post_logout_redirect_uri=self._post_logout_redirect_uri,
+            state=self._state,
+            client=self._client,
+            next_page=self._next_page
+        )
+
+    def end_session_in_rps(self):
+        """
+        End session for all the connected RPs.
+
+        https://openid.net/specs/openid-connect-backchannel-1_0.html#BCRequest
+        """
+        if not settings.get('OIDC_BACKCHANNEL_LOGOUT_ENABLE'):
+            return
+
+        queryset = Client.objects.get_queryset()
+        if self._client:
+            queryset = queryset.exclude(client=self._client)
+
+        for client in queryset.all():
+            if client.backchannel_logout_uri:
+                self._end_session_in_rp(client)
+
+    def _end_session_in_rp(self, client: Client):
+        sid = get_session_state(
+            self.request,
+            client, client.backchannel_logout_uri,
+        )
+        logout_token_dic = create_logout_token(
+            user=self.request.user,
+            aud=client.client_id,
+            sid=sid,
+            request=self.request,
+        )
+        logout_token = encode_logout_token(logout_token_dic, client)
+        response = requests.post(
+            client.backchannel_logout_uri,
+            data={
+                'logout_token': logout_token,
+            },
+        )
+        if response.status_code != 200:
+            logger.error(f'Failed to logout RP {client.client_id}')
+
+    def _extract_params(self):
+        """
+        Get all the params used by End Session request.
+
+        See: https://openid.net/specs/openid-connect-session-1_0.html#RPLogout
+        """
+        # Because in this endpoint we handle both GET and POST request.
+        query_dict = (self.request.POST if self.request.method == 'POST'
+                      else self.request.GET)
+
+        self._id_token_hint = query_dict.get('id_token_hint', '')
+        self._post_logout_redirect_uri = query_dict.get(
+            'post_logout_redirect_uri', '',
+        )
+        self._state = query_dict.get('state', '')
+
+    def _get_client(self) -> typing.Optional[Client]:
+        client = None
+        if self._id_token_hint:
+            client_id = client_id_from_id_token(self._id_token_hint)
+            try:
+                client = Client.objects.get(client_id=client_id)
+            except Client.DoesNotExist:
+                pass
+
+        return client
+
+    def _get_next_page(self) -> typing.Optional[str]:
+        next_page = settings.get('OIDC_LOGIN_URL')
+        if not self._client:
+            return next_page
+
+        if self._post_logout_redirect_uri in self._client.post_logout_redirect_uris:  # noqa
+            if self._state:
+                uri = urlsplit(self._post_logout_redirect_uri)
+                query_params = parse_qs(uri.query)
+                query_params['state'] = self._state
+                uri = uri._replace(
+                    query=urlencode(query_params, doseq=True),
+                )
+                next_page = urlunsplit(uri)
+            else:
+                next_page = self._post_logout_redirect_uri
+
+        return next_page

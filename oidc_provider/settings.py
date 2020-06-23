@@ -181,6 +181,15 @@ class DefaultSettings(object):
             'error': 'oidc_provider/error.html'
         }
 
+    @property
+    def OIDC_BACKCHANNEL_LOGOUT_ENABLE(self):
+        """
+        OPTIONAL. A boolean to set whether back-channel logout is enabled.
+
+        Specification: https://openid.net/specs/openid-connect-backchannel-1_0.html#Backchannel 
+        """  # noqa
+        return False
+
 
 default_settings = DefaultSettings()
 

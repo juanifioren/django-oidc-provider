@@ -1,6 +1,7 @@
 from datetime import timedelta
 import time
 import uuid
+from hashlib import md5
 
 from Cryptodome.PublicKey.RSA import importKey
 from django.utils import dateformat, timezone
@@ -117,7 +118,11 @@ def create_token(user, client, scope, id_token_dic=None):
 
     token.refresh_token = uuid.uuid4().hex
     token.expires_at = timezone.now() + timedelta(
-        seconds=settings.get('OIDC_TOKEN_EXPIRE'))
+        seconds=settings.get('OIDC_TOKEN_EXPIRE'),
+    )
+    token.refresh_token_expire_at = timezone.now() + timedelta(
+        seconds=settings.get('OIDC_REFRESH_TOKEN_EXPIRE', 0),
+    )
     token.scope = scope
 
     return token
@@ -165,3 +170,37 @@ def get_client_alg_keys(client):
         raise Exception('Unsupported key algorithm.')
 
     return keys
+
+
+def create_logout_token(user, aud, sid, request=None) -> dict:
+    """
+    Creates the logout token dictionary.
+    See: https://openid.net/specs/openid-connect-backchannel-1_0.html#LogoutToken
+    Return a dic.
+    """
+    sub = settings.get(
+        'OIDC_IDTOKEN_SUB_GENERATOR',
+        import_str=True,
+    )(user=user)
+
+    dic = {
+        'iss': get_issuer(request=request),
+        'sub': sub,
+        'aud': str(aud),
+        'iat': int(time.time()),
+        'jti': md5(uuid.uuid4().hex.encode()).hexdigest(),
+        'events': 'http://schemas.openid.net/event/backchannel-logout',
+        'sid': sid,
+    }
+
+    return dic
+
+
+def encode_logout_token(payload, client):
+    """
+    Represent the Logout Token as a JSON Web Token (JWT).
+    Return a hash.
+    """
+    keys = get_client_alg_keys(client)
+    _jws = JWS(payload, alg=client.jwt_alg)
+    return _jws.sign_compact(keys)
