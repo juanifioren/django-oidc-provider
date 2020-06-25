@@ -320,7 +320,7 @@ class EndSessionEndpoint:
 
         queryset = Client.objects.get_queryset()
         if self._client:
-            queryset = queryset.exclude(client=self._client)
+            queryset = queryset.exclude(client_id=self._client.client_id)
 
         for client in queryset.all():
             if client.backchannel_logout_uri:
