@@ -42,6 +42,7 @@ setup(
     tests_require=[
         'pyjwkest>=1.3.0',
         'mock>=2.0.0',
+        'sqlparse',
     ],
 
     install_requires=[
