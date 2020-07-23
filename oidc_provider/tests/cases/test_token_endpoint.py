@@ -246,7 +246,7 @@ class TokenTestCase(TestCase):
 
         token = Token.objects.get(user=self.user)
         self.assertEqual(response_dict['access_token'], token.access_token)
-        self.assertEqual(response_dict['refresh_token'], token.refresh_token)
+        self.assertEqual(response_dict['refresh_token'], token.refresh_token.refresh_token)
         self.assertEqual(response_dict['expires_in'], 120)
         self.assertEqual(response_dict['token_type'], 'bearer')
         self.assertEqual(id_token['sub'], str(self.user.id))
@@ -292,7 +292,7 @@ class TokenTestCase(TestCase):
 
         token = Token.objects.get(user=self.user)
         self.assertEqual(response_dic['access_token'], token.access_token)
-        self.assertEqual(response_dic['refresh_token'], token.refresh_token)
+        self.assertEqual(response_dic['refresh_token'], token.refresh_token.refresh_token)
         self.assertEqual(response_dic['token_type'], 'bearer')
         self.assertEqual(response_dic['expires_in'], 720)
         self.assertEqual(id_token['sub'], str(self.user.id))
@@ -359,6 +359,7 @@ class TokenTestCase(TestCase):
         self.do_refresh_token_check(scope=['openid'])
 
     @override_settings(OIDC_IDTOKEN_INCLUDE_CLAIMS=True)
+    @override_settings(OIDC_REFRESH_TOKEN_EXPIRE=24*60*60)
     def do_refresh_token_check(self, scope=None):
         SIGKEYS = self._get_keys()
 
@@ -400,7 +401,9 @@ class TokenTestCase(TestCase):
 
         self.assertNotEqual(response_dic1['id_token'], response_dic2['id_token'])
         self.assertNotEqual(response_dic1['access_token'], response_dic2['access_token'])
-        self.assertNotEqual(response_dic1['refresh_token'], response_dic2['refresh_token'])
+
+        # refresh tokens are not rotated
+        self.assertEqual(response_dic1['refresh_token'], response_dic2['refresh_token'])
 
         # http://openid.net/specs/openid-connect-core-1_0.html#rfc.section.12.2
         self.assertEqual(id_token1['iss'], id_token2['iss'])
@@ -412,13 +415,13 @@ class TokenTestCase(TestCase):
         self.assertEqual(id_token1['auth_time'], id_token2['auth_time'])
         self.assertEqual(id_token1.get('azp'), id_token2.get('azp'))
 
-        # Refresh token can't be reused
+        # Refresh token can be reused
         post_data = self._refresh_token_post_data(response_dic1['refresh_token'])
         response = self._post_request(post_data)
-        self.assertIn('invalid_grant', response.content.decode('utf-8'))
+        self.assertNotIn('invalid_grant', response.content.decode('utf-8'))
 
-        # Old access token is invalidated
-        self.assertEqual(self._get_userinfo(response_dic1['access_token']).status_code, 401)
+        # Old access token is usable to support multiple calls.
+        self.assertEqual(self._get_userinfo(response_dic1['access_token']).status_code, 200)
         self.assertEqual(self._get_userinfo(response_dic2['access_token']).status_code, 200)
 
         # Empty refresh token is invalid
@@ -432,7 +435,7 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
         self.assertIn('invalid_grant', response.content.decode('utf-8'))
 
-        # Refresh token doesn't expires with default settings
+        # Refresh token expires with default settings
         post_data = self._refresh_token_post_data(response_dic2['refresh_token'], scope)
         expiry_time = timezone.now() + timedelta(
             seconds=24*60*60,
@@ -440,7 +443,7 @@ class TokenTestCase(TestCase):
         with patch('oidc_provider.models.timezone.now') as time_func:
             time_func.return_value = expiry_time
             response = self._post_request(post_data)
-            self.assertIn('refresh_token', response.content.decode('utf-8'))
+            self.assertIn('invalid_token', response.content.decode('utf-8'))
 
     @override_settings(OIDC_IDTOKEN_INCLUDE_CLAIMS=True)
     @override_settings(OIDC_REFRESH_TOKEN_EXPIRE=24 * 60 * 60)

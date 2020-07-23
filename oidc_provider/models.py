@@ -6,10 +6,8 @@ import json
 
 from django.db import models
 from django.utils import timezone
-from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
-from . import settings as oidc_settings
 
 CLIENT_TYPE_CHOICES = [
     ('confidential', 'Confidential'),
@@ -210,16 +208,54 @@ class Code(BaseCodeTokenModel):
         return u'{0} - {1}'.format(self.client, self.code)
 
 
+class RefreshToken(BaseCodeTokenModel):
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        verbose_name=_(u'User'),
+        on_delete=models.CASCADE,
+    )
+    refresh_token = models.CharField(
+        max_length=255,
+        unique=True,
+        verbose_name=_(u'Refresh Token'),
+    )
+
+    class Meta:
+        verbose_name = _(u'Refresh Token')
+        verbose_name_plural = _(u'Refresh Tokens')
+
+    def __str__(self):
+        return u'{0} - {1}'.format(self.client, self.refresh_token)
+
+    @property
+    def at_hash(self):
+        # @@@ d-o-p only supports 256 bits (change this if that changes)
+        hashed_refresh_token = sha256(
+            self.refresh_token.encode('ascii')
+        ).hexdigest().encode('ascii')
+        return base64.urlsafe_b64encode(
+            binascii.unhexlify(
+                hashed_refresh_token[:len(hashed_refresh_token) // 2]
+            )
+        ).rstrip(b'=').decode('ascii')
+
+
 class Token(BaseCodeTokenModel):
 
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, null=True, verbose_name=_(u'User'), on_delete=models.CASCADE)
-    access_token = models.CharField(max_length=255, unique=True, verbose_name=_(u'Access Token'))
-    refresh_token = models.CharField(max_length=255, unique=True, verbose_name=_(u'Refresh Token'))
-    refresh_token_expire_at = models.DateTimeField(
-        verbose_name=_(u'Refresh Token Expiration Date'),
-        default=now,
+        settings.AUTH_USER_MODEL,
+        null=True, verbose_name=_(u'User'),
+        on_delete=models.CASCADE,
     )
+    refresh_token = models.ForeignKey(
+        RefreshToken,
+        null=True, verbose_name=_(u'RefreshToken'),
+        on_delete=models.CASCADE,
+    )
+
+    access_token = models.CharField(max_length=255, unique=True, verbose_name=_(u'Access Token'))
     _id_token = models.TextField(verbose_name=_(u'ID Token'))
 
     class Meta:
@@ -229,15 +265,6 @@ class Token(BaseCodeTokenModel):
     @property
     def id_token(self):
         return json.loads(self._id_token) if self._id_token else None
-
-    def has_expired_refresh_token(self):
-        if not oidc_settings.get('OIDC_REFRESH_TOKEN_EXPIRE'):
-            return False
-
-        if oidc_settings.get('OIDC_REFRESH_TOKEN_EXPIRE') < oidc_settings.get('OIDC_TOKEN_EXPIRE'):
-            raise ValueError('Invalid setting for OIDC_REFRESH_TOKEN_EXPIRE')
-
-        return timezone.now() >= self.refresh_token_expire_at
 
     @id_token.setter
     def id_token(self, value):
