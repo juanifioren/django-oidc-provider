@@ -14,12 +14,12 @@ from oidc_provider.lib.utils.oauth2 import extract_client_auth
 from oidc_provider.lib.utils.token import (
     create_id_token,
     create_token,
-    encode_id_token,
+    encode_id_token, create_refresh_token, create_token_with_refresh_token,
 )
 from oidc_provider.models import (
     Client,
     Code,
-    Token,
+    Token, RefreshToken,
 )
 from oidc_provider import settings
 
@@ -120,14 +120,16 @@ class TokenEndpoint(object):
                 raise TokenError('invalid_grant')
 
             try:
-                self.token = Token.objects.get(refresh_token=self.params['refresh_token'],
-                                               client=self.client)
+                self.refresh_token = RefreshToken.objects.get(
+                    refresh_token=self.params['refresh_token'],
+                    client=self.client,
+                )
             except Token.DoesNotExist:
                 logger.debug(
                     '[Token] Refresh token does not exist: %s', self.params['refresh_token'])
                 raise TokenError('invalid_grant')
 
-            if self.token.has_expired_refresh_token():
+            if self.refresh_token.has_expired():
                 logger.debug(
                     '[Token] Refresh token expired: %s', self.params['refresh_token'])
                 raise TokenError('invalid_token')
@@ -152,10 +154,16 @@ class TokenEndpoint(object):
     def create_code_response_dic(self):
         # See https://tools.ietf.org/html/rfc6749#section-4.1
 
-        token = create_token(
+        refresh_token = create_refresh_token(
             user=self.code.user,
             client=self.code.client,
-            scope=self.code.scope)
+            scope=self.code.scope,
+        )
+        refresh_token.save()
+
+        token = create_token_with_refresh_token(
+            refresh_token=refresh_token,
+        )
 
         if self.code.is_authentication:
             id_token_dic = create_id_token(
@@ -179,7 +187,7 @@ class TokenEndpoint(object):
 
         dic = {
             'access_token': token.access_token,
-            'refresh_token': token.refresh_token,
+            'refresh_token': token.refresh_token.refresh_token,
             'token_type': 'bearer',
             'expires_in': settings.get('OIDC_TOKEN_EXPIRE'),
             'id_token': encode_id_token(id_token_dic, token.client),
@@ -191,43 +199,40 @@ class TokenEndpoint(object):
         # See https://tools.ietf.org/html/rfc6749#section-6
 
         scope_param = self.params['scope']
-        scope = (scope_param.split(' ') if scope_param else self.token.scope)
-        unauthorized_scopes = set(scope) - set(self.token.scope)
+        scope = (scope_param.split(' ') if scope_param else self.refresh_token.scope)
+        unauthorized_scopes = set(scope) - set(self.refresh_token.scope)
         if unauthorized_scopes:
             raise TokenError('invalid_scope')
 
-        token = create_token(
-            user=self.token.user,
-            client=self.token.client,
-            scope=scope)
+        # update refresh token scope
+        self.refresh_token.scope = scope
+        self.refresh_token.save()
 
-        # If the Token has an id_token it's an Authentication request.
-        if self.token.id_token:
-            id_token_dic = create_id_token(
-                user=self.token.user,
-                aud=self.client.client_id,
-                token=token,
-                nonce=None,
-                at_hash=token.at_hash,
-                request=self.request,
-                scope=token.scope,
-            )
-        else:
-            id_token_dic = {}
+        token = create_token_with_refresh_token(
+            refresh_token=self.refresh_token,
+        )
+
+        # All refresh token grants are authentication flows.
+        id_token_dic = create_id_token(
+            user=self.refresh_token.user,
+            aud=self.client.client_id,
+            token=token,
+            nonce=None,
+            at_hash=token.at_hash,
+            request=self.request,
+            scope=token.scope,
+        )
         token.id_token = id_token_dic
 
         # Store the token.
         token.save()
 
-        # Forget the old token.
-        self.token.delete()
-
         dic = {
             'access_token': token.access_token,
-            'refresh_token': token.refresh_token,
+            'refresh_token': token.refresh_token.refresh_token,
             'token_type': 'bearer',
             'expires_in': settings.get('OIDC_TOKEN_EXPIRE'),
-            'id_token': encode_id_token(id_token_dic, self.token.client),
+            'id_token': encode_id_token(id_token_dic, token.client),
         }
 
         return dic
@@ -235,10 +240,16 @@ class TokenEndpoint(object):
     def create_access_token_response_dic(self):
         # See https://tools.ietf.org/html/rfc6749#section-4.3
 
-        token = create_token(
+        refresh_token = create_refresh_token(
             self.user,
             self.client,
-            self.params['scope'].split(' '))
+            self.params['scope'].split(' '),
+        )
+        refresh_token.save()
+
+        token = create_token_with_refresh_token(
+            refresh_token=refresh_token,
+        )
 
         id_token_dic = create_id_token(
             token=token,
@@ -255,7 +266,7 @@ class TokenEndpoint(object):
 
         return {
             'access_token': token.access_token,
-            'refresh_token': token.refresh_token,
+            'refresh_token': token.refresh_token.refresh_token,
             'expires_in': settings.get('OIDC_TOKEN_EXPIRE'),
             'token_type': 'bearer',
             'id_token': encode_id_token(id_token_dic, token.client),
@@ -267,7 +278,8 @@ class TokenEndpoint(object):
         token = create_token(
             user=None,
             client=self.client,
-            scope=self.client.scope)
+            scope=self.client.scope,
+        )
 
         token.save()
 

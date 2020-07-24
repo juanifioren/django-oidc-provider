@@ -15,7 +15,7 @@ from oidc_provider.lib.claims import StandardScopeClaims
 from oidc_provider.models import (
     Code,
     RSAKey,
-    Token,
+    Token, RefreshToken,
 )
 from oidc_provider import settings
 
@@ -103,7 +103,7 @@ def client_id_from_id_token(id_token):
     return aud
 
 
-def create_token(user, client, scope, id_token_dic=None):
+def create_token(user, client, scope, id_token_dic=None, refresh_token=None):
     """
     Create and populate a Token object.
     Return a Token object.
@@ -116,14 +116,39 @@ def create_token(user, client, scope, id_token_dic=None):
     if id_token_dic is not None:
         token.id_token = id_token_dic
 
-    token.refresh_token = uuid.uuid4().hex
-    token.expires_at = timezone.now() + timedelta(
+    now = timezone.now()
+    token.expires_at = now + timedelta(
         seconds=settings.get('OIDC_TOKEN_EXPIRE'),
     )
-    token.refresh_token_expire_at = timezone.now() + timedelta(
+    token.scope = scope
+    token.refresh_token = refresh_token
+
+    return token
+
+
+def create_token_with_refresh_token(refresh_token, id_token_dic=None):
+    """Create token using refresh token."""
+    return create_token(
+        user=refresh_token.user,
+        client=refresh_token.client,
+        scope=refresh_token.scope,
+        id_token_dic=id_token_dic,
+        refresh_token=refresh_token,
+    )
+
+
+def create_refresh_token(user, client, scope):
+    """Create refresh token."""
+    token = RefreshToken()
+
+    token.user = user
+    token.client = client
+    token.scope = scope
+    token.refresh_token = uuid.uuid4().hex
+    now = timezone.now()
+    token.expires_at = now + timedelta(
         seconds=settings.get('OIDC_REFRESH_TOKEN_EXPIRE', 0),
     )
-    token.scope = scope
 
     return token
 
