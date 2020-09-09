@@ -133,6 +133,13 @@ class TokenEndpoint(object):
                 logger.debug(
                     '[Token] Refresh token expired: %s', self.params['refresh_token'])
                 raise TokenError('invalid_token')
+
+            if not self.refresh_token.user.is_active:
+                logger.debug(
+                    '[Token] User inactive for the token: %s',
+                    self.params['refresh_token'],
+                )
+                raise TokenError('invalid_token')
         elif self.params['grant_type'] == 'client_credentials':
             if not self.client._scope:
                 logger.debug('[Token] Client using client credentials with empty scope')
