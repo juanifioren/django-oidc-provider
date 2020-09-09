@@ -465,6 +465,21 @@ class TokenTestCase(TestCase):
         response = self._refresh_request(elapsed_time=(24 * 60 * 60) - 1)
         self.assertIn('id_token', response.content.decode('utf-8'))
 
+    @override_settings(OIDC_IDTOKEN_INCLUDE_CLAIMS=True)
+    @override_settings(OIDC_REFRESH_TOKEN_EXPIRE=24 * 60 * 60)
+    def test_refresh_token_user_inactive(self, scope=None):
+        """
+        Refresh token user status
+        Make sure that user of the refresh token is active.
+        """
+        # mark user as inactive
+        self.user.is_active = False
+        self.user.save()
+
+        # refresh token request
+        response = self._refresh_request(elapsed_time=(24 * 60 * 60) - 1)
+        self.assertIn('invalid_token', response.content.decode('utf-8'))
+
     def _refresh_request(self, elapsed_time):
         code = self._create_code()
         self.assertEqual(code.scope, ['openid', 'email'])
