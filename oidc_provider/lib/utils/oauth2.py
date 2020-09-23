@@ -70,15 +70,17 @@ def protected_resource_view(scopes=None):
                 try:
                     kwargs['token'] = Token.objects.get(access_token=access_token)
                 except Token.DoesNotExist:
+                    logger.info('[UserInfo] Token does not exist')
                     logger.debug('[UserInfo] Token does not exist: %s', access_token)
                     raise BearerTokenError('invalid_token')
 
                 if kwargs['token'].has_expired():
+                    logger.info('[UserInfo] Token has expired')
                     logger.debug('[UserInfo] Token has expired: %s', access_token)
                     raise BearerTokenError('invalid_token')
 
                 if not set(scopes).issubset(set(kwargs['token'].scope)):
-                    logger.debug('[UserInfo] Missing openid scope.')
+                    logger.info('[UserInfo] Missing openid scope.')
                     raise BearerTokenError('insufficient_scope')
             except BearerTokenError as error:
                 response = HttpResponse(status=error.status)

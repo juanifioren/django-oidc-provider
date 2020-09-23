@@ -89,26 +89,26 @@ class AuthorizeEndpoint(object):
         try:
             self.client = self.client_class.objects.get(client_id=self.params['client_id'])
         except Client.DoesNotExist:
-            logger.debug('[Authorize] Invalid client identifier: %s', self.params['client_id'])
+            logger.info('[Authorize] Invalid client identifier: %s', self.params['client_id'])
             raise ClientIdError()
 
         # Redirect URI validation.
         if self.is_authentication and not self.params['redirect_uri']:
-            logger.debug('[Authorize] Missing redirect uri.')
+            logger.info('[Authorize] Missing redirect uri.')
             raise RedirectUriError()
         if not (self.params['redirect_uri'] in self.client.redirect_uris):
-            logger.debug('[Authorize] Invalid redirect uri: %s', self.params['redirect_uri'])
+            logger.info('[Authorize] Invalid redirect uri: %s', self.params['redirect_uri'])
             raise RedirectUriError()
 
         # Grant type validation.
         if not self.grant_type:
-            logger.debug('[Authorize] Invalid response type: %s', self.params['response_type'])
+            logger.info('[Authorize] Invalid response type: %s', self.params['response_type'])
             raise AuthorizeError(
                 self.params['redirect_uri'], 'unsupported_response_type', self.grant_type)
 
         if (not self.is_authentication and (self.grant_type == 'hybrid' or
            self.params['response_type'] in ['id_token', 'id_token token'])):
-            logger.debug('[Authorize] Missing openid scope.')
+            logger.info('[Authorize] Missing openid scope.')
             raise AuthorizeError(self.params['redirect_uri'], 'invalid_scope', self.grant_type)
 
         # Nonce parameter validation.

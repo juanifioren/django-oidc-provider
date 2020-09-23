@@ -32,17 +32,19 @@ class TokenIntrospectionEndpoint(object):
 
     def validate_params(self):
         if not (self.params['client_id'] and self.params['client_secret']):
-            logger.debug('[Introspection] No client credentials provided')
+            logger.info('[Introspection] No client credentials provided')
             raise TokenIntrospectionError()
         if not self.params['token']:
-            logger.debug('[Introspection] No token provided')
+            logger.info('[Introspection] No token provided')
             raise TokenIntrospectionError()
         try:
             self.token = Token.objects.get(access_token=self.params['token'])
         except Token.DoesNotExist:
+            logger.info('[Introspection] Token does not exist')
             logger.debug('[Introspection] Token does not exist: %s', self.params['token'])
             raise TokenIntrospectionError()
         if self.token.has_expired():
+            logger.info('[Introspection] Token is not valid')
             logger.debug('[Introspection] Token is not valid: %s', self.params['token'])
             raise TokenIntrospectionError()
 
@@ -51,31 +53,31 @@ class TokenIntrospectionEndpoint(object):
                 client_id=self.params['client_id'],
                 client_secret=self.params['client_secret'])
         except Client.DoesNotExist:
-            logger.debug('[Introspection] No valid client for id: %s',
-                         self.params['client_id'])
+            logger.info('[Introspection] No valid client for id: %s', self.params['client_id'])
             raise TokenIntrospectionError()
         if INTROSPECTION_SCOPE not in self.client.scope:
-            logger.debug('[Introspection] Client %s does not have introspection scope',
-                         self.params['client_id'])
+            logger.info('[Introspection] Client %s does not have introspection scope', self.params['client_id'])
             raise TokenIntrospectionError()
 
         self.id_token = self.token.id_token
 
         if settings.get('OIDC_INTROSPECTION_VALIDATE_AUDIENCE_SCOPE'):
             if not self.token.id_token:
+                logger.info('[Introspection] Token not an authentication token')
                 logger.debug('[Introspection] Token not an authentication token: %s',
                              self.params['token'])
                 raise TokenIntrospectionError()
 
             audience = self.token.id_token.get('aud')
             if not audience:
+                logger.info('[Introspection] No audience found for token')
                 logger.debug('[Introspection] No audience found for token: %s',
                              self.params['token'])
                 raise TokenIntrospectionError()
 
             if audience not in self.client.scope:
-                logger.debug('[Introspection] Client %s does not audience scope %s',
-                             self.params['client_id'], audience)
+                logger.info('[Introspection] Client %s does not audience scope %s',
+                               self.params['client_id'], audience)
                 raise TokenIntrospectionError()
 
     def create_response_dic(self):
