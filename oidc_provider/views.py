@@ -18,6 +18,7 @@ try:
     from django.urls import reverse
 except ImportError:
     from django.core.urlresolvers import reverse
+from django.db import transaction
 from django.contrib.auth import logout as django_user_logout
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
@@ -204,9 +205,9 @@ class TokenView(View):
         token = self.token_endpoint_class(request)
 
         try:
-            token.validate_params()
-
-            dic = token.create_response_dic()
+            with transaction.atomic():
+                token.validate_params()
+                dic = token.create_response_dic()
 
             return self.token_endpoint_class.response(dic)
 
