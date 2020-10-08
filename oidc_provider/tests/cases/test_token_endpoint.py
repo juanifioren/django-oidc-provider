@@ -4,6 +4,8 @@ import uuid
 
 from base64 import b64encode
 
+from django.db import DatabaseError
+
 try:
     from urllib.parse import urlencode
 except ImportError:
@@ -311,6 +313,24 @@ class TokenTestCase(TestCase):
         self.assertEqual(response_dic['expires_in'], 720)
         self.assertEqual(id_token['sub'], str(self.user.id))
         self.assertEqual(id_token['aud'], self.client.client_id)
+
+    @override_settings(OIDC_TOKEN_EXPIRE=720)
+    def test_authorization_code_cant_be_reused(self):
+        """
+        Authorization codes MUST be short lived and single-use,
+        as described in Section 10.5 of OAuth 2.0 [RFC6749].
+        """
+        code = self._create_code()
+        post_data = self._auth_code_post_data(code=code.code)
+
+        with patch('django.db.models.query.QuerySet.select_for_update') as select_for_update_func:
+            select_for_update_func.side_effect = DatabaseError()
+            response = self._post_request(post_data)
+            select_for_update_func.assert_called_once()
+
+        self.assertEqual(response.status_code, 400)
+        response_dic = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(response_dic['error'], 'invalid_grant')
 
     @override_settings(OIDC_TOKEN_EXPIRE=720,
                        OIDC_IDTOKEN_INCLUDE_CLAIMS=True)
