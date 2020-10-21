@@ -16,10 +16,11 @@ def migrate_response_type(apps, schema_editor):
     # importing directly yields the latest without response_type
     ResponseType = apps.get_model('oidc_provider', 'ResponseType')
     Client = apps.get_model('oidc_provider', 'Client')
+    db = schema_editor.connection.alias
     for value, description in RESPONSE_TYPES:
-        ResponseType.objects.create(value=value, description=description)
-    for client in Client.objects.all():
-        client.response_types.add(ResponseType.objects.get(value=client.response_type))
+        ResponseType.objects.using(db).create(value=value, description=description)
+    for client in Client.objects.using(db).all():
+        client.response_types.add(ResponseType.objects.using(db).get(value=client.response_type))
 
 
 class Migration(migrations.Migration):
