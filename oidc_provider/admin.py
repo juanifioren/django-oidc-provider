@@ -4,7 +4,7 @@ from uuid import uuid4
 
 from django.forms import ModelForm
 from django.contrib import admin
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oidc_provider.models import Client, Code, Token, RSAKey
 
@@ -50,18 +50,18 @@ class ClientForm(ModelForm):
 class ClientAdmin(admin.ModelAdmin):
 
     fieldsets = [
-        [_(u''), {
+        [_(''), {
             'fields': (
                 'name', 'owner', 'client_type', 'response_types', '_redirect_uris', 'jwt_alg',
                 'require_consent', 'reuse_consent'),
         }],
-        [_(u'Credentials'), {
+        [_('Credentials'), {
             'fields': ('client_id', 'client_secret', '_scope'),
         }],
-        [_(u'Information'), {
+        [_('Information'), {
             'fields': ('contact_email', 'website_url', 'terms_url', 'logo', 'date_created'),
         }],
-        [_(u'Session Management'), {
+        [_('Session Management'), {
             'fields': ('_post_logout_redirect_uris',),
         }],
     ]
@@ -75,12 +75,16 @@ class ClientAdmin(admin.ModelAdmin):
 @admin.register(Code)
 class CodeAdmin(admin.ModelAdmin):
 
+    raw_id_fields = ['user']
+
     def has_add_permission(self, request):
         return False
 
 
 @admin.register(Token)
 class TokenAdmin(admin.ModelAdmin):
+
+    raw_id_fields = ['user']
 
     def has_add_permission(self, request):
         return False

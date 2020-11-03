@@ -234,3 +234,14 @@ Default is::
 See the :ref:`templates` section.
 
 The templates that are not specified here will use the default ones.
+
+OIDC_INTROSPECTION_RESPONSE_SCOPE_ENABLE
+==========================================
+
+OPTIONAL ``bool``
+
+A flag which toggles whether the scope is returned with successful response on introspection request.
+
+Must be ``True`` to include ``scope`` into the successful response
+
+Default is ``False``.

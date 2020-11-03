@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 Unreleased
 ==========
 
+* Added: scope on token and introspection endpoints.
+* Fixed: example project on Django 2.1.
+* Fixed: example in docs for translatable scopes (ugettext).
+
 0.7.0
 =====
 

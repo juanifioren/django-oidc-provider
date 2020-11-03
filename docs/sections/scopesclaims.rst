@@ -82,7 +82,7 @@ Somewhere in your Django ``settings.py``::
 
 Inside your oidc_provider_settings.py file add the following class::
 
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import ugettext_lazy as _
     from oidc_provider.lib.claims import ScopeClaims
 
     class CustomScopeClaims(ScopeClaims):

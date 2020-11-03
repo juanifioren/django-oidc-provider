@@ -1,6 +1,6 @@
 import copy
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oidc_provider import settings
 
@@ -119,8 +119,8 @@ class StandardScopeClaims(ScopeClaims):
     """
 
     info_profile = (
-        _(u'Basic profile'),
-        _(u'Access to your basic information. Includes names, gender, birthdate '
+        _('Basic profile'),
+        _('Access to your basic information. Includes names, gender, birthdate '
           'and other information.'),
     )
 
@@ -147,8 +147,8 @@ class StandardScopeClaims(ScopeClaims):
         return dic
 
     info_email = (
-        _(u'Email'),
-        _(u'Access to your email address.'),
+        _('Email'),
+        _('Access to your email address.'),
     )
 
     def scope_email(self):
@@ -160,8 +160,8 @@ class StandardScopeClaims(ScopeClaims):
         return dic
 
     info_phone = (
-        _(u'Phone number'),
-        _(u'Access to your phone number.'),
+        _('Phone number'),
+        _('Access to your phone number.'),
     )
 
     def scope_phone(self):
@@ -173,8 +173,8 @@ class StandardScopeClaims(ScopeClaims):
         return dic
 
     info_address = (
-        _(u'Address information'),
-        _(u'Access to your address. Includes country, locality, street and other information.'),
+        _('Address information'),
+        _('Access to your address. Includes country, locality, street and other information.'),
     )
 
     def scope_address(self):
