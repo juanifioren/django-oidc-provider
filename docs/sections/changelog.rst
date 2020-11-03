@@ -8,9 +8,18 @@ All notable changes to this project will be documented in this file.
 Unreleased
 ==========
 
+0.8.0
+=====
+
+*2020-11-03*
+
 * Added: scope on token and introspection endpoints.
+* Added: support Python 3.8.
+* Added: support Django 3.1 and 3.2.
 * Fixed: example project on Django 2.1.
 * Fixed: example in docs for translatable scopes (ugettext).
+* Changed: drop support Python before 3.7.
+* Changed: drop support Django before 2.1.
 
 0.7.0
 =====
