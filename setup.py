@@ -31,12 +31,7 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
@@ -44,9 +39,10 @@ setup(
     tests_require=[
         'pyjwkest>=1.3.0',
         'mock>=2.0.0',
+        'six>=1.15.0',
     ],
 
     install_requires=[
-        'pyjwkest>=1.3.0',
+        'pyjwkest>=1.4.2',
     ],
 )
