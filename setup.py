@@ -37,8 +37,8 @@ setup(
     ],
     test_suite='runtests.runtests',
     tests_require=[
-        'pyjwkest>=1.3.0',
-        'mock>=2.0.0',
+        'pyjwkest>=1.4.2',
+        'mock>=4.0.2',
         'six>=1.15.0',
     ],
 
