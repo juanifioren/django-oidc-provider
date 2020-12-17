@@ -9,6 +9,7 @@ Unreleased
 ==========
 
 * Added: scope on token and introspection endpoints.
+* Changed: Use static instead of deprecated staticfiles template tag.
 * Fixed: example project on Django 2.1.
 * Fixed: example in docs for translatable scopes (ugettext).
 
