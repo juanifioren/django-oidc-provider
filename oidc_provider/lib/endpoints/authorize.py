@@ -126,6 +126,28 @@ class AuthorizeEndpoint(object):
                 raise AuthorizeError(
                     self.params['redirect_uri'], 'invalid_request', self.grant_type)
 
+    def create_code(self):
+        code = create_code(
+            user=self.request.user,
+            client=self.client,
+            scope=self.params['scope'],
+            nonce=self.params['nonce'],
+            is_authentication=self.is_authentication,
+            code_challenge=self.params['code_challenge'],
+            code_challenge_method=self.params['code_challenge_method'],
+        )
+
+        return code
+
+    def create_token(self):
+        token = create_token(
+            user=self.request.user,
+            client=self.client,
+            scope=self.params['scope'],
+        )
+
+        return token
+
     def create_response_uri(self):
         uri = urlsplit(self.params['redirect_uri'])
         query_params = parse_qs(uri.query)
@@ -133,24 +155,13 @@ class AuthorizeEndpoint(object):
 
         try:
             if self.grant_type in ['authorization_code', 'hybrid']:
-                code = create_code(
-                    user=self.request.user,
-                    client=self.client,
-                    scope=self.params['scope'],
-                    nonce=self.params['nonce'],
-                    is_authentication=self.is_authentication,
-                    code_challenge=self.params['code_challenge'],
-                    code_challenge_method=self.params['code_challenge_method'])
+                code = self.create_code()
                 code.save()
-
             if self.grant_type == 'authorization_code':
                 query_params['code'] = code.code
                 query_params['state'] = self.params['state'] if self.params['state'] else ''
             elif self.grant_type in ['implicit', 'hybrid']:
-                token = create_token(
-                    user=self.request.user,
-                    client=self.client,
-                    scope=self.params['scope'])
+                token = self.create_token()
 
                 # Check if response_type must include access_token in the response.
                 if (self.params['response_type'] in
