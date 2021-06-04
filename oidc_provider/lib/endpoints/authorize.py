@@ -270,6 +270,13 @@ class AuthorizeEndpoint(object):
 
         return value
 
+    def is_client_allowed_to_skip_consent(self):
+        implicit_flow_resp_types = {'id_token', 'id_token token'}
+        return (
+            self.client.client_type != 'public' or
+            self.params['response_type'] in implicit_flow_resp_types
+        )
+
     def get_scopes_information(self):
         """
         Return a list with the description of all the scopes requested.
