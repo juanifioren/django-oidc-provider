@@ -1,8 +1,9 @@
 from __future__ import unicode_literals
 
 from django.test import TestCase
-from django.utils.six import text_type
+
 from django.utils.translation import override as override_language
+from six import text_type
 
 from oidc_provider.lib.claims import ScopeClaims, StandardScopeClaims, STANDARD_CLAIMS
 from oidc_provider.tests.app.utils import create_fake_user, create_fake_client, create_fake_token
@@ -49,7 +50,7 @@ class ClaimsTestCase(TestCase):
             'phone_number': '',
         }
         clean_dict = self.scopeClaims._clean_dic(dict_to_clean)
-        self.assertEquals(
+        self.assertEqual(
             clean_dict,
             {
                 'family_name': 'Doe',

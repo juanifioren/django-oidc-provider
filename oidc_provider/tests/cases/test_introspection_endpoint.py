@@ -6,7 +6,7 @@ try:
     from urllib.parse import urlencode
 except ImportError:
     from urllib import urlencode
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.core.management import call_command
 from django.test import TestCase, RequestFactory, override_settings
 from django.utils import timezone
@@ -45,7 +45,7 @@ class IntrospectionTestCase(TestCase):
 
     def _assert_inactive(self, response):
         self.assertEqual(response.status_code, 200)
-        self.assertJSONEqual(force_text(response.content), {'active': False})
+        self.assertJSONEqual(force_str(response.content), {'active': False})
 
     def _assert_active(self, response, **kwargs):
         self.assertEqual(response.status_code, 200)
@@ -59,7 +59,7 @@ class IntrospectionTestCase(TestCase):
             'iss': 'http://localhost:8000/openid',
         }
         expected_content.update(kwargs)
-        self.assertJSONEqual(force_text(response.content), expected_content)
+        self.assertJSONEqual(force_str(response.content), expected_content)
 
     def _make_request(self, **kwargs):
         url = reverse('oidc_provider:token-introspection')
@@ -126,7 +126,7 @@ class IntrospectionTestCase(TestCase):
         self.resource.save()
         response = self._make_request()
         self.assertEqual(response.status_code, 200)
-        self.assertJSONEqual(force_text(response.content), {
+        self.assertJSONEqual(force_str(response.content), {
             'active': True,
             'client_id': self.client.client_id,
         })

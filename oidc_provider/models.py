@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import base64
 import binascii
 from hashlib import md5, sha256
@@ -7,7 +6,7 @@ import json
 from django.apps import apps
 from django.db import models
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 
 from oidc_provider import settings as oidc_settings
