@@ -8,8 +8,6 @@ from django.db import migrations, models
 import django.db.models.deletion
 from django.utils.timezone import utc
 
-from oidc_provider import settings as oidc_settings
-
 
 class Migration(migrations.Migration):
 
@@ -81,7 +79,7 @@ class Migration(migrations.Migration):
             model_name='code',
             name='client',
             field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE, to=oidc_settings.get('OIDC_CLIENT_MODEL'), verbose_name='Client'),
+                on_delete=django.db.models.deletion.CASCADE, to='oidc_provider.Client', verbose_name='Client'),
         ),
         migrations.AlterField(
             model_name='code',
@@ -143,7 +141,7 @@ class Migration(migrations.Migration):
             model_name='token',
             name='client',
             field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE, to=oidc_settings.get('OIDC_CLIENT_MODEL'), verbose_name='Client'),
+                on_delete=django.db.models.deletion.CASCADE, to='oidc_provider.Client', verbose_name='Client'),
         ),
         migrations.AlterField(
             model_name='token',
@@ -170,7 +168,7 @@ class Migration(migrations.Migration):
             model_name='userconsent',
             name='client',
             field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE, to=oidc_settings.get('OIDC_CLIENT_MODEL'), verbose_name='Client'),
+                on_delete=django.db.models.deletion.CASCADE, to='oidc_provider.Client', verbose_name='Client'),
         ),
         migrations.AlterField(
             model_name='userconsent',

@@ -21,15 +21,6 @@ If not specified, it will be automatically generated using ``request.scheme`` an
 
 For example ``http://localhost:8000``.
 
-OIDC_CLIENT_MODEL
-=================
-
-OPTIONAL. ``str``. The client model.
-
-If not specified, the default oidc_provider.Client model is used. This is typically used when
-you need to override the Client model to add custom properties on the class. The custom class
-should override the oidc_provider.AbstractClient model.
-
 OIDC_AFTER_USERLOGIN_HOOK
 =========================
 
@@ -243,3 +234,14 @@ Default is::
 See the :ref:`templates` section.
 
 The templates that are not specified here will use the default ones.
+
+OIDC_INTROSPECTION_RESPONSE_SCOPE_ENABLE
+==========================================
+
+OPTIONAL ``bool``
+
+A flag which toggles whether the scope is returned with successful response on introspection request.
+
+Must be ``True`` to include ``scope`` into the successful response
+
+Default is ``False``.

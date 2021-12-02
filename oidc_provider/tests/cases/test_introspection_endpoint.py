@@ -130,3 +130,8 @@ class IntrospectionTestCase(TestCase):
             'active': True,
             'client_id': self.client.client_id,
         })
+
+    @override_settings(OIDC_INTROSPECTION_RESPONSE_SCOPE_ENABLE=True)
+    def test_enable_scope(self):
+        response = self._make_request()
+        self._assert_active(response, scope='openid email')

@@ -26,14 +26,6 @@ class DefaultSettings(object):
         return None
 
     @property
-    def OIDC_CLIENT_MODEL(self):
-        """
-        OPTIONAL.  Use a custom client model, typically used to extend the client model
-        with custom fields. The custom model should override oidc_provider.AbstractClient.
-        """
-        return 'oidc_provider.Client'
-
-    @property
     def OIDC_AFTER_USERLOGIN_HOOK(self):
         """
         OPTIONAL.  Provide a way to plug into the process after
@@ -175,6 +167,13 @@ class DefaultSettings(object):
             'authorize': 'oidc_provider/authorize.html',
             'error': 'oidc_provider/error.html'
         }
+
+    @property
+    def OIDC_INTROSPECTION_RESPONSE_SCOPE_ENABLE(self):
+        """
+        OPTIONAL: A boolean to specify whether or not to include scope in introspection response.
+        """
+        return False
 
 
 default_settings = DefaultSettings()
