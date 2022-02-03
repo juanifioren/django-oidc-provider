@@ -11,7 +11,7 @@ class StubbedViews:
     class SampleView(View):
         pass
 
-    urlpatterns = [path('test/', SampleView.as_view())]
+    urlpatterns = [path("test/", SampleView.as_view())]
 
 
 MW_CLASSES = (

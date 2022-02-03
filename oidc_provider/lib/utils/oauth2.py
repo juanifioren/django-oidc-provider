@@ -18,7 +18,7 @@ def extract_access_token(request):
 
     Return a string.
     """
-    auth_header = request.headers.get('Authorization', "")
+    auth_header = request.headers.get("Authorization", "")
 
     if re.compile("^[Bb]earer\s{1}.+$").match(auth_header):
         access_token = auth_header.split()[1]
@@ -36,7 +36,7 @@ def extract_client_auth(request):
 
     Return a tuple `(client_id, client_secret)`.
     """
-    auth_header = request.headers.get('Authorization', "")
+    auth_header = request.headers.get("Authorization", "")
 
     if re.compile("^Basic\s{1}.+$").match(auth_header):
         b64_user_pass = auth_header.split()[1]

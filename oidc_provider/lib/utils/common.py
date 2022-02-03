@@ -175,7 +175,7 @@ def cors_allow_any(request, response):
     Add headers to permit CORS requests from any origin, with or without credentials,
     with any headers.
     """
-    origin = request.headers.get('Origin')
+    origin = request.headers.get("Origin")
     if not origin:
         return response
 

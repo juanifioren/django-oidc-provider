@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 from django.test import TestCase
-from django.utils.six import text_type
+from six import text_type
 from django.utils.translation import override as override_language
 
 from oidc_provider.lib.claims import STANDARD_CLAIMS, ScopeClaims, StandardScopeClaims
