@@ -43,6 +43,7 @@ setup(
         "mock>=2.0.0",
     ],
     install_requires=[
+        "six",
         "django>=3.2",
         "pyjwkest>=1.3.0",
     ],
