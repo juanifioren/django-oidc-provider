@@ -1,16 +1,17 @@
-from django.contrib.auth import views as auth_views
 try:
     from django.urls import include, url
 except ImportError:
-    from django.conf.urls import include, url
+    from django.urls import include, path
+
+from django.contrib.auth.views import LoginView, LogoutView
+
 from django.contrib import admin
 from django.views.generic import TemplateView
 
-
 urlpatterns = [
-    url(r'^$', TemplateView.as_view(template_name='home.html'), name='home'),
-    url(r'^accounts/login/$', auth_views.login, {'template_name': 'login.html'}, name='login'),
-    url(r'^accounts/logout/$', auth_views.logout, {'next_page': '/'}, name='logout'),
-    url(r'^', include('oidc_provider.urls', namespace='oidc_provider')),
-    url(r'^admin/', admin.site.urls),
+    path("", TemplateView.as_view(template_name="home.html"), name="home"),
+    path("accounts/login/", LoginView.as_view(), name="login"),
+    path("accounts/logout/", LogoutView.as_view(), name="logout"),
+    path("", include("oidc_provider.urls", namespace="oidc_provider")),
+    path("admin/", admin.site.urls),
 ]
