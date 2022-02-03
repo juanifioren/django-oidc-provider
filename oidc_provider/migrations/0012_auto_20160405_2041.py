@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('oidc_provider', '0011_client_client_type'),
+        ("oidc_provider", "0011_client_client_type"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='client',
-            name='client_secret',
-            field=models.CharField(blank=True, default=b'', max_length=255),
+            model_name="client",
+            name="client_secret",
+            field=models.CharField(blank=True, default=b"", max_length=255),
         ),
     ]

@@ -5,17 +5,17 @@ from django.db import migrations, models
 
 def migrate_response_type(apps, schema_editor):
     RESPONSE_TYPES = [
-        ('code', 'code (Authorization Code Flow)'),
-        ('id_token', 'id_token (Implicit Flow)'),
-        ('id_token token', 'id_token token (Implicit Flow)'),
-        ('code token', 'code token (Hybrid Flow)'),
-        ('code id_token', 'code id_token (Hybrid Flow)'),
-        ('code id_token token', 'code id_token token (Hybrid Flow)'),
+        ("code", "code (Authorization Code Flow)"),
+        ("id_token", "id_token (Implicit Flow)"),
+        ("id_token token", "id_token token (Implicit Flow)"),
+        ("code token", "code token (Hybrid Flow)"),
+        ("code id_token", "code id_token (Hybrid Flow)"),
+        ("code id_token token", "code id_token token (Hybrid Flow)"),
     ]
     # ensure we get proper, versioned model with the deleted response_type field;
     # importing directly yields the latest without response_type
-    ResponseType = apps.get_model('oidc_provider', 'ResponseType')
-    Client = apps.get_model('oidc_provider', 'Client')
+    ResponseType = apps.get_model("oidc_provider", "ResponseType")
+    Client = apps.get_model("oidc_provider", "Client")
     for value, description in RESPONSE_TYPES:
         ResponseType.objects.create(value=value, description=description)
     for client in Client.objects.all():
@@ -25,27 +25,53 @@ def migrate_response_type(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('oidc_provider', '0025_user_field_codetoken'),
+        ("oidc_provider", "0025_user_field_codetoken"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ResponseType',
+            name="ResponseType",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('value', models.CharField(choices=[('code', 'code (Authorization Code Flow)'), ('id_token', 'id_token (Implicit Flow)'), ('id_token token', 'id_token token (Implicit Flow)'), ('code token', 'code token (Hybrid Flow)'), ('code id_token', 'code id_token (Hybrid Flow)'), ('code id_token token', 'code id_token token (Hybrid Flow)')], max_length=30, unique=True, verbose_name='Response Type Value')),
-                ('description', models.CharField(max_length=50)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "value",
+                    models.CharField(
+                        choices=[
+                            ("code", "code (Authorization Code Flow)"),
+                            ("id_token", "id_token (Implicit Flow)"),
+                            ("id_token token", "id_token token (Implicit Flow)"),
+                            ("code token", "code token (Hybrid Flow)"),
+                            ("code id_token", "code id_token (Hybrid Flow)"),
+                            (
+                                "code id_token token",
+                                "code id_token token (Hybrid Flow)",
+                            ),
+                        ],
+                        max_length=30,
+                        unique=True,
+                        verbose_name="Response Type Value",
+                    ),
+                ),
+                ("description", models.CharField(max_length=50)),
             ],
         ),
         migrations.AddField(
-            model_name='client',
-            name='response_types',
-            field=models.ManyToManyField(to='oidc_provider.ResponseType'),
+            model_name="client",
+            name="response_types",
+            field=models.ManyToManyField(to="oidc_provider.ResponseType"),
         ),
         # omitting reverse migrate_response_type since removing response_type is irreversible (nonnull and no default)
         migrations.RunPython(migrate_response_type),
         migrations.RemoveField(
-            model_name='client',
-            name='response_type',
+            model_name="client",
+            name="response_type",
         ),
     ]

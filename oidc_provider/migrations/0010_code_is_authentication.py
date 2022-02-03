@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('oidc_provider', '0009_auto_20160202_1945'),
+        ("oidc_provider", "0009_auto_20160202_1945"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='code',
-            name='is_authentication',
+            model_name="code",
+            name="is_authentication",
             field=models.BooleanField(default=False),
         ),
     ]

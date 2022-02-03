@@ -8,13 +8,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('oidc_provider', '0018_hybridflow_and_clientattrs'),
+        ("oidc_provider", "0018_hybridflow_and_clientattrs"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='client',
-            name='client_secret',
-            field=models.CharField(blank=True, max_length=255, verbose_name='Client SECRET'),
+            model_name="client",
+            name="client_secret",
+            field=models.CharField(
+                blank=True, max_length=255, verbose_name="Client SECRET"
+            ),
         ),
     ]

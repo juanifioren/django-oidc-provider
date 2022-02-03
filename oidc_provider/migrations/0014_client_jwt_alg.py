@@ -8,17 +8,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('oidc_provider', '0013_auto_20160407_1912'),
+        ("oidc_provider", "0013_auto_20160407_1912"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='client',
-            name='jwt_alg',
+            model_name="client",
+            name="jwt_alg",
             field=models.CharField(
-                choices=[(b'HS256', b'HS256'), (b'RS256', b'RS256')],
-                default=b'RS256',
+                choices=[(b"HS256", b"HS256"), (b"RS256", b"RS256")],
+                default=b"RS256",
                 max_length=10,
-                verbose_name='JWT Algorithm'),
+                verbose_name="JWT Algorithm",
+            ),
         ),
     ]

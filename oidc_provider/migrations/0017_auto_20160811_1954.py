@@ -8,64 +8,76 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('oidc_provider', '0016_userconsent_and_verbosenames'),
+        ("oidc_provider", "0016_userconsent_and_verbosenames"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='client',
-            name='_redirect_uris',
-            field=models.TextField(default='', help_text='Enter each URI on a new line.', verbose_name='Redirect URIs'),
+            model_name="client",
+            name="_redirect_uris",
+            field=models.TextField(
+                default="",
+                help_text="Enter each URI on a new line.",
+                verbose_name="Redirect URIs",
+            ),
         ),
         migrations.AlterField(
-            model_name='client',
-            name='client_secret',
-            field=models.CharField(blank=True, default='', max_length=255, verbose_name='Client SECRET'),
-        ),
-        migrations.AlterField(
-            model_name='client',
-            name='client_type',
+            model_name="client",
+            name="client_secret",
             field=models.CharField(
-                choices=[('confidential', 'Confidential'), ('public', 'Public')],
-                default='confidential',
-                help_text='<b>Confidential</b> clients are capable of maintaining the confidentiality of their '
-                          'credentials. <b>Public</b> clients are incapable.',
+                blank=True, default="", max_length=255, verbose_name="Client SECRET"
+            ),
+        ),
+        migrations.AlterField(
+            model_name="client",
+            name="client_type",
+            field=models.CharField(
+                choices=[("confidential", "Confidential"), ("public", "Public")],
+                default="confidential",
+                help_text="<b>Confidential</b> clients are capable of maintaining the confidentiality of their "
+                "credentials. <b>Public</b> clients are incapable.",
                 max_length=30,
-                verbose_name='Client Type'),
+                verbose_name="Client Type",
+            ),
         ),
         migrations.AlterField(
-            model_name='client',
-            name='name',
-            field=models.CharField(default='', max_length=100, verbose_name='Name'),
+            model_name="client",
+            name="name",
+            field=models.CharField(default="", max_length=100, verbose_name="Name"),
         ),
         migrations.AlterField(
-            model_name='client',
-            name='response_type',
+            model_name="client",
+            name="response_type",
             field=models.CharField(
                 choices=[
-                    ('code', 'code (Authorization Code Flow)'), ('id_token', 'id_token (Implicit Flow)'),
-                    ('id_token token', 'id_token token (Implicit Flow)')],
+                    ("code", "code (Authorization Code Flow)"),
+                    ("id_token", "id_token (Implicit Flow)"),
+                    ("id_token token", "id_token token (Implicit Flow)"),
+                ],
                 max_length=30,
-                verbose_name='Response Type'),
+                verbose_name="Response Type",
+            ),
         ),
         migrations.AlterField(
-            model_name='code',
-            name='_scope',
-            field=models.TextField(default='', verbose_name='Scopes'),
+            model_name="code",
+            name="_scope",
+            field=models.TextField(default="", verbose_name="Scopes"),
         ),
         migrations.AlterField(
-            model_name='code',
-            name='nonce',
-            field=models.CharField(blank=True, default='', max_length=255, verbose_name='Nonce'),
+            model_name="code",
+            name="nonce",
+            field=models.CharField(
+                blank=True, default="", max_length=255, verbose_name="Nonce"
+            ),
         ),
         migrations.AlterField(
-            model_name='token',
-            name='_scope',
-            field=models.TextField(default='', verbose_name='Scopes'),
+            model_name="token",
+            name="_scope",
+            field=models.TextField(default="", verbose_name="Scopes"),
         ),
         migrations.AlterField(
-            model_name='userconsent',
-            name='_scope',
-            field=models.TextField(default='', verbose_name='Scopes'),
+            model_name="userconsent",
+            name="_scope",
+            field=models.TextField(default="", verbose_name="Scopes"),
         ),
     ]

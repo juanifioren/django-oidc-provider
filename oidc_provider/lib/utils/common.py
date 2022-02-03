@@ -6,7 +6,6 @@ from django.utils.cache import patch_vary_headers
 
 from oidc_provider import settings
 
-
 if django.VERSION >= (1, 11):
     from django.urls import reverse
 else:
@@ -17,8 +16,8 @@ def redirect(uri):
     """
     Custom Response object for redirecting to a Non-HTTP url scheme.
     """
-    response = HttpResponse('', status=302)
-    response['Location'] = uri
+    response = HttpResponse("", status=302)
+    response["Location"] = uri
     return response
 
 
@@ -31,15 +30,17 @@ def get_site_url(site_url=None, request=None):
         2. valid `SITE_URL` in settings
         3. construct from `request` object
     """
-    site_url = site_url or settings.get('SITE_URL')
+    site_url = site_url or settings.get("SITE_URL")
     if site_url:
         return site_url
     elif request:
-        return '{}://{}'.format(request.scheme, request.get_host())
+        return "{}://{}".format(request.scheme, request.get_host())
     else:
-        raise Exception('Either pass `site_url`, '
-                        'or set `SITE_URL` in settings, '
-                        'or pass `request` object.')
+        raise Exception(
+            "Either pass `site_url`, "
+            "or set `SITE_URL` in settings, "
+            "or pass `request` object."
+        )
 
 
 def get_issuer(site_url=None, request=None):
@@ -48,8 +49,9 @@ def get_issuer(site_url=None, request=None):
     appended.
     """
     site_url = get_site_url(site_url=site_url, request=request)
-    path = reverse('oidc_provider:provider-info') \
-        .split('/.well-known/openid-configuration')[0]
+    path = reverse("oidc_provider:provider-info").split(
+        "/.well-known/openid-configuration"
+    )[0]
     issuer = site_url + path
 
     return str(issuer)
@@ -78,8 +80,13 @@ def default_after_userlogin_hook(request, user, client):
 
 
 def default_after_end_session_hook(
-        request, id_token=None, post_logout_redirect_uri=None,
-        state=None, client=None, next_page=None):
+    request,
+    id_token=None,
+    post_logout_redirect_uri=None,
+    state=None,
+    client=None,
+    next_page=None,
+):
     """
     Default function for setting OIDC_AFTER_END_SESSION_HOOK.
 
@@ -108,8 +115,7 @@ def default_after_end_session_hook(
     return None
 
 
-def default_idtoken_processing_hook(
-        id_token, user, token, request, **kwargs):
+def default_idtoken_processing_hook(id_token, user, token, request, **kwargs):
     """
     Hook to perform some additional actions to `id_token` dictionary just before serialization.
 
@@ -146,9 +152,10 @@ def get_browser_state_or_default(request):
     """
     Determine value to use as session state.
     """
-    key = (request.session.session_key or
-           settings.get('OIDC_UNAUTHENTICATED_SESSION_MANAGEMENT_KEY'))
-    return sha224(key.encode('utf-8')).hexdigest()
+    key = request.session.session_key or settings.get(
+        "OIDC_UNAUTHENTICATED_SESSION_MANAGEMENT_KEY"
+    )
+    return sha224(key.encode("utf-8")).hexdigest()
 
 
 def run_processing_hook(subject, hook_settings_name, **kwargs):
@@ -168,19 +175,20 @@ def cors_allow_any(request, response):
     Add headers to permit CORS requests from any origin, with or without credentials,
     with any headers.
     """
-    origin = request.META.get('HTTP_ORIGIN')
+    origin = request.headers.get('Origin')
     if not origin:
         return response
 
     # From the CORS spec: The string "*" cannot be used for a resource that supports credentials.
-    response['Access-Control-Allow-Origin'] = origin
-    patch_vary_headers(response, ['Origin'])
-    response['Access-Control-Allow-Credentials'] = 'true'
+    response["Access-Control-Allow-Origin"] = origin
+    patch_vary_headers(response, ["Origin"])
+    response["Access-Control-Allow-Credentials"] = "true"
 
-    if request.method == 'OPTIONS':
-        if 'HTTP_ACCESS_CONTROL_REQUEST_HEADERS' in request.META:
-            response['Access-Control-Allow-Headers'] \
-                = request.META['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']
-        response['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+    if request.method == "OPTIONS":
+        if "HTTP_ACCESS_CONTROL_REQUEST_HEADERS" in request.META:
+            response["Access-Control-Allow-Headers"] = request.META[
+                "HTTP_ACCESS_CONTROL_REQUEST_HEADERS"
+            ]
+        response["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
 
     return response

@@ -8,17 +8,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('oidc_provider', '0008_rsakey'),
+        ("oidc_provider", "0008_rsakey"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='rsakey',
-            options={'verbose_name': 'RSA Key', 'verbose_name_plural': 'RSA Keys'},
+            name="rsakey",
+            options={"verbose_name": "RSA Key", "verbose_name_plural": "RSA Keys"},
         ),
         migrations.AlterField(
-            model_name='rsakey',
-            name='key',
-            field=models.TextField(help_text='Paste your private RSA Key here.'),
+            model_name="rsakey",
+            name="key",
+            field=models.TextField(help_text="Paste your private RSA Key here."),
         ),
     ]

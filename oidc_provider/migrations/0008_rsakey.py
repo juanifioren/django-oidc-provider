@@ -8,15 +8,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('oidc_provider', '0007_auto_20160111_1844'),
+        ("oidc_provider", "0007_auto_20160111_1844"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='RSAKey',
+            name="RSAKey",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('key', models.TextField()),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("key", models.TextField()),
             ],
         ),
     ]

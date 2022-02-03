@@ -8,18 +8,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('oidc_provider', '0012_auto_20160405_2041'),
+        ("oidc_provider", "0012_auto_20160405_2041"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='code',
-            name='code_challenge',
+            model_name="code",
+            name="code_challenge",
             field=models.CharField(max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='code',
-            name='code_challenge_method',
+            model_name="code",
+            name="code_challenge_method",
             field=models.CharField(max_length=255, null=True),
         ),
     ]

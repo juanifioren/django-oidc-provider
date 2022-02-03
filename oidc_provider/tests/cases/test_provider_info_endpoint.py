@@ -2,14 +2,13 @@ try:
     from django.urls import reverse
 except ImportError:
     from django.core.urlresolvers import reverse
-from django.test import RequestFactory
-from django.test import TestCase
+
+from django.test import RequestFactory, TestCase
 
 from oidc_provider.views import ProviderInfoView
 
 
 class ProviderInfoTestCase(TestCase):
-
     def setUp(self):
         self.factory = RequestFactory()
 
@@ -18,12 +17,12 @@ class ProviderInfoTestCase(TestCase):
         See if the endpoint is returning the corresponding
         server information by checking status, content type, etc.
         """
-        url = reverse('oidc_provider:provider-info')
+        url = reverse("oidc_provider:provider-info")
 
         request = self.factory.get(url)
 
         response = ProviderInfoView.as_view()(request)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response['Content-Type'] == 'application/json', True)
+        self.assertEqual(response["Content-Type"] == "application/json", True)
         self.assertEqual(bool(response.content), True)

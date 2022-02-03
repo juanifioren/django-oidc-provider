@@ -7,15 +7,15 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('oidc_provider', '0003_code_nonce'),
+        ("oidc_provider", "0003_code_nonce"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='userinfo',
-            name='user',
+            model_name="userinfo",
+            name="user",
         ),
         migrations.DeleteModel(
-            name='UserInfo',
+            name="UserInfo",
         ),
     ]

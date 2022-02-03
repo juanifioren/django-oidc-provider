@@ -8,14 +8,16 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('oidc_provider', '0020_client__post_logout_redirect_uris'),
+        ("oidc_provider", "0020_client__post_logout_redirect_uris"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='token',
-            name='refresh_token',
-            field=models.CharField(default='', max_length=255, unique=True, verbose_name='Refresh Token'),
+            model_name="token",
+            name="refresh_token",
+            field=models.CharField(
+                default="", max_length=255, unique=True, verbose_name="Refresh Token"
+            ),
             preserve_default=False,
         ),
     ]

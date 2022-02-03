@@ -7,12 +7,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('oidc_provider', '0005_token_refresh_token'),
+        ("oidc_provider", "0005_token_refresh_token"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='userconsent',
-            unique_together=set([('user', 'client')]),
+            name="userconsent",
+            unique_together=set([("user", "client")]),
         ),
     ]
