@@ -12,7 +12,7 @@ TEMPLATE_DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Application definition
 
@@ -41,7 +41,7 @@ MIDDLEWARE = MIDDLEWARE_CLASSES
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": ["templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -86,7 +86,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
 # Custom settings
 
-LOGIN_REDIRECT_URL = "/"
+LOGIN_REDIRECT_URL = "home"
+LOGOUT_REDIRECT_URL = "home"
 
 # OIDC Provider settings
 
