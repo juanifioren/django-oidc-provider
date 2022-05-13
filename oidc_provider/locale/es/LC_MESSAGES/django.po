@@ -144,6 +144,14 @@ msgstr ""
 msgid "Authorization Codes"
 msgstr ""
 
+#: models.py:103
+msgid "Electronic CI Allowed"
+msgstr "CI electrónica permitida"
+
+#: models.py:104
+msgid "If disabled, users won't be able to login with electronic CI"
+msgstr "Si está desactivado, los usuarios no pueden iniciar sesión con CI electrónica"
+
 #: models.py:105
 msgid "Access Token"
 msgstr ""
