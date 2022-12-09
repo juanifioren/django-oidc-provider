@@ -25,7 +25,7 @@ def extract_access_token(request):
     else:
         access_token = request.GET.get('access_token', '')
     if access_token in (None,'') and 'access_token' in request.body:
-        access_token = request.body.split("access_token=")[1]
+        access_token = request.body.split("access_token=")[1].decode("utf8")
     return access_token
 
 
