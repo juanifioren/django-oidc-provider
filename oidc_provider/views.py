@@ -77,6 +77,11 @@ class AuthorizeView(View):
                     client=authorize.client)
                 if hook_resp:
                     return hook_resp
+                if authorize.params['max_age']:
+                    if (timezone.now() - request.user.last_login).total_seconcs > authorize.params['max_age']:
+                        django_user_logout(request)
+                        next_page = strip_prompt_login(request.get_full_path())
+                        return redirect_to_login(next_page, settings.get('OIDC_LOGIN_URL'))
 
                 if 'login' in authorize.params['prompt']:
                     if 'none' in authorize.params['prompt']:
