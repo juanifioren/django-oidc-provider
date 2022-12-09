@@ -87,6 +87,9 @@ class AuthorizeEndpoint(object):
 
     def validate_params(self):
         # Client validation.
+        if request.GET.get("request"):
+            raise AuthorizeError(self.params['redirect_uri'], 'redirect not support', self.grant_type)
+
         try:
             self.client = self.client_class.objects.get(client_id=self.params['client_id'])
         except Client.DoesNotExist:
