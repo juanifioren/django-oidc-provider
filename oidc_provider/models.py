@@ -170,12 +170,12 @@ class BaseCodeTokenModel(models.Model):
     @property
     def acr_values(self):
         if self._acr_values:
-            return self._acr_values.split()
+            return json.loads(self._acr_values)
 
     @acr_values.setter
     def acr_values(self,value):
         if type(value) is list:
-            self._acr_values = ' '.join(value)
+            self._acr_values =json.dumps(value)
         else:
             self._acr_values = value
 

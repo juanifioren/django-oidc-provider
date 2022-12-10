@@ -144,7 +144,7 @@ def create_code(user, client, scope, nonce, is_authentication,
         code.code_challenge = code_challenge
         code.code_challenge_method = code_challenge_method
     if acr_values:
-        code.acr_values=acr_values
+        code.acr_values=json.dumps(acr_values)
     code.expires_at = timezone.now() + timedelta(
         seconds=settings.get('OIDC_CODE_EXPIRE'))
     code.scope = scope
