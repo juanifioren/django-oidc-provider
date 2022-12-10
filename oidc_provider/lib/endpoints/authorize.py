@@ -98,16 +98,14 @@ class AuthorizeEndpoint(object):
         # Client validation.
         if self.params["request"] is not None:
             import base64
-            parts = self.params["request"].split(".")
-            body = base64.b64decode(parts[1])
-            print(body)
-            body = json.loads(body)
-
-            if json.loads(base64.b64decode(parts[0])).get('alg','none') == "none":
-                raise AuthorizeError(
+            parts = self.params["request"].split(".",1)
+            if json.loads(base64.b64decode(parts[0])).get('alg', 'none') == "none":
+                body = base64.b64decode(parts[1]).decode("utf8")
+                body = json.loads(body)
+                if "redirect_uri" in body and self.params["redirect_uri"]:
+                    raise RedirectUriError()
+            raise AuthorizeError(
                     self.params['redirect_uri'], 'request_not_supported', self.grant_type)
-            if self.params['redirect_uri']:
-               raise RedirectUriError()
 
         try:
             self.client = self.client_class.objects.get(client_id=self.params['client_id'])
