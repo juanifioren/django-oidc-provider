@@ -121,7 +121,8 @@ def create_token(user, client, scope, id_token_dic=None,acr_values=None):
     token.expires_at = timezone.now() + timedelta(
         seconds=settings.get('OIDC_TOKEN_EXPIRE'))
     token.scope = scope
-    token.acr_values= acr_values
+    if acr_values:
+        token.acr_values= acr_values
 
     return token
 

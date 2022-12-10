@@ -254,7 +254,8 @@ def userinfo(request, *args, **kwargs):
     dic = {
         'sub': token.id_token.get('sub'),
     }
-
+    if token._acr_values:
+        dic['acr_values'] = token._acr_values
     standard_claims = StandardScopeClaims(token)
     dic.update(standard_claims.create_response_dic())
 
