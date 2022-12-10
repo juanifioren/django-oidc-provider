@@ -103,9 +103,9 @@ class AuthorizeEndpoint(object):
             if json.loads(header).get('alg', 'none') == "none":
                 body = base64.b64decode(parts[1]).decode("utf8")
                 body = json.loads(body)
-                if "redirect_uri" in body and self.params["redirect_uri"]:
+                if body.get("redirect_uri") and self.params.get("redirect_uri"):
                     raise RedirectUriError()
-            raise AuthorizeError(
+                raise AuthorizeError(
                     self.params['redirect_uri'], 'request_not_supported', self.grant_type)
 
         try:
