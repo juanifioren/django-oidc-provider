@@ -1,3 +1,4 @@
+import json
 from datetime import timedelta
 from hashlib import (
     md5,
@@ -79,8 +80,8 @@ class AuthorizeEndpoint(object):
         self.params['state'] = query_dict.get('state', '')
         self.params['nonce'] = query_dict.get('nonce', '')
         self.params['max_age'] = query_dict.get('max_age', '')
-        self.params['claims'] = query_dict.get('claims', {})
-
+        claims = query_dict.get('claims', '{}')
+        self.params['claims']=json.loads(claims)
         self.params['prompt'] = self._allowed_prompt_params.intersection(
             set(query_dict.get('prompt', '').split()))
 

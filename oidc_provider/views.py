@@ -129,8 +129,11 @@ class AuthorizeView(View):
                 if 'none' in authorize.params['prompt']:
                     raise AuthorizeError(
                         authorize.params['redirect_uri'], 'consent_required', authorize.grant_type)
-                if authorize.params['claims']:
-                    authorize.params['scope'].append(list(authorize.params['claims'].keys()))
+                if len(list(authorize.params['claims'].keys()))>0:
+                    if "userinfo" in authorize.params['claims']:
+                        authorize.params['scope'].extend(list(authorize.params['claims']['userinfo'].keys()))
+                    if "id_token" in authorize.params['claims']:
+                        authorize.params['scope'].extend(list(authorize.params['claims']['id_token'].keys()))
                 # Generate hidden inputs for the form.
                 context = {
                     'params': authorize.params,
