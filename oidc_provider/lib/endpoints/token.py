@@ -172,7 +172,7 @@ class TokenEndpoint(object):
         token = create_token(
             user=self.code.user,
             client=self.code.client,
-            scope=self.code.scope)
+            scope=self.code.scope, acr_values=self.code.acr_values)
 
         if self.code.is_authentication:
             id_token_dic = create_id_token(
@@ -216,7 +216,7 @@ class TokenEndpoint(object):
         token = create_token(
             user=self.token.user,
             client=self.token.client,
-            scope=scope)
+            scope=scope,acr_values=self.params['acr_values'])
 
         # If the Token has an id_token it's an Authentication request.
         if self.token.id_token:
@@ -255,7 +255,7 @@ class TokenEndpoint(object):
         token = create_token(
             self.user,
             self.client,
-            token_scopes)
+            token_scopes,acr_values=self.params['acr_values'])
 
         id_token_dic = create_id_token(
             token=token,
@@ -288,6 +288,7 @@ class TokenEndpoint(object):
             user=None,
             client=self.client,
             scope=token_scopes,
+            acr_values=self.params['acr_values']
             )
 
         token.save()
