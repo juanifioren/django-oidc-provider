@@ -170,11 +170,14 @@ class BaseCodeTokenModel(models.Model):
     @property
     def acr_values(self):
         if self._acr_values:
-            return self._acr_values.split()
+            return self._acr_values
 
     @acr_values.setter
     def acr_values(self,value):
-        self._acr_values = ' '.join(value)
+        if type(value) is list:
+            self._acr_values = ' '.join(value)
+        else:
+            self._acr_values = value
 
     @property
     def scope(self):

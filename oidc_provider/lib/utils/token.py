@@ -47,7 +47,7 @@ def create_id_token(token, user, aud, nonce='', at_hash='', request=None, scope=
         'auth_time': auth_time,
     }
     if token.acr_values:
-        dic['acr_values'] = token._acr_values
+        dic['acr'] = token._acr_values
 
     if nonce:
         dic['nonce'] = str(nonce)
