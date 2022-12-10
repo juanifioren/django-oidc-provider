@@ -96,7 +96,7 @@ class AuthorizeEndpoint(object):
         if self.params["request"] is not None:
             if self.params['redirect_uri']:
                raise AuthorizeError(
-                    self.params['redirect_uri'], 'invalid_request', self.grant_type)
+                    self.params['redirect_uri'], 'request_not_supported', self.grant_type)
 
             raise AuthorizeError(
                 self.params['redirect_uri'], 'request_not_supported', self.grant_type)
