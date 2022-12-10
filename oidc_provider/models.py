@@ -170,7 +170,7 @@ class BaseCodeTokenModel(models.Model):
     @property
     def acr_values(self):
         if self._acr_values:
-            return self._acr_values
+            return self._acr_values.split()
 
     @acr_values.setter
     def acr_values(self,value):
