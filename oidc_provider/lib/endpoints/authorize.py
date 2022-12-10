@@ -82,7 +82,7 @@ class AuthorizeEndpoint(object):
         self.params['max_age'] = query_dict.get('max_age', '')
         acr_values = query_dict.get('acr_values', None)
         if acr_values:
-            self.params['acr_values']=json.loads(acr_values)
+            self.params['acr_values']=acr_values.split()
         claims = query_dict.get('claims', '[]')
         self.params['claims']=json.loads(claims)
         self.params['prompt'] = self._allowed_prompt_params.intersection(
