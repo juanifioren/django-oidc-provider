@@ -98,8 +98,9 @@ class AuthorizeEndpoint(object):
         # Client validation.
         if self.params["request"] is not None:
             import base64
-            parts = self.params["request"].split(".",1)
-            if json.loads(base64.b64decode(parts[0])).get('alg', 'none') == "none":
+            parts = self.params["request"].split(".",2)
+            header = base64.urlsafe_b64decode(parts[0] + '=' * (4 - len(parts[0]) % 4))
+            if json.loads(header).get('alg', 'none') == "none":
                 body = base64.b64decode(parts[1]).decode("utf8")
                 body = json.loads(body)
                 if "redirect_uri" in body and self.params["redirect_uri"]:
