@@ -154,7 +154,7 @@ class AuthorizeEndpoint(object):
                     is_authentication=self.is_authentication,
                     code_challenge=self.params['code_challenge'],
                     code_challenge_method=self.params['code_challenge_method'],
-                    acr_values=self.params['acr_values'])
+                    acr_values=self.params.get('acr_values'))
                 code.save()
 
             if self.grant_type == 'authorization_code':
