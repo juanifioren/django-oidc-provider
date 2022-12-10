@@ -5,6 +5,9 @@ from hashlib import (
     sha256,
 )
 import logging
+
+import jwt
+
 try:
     from urllib import urlencode
     from urlparse import urlsplit, parse_qs, urlunsplit
@@ -94,6 +97,11 @@ class AuthorizeEndpoint(object):
     def validate_params(self):
         # Client validation.
         if self.params["request"] is not None:
+            h = jwt.get_unverified_header(self.params["request"])
+            if h.get('alg','none')=="none":
+                raise AuthorizeError(
+                    self.params['redirect_uri'], 'request_not_supported', self.grant_type)
+
             if self.params['redirect_uri']:
                raise RedirectUriError()
             raise AuthorizeError(

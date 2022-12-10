@@ -48,5 +48,6 @@ setup(
 
     install_requires=[
         'pyjwkest>=1.3.0',
+        'pyjwt==2.6.0'
     ],
 )
