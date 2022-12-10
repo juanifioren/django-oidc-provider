@@ -216,7 +216,7 @@ class TokenEndpoint(object):
         token = create_token(
             user=self.token.user,
             client=self.token.client,
-            scope=scope,acr_values=self.params['acr_values'])
+            scope=scope,acr_values=self.params.get('acr_values'))
 
         # If the Token has an id_token it's an Authentication request.
         if self.token.id_token:
