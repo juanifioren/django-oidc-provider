@@ -46,6 +46,8 @@ def create_id_token(token, user, aud, nonce='', at_hash='', request=None, scope=
         'iat': iat_time,
         'auth_time': auth_time,
     }
+    if token.acr_values:
+        dic['acr_values'] = token._acr_values
 
     if nonce:
         dic['nonce'] = str(nonce)
@@ -102,7 +104,7 @@ def client_id_from_id_token(id_token):
     return aud
 
 
-def create_token(user, client, scope, id_token_dic=None):
+def create_token(user, client, scope, id_token_dic=None,acr_values=None):
     """
     Create and populate a Token object.
     Return a Token object.
@@ -119,12 +121,13 @@ def create_token(user, client, scope, id_token_dic=None):
     token.expires_at = timezone.now() + timedelta(
         seconds=settings.get('OIDC_TOKEN_EXPIRE'))
     token.scope = scope
+    token.acr_values= acr_values
 
     return token
 
 
 def create_code(user, client, scope, nonce, is_authentication,
-                code_challenge=None, code_challenge_method=None):
+                code_challenge=None, code_challenge_method=None,acr_values=None):
     """
     Create and populate a Code object.
     Return a Code object.
@@ -138,7 +141,8 @@ def create_code(user, client, scope, nonce, is_authentication,
     if code_challenge and code_challenge_method:
         code.code_challenge = code_challenge
         code.code_challenge_method = code_challenge_method
-
+    if acr_values:
+        code.acr_values=acr_values
     code.expires_at = timezone.now() + timedelta(
         seconds=settings.get('OIDC_CODE_EXPIRE'))
     code.scope = scope

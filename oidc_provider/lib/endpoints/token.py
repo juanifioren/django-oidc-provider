@@ -265,6 +265,7 @@ class TokenEndpoint(object):
             at_hash=token.at_hash,
             request=self.request,
             scope=token.scope,
+
         )
 
         token.id_token = id_token_dic
@@ -286,16 +287,21 @@ class TokenEndpoint(object):
         token = create_token(
             user=None,
             client=self.client,
-            scope=token_scopes)
+            scope=token_scopes,
+            )
 
         token.save()
 
-        return {
+        d = {
             'access_token': token.access_token,
             'expires_in': settings.get('OIDC_TOKEN_EXPIRE'),
             'token_type': 'bearer',
             'scope': ' '.join(token.scope),
+
         }
+        if token.acr_values:
+            d["acr_values"] = token.acr_values
+        return d
 
     @classmethod
     def response(cls, dic, status=200):

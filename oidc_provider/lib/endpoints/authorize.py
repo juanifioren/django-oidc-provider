@@ -80,6 +80,7 @@ class AuthorizeEndpoint(object):
         self.params['state'] = query_dict.get('state', '')
         self.params['nonce'] = query_dict.get('nonce', '')
         self.params['max_age'] = query_dict.get('max_age', '')
+        self.params['acr_values'] = query_dict.get('acr_values', None)
         claims = query_dict.get('claims', '{}')
         self.params['claims']=json.loads(claims)
         self.params['prompt'] = self._allowed_prompt_params.intersection(
@@ -150,7 +151,8 @@ class AuthorizeEndpoint(object):
                     nonce=self.params['nonce'],
                     is_authentication=self.is_authentication,
                     code_challenge=self.params['code_challenge'],
-                    code_challenge_method=self.params['code_challenge_method'])
+                    code_challenge_method=self.params['code_challenge_method'],
+                    acr_values=self.params['acr_values'])
                 code.save()
 
             if self.grant_type == 'authorization_code':

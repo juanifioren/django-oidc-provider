@@ -162,9 +162,19 @@ class BaseCodeTokenModel(models.Model):
     client = models.ForeignKey(Client, verbose_name=_(u'Client'), on_delete=models.CASCADE)
     expires_at = models.DateTimeField(verbose_name=_(u'Expiration Date'))
     _scope = models.TextField(default='', verbose_name=_(u'Scopes'))
+    _acr_values = models.TextField(default=None, verbose_name=_(u'ACR'))
+
 
     class Meta:
         abstract = True
+    @property
+    def acr_values(self):
+        if self._acr_values:
+            return self._acr_values.split()
+
+    @acr_values.setter
+    def acr_values(self,value):
+        self._acr_values = ' '.join(value)
 
     @property
     def scope(self):
@@ -191,6 +201,7 @@ class Code(BaseCodeTokenModel):
     code_challenge = models.CharField(max_length=255, null=True, verbose_name=_(u'Code Challenge'))
     code_challenge_method = models.CharField(
         max_length=255, null=True, verbose_name=_(u'Code Challenge Method'))
+    acr_values = models.CharField(default=None, null=True, blank=True, max_length=255)
 
     class Meta:
         verbose_name = _(u'Authorization Code')
