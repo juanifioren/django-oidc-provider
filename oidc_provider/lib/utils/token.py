@@ -55,7 +55,8 @@ def create_id_token(token, user, aud, nonce='', at_hash='', request=None, scope=
 
     if at_hash:
         dic['at_hash'] = at_hash
-
+    if token.code_hash:
+        dic["c_hash"] = token.code_hash
     # Inlude (or not) user standard claims in the id_token.
     if settings.get('OIDC_IDTOKEN_INCLUDE_CLAIMS'):
         if settings.get('OIDC_EXTRA_SCOPE_CLAIMS'):
@@ -105,7 +106,7 @@ def client_id_from_id_token(id_token):
     return aud
 
 
-def create_token(user, client, scope, id_token_dic=None,acr_values=None):
+def create_token(user, client, scope, id_token_dic=None,acr_values=None,code=None):
     """
     Create and populate a Token object.
     Return a Token object.
@@ -113,6 +114,8 @@ def create_token(user, client, scope, id_token_dic=None,acr_values=None):
     token = Token()
     token.user = user
     token.client = client
+    if code:
+        token.code_hash = code.c_hash
     token.access_token = uuid.uuid4().hex
 
     if id_token_dic is not None:

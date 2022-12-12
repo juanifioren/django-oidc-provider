@@ -167,6 +167,8 @@ class BaseCodeTokenModel(models.Model):
 
     class Meta:
         abstract = True
+
+
     @property
     def acr_values(self):
         if self._acr_values:
@@ -213,6 +215,17 @@ class Code(BaseCodeTokenModel):
     def __str__(self):
         return u'{0} - {1}'.format(self.client, self.code)
 
+    @property
+    def c_hash(self):
+        # @@@ d-o-p only supports 256 bits (change this if that changes)
+        hashed_code = sha256(
+            self.code.encode('ascii')
+        ).hexdigest().encode('ascii')
+        return base64.urlsafe_b64encode(
+            binascii.unhexlify(
+                hashed_code[:len(hashed_code) // 2]
+            )
+        ).rstrip(b'=').decode('ascii')
 
 class Token(BaseCodeTokenModel):
 
@@ -221,7 +234,7 @@ class Token(BaseCodeTokenModel):
     access_token = models.CharField(max_length=255, unique=True, verbose_name=_(u'Access Token'))
     refresh_token = models.CharField(max_length=255, unique=True, verbose_name=_(u'Refresh Token'))
     _id_token = models.TextField(verbose_name=_(u'ID Token'))
-
+    code_hash = models.CharField(max_length=255, verbose_name="Code Hash", blank=True, null=True)
     class Meta:
         verbose_name = _(u'Token')
         verbose_name_plural = _(u'Tokens')
