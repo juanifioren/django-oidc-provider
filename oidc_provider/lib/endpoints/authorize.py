@@ -121,7 +121,10 @@ class AuthorizeEndpoint(object):
         if not (self.params['redirect_uri'] in self.client.redirect_uris):
             logger.debug('[Authorize] Invalid redirect uri: %s', self.params['redirect_uri'])
             raise RedirectUriError()
-
+        # Response Type validation
+            if not self.params["reponse_type"]:
+                logger.debug('[Authorize] Invalid redirect uri: %s', self.params['redirect_uri'])
+                raise  AuthorizeError(self.params['redirect_uri'], 'unsupported_response_type', self.grant_type)
         # Grant type validation.
         if not self.grant_type:
             logger.debug('[Authorize] Invalid response type: %s', self.params['response_type'])
