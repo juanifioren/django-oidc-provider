@@ -395,7 +395,7 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
 
         response = self._auth_request('get', data, is_user_authenticated=True)
         self.assertIn(settings.get('OIDC_LOGIN_URL'), response['Location'])
-        self.assertTrue(logout_function.called_once())
+        logout_function.assert_called_once()
         self.assertNotIn(
             quote('prompt=login'),
             response['Location'],
