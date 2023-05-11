@@ -1,8 +1,4 @@
-try:
-    from django.urls import include, re_path
-except ImportError:
-    from django.conf.urls import include
-    from django.conf.urls import url as re_path
+from django.urls import re_path
 from django.views.decorators.csrf import csrf_exempt
 
 from oidc_provider import (
@@ -17,7 +13,7 @@ urlpatterns = [
     re_path(r'^userinfo/?$', csrf_exempt(views.userinfo), name='userinfo'),
     re_path(r'^end-session/?$', views.EndSessionView.as_view(), name='end-session'),
     re_path(r'^\.well-known/openid-configuration/?$', views.ProviderInfoView.as_view(),
-        name='provider-info'),
+            name='provider-info'),
     re_path(r'^introspect/?$', views.TokenIntrospectionView.as_view(), name='token-introspection'),
     re_path(r'^jwks/?$', views.JwksView.as_view(), name='jwks'),
 ]
@@ -25,5 +21,5 @@ urlpatterns = [
 if settings.get('OIDC_SESSION_MANAGEMENT_ENABLE'):
     urlpatterns += [
         re_path(r'^check-session-iframe/?$', views.CheckSessionIframeView.as_view(),
-            name='check-session-iframe'),
+                name='check-session-iframe'),
     ]
