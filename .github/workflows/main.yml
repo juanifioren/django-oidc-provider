@@ -19,7 +19,7 @@ jobs:
         export PATH="$HOME/.pyenv/bin:$PATH"
         export PATH="$HOME/.pyenv/bin:$PATH"
         eval "$(pyenv virtualenv-init -)"
-        pyenv --version
+        exec "$SHELL"
     - name: Install pyenv versions
       run: |
         pyenv install 3.8.13
