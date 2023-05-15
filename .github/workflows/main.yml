@@ -20,3 +20,11 @@ jobs:
         export PATH="$HOME/.pyenv/bin:$PATH"
         eval "$(pyenv virtualenv-init -)"
         pyenv --version
+    - name: Install pyenv versions
+      run: |
+        pyenv install 3.8.13
+        pyenv activate 3.8.13
+        python -m pip install --upgrade pip
+        pip install tox
+    - name: Run tox
+      run: tox
