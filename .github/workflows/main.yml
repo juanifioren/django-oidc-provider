@@ -14,7 +14,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Setup pyenv
-      command: |
+      run: |
         curl https://pyenv.run | bash
         export PATH="$HOME/.pyenv/bin:$PATH"
         export PATH="$HOME/.pyenv/bin:$PATH"
