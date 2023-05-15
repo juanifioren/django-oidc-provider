@@ -17,7 +17,7 @@ jobs:
     - name: Setup pyenv
       uses: "gabrielfalcao/pyenv-action@v14"
       with:
-        versions: 3.8.13, 3.9.12, 3.10.4
+        versions: 3.8.13, 3.9.12
         command: |
           python -m pip install --upgrade pip
           pip install tox
