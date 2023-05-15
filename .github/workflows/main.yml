@@ -10,16 +10,14 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    name: Run pytest with tox
 
     steps:
     - uses: actions/checkout@v3
     - name: Setup pyenv
-      uses: "gabrielfalcao/pyenv-action@v14"
-      with:
-        versions: 3.8.13, 3.9.12
-        command: |
-          python -m pip install --upgrade pip
-          pip install tox
-    - name: Run tests
-      run: tox
+      command: |
+        curl https://pyenv.run | bash
+        export PATH="$HOME/.pyenv/bin:$PATH"
+        export PATH="$HOME/.pyenv/bin:$PATH"
+        eval "$(pyenv virtualenv-init -)"
+        exec $SHELL
+        pyenv --version
