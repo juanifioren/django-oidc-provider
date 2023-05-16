@@ -7,10 +7,10 @@ We love contributions, so please feel free to fix bugs, improve things, provide 
 
 * Create an issue and explain your feature/bugfix.
 * Wait collaborators comments.
-* Fork the project and create new branch from `develop`.
+* Fork the project and create new branch from ``develop``.
 * Make your feature addition or bug fix.
 * Add tests and documentation if needed.
-* Create pull request for the issue to the `develop` branch.
+* Create pull request for the issue to the ``develop`` branch.
 * Wait collaborators reviews.
 
 Running Tests
