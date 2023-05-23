@@ -8,6 +8,8 @@ All notable changes to this project will be documented in this file.
 Unreleased
 ==========
 
+* Changed: create_token and create_code are now methods on base classes to enable customization.
+
 0.8.0
 =====
 
