@@ -130,6 +130,24 @@ class DefaultSettings(object):
         return 'oidc_provider.lib.utils.common.default_idtoken_processing_hook'
 
     @property
+    def OIDC_CLIENT_ALG_KEYS_HOOK(self):
+        """
+        OPTIONAL. A string with the location of your hook.
+        Used to specify which keys to return for a particular client and algorithm.
+        Returns jwkest.jwk.SYMKey
+        """
+        return 'oidc_provider.lib.utils.token.default_get_client_alg_keys'
+
+    @property
+    def OIDC_JWKS_RESPONSE_HOOK(self):
+        """
+        OPTIONAL. A string with the location of your hook.
+        Used to specify the list of JWKS for your app.
+        Returns a list of dictionaries that will form the response of the ``jwks`` endpoint.
+        """
+        return 'oidc_provider.lib.utils.token.default_get_jwks'
+
+    @property
     def OIDC_INTROSPECTION_PROCESSING_HOOK(self):
         """
         OPTIONAL. A string with the location of your function.

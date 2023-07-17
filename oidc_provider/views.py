@@ -9,7 +9,6 @@ try:
 except ImportError:
     from urllib.parse import urlsplit, parse_qs, urlunsplit, urlencode
 
-from Cryptodome.PublicKey import RSA
 from django.contrib.auth.views import (
     redirect_to_login,
     LogoutView,
@@ -26,7 +25,6 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
-from jwkest import long_to_base64
 
 from oidc_provider.compat import get_attr_or_callable
 from oidc_provider.lib.claims import StandardScopeClaims
@@ -50,7 +48,6 @@ from oidc_provider.lib.utils.oauth2 import protected_resource_view
 from oidc_provider.lib.utils.token import client_id_from_id_token
 from oidc_provider.models import (
     Client,
-    RSAKey,
     ResponseType)
 from oidc_provider import settings
 from oidc_provider import signals
@@ -291,19 +288,8 @@ class ProviderInfoView(View):
 
 class JwksView(View):
     def get(self, request, *args, **kwargs):
-        dic = dict(keys=[])
-
-        for rsakey in RSAKey.objects.all():
-            public_key = RSA.importKey(rsakey.key).publickey()
-            dic['keys'].append({
-                'kty': 'RSA',
-                'alg': 'RS256',
-                'use': 'sig',
-                'kid': rsakey.kid,
-                'n': long_to_base64(public_key.n),
-                'e': long_to_base64(public_key.e),
-            })
-
+        jwks_hook = settings.get('OIDC_JWKS_RESPONSE_HOOK')
+        dic = settings.import_from_str(jwks_hook)()
         response = JsonResponse(dic)
         response['Access-Control-Allow-Origin'] = '*'
 
