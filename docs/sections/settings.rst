@@ -262,7 +262,7 @@ The hook function receives following arguments:
 
  * ``client``: Instance of the client.
 
-The hook function should return a list of `jwkest.jwk.RSAKey` of the available keys.
+The hook function should return a `List[jwkest.jwk.RSAKey]` of the available keys.
 
 Default is::
 
