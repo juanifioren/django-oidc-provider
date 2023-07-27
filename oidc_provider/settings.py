@@ -168,6 +168,13 @@ class DefaultSettings(object):
             'error': 'oidc_provider/error.html'
         }
 
+    @property
+    def OIDC_INTROSPECTION_RESPONSE_SCOPE_ENABLE(self):
+        """
+        OPTIONAL: A boolean to specify whether or not to include scope in introspection response.
+        """
+        return False
+
 
 default_settings = DefaultSettings()
 

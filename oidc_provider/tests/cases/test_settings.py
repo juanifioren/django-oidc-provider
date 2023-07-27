@@ -16,7 +16,7 @@ class SettingsTest(TestCase):
 
     def test_unauthenticated_session_management_key_has_default(self):
         key = settings.get('OIDC_UNAUTHENTICATED_SESSION_MANAGEMENT_KEY')
-        self.assertRegexpMatches(key, r'[a-zA-Z0-9]+')
+        self.assertRegex(key, r'[a-zA-Z0-9]+')
         self.assertGreater(len(key), 50)
 
     def test_unauthenticated_session_management_key_has_constant_value(self):

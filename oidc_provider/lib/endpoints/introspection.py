@@ -85,7 +85,8 @@ class TokenIntrospectionEndpoint(object):
                 response_dic[k] = self.id_token[k]
         response_dic['active'] = True
         response_dic['client_id'] = self.token.client.client_id
-
+        if settings.get('OIDC_INTROSPECTION_RESPONSE_SCOPE_ENABLE'):
+            response_dic['scope'] = ' '.join(self.token.scope)
         response_dic = run_processing_hook(response_dic,
                                            'OIDC_INTROSPECTION_PROCESSING_HOOK',
                                            client=self.client,

@@ -6,8 +6,8 @@ Installation
 Requirements
 ============
 
-* Python: ``2.7`` ``3.4`` ``3.5`` ``3.6``
-* Django: ``1.8`` ``1.9`` ``1.10`` ``1.11`` ``2.0``
+* Python: ``3.8`` ``3.9`` ``3.10`` ``3.11``
+* Django: ``3.2`` ``4.2``
 
 Quick Installation
 ==================
@@ -20,24 +20,19 @@ Install the package using pip::
 
 Add it to your apps in your project's django settings::
 
-    INSTALLED_APPS = (
-        'django.contrib.admin',
-        'django.contrib.auth',
-        'django.contrib.contenttypes',
-        'django.contrib.sessions',
-        'django.contrib.messages',
-        'django.contrib.staticfiles',
+    INSTALLED_APPS = [
+        # ...
         'oidc_provider',
         # ...
-    )
+    ]
 
 Include our urls to your project's ``urls.py``::
 
-    urlpatterns = patterns('',
+    urlpatterns = [
         # ...
-        url(r'^openid/', include('oidc_provider.urls', namespace='oidc_provider')),
+        path('openid/', include('oidc_provider.urls', namespace='oidc_provider')),
         # ...
-    )
+    ]
 
 Run the migrations and generate a server RSA key::
 

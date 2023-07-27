@@ -103,20 +103,15 @@ class AuthorizeView(View):
                     raise AuthorizeError(
                         authorize.params['redirect_uri'], 'consent_required', authorize.grant_type)
 
-                implicit_flow_resp_types = {'id_token', 'id_token token'}
-                allow_skipping_consent = (
-                    authorize.client.client_type != 'public' or
-                    authorize.params['response_type'] in implicit_flow_resp_types)
-
                 if not authorize.client.require_consent and (
-                        allow_skipping_consent and
+                        authorize.is_client_allowed_to_skip_consent() and
                         'consent' not in authorize.params['prompt']):
                     return redirect(authorize.create_response_uri())
 
                 if authorize.client.reuse_consent:
                     # Check if user previously give consent.
                     if authorize.client_has_user_consent() and (
-                            allow_skipping_consent and
+                            authorize.is_client_allowed_to_skip_consent() and
                             'consent' not in authorize.params['prompt']):
                         return redirect(authorize.create_response_uri())
 

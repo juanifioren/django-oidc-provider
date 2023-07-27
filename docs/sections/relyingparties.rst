@@ -19,7 +19,7 @@ Properties
 * ``client_type``: Values are ``confidential`` and ``public``.
 * ``client_id``: Client unique identifier.
 * ``client_secret``: Client secret for confidential applications.
-* ``response_types``: The flows and associated ```response_type``` values that can be used by the client.
+* ``response_types``: The flows and associated ``response_type`` values that can be used by the client.
 * ``jwt_alg``: Clients can choose which algorithm will be used to sign id_tokens. Values are ``HS256`` and ``RS256``.
 * ``date_created``: Date automatically added when created.
 * ``redirect_uris``: List of redirect URIs.
