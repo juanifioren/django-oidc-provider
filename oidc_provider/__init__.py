@@ -1,2 +1,4 @@
+import django
 
-default_app_config = 'oidc_provider.apps.OIDCProviderConfig'
+if django.VERSION < (3, 2):
+    default_app_config = 'oidc_provider.apps.OIDCProviderConfig'
