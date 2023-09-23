@@ -10,6 +10,7 @@ Unreleased
 
 * Changed: create_token and create_code are now methods on base classes to enable customization.
 * Changed: extract "is consent skip allowed" decision from the view to the endpoint.
+* Fixed: race condition in authorization code, parallel requests may reuse same token.
 
 0.8.0
 =====
