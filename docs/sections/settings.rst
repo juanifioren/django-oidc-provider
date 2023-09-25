@@ -245,3 +245,84 @@ A flag which toggles whether the scope is returned with successful response on i
 Must be ``True`` to include ``scope`` into the successful response
 
 Default is ``False``.
+
+OIDC_CLIENT_ALG_KEYS_HOOK
+=========================
+
+OPTIONAL. ``str``
+
+A string with the location of your function hook.
+Here you can customize the retrieval of the RSA keys for the ID token encoding and decoding.
+
+.. note::
+    To ensure that the RSA keys provided by the ``/jwks`` endpoint is consistent with the
+    values retrieved from this hook function, define the ``OIDC_JWKS_RESPONSE_HOOK`` response appropriately.
+
+The hook function receives following arguments:
+
+ * ``client``: Instance of the client.
+
+The hook function should return a `List[jwkest.jwk.RSAKey]` of the available keys.
+
+Default is::
+
+    def default_get_client_alg_keys(client):
+        """
+        Takes a client and returns the set of keys associated with it.
+        Returns a list of keys.
+        """
+        if client.jwt_alg == 'RS256':
+            keys = []
+            for rsakey in RSAKey.objects.all():
+                keys.append(jwk_RSAKey(key=importKey(rsakey.key), kid=rsakey.kid))
+            if not keys:
+                raise Exception('You must add at least one RSA Key.')
+        elif client.jwt_alg == 'HS256':
+            keys = [SYMKey(key=client.client_secret, alg=client.jwt_alg)]
+        else:
+            raise Exception('Unsupported key algorithm.')
+
+        return keys
+
+
+OIDC_JWKS_RESPONSE_HOOK
+=======================
+
+OPTIONAL. ``str``
+
+A string with the location of your function hook.
+Here you can provide a customized list of JWKS that will be returned by the ``/jwks`` endpoint.
+
+.. note::
+    To ensure that the RSA keys provided by the ``/jwks`` endpoint is consistent with the
+    values retrieved from this hook function, define the ``OIDC_CLIENT_ALG_KEYS_HOOK`` appropriately.
+
+This hook function takes in no arguments, and should returns a list of dictionaries with the following keys:
+* 'kty' with the value 'RSA'
+* 'alg' with the value 'RS256'
+* 'use' with the value 'sig'
+* 'kid' with the kid for the key
+* 'n'   with the  base64 representation of the modulus parameter
+* 'e'   with the base64 representation of the exponent parameter
+
+Default is::
+
+    def default_get_jwks():
+    """
+    Returns a list of dictionaries containing the JWKs for return by the ``jwks`` endpoint
+    """
+
+        dic = dict(keys=[])
+
+        for rsakey in RSAKey.objects.all():
+            public_key = importKey(rsakey.key).publickey()
+            dic['keys'].append({
+                'kty': 'RSA',
+                'alg': 'RS256',
+                'use': 'sig',
+                'kid': rsakey.kid,
+                'n': long_to_base64(public_key.n),
+                'e': long_to_base64(public_key.e),
+            })
+        
+        return dic

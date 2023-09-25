@@ -8,6 +8,7 @@ from jwkest.jwk import RSAKey as jwk_RSAKey
 from jwkest.jwk import SYMKey
 from jwkest.jws import JWS
 from jwkest.jwt import JWT
+from jwkest import long_to_base64
 
 from oidc_provider.lib.utils.common import get_issuer, run_processing_hook
 from oidc_provider.lib.claims import StandardScopeClaims
@@ -150,6 +151,16 @@ def create_code(user, client, scope, nonce, is_authentication,
 
 def get_client_alg_keys(client):
     """
+    Hook to customize RSA Key retrieval.
+    :param client:
+    :return:
+    """
+    client_alg_keys_hook = settings.get('OIDC_CLIENT_ALG_KEYS_HOOK')
+    return settings.import_from_str(client_alg_keys_hook)(client)
+
+
+def default_get_client_alg_keys(client):
+    """
     Takes a client and returns the set of keys associated with it.
     Returns a list of keys.
     """
@@ -165,3 +176,23 @@ def get_client_alg_keys(client):
         raise Exception('Unsupported key algorithm.')
 
     return keys
+
+
+def default_get_jwks():
+    """
+    Returns a list of dictionaries containing the JWKs for return by the ``jwks`` endpoint
+    """
+    dic = dict(keys=[])
+
+    for rsakey in RSAKey.objects.all():
+        public_key = importKey(rsakey.key).publickey()
+        dic['keys'].append({
+            'kty': 'RSA',
+            'alg': 'RS256',
+            'use': 'sig',
+            'kid': rsakey.kid,
+            'n': long_to_base64(public_key.n),
+            'e': long_to_base64(public_key.e),
+        })
+
+    return dic
