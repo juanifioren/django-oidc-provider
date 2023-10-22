@@ -8,6 +8,13 @@ All notable changes to this project will be documented in this file.
 Unreleased
 ==========
 
+N/A
+
+0.8.1
+=====
+
+*2023-10-22*
+
 * Changed: create_token and create_code are now methods on base classes to enable customization.
 * Changed: extract "is consent skip allowed" decision from the view to the endpoint.
 * Fixed: race condition in authorization code, parallel requests may reuse same token.
