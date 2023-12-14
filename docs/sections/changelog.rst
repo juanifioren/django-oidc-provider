@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file.
 Unreleased
 ==========
 
-N/A
+* Fixed: ResponseType data migration.
 
 0.8.1
 =====
