@@ -9,6 +9,7 @@ Unreleased
 ==========
 
 * Fixed: ResponseType data migration.
+* Fixed: correctly verify PKCE secret in token endpoint.
 
 0.8.1
 =====
