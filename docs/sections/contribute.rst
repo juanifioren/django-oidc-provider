@@ -25,7 +25,7 @@ Use `tox <https://pypi.python.org/pypi/tox>`_ for running tests in each of the e
     $ tox -e py311-django42
 
     # Run single test file on specific environment.
-    $ tox -e py311-django42 tests/cases/test_authorize_endpoint.py
+    $ tox -e py311-django42 -- tests/cases/test_authorize_endpoint.py
 
 We use `Github Actions <https://github.com/juanifioren/django-oidc-provider/actions>`_ to automatically test every commit to the project.
 
