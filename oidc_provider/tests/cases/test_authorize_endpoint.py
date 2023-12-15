@@ -1,5 +1,3 @@
-from oidc_provider.lib.errors import RedirectUriError
-
 try:
     from urllib.parse import urlencode, quote
 except ImportError:
@@ -25,15 +23,16 @@ from django.test import TestCase
 from jwkest.jwt import JWT
 
 from oidc_provider import settings
+from oidc_provider.lib.endpoints.authorize import AuthorizeEndpoint
+from oidc_provider.lib.errors import RedirectUriError
+from oidc_provider.lib.utils.authorize import strip_prompt_login
 from oidc_provider.tests.app.utils import (
     create_fake_user,
     create_fake_client,
     FAKE_CODE_CHALLENGE,
     is_code_valid,
 )
-from oidc_provider.lib.utils.authorize import strip_prompt_login
 from oidc_provider.views import AuthorizeView
-from oidc_provider.lib.endpoints.authorize import AuthorizeEndpoint
 
 
 class AuthorizeEndpointMixin(object):

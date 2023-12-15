@@ -55,6 +55,20 @@ OPTIONAL. ``int``. Code object expiration after been delivered.
 
 Expressed in seconds. Default is ``60*10``.
 
+OIDC_DISCOVERY_CACHE_ENABLE
+================
+
+OPTIONAL. ``bool``. Enable caching the response on the discovery endpoint, by using default cache. Cache key will be a combination of site URL and types supported by the provider, changing any of these will invalidate stored value.
+
+Default is ``False``.
+
+OIDC_DISCOVERY_CACHE_EXPIRE
+================
+
+OPTIONAL. ``int``. Discovery endpoint cache expiration time expressed in seconds.
+
+Expressed in seconds. Default is ``60*10``.
+
 OIDC_EXTRA_SCOPE_CLAIMS
 =======================
 
