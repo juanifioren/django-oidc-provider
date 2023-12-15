@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 Unreleased
 ==========
 
+* Added: Discovery endpoint response caching. Introducing OIDC_DISCOVERY_CACHE_ENABLE.
 * Fixed: ResponseType data migration.
 * Fixed: correctly verify PKCE secret in token endpoint.
 
