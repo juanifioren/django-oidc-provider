@@ -245,3 +245,12 @@ A flag which toggles whether the scope is returned with successful response on i
 Must be ``True`` to include ``scope`` into the successful response
 
 Default is ``False``.
+
+OIDC_CLAIMS_SUPPORTED
+=====================
+
+RECOMMENDED. ``list``. List containing a list of the Claim Names of the Claims that the OpenID Provider MAY be able to supply values for. Note that for privacy or other reasons, this might not be an exhaustive list.
+
+https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata
+
+Default is an empty list as this application will not make assumptions about what the provider will support.
