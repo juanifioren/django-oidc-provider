@@ -4,7 +4,8 @@ from oidc_provider import settings
 
 CUSTOM_TEMPLATES = {
     'authorize': 'custom/authorize.html',
-    'error': 'custom/error.html'
+    'error': 'custom/error.html',
+    'form_post': 'custom/form_post.html',
 }
 
 

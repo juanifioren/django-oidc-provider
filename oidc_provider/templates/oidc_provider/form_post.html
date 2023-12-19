@@ -1,0 +1,12 @@
+<html>
+    <body onload="document.form.submit();">
+        form post
+        <form method="post" action="{{ redirect_url }}" name="form">
+            {% csrf_token %}
+            {% for field, value in params.items %}
+                <input type="hidden" name="{{ field }}" value="{{ value }}" />
+            {% endfor %}
+        </form>
+
+    </body>
+</html>
