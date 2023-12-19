@@ -220,7 +220,7 @@ class TokenView(View):
 
 
 @require_http_methods(['GET', 'POST', 'OPTIONS'])
-@protected_resource_view(['openid'])
+@protected_resource_view(['openid'], unprotected_methods=['OPTIONS'])
 def userinfo(request, *args, **kwargs):
     """
     Create a dictionary with all the requested claims about the End-User.
