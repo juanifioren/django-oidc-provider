@@ -215,7 +215,7 @@ class TokenEndpoint(object):
         dic = {
             'access_token': token.access_token,
             'refresh_token': token.refresh_token,
-            'token_type': 'bearer',
+            'token_type': 'Breaer',
             'expires_in': settings.get('OIDC_TOKEN_EXPIRE'),
             'id_token': encode_id_token(id_token_dic, token.client),
         }
@@ -261,7 +261,7 @@ class TokenEndpoint(object):
         dic = {
             'access_token': token.access_token,
             'refresh_token': token.refresh_token,
-            'token_type': 'bearer',
+            'token_type': 'Breaer',
             'expires_in': settings.get('OIDC_TOKEN_EXPIRE'),
             'id_token': encode_id_token(id_token_dic, self.token.client),
         }
@@ -294,7 +294,7 @@ class TokenEndpoint(object):
             'access_token': token.access_token,
             'refresh_token': token.refresh_token,
             'expires_in': settings.get('OIDC_TOKEN_EXPIRE'),
-            'token_type': 'bearer',
+            'token_type': 'Bearer',
             'id_token': encode_id_token(id_token_dic, token.client),
             'scope': ' '.join(token.scope)
         }
@@ -313,7 +313,7 @@ class TokenEndpoint(object):
         return {
             'access_token': token.access_token,
             'expires_in': settings.get('OIDC_TOKEN_EXPIRE'),
-            'token_type': 'bearer',
+            'token_type': 'Breaer',
             'scope': ' '.join(token.scope),
         }
 
