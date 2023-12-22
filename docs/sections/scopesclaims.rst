@@ -48,11 +48,15 @@ Somewhere in your Django ``settings.py``::
 
     OIDC_USERINFO = 'myproject.oidc_provider_settings.userinfo'
 
+Note that for OIDC_USERINFO to be used at all, you should also set::
+
+    OIDC_IDTOKEN_INCLUDE_CLAIMS = True
 
 Then inside your ``oidc_provider_settings.py`` file create the function for the ``OIDC_USERINFO`` setting::
 
     def userinfo(claims, user):
         # Populate claims dict.
+        claims['preferred_username'] = user.username
         claims['name'] = '{0} {1}'.format(user.first_name, user.last_name)
         claims['given_name'] = user.first_name
         claims['family_name'] = user.last_name
