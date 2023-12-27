@@ -109,5 +109,10 @@ Inside your oidc_provider_settings.py file add the following class::
             _(u'Another description.'),
         )
 
+        # To ensure that the profile scope, potentially adjusted by custom function specified
+        # by OIDC_USERINFO setting, is indeed returned. It is not returned implicitly.
+        def scope_profile(self):
+            return self.userinfo
+
 .. note::
     If a field is empty or ``None`` inside the dictionary you return on the ``scope_scopename`` method, it will be cleaned from the response.
