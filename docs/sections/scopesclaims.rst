@@ -48,7 +48,7 @@ Somewhere in your Django ``settings.py``::
 
     OIDC_USERINFO = 'myproject.oidc_provider_settings.userinfo'
 
-Note that for OIDC_USERINFO to be used at all, you should also set::
+Set OIDC_IDTOKEN_INCLUDE_CLAIMS to True to include adjusted claims in the ID token::
 
     OIDC_IDTOKEN_INCLUDE_CLAIMS = True
 
