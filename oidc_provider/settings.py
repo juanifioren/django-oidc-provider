@@ -14,7 +14,7 @@ class DefaultSettings(object):
     @property
     def OIDC_LOGIN_URL(self):
         """
-        REQUIRED. Used to log the user in. By default Django's LOGIN_URL will be used.
+        OPTIONAL. Used to log the user in. By default Django's LOGIN_URL will be used.
         """
         return settings.LOGIN_URL
 
@@ -47,6 +47,20 @@ class DefaultSettings(object):
         OPTIONAL. Code expiration time expressed in seconds.
         """
         return 60*10
+
+    @property
+    def OIDC_DISCOVERY_CACHE_ENABLE(self):
+        """
+        OPTIONAL. Enable caching the response on the discovery endpoint.
+        """
+        return False
+
+    @property
+    def OIDC_DISCOVERY_CACHE_EXPIRE(self):
+        """
+        OPTIONAL. Discovery endpoint cache expiration time expressed in seconds.
+        """
+        return 60*60*24
 
     @property
     def OIDC_EXTRA_SCOPE_CLAIMS(self):
@@ -188,6 +202,13 @@ class DefaultSettings(object):
 
         Specification: https://openid.net/specs/openid-connect-backchannel-1_0.html#Backchannel 
         """  # noqa
+        return False
+    
+    @property
+    def OIDC_INTROSPECTION_RESPONSE_SCOPE_ENABLE(self):
+        """
+        OPTIONAL: A boolean to specify whether or not to include scope in introspection response.
+        """
         return False
 
 

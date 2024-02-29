@@ -1,17 +1,15 @@
-try:
-    from django.urls import url
-except ImportError:
-    from django.conf.urls import url
+import mock
+
+from django.urls import re_path
 from django.test import TestCase, override_settings
 from django.views.generic import View
-from mock import mock
 
 
 class StubbedViews:
     class SampleView(View):
         pass
 
-    urlpatterns = [url('^test/', SampleView.as_view())]
+    urlpatterns = [re_path('^test/', SampleView.as_view())]
 
 
 MW_CLASSES = ('django.contrib.sessions.middleware.SessionMiddleware',

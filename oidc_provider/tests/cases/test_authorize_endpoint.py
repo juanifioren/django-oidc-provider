@@ -1,5 +1,3 @@
-from oidc_provider.lib.errors import RedirectUriError
-
 try:
     from urllib.parse import urlencode, quote
 except ImportError:
@@ -25,15 +23,16 @@ from django.test import TestCase
 from jwkest.jwt import JWT
 
 from oidc_provider import settings
+from oidc_provider.lib.endpoints.authorize import AuthorizeEndpoint
+from oidc_provider.lib.errors import RedirectUriError
+from oidc_provider.lib.utils.authorize import strip_prompt_login
 from oidc_provider.tests.app.utils import (
     create_fake_user,
     create_fake_client,
     FAKE_CODE_CHALLENGE,
     is_code_valid,
 )
-from oidc_provider.lib.utils.authorize import strip_prompt_login
 from oidc_provider.views import AuthorizeView
-from oidc_provider.lib.endpoints.authorize import AuthorizeEndpoint
 
 
 class AuthorizeEndpointMixin(object):
@@ -276,14 +275,14 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         parsed = urlsplit(response['Location'])
         params = parse_qs(parsed.query or parsed.fragment)
         state = params['state'][0]
-        self.assertEquals(self.state, state, msg="State returned is invalid or missing")
+        self.assertEqual(self.state, state, msg="State returned is invalid or missing")
 
         is_code_ok = is_code_valid(url=response['Location'],
                                    user=self.user,
                                    client=self.client)
         self.assertTrue(is_code_ok, msg='Code returned is invalid or missing')
 
-        self.assertEquals(
+        self.assertEqual(
             set(params.keys()), {'state', 'code'},
             msg='More than state or code appended as query params')
 
@@ -395,7 +394,7 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
 
         response = self._auth_request('get', data, is_user_authenticated=True)
         self.assertIn(settings.get('OIDC_LOGIN_URL'), response['Location'])
-        self.assertTrue(logout_function.called_once())
+        logout_function.assert_called_once()
         self.assertNotIn(
             quote('prompt=login'),
             response['Location'],
@@ -662,7 +661,7 @@ class AuthorizationImplicitFlowTestCase(TestCase, AuthorizeEndpointMixin):
 
         response = self._auth_request('get', data, is_user_authenticated=True)
         response_text = response.content.decode('utf-8')
-        self.assertEquals(response_text, '')
+        self.assertEqual(response_text, '')
         components = urlsplit(response['Location'])
         fragment = parse_qs(components[4])
         self.assertIn('access_token', fragment)

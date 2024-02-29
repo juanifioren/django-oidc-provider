@@ -1,3 +1,4 @@
+import hashlib
 import logging
 
 from django.views.decorators.csrf import csrf_exempt
@@ -13,7 +14,9 @@ try:
     from django.urls import reverse
 except ImportError:
     from django.core.urlresolvers import reverse
+from django.db import transaction
 from django.contrib.auth import logout as django_user_logout
+from django.core.cache import cache
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
@@ -102,20 +105,15 @@ class AuthorizeView(View):
                     raise AuthorizeError(
                         authorize.params['redirect_uri'], 'consent_required', authorize.grant_type)
 
-                implicit_flow_resp_types = {'id_token', 'id_token token'}
-                allow_skipping_consent = (
-                    authorize.client.client_type != 'public' or
-                    authorize.params['response_type'] in implicit_flow_resp_types)
-
                 if not authorize.client.require_consent and (
-                        allow_skipping_consent and
+                        authorize.is_client_allowed_to_skip_consent() and
                         'consent' not in authorize.params['prompt']):
                     return redirect(authorize.create_response_uri())
 
                 if authorize.client.reuse_consent:
                     # Check if user previously give consent.
                     if authorize.client_has_user_consent() and (
-                            allow_skipping_consent and
+                            authorize.is_client_allowed_to_skip_consent() and
                             'consent' not in authorize.params['prompt']):
                         return redirect(authorize.create_response_uri())
 
@@ -173,7 +171,7 @@ class AuthorizeView(View):
             return redirect(uri)
 
     def post(self, request, *args, **kwargs):
-        authorize = AuthorizeEndpoint(request)
+        authorize = self.authorize_endpoint_class(request)
 
         try:
             authorize.validate_params()
@@ -207,20 +205,22 @@ class AuthorizeView(View):
 
 
 class TokenView(View):
+    token_endpoint_class = TokenEndpoint
+
     def post(self, request, *args, **kwargs):
-        token = TokenEndpoint(request)
+        token = self.token_endpoint_class(request)
 
         try:
-            token.validate_params()
+            with transaction.atomic():
+                token.validate_params()
+                dic = token.create_response_dic()
 
-            dic = token.create_response_dic()
-
-            return TokenEndpoint.response(dic)
+            return self.token_endpoint_class.response(dic)
 
         except TokenError as error:
-            return TokenEndpoint.response(error.create_dict(), status=400)
+            return self.token_endpoint_class.response(error.create_dict(), status=400)
         except UserAuthError as error:
-            return TokenEndpoint.response(error.create_dict(), status=403)
+            return self.token_endpoint_class.response(error.create_dict(), status=403)
 
 
 @require_http_methods(['GET', 'POST', 'OPTIONS'])
@@ -262,7 +262,16 @@ def userinfo(request, *args, **kwargs):
 
 
 class ProviderInfoView(View):
-    def get(self, request, *args, **kwargs):
+    _types_supported = None
+
+    @property
+    def types_supported(self):
+        if self._types_supported is None:
+            self._types_supported = [
+                response_type.value for response_type in ResponseType.objects.all()]
+        return self._types_supported
+
+    def _build_response_dict(self, request):
         dic = dict()
 
         site_url = get_site_url(request=request)
@@ -274,8 +283,7 @@ class ProviderInfoView(View):
         dic['end_session_endpoint'] = site_url + reverse('oidc_provider:end-session')
         dic['introspection_endpoint'] = site_url + reverse('oidc_provider:token-introspection')
 
-        types_supported = [response_type.value for response_type in ResponseType.objects.all()]
-        dic['response_types_supported'] = types_supported
+        dic['response_types_supported'] = self.types_supported
 
         dic['jwks_uri'] = site_url + reverse('oidc_provider:jwks')
 
@@ -294,7 +302,29 @@ class ProviderInfoView(View):
             dic['backchannel_logout_supported'] = True
             dic['backchannel_logout_session_supported'] = True
 
-        response = JsonResponse(dic)
+        return dic
+
+    def _build_cache_key(self, request):
+        """
+        Cache key will be a combination of site URL and types supported by the provider.
+        """
+        key_data = get_site_url(request=request) + ''.join(self.types_supported)
+        key_hash = hashlib.md5(key_data.encode('utf-8')).hexdigest()
+        return f'oidc_discovery_{key_hash}'
+
+    def get(self, request):
+        if settings.get('OIDC_DISCOVERY_CACHE_ENABLE'):
+            cache_key = self._build_cache_key(request)
+            cached_dict = cache.get(cache_key)
+            if cached_dict:
+                response_dict = cached_dict
+            else:
+                response_dict = self._build_response_dict(request)
+                cache.set(cache_key, response_dict, settings.get('OIDC_DISCOVERY_CACHE_EXPIRE'))
+        else:
+            response_dict = self._build_response_dict(request)
+
+        response = JsonResponse(response_dict)
         response['Access-Control-Allow-Origin'] = '*'
 
         return response
@@ -342,16 +372,18 @@ class CheckSessionIframeView(View):
 
 
 class TokenIntrospectionView(View):
+    token_instrospection_endpoint_class = TokenIntrospectionEndpoint
+
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         return super(TokenIntrospectionView, self).dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        introspection = TokenIntrospectionEndpoint(request)
+        introspection = self.token_instrospection_endpoint_class(request)
 
         try:
             introspection.validate_params()
             dic = introspection.create_response_dic()
-            return TokenIntrospectionEndpoint.response(dic)
+            return self.token_instrospection_endpoint_class.response(dic)
         except TokenIntrospectionError:
-            return TokenIntrospectionEndpoint.response({'active': False})
+            return self.token_instrospection_endpoint_class.response({'active': False})

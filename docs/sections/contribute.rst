@@ -7,10 +7,10 @@ We love contributions, so please feel free to fix bugs, improve things, provide 
 
 * Create an issue and explain your feature/bugfix.
 * Wait collaborators comments.
-* Fork the project and create new branch from `develop`.
+* Fork the project and create new branch from ``develop``.
 * Make your feature addition or bug fix.
 * Add tests and documentation if needed.
-* Create pull request for the issue to the `develop` branch.
+* Create pull request for the issue to the ``develop`` branch.
 * Wait collaborators reviews.
 
 Running Tests
@@ -21,18 +21,18 @@ Use `tox <https://pypi.python.org/pypi/tox>`_ for running tests in each of the e
     # Run all tests.
     $ tox
 
-    # Run with Python 3.5 and Django 2.0.
-    $ tox -e py35-django20
+    # Run with Python 3.11 and Django 4.2.
+    $ tox -e py311-django42
 
     # Run single test file on specific environment.
-    $ tox -e py35-django20 tests/cases/test_authorize_endpoint.py
+    $ tox -e py311-django42 -- tests/cases/test_authorize_endpoint.py
 
-We also use `travis <https://travis-ci.org/juanifioren/django-oidc-provider/>`_ to automatically test every commit to the project.
+We use `Github Actions <https://github.com/juanifioren/django-oidc-provider/actions>`_ to automatically test every commit to the project.
 
 Improve Documentation
 =====================
 
-We use `Sphinx <http://www.sphinx-doc.org/>`_ for generate this documentation. I you want to add or modify something just:
+We use `Sphinx <http://www.sphinx-doc.org/>`_ to generate this documentation. If you want to add or modify something just:
 
 * Install Sphinx (``pip install sphinx``) and the auto-build tool (``pip install sphinx-autobuild``).
 * Move inside the docs folder. ``cd docs/``

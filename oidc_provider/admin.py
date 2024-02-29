@@ -4,7 +4,7 @@ from uuid import uuid4
 
 from django.forms import ModelForm
 from django.contrib import admin
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oidc_provider.models import Client, Code, Token, RSAKey, RefreshToken
 
@@ -75,12 +75,16 @@ class ClientAdmin(admin.ModelAdmin):
 @admin.register(Code)
 class CodeAdmin(admin.ModelAdmin):
 
+    raw_id_fields = ['user']
+
     def has_add_permission(self, request):
         return False
 
 
 @admin.register(Token)
 class TokenAdmin(admin.ModelAdmin):
+
+    raw_id_fields = ['user']
 
     def has_add_permission(self, request):
         return False

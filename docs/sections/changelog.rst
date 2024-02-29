@@ -8,6 +8,36 @@ All notable changes to this project will be documented in this file.
 Unreleased
 ==========
 
+
+0.8.2
+=====
+
+*2023-12-15*
+
+* Added: Discovery endpoint response caching. Introducing OIDC_DISCOVERY_CACHE_ENABLE.
+* Fixed: ResponseType data migration.
+* Fixed: correctly verify PKCE secret in token endpoint.
+
+0.8.1
+=====
+
+*2023-10-22*
+
+* Changed: create_token and create_code are now methods on base classes to enable customization.
+* Changed: extract "is consent skip allowed" decision from the view to the endpoint.
+* Fixed: race condition in authorization code, parallel requests may reuse same token.
+
+0.8.0
+=====
+
+*2023-05-05*
+
+* Changed: now supporting latest versions of Django.
+* Changed: drop support for Python 2 and Django lower than 3.2.
+* Added: scope on token and introspection endpoints.
+* Changed: Use static instead of deprecated staticfiles template tag.
+* Fixed: example in docs for translatable scopes (ugettext).
+
 0.7.0
 =====
 
