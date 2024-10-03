@@ -8,6 +8,8 @@ All notable changes to this project will be documented in this file.
 Unreleased
 ==========
 
+* Fixed: RSA server keys random ordering.
+* Fixed: Example app working with Django 4.
 
 0.8.2
 =====

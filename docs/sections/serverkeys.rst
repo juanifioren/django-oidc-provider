@@ -7,7 +7,7 @@ Server RSA keys are used to sign/encrypt ID Tokens. These keys are stored in the
 
 You can easily create them with the admin:
 
-.. image:: http://i64.tinypic.com/vj2ma.png
+.. image:: ../images/add_rsa_key.png
     :align: center
 
 Or by using ``python manage.py creatersakey`` command.
