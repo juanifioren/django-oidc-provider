@@ -252,6 +252,7 @@ class RSAKey(models.Model):
         verbose_name=_(u'Key'), help_text=_(u'Paste your private RSA Key here.'))
 
     class Meta:
+        ordering = ["id"]
         verbose_name = _(u'RSA Key')
         verbose_name_plural = _(u'RSA Keys')
 
