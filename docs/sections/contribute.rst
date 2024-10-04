@@ -34,7 +34,7 @@ Improve Documentation
 
 We use `Sphinx <http://www.sphinx-doc.org/>`_ to generate this documentation. If you want to add or modify something just:
 
-* Install Sphinx (``pip install sphinx``) and the auto-build tool (``pip install sphinx-autobuild``).
+* Install Sphinx (``pip install sphinx sphinx_rtd_theme``) and the auto-build tool (``pip install sphinx-autobuild``).
 * Move inside the docs folder. ``cd docs/``
 * Generate and watch docs by running ``sphinx-autobuild . _build/``.
 * Open ``http://127.0.0.1:8000`` in a browser.
