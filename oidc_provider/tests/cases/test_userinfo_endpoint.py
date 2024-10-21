@@ -32,6 +32,7 @@ class UserInfoTestCase(TestCase):
         self.factory = RequestFactory()
         self.user = create_fake_user()
         self.client = create_fake_client(response_type='code')
+        self.url = reverse('oidc_provider:userinfo')
 
     def _create_token(self, extra_scope=None):
         """
@@ -65,9 +66,7 @@ class UserInfoTestCase(TestCase):
         `post_data` parameters using the 'multipart/form-data'
         format.
         """
-        url = reverse('oidc_provider:userinfo')
-
-        request = self.factory.post(url, data={}, content_type='multipart/form-data')
+        request = self.factory.post(self.url, data={}, content_type='multipart/form-data')
 
         request.META['HTTP_AUTHORIZATION'] = schema + ' ' + access_token
 
@@ -164,3 +163,18 @@ class UserInfoTestCase(TestCase):
         self.assertIn('address', response_dic, msg='"address" claim should be in response.')
         self.assertIn(
             'country', response_dic['address'], msg='"country" claim should be in response.')
+
+    def test_options_request_without_token(self):
+        request = self.factory.options(self.url)
+        request.META['HTTP_ORIGIN'] = "test.example.com"
+        response = userinfo(request)
+
+        expected_headers = {
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Origin": "test.example.com",
+        }
+
+        self.assertEqual(response.status_code, 200)
+        for key, value in expected_headers.items():
+            self.assertEqual(response[key], value)
