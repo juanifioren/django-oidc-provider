@@ -7,7 +7,6 @@ from django.http import HttpResponse
 from oidc_provider.lib.errors import BearerTokenError
 from oidc_provider.models import Token
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -63,7 +62,7 @@ def protected_resource_view(scopes=None):
         scopes = []
 
     def wrapper(view):
-        def view_wrapper(request,  *args, **kwargs):
+        def view_wrapper(request, *args, **kwargs):
             access_token = extract_access_token(request)
 
             try:
@@ -86,7 +85,7 @@ def protected_resource_view(scopes=None):
                     error.code, error.description)
                 return response
 
-            return view(request,  *args, **kwargs)
+            return view(request, *args, **kwargs)
 
         return view_wrapper
 
