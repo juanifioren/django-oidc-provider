@@ -109,14 +109,26 @@ class AuthorizeView(View):
                 if not authorize.client.require_consent and (
                         authorize.is_client_allowed_to_skip_consent() and
                         'consent' not in authorize.params['prompt']):
-                    return redirect(authorize.create_response_uri())
+                    response_uri = authorize.create_response_uri()
+                    if authorize.params['response_mode'] == 'form_post':
+                        return render(
+                            request,
+                            OIDC_TEMPLATES['form_post'],
+                            authorize.get_form_post_context(response_uri))
+                    return redirect(response_uri)
 
                 if authorize.client.reuse_consent:
                     # Check if user previously give consent.
                     if authorize.client_has_user_consent() and (
                             authorize.is_client_allowed_to_skip_consent() and
                             'consent' not in authorize.params['prompt']):
-                        return redirect(authorize.create_response_uri())
+                        response_uri = authorize.create_response_uri()
+                        if authorize.params['response_mode'] == 'form_post':
+                            return render(
+                                request,
+                                OIDC_TEMPLATES['form_post'],
+                                authorize.get_form_post_context(response_uri))
+                        return redirect(response_uri)
 
                 if 'none' in authorize.params['prompt']:
                     raise AuthorizeError(
@@ -164,6 +176,12 @@ class AuthorizeView(View):
                 authorize.params['redirect_uri'],
                 authorize.params['state'])
 
+            if authorize.params['response_mode'] == 'form_post':
+                return render(
+                    request,
+                    OIDC_TEMPLATES['form_post'],
+                    authorize.get_form_post_context(uri))
+
             return redirect(uri)
 
     def post(self, request, *args, **kwargs):
@@ -189,6 +207,11 @@ class AuthorizeView(View):
             authorize.set_client_user_consent()
 
             uri = authorize.create_response_uri()
+            if authorize.params['response_mode'] == 'form_post':
+                return render(
+                    request,
+                    OIDC_TEMPLATES['form_post'],
+                    authorize.get_form_post_context(uri))
 
             return redirect(uri)
 
@@ -196,6 +219,12 @@ class AuthorizeView(View):
             uri = error.create_uri(
                 authorize.params['redirect_uri'],
                 authorize.params['state'])
+
+            if authorize.params['response_mode'] == 'form_post':
+                return render(
+                    request,
+                    OIDC_TEMPLATES['form_post'],
+                    authorize.get_form_post_context(uri))
 
             return redirect(uri)
 
