@@ -124,8 +124,8 @@ class EndSessionTestCase(TestCase):
         # User is prompted to logout without client information displayed.
         self.assertContains(response, '<p>Hi <strong>johndoe@example.com</strong>, are you sure you want to log out?</p>', status_code=200, html=True)
     
-    @mock.patch(settings.get('OIDC_AFTER_END_SESSION_HOOK'))
-    def test_prompt_view_user_logged_out_after_form_allowed(self, end_session_hook):
+    @mock.patch('oidc_provider.views.after_end_session_hook')
+    def test_prompt_view_user_logged_out_after_form_allowed(self, after_end_session_hook):
         self.assertIn('_auth_user_id', self.client.session)
         # We want to POST to /end-session-prompt/?client_id=ABC endpoint.
         url_prompt_with_client = self.url_prompt + '?' + urlencode({
@@ -140,11 +140,11 @@ class EndSessionTestCase(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.headers['Location'], self.url_logout)
         # End session hook should be called.
-        self.assertTrue(end_session_hook.called)
-        self.assertTrue(end_session_hook.call_count == 1)
+        self.assertTrue(after_end_session_hook.called)
+        self.assertTrue(after_end_session_hook.call_count == 1)
     
-    @mock.patch(settings.get('OIDC_AFTER_END_SESSION_HOOK'))
-    def test_prompt_view_user_logged_out_after_form_not_allowed(self, end_session_hook):
+    @mock.patch('oidc_provider.views.after_end_session_hook')
+    def test_prompt_view_user_logged_out_after_form_not_allowed(self, after_end_session_hook):
         self.assertIn('_auth_user_id', self.client.session)
         # We want to POST to /end-session-prompt/?client_id=ABC endpoint.
         url_prompt_with_client = self.url_prompt + '?' + urlencode({
@@ -156,14 +156,14 @@ class EndSessionTestCase(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.headers['Location'], self.url_logout)
         # End session hook should not be called.
-        self.assertFalse(end_session_hook.called)
+        self.assertFalse(after_end_session_hook.called)
     
-    @mock.patch(settings.get('OIDC_AFTER_END_SESSION_HOOK'))
-    def test_prompt_view_user_not_logged_out_after_form_not_allowed_no_client(self, end_session_hook):
+    @mock.patch('oidc_provider.views.after_end_session_hook')
+    def test_prompt_view_user_not_logged_out_after_form_not_allowed_no_client(self, after_end_session_hook):
         self.assertIn('_auth_user_id', self.client.session)
         response = self.client.post(self.url_prompt)  # No data.
         # Ensure user is still logged in and 404 NOT FOUND was raised.
         self.assertIn('_auth_user_id', self.client.session)
         self.assertEqual(response.status_code, 404)
         # End session hook should not be called.
-        self.assertFalse(end_session_hook.called)
+        self.assertFalse(after_end_session_hook.called)
