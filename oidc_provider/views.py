@@ -3,7 +3,6 @@ import logging
 
 from django.views.decorators.csrf import csrf_exempt
 
-from oidc_provider.lib.endpoints.introspection import TokenIntrospectionEndpoint
 try:
     from urllib import urlencode
     from urlparse import urlsplit, parse_qs, urlunsplit
@@ -13,7 +12,6 @@ except ImportError:
 from Cryptodome.PublicKey import RSA
 from django.contrib.auth.views import (
     redirect_to_login,
-    LogoutView,
 )
 try:
     from django.urls import reverse
@@ -22,18 +20,19 @@ except ImportError:
 from django.db import transaction
 from django.contrib.auth import logout as django_user_logout
 from django.core.cache import cache
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, Http404
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.http import require_http_methods
-from django.views.generic import View
+from django.views.generic import TemplateView, View
 from jwkest import long_to_base64
 
 from oidc_provider.compat import get_attr_or_callable
 from oidc_provider.lib.claims import StandardScopeClaims
 from oidc_provider.lib.endpoints.authorize import AuthorizeEndpoint
+from oidc_provider.lib.endpoints.introspection import TokenIntrospectionEndpoint
 from oidc_provider.lib.endpoints.token import TokenEndpoint
 from oidc_provider.lib.errors import (
     AuthorizeError,
@@ -62,6 +61,7 @@ from oidc_provider import signals
 logger = logging.getLogger(__name__)
 
 OIDC_TEMPLATES = settings.get('OIDC_TEMPLATES')
+after_end_session_hook = settings.get('OIDC_AFTER_END_SESSION_HOOK', import_str=True)
 
 
 class AuthorizeView(View):
@@ -343,43 +343,107 @@ class JwksView(View):
         return response
 
 
-class EndSessionView(LogoutView):
-    def dispatch(self, request, *args, **kwargs):
-        id_token_hint = request.GET.get('id_token_hint', '')
-        post_logout_redirect_uri = request.GET.get('post_logout_redirect_uri', '')
-        state = request.GET.get('state', '')
-        client = None
+class EndSessionView(View):
+    http_method_names = ['get', 'post']
 
-        next_page = settings.get('OIDC_LOGIN_URL')
-        after_end_session_hook = settings.get('OIDC_AFTER_END_SESSION_HOOK', import_str=True)
-
-        if id_token_hint:
-            client_id = client_id_from_id_token(id_token_hint)
-            try:
-                client = Client.objects.get(client_id=client_id)
-                if post_logout_redirect_uri in client.post_logout_redirect_uris:
-                    if state:
-                        uri = urlsplit(post_logout_redirect_uri)
-                        query_params = parse_qs(uri.query)
-                        query_params['state'] = state
-                        uri = uri._replace(query=urlencode(query_params, doseq=True))
-                        next_page = urlunsplit(uri)
-                    else:
-                        next_page = post_logout_redirect_uri
-            except Client.DoesNotExist:
-                pass
-
+    @classmethod
+    def logout_user(cls, request, id_token_hint=None, post_logout_redirect_uri=None, state=None, client=None, next_page=None):
         after_end_session_hook(
             request=request,
             id_token=id_token_hint,
             post_logout_redirect_uri=post_logout_redirect_uri,
             state=state,
             client=client,
-            next_page=next_page
+            next_page=next_page,
         )
+        django_user_logout(request)
 
-        self.next_page = next_page
-        return super(EndSessionView, self).dispatch(request, *args, **kwargs)
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        self.id_token_hint = request.POST.get('id_token_hint') or request.GET.get('id_token_hint')
+        self.post_logout_redirect_uri = request.POST.get('post_logout_redirect_uri') or request.GET.get('post_logout_redirect_uri')
+        self.state = request.POST.get('state') or request.GET.get('state')
+        self.client = None
+
+        if self.id_token_hint:
+            client_id = client_id_from_id_token(self.id_token_hint)
+            try:
+                self.client = Client.objects.get(client_id=client_id)
+
+                if self.post_logout_redirect_uri:
+                    if not self.post_logout_redirect_uri in self.client.post_logout_redirect_uris:
+                        return redirect(reverse('oidc_provider:end-session-prompt') + '?' + urlencode({
+                            'client_id': client_id,
+                        }))
+                elif self.client.post_logout_redirect_uris:
+                    self.post_logout_redirect_uri = self.client.post_logout_redirect_uris[0]
+                else:
+                    self.logout_user(request, self.id_token_hint, self.post_logout_redirect_uri, self.state, self.client)
+                    raise Http404("You have successfully logged out!")
+                
+                if self.state:
+                    uri = urlsplit(self.post_logout_redirect_uri)
+                    query_params = parse_qs(uri.query)
+                    query_params['state'] = self.state
+                    uri = uri._replace(query=urlencode(query_params, doseq=True))
+                    next_page = urlunsplit(uri)
+                else:
+                    next_page = self.post_logout_redirect_uri
+
+                self.logout_user(request, self.id_token_hint, self.post_logout_redirect_uri, self.state, self.client, next_page)
+                return redirect(next_page)
+            except Client.DoesNotExist:
+                pass
+
+        return redirect(reverse('oidc_provider:end-session-prompt'))
+
+
+class EndSessionPromptView(TemplateView):
+    http_method_names = ['get', 'post']
+    template_name = 'oidc_provider/end_session_prompt.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.client_id = request.GET.get('client_id')
+        self.client = Client.objects.filter(client_id=self.client_id).first()
+        return super(EndSessionPromptView, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        # If user is not authenticated, we should redirect to client post logout uri if exists, 
+        # otherwhise, just raise a not found error.
+        if not get_attr_or_callable(request.user, 'is_authenticated'):
+            if self.client and self.client.post_logout_redirect_uris:
+                return redirect(self.client.post_logout_redirect_uris[0])
+            else:
+                raise Http404("You are already logged out!")
+
+        return super(EndSessionPromptView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(EndSessionPromptView, self).get_context_data(**kwargs)
+        context['client'] = self.client
+
+        end_session_prompt_url = reverse('oidc_provider:end-session-prompt')
+        if self.client_id:
+            end_session_prompt_url += '?' + urlencode({
+                'client_id': self.client_id,
+            })
+        context['end_session_prompt_url'] = end_session_prompt_url
+
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        allowed = request.POST.get('allow')
+        next_page = self.client.post_logout_redirect_uris[0] if self.client and self.client.post_logout_redirect_uris else None
+
+        # Only logout users if they allow it.
+        if allowed:
+            EndSessionView.logout_user(request, client=self.client, next_page=next_page)
+
+        # Redirect to post logout uri if client is present.
+        if next_page:
+            return redirect(next_page)
+        raise Http404("You have successfully logged out!" if allowed else "You can close this window.")
+        
 
 
 class CheckSessionIframeView(View):

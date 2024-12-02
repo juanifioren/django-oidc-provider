@@ -22,6 +22,39 @@ Somewhere in your Django ``settings.py``::
 If you're in a multi-server setup, you might also want to add ``OIDC_UNAUTHENTICATED_SESSION_MANAGEMENT_KEY`` to your settings and set it to some random but fixed string. While authenticated clients have a session that can be used to calculate the browser state, there is no such thing for unauthenticated clients. Hence this value. By default a value is generated randomly on startup, so this will be different on each server. To get a consistent value across all servers you should set this yourself.
 
 
+RP-Initiated Logout
+===================
+
+An RP can notify the OP that the End-User has logged out of the site, and might want to log out of the OP as well. In this case, the RP, after having logged the End-User out of the RP, redirects the End-User's User Agent to the OP's logout endpoint URL.
+
+This URL is normally obtained via the ``end_session_endpoint`` element of the OP's Discovery response.
+
+Parameters that are passed as query parameters in the logout request:
+
+* ``id_token_hint``
+    RECOMMENDED. Previously issued ID Token passed to the logout endpoint as a hint about the End-User's current authenticated session with the Client.
+* ``post_logout_redirect_uri``
+    OPTIONAL. URL to which the RP is requesting that the End-User's User Agent be redirected after a logout has been performed.
+    
+    The value must be a valid, encoded URL that has been registered in the list of "Post Logout Redirect URIs" in your Client (RP) page.
+* ``state``
+    OPTIONAL. Opaque value used by the RP to maintain state between the logout request and the callback to the endpoint specified by the ``post_logout_redirect_uri`` query parameter.
+
+Example redirect::
+
+    http://localhost:8000/end-session/?id_token_hint=eyJhbGciOiJSUzI1NiIsImtpZCI6ImQwM...&post_logout_redirect_uri=http://rp.example.com/logged-out/&state=c91c03ea6c46a86
+
+**Logout consent prompt**
+
+The standard defines that the logout flow should be interrupted to prompt the user for consent if the OpenID provider cannot verify that the request was made by the user.
+
+We enforce this behavior by displaying a logout consent prompt if it detects any of the following conditions:
+
+* If ``id_token_hint`` is not present or is invalid (we could not validate the client from it).
+* If ``post_logout_redirect_uri`` is not registered in the list of "Post Logout Redirect URIs".
+
+If the user confirms the logout request, we continue the logout flow. To modify the logout consent template create your own ``oidc_provider/end_session_prompt.html``.
+
 Example RP iframe
 =================
 
@@ -70,22 +103,4 @@ Example RP iframe
     </script>
     </html>
 
-RP-Initiated Logout
-===================
 
-An RP can notify the OP that the End-User has logged out of the site, and might want to log out of the OP as well. In this case, the RP, after having logged the End-User out of the RP, redirects the End-User's User Agent to the OP's logout endpoint URL.
-
-This URL is normally obtained via the ``end_session_endpoint`` element of the OP's Discovery response.
-
-Parameters that are passed as query parameters in the logout request:
-
-* ``id_token_hint``
-    Previously issued ID Token passed to the logout endpoint as a hint about the End-User's current authenticated session with the Client.
-* ``post_logout_redirect_uri``
-    URL to which the RP is requesting that the End-User's User Agent be redirected after a logout has been performed.
-* ``state``
-    OPTIONAL. Opaque value used by the RP to maintain state between the logout request and the callback to the endpoint specified by the ``post_logout_redirect_uri`` query parameter.
-
-Example redirect::
-
-    http://localhost:8000/end-session/?id_token_hint=eyJhbGciOiJSUzI1NiIsImtpZCI6ImQwM...&post_logout_redirect_uri=http://rp.example.com/logged-out/&state=c91c03ea6c46a86

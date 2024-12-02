@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 Unreleased
 ==========
 
+* Changed: Improved "OpenID Connect RP-Initiated Logout" implementation.
 * Fixed: RSA server keys random ordering.
 * Fixed: Example app working with Django 4.
 

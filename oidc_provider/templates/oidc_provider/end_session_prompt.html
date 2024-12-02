@@ -1,0 +1,12 @@
+<h1>End Session</h1>
+
+<p>Hi <strong>{{ user.email }}</strong>, are you sure you want to log out{% if client %} from <strong>{{ client.name }}</strong> app{% endif %}?</p>
+
+<form method="post" action="{{ end_session_prompt_url }}">
+
+    {% csrf_token %}
+
+    <input type="submit" value="Cancel" />
+    <input type="submit" name="allow" value="Yes" />
+
+</form>
