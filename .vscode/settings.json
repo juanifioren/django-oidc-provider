@@ -1,0 +1,17 @@
+{
+    "[python]": {
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    },
+    "python.formatting.provider": "black",
+    "editor.formatOnSave": true,
+    "black-formatter.args": [
+        "--line-length=100",
+        "--preview",
+    ],
+    "isort.args": [
+        "--profile",
+        "black"
+    ],
+}
