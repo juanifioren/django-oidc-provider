@@ -409,7 +409,9 @@ class EndSessionView(View):
                         self.state,
                         self.client,
                     )
-                    raise Http404("You have successfully logged out!")
+                    return render(
+                        request, "oidc_provider/end_session_completed.html", {"client": self.client}
+                    )
 
                 if self.state:
                     uri = urlsplit(self.post_logout_redirect_uri)
@@ -451,7 +453,9 @@ class EndSessionPromptView(TemplateView):
             if self.client and self.client.post_logout_redirect_uris:
                 return redirect(self.client.post_logout_redirect_uris[0])
             else:
-                raise Http404("You are already logged out!")
+                return render(
+                    request, "oidc_provider/end_session_completed.html", {"client": self.client}
+                )
 
         return super(EndSessionPromptView, self).get(request, *args, **kwargs)
 
@@ -485,9 +489,12 @@ class EndSessionPromptView(TemplateView):
         # Redirect to post logout uri if client is present.
         if next_page:
             return redirect(next_page)
-        raise Http404(
-            "You have successfully logged out!" if allowed else "You can close this window."
-        )
+        elif allowed:
+            return render(
+                request, "oidc_provider/end_session_completed.html", {"client": self.client}
+            )
+        else:
+            return render(request, "oidc_provider/end_session_failed.html", {"client": self.client})
 
 
 class CheckSessionIframeView(View):

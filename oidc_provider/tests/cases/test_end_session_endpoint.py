@@ -9,18 +9,12 @@ try:
     from django.urls import reverse
 except ImportError:
     from django.core.urlresolvers import reverse
+
+import mock
 from django.test import TestCase
 
-from oidc_provider.lib.utils.token import (
-    create_token,
-    create_id_token,
-    encode_id_token,
-)
-from oidc_provider.tests.app.utils import (
-    create_fake_client,
-    create_fake_user,
-)
-import mock
+from oidc_provider.lib.utils.token import create_id_token, create_token, encode_id_token
+from oidc_provider.tests.app.utils import create_fake_client, create_fake_user
 
 
 class EndSessionTestCase(TestCase):
@@ -126,12 +120,17 @@ class EndSessionTestCase(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.headers["Location"], self.url_logout)
 
-    def test_prompt_view_raising_404_since_user_unauthenticated_and_no_client(self):
+    def test_prompt_view_show_completed_since_user_unauthenticated_and_no_client(self):
         self.client.logout()
         response = self.client.get(self.url_prompt)
         # Since user is unauthenticated and no client information is present, we just show
-        # not found page.
-        self.assertEqual(response.status_code, 404)
+        # a page explaining session is closed already.
+        self.assertContains(
+            response,
+            "You've been logged out.",
+            status_code=200,
+            html=True,
+        )
 
     def test_prompt_view_displaying_logout_decision_form_to_user(self):
         query_params = {
@@ -203,13 +202,18 @@ class EndSessionTestCase(TestCase):
         self.assertFalse(after_end_session_hook.called)
 
     @mock.patch("oidc_provider.views.after_end_session_hook")
-    def test_prompt_view_user_not_logged_out_after_form_not_allowed_no_client(
+    def test_prompt_view_user_still_logged_in_after_form_not_allowed_no_client(
         self, after_end_session_hook
     ):
         self.assertIn("_auth_user_id", self.client.session)
         response = self.client.post(self.url_prompt)  # No data.
         # Ensure user is still logged in and 404 NOT FOUND was raised.
         self.assertIn("_auth_user_id", self.client.session)
-        self.assertEqual(response.status_code, 404)
+        self.assertContains(
+            response,
+            "You can now close this window.",
+            status_code=200,
+            html=True,
+        )
         # End session hook should not be called.
         self.assertFalse(after_end_session_hook.called)
