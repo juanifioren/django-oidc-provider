@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n staticfiles %}
+{% load i18n static %}
 
 {% block content %}
 
@@ -16,7 +16,7 @@
                 {% endfor %}
             </ul>
             <br>
-            <input type="submit" class="btn btn-primary btn-block btn-lg" name="allow"  value="{% trans 'Accept' %}" />
+            <input type="submit" class="btn btn-primary btn-block btn-lg" name="allow" value="{% trans 'Accept' %}" />
             <input type="submit" class="btn btn-secondary btn-block" value="{% trans 'Decline' %}" />
         </form>
     </div>
