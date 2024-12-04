@@ -19,7 +19,7 @@ except ImportError:
 from django.contrib.auth import logout as django_user_logout
 from django.core.cache import cache
 from django.db import transaction
-from django.http import Http404, HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
