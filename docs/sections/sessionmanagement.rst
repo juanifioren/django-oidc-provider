@@ -42,7 +42,7 @@ Parameters that are passed as query parameters in the logout request:
 
 Example redirect::
 
-    http://localhost:8000/end-session/?id_token_hint=eyJhbGciOiJSUzI1NiIsImtpZCI6ImQwM...&post_logout_redirect_uri=http://rp.example.com/logged-out/&state=c91c03ea6c46a86
+    http://localhost:8000/end-session/?id_token_hint=eyJhbGciOiJSUzI1NiIsImtpZCI6ImQwM...&post_logout_redirect_uri=http%3A%2F%2Frp.example.com%2Flogged-out%2F&state=c91c03ea6c46a86
 
 **Logout consent prompt**
 
@@ -54,6 +54,14 @@ We enforce this behavior by displaying a logout consent prompt if it detects any
 * If ``post_logout_redirect_uri`` is not registered in the list of "Post Logout Redirect URIs".
 
 If the user confirms the logout request, we continue the logout flow. To modify the logout consent template create your own ``oidc_provider/end_session_prompt.html``.
+
+**Other scenarios**
+
+In some cases, there may be no valid redirect URI for the user after logging out (e.g., the OP could not find a post-logout URI). If the user ends up being logged out, the system will render the ``oidc_provider/end_session_completed.html`` template.
+
+On the other hand, if the session remains active for any reason, the ``oidc_provider/end_session_failed.html`` template will be used.
+
+Both templates will receive the ``{{ client }}`` variable in their context.
 
 Example RP iframe
 =================
