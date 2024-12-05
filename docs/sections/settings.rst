@@ -81,7 +81,7 @@ Read more about how to implement it in :ref:`scopesclaims` section.
 OIDC_IDTOKEN_INCLUDE_CLAIMS
 ==============================
 
-OPTIONAL. ``bool``. If enabled, id_token will include standard claims of the user (email, first name, etc.).
+OPTIONAL. ``bool``. If enabled, id_token will include standard (and extra if defined) claims of the user (email, first name, etc.).
 
 Default is ``False``.
 

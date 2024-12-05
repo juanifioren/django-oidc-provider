@@ -111,3 +111,11 @@ Inside your oidc_provider_settings.py file add the following class::
 
 .. note::
     If a field is empty or ``None`` inside the dictionary you return on the ``scope_scopename`` method, it will be cleaned from the response.
+
+Include claims in the ID Token
+==============================
+
+The draft specifies that ID Tokens MAY include additional claims. You can add claims to the ID Token using ``OIDC_IDTOKEN_INCLUDE_CLAIMS``. Note that the claims will be filtered based on the token's scope.
+
+.. note::
+    Any extra claims defined with ``OIDC_EXTRA_SCOPE_CLAIMS`` will also be included. 
