@@ -8,7 +8,15 @@ All notable changes to this project will be documented in this file.
 Unreleased
 ==========
 
+None
+
+0.8.3
+=====
+
+*2024-12-06*
+
 * Changed: Improved "OpenID Connect RP-Initiated Logout" implementation.
+* Fixed: Fix ID Tokens not including standard claims when using extra scope claims.
 * Fixed: RSA server keys random ordering.
 * Fixed: Example app working with Django 4.
 
