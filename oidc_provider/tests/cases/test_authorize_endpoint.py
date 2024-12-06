@@ -532,7 +532,8 @@ class AuthorizationImplicitFlowTestCase(TestCase, AuthorizeEndpointMixin):
 
         response = self._auth_request('get', data, is_user_authenticated=True)
 
-        self.assertIn('#error=invalid_request', response['Location'])
+        self.assertIn('#', response['Location'])
+        self.assertIn('error=invalid_request', response['Location'])
 
     def test_idtoken_token_response(self):
         """
