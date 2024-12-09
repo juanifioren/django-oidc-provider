@@ -18,3 +18,7 @@ Support for Python 3 and latest versions of django.
 [Read documentation for more info.](http://django-oidc-provider.readthedocs.org/)
 
 [Do you want to contribute? Please read this.](http://django-oidc-provider.readthedocs.io/en/master/sections/contribute.html)
+
+## Thanks to our sponsors
+
+[![Agilentia](https://avatars.githubusercontent.com/u/1707212?s=60&v=4)]([https://github.com/agilentia)
