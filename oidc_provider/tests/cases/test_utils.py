@@ -1,4 +1,5 @@
 import time
+from datetime import date
 from datetime import datetime
 from hashlib import sha224
 from unittest import mock
@@ -115,6 +116,30 @@ class TokenTest(TestCase):
         # Extra claims included.
         self.assertIn("pizza", id_token_data)
         self.assertEqual(id_token_data["pizza"], "Margherita")
+
+    def test_token_saving_id_token_with_non_serialized_objects(self):
+        client = create_fake_client("code")
+        token = create_token(self.user, client, scope=["openid", "email", "pizza"])
+        token.id_token = {
+            "iss": "http://localhost:8000/openid",
+            "sub": "1",
+            "aud": "test-aud",
+            "exp": 1733946683,
+            "iat": 1733946083,
+            "auth_time": 1733946082,
+            "email": "johndoe@example.com",
+            "email_verified": True,
+            "_extra_datetime": datetime(2002, 10, 15, 9),
+            "_extra_date": date(2000, 12, 25),
+            "_extra_object": object,
+        }
+        token.save()
+
+        # A raw datetime/date object should be serialized.
+        self.assertEqual(token.id_token["_extra_datetime"], "2002-10-15 09:00:00")
+        self.assertEqual(token.id_token["_extra_date"], "2000-12-25")
+        # Even a raw object should be serialized wit str() at least.
+        self.assertEqual(token.id_token["_extra_object"], "<class 'object'>")
 
 
 class BrowserStateTest(TestCase):
