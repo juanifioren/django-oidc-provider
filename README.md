@@ -1,7 +1,7 @@
 # Django OpenID Connect Provider
 
 [![Python Versions](https://img.shields.io/pypi/pyversions/django-oidc-provider.svg)](https://pypi.python.org/pypi/django-oidc-provider)
-[![Django Versions](https://img.shields.io/badge/Django-3.2%20%7C%204.2-green)](https://pypi.python.org/pypi/django-oidc-provider)
+[![Django Versions](https://img.shields.io/badge/Django-3.2%20%7C%204.2%20%7C%205.1-green)](https://pypi.python.org/pypi/django-oidc-provider)
 [![PyPI Versions](https://img.shields.io/pypi/v/django-oidc-provider.svg)](https://pypi.python.org/pypi/django-oidc-provider)
 [![Documentation Status](https://readthedocs.org/projects/django-oidc-provider/badge/?version=master)](http://django-oidc-provider.readthedocs.io/)
 
