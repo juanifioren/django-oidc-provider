@@ -8,7 +8,8 @@ All notable changes to this project will be documented in this file.
 Unreleased
 ==========
 
-None
+* Changed: Django 5 added to test matrix.
+* Changed: ID Token JSON encoder improved using DjangoJSONEncoder.
 
 0.8.3
 =====

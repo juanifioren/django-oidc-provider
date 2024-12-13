@@ -6,7 +6,9 @@ Templates
 Add your own templates files inside a folder named ``templates/oidc_provider/``.
 You can copy the sample html files here and customize them with your own style.
 
-**authorize.html**::
+authorize.html
+==============
+::
 
     <h1>Request for Permission</h1>
 
@@ -29,7 +31,9 @@ You can copy the sample html files here and customize them with your own style.
 
     </form>
 
-**error.html**::
+error.html
+==========
+::
 
     <h3>{{ error }}</h3>
     <p>{{ description }}</p>
@@ -51,3 +55,18 @@ The following contexts will be passed to the ``authorize`` and ``error`` templat
         'error': 'string stating the error',
         'description': 'string stating description of the error'
     }
+
+end_session_prompt.html
+=======================
+
+Read more at :doc:`Session Management > Logout consent prompt </sections/sessionmanagement>` section.
+
+end_session_completed.html
+==========================
+
+Read more at :doc:`Session Management > Other scenarios <../sections/sessionmanagement>` section.
+
+end_session_failed.html
+=======================
+
+Read more at :doc:`Session Management > Other scenarios <../sections/sessionmanagement>` section.
