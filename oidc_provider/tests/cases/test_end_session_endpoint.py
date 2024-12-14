@@ -1,20 +1,23 @@
+from unittest.mock import patch
+
 try:
     from urllib import urlencode
 except ImportError:
     from urllib.parse import urlencode
 
 from django.core.management import call_command
+from django.test import TestCase
 
 try:
     from django.urls import reverse
 except ImportError:
     from django.core.urlresolvers import reverse
 
-import mock
-from django.test import TestCase
-
-from oidc_provider.lib.utils.token import create_id_token, create_token, encode_id_token
-from oidc_provider.tests.app.utils import create_fake_client, create_fake_user
+from oidc_provider.lib.utils.token import create_id_token
+from oidc_provider.lib.utils.token import create_token
+from oidc_provider.lib.utils.token import encode_id_token
+from oidc_provider.tests.app.utils import create_fake_client
+from oidc_provider.tests.app.utils import create_fake_user
 
 
 class EndSessionTestCase(TestCase):
@@ -49,7 +52,7 @@ class EndSessionTestCase(TestCase):
         # User still logged in.
         self.assertIn("_auth_user_id", self.client.session)
 
-    @mock.patch("oidc_provider.views.after_end_session_hook")
+    @patch("oidc_provider.views.after_end_session_hook")
     def test_id_token_hint_is_present_user_redirected_to_client_logout_url(
         self, after_end_session_hook
     ):
@@ -66,7 +69,7 @@ class EndSessionTestCase(TestCase):
         self.assertTrue(after_end_session_hook.called)
         self.assertTrue(after_end_session_hook.call_count == 1)
 
-    @mock.patch("oidc_provider.views.after_end_session_hook")
+    @patch("oidc_provider.views.after_end_session_hook")
     def test_id_token_hint_is_present_user_redirected_to_client_logout_url_with_post(
         self, after_end_session_hook
     ):
@@ -155,7 +158,7 @@ class EndSessionTestCase(TestCase):
             html=True,
         )
 
-    @mock.patch("oidc_provider.views.after_end_session_hook")
+    @patch("oidc_provider.views.after_end_session_hook")
     def test_prompt_view_user_logged_out_after_form_allowed(self, after_end_session_hook):
         self.assertIn("_auth_user_id", self.client.session)
         # We want to POST to /end-session-prompt/?client_id=ABC endpoint.
@@ -180,7 +183,7 @@ class EndSessionTestCase(TestCase):
         self.assertTrue(after_end_session_hook.called)
         self.assertTrue(after_end_session_hook.call_count == 1)
 
-    @mock.patch("oidc_provider.views.after_end_session_hook")
+    @patch("oidc_provider.views.after_end_session_hook")
     def test_prompt_view_user_logged_out_after_form_not_allowed(self, after_end_session_hook):
         self.assertIn("_auth_user_id", self.client.session)
         # We want to POST to /end-session-prompt/?client_id=ABC endpoint.
@@ -201,7 +204,7 @@ class EndSessionTestCase(TestCase):
         # End session hook should not be called.
         self.assertFalse(after_end_session_hook.called)
 
-    @mock.patch("oidc_provider.views.after_end_session_hook")
+    @patch("oidc_provider.views.after_end_session_hook")
     def test_prompt_view_user_still_logged_in_after_form_not_allowed_no_client(
         self, after_end_session_hook
     ):

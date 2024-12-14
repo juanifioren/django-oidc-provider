@@ -2,21 +2,21 @@ import json
 import time
 import uuid
 from base64 import b64encode
-
-from django.db import DatabaseError
+from unittest.mock import patch
 
 try:
     from urllib.parse import urlencode
 except ImportError:
     from urllib import urlencode
 
-from django.core.management import call_command
-from django.http import JsonResponse
-
 try:
     from django.urls import reverse
 except ImportError:
     from django.core.urlresolvers import reverse
+
+from django.core.management import call_command
+from django.db import DatabaseError
+from django.http import JsonResponse
 from django.test import RequestFactory
 from django.test import TestCase
 from django.test import override_settings
@@ -24,7 +24,6 @@ from django.views.decorators.http import require_http_methods
 from jwkest.jwk import KEYS
 from jwkest.jws import JWS
 from jwkest.jwt import JWT
-from mock import patch
 
 from oidc_provider.lib.endpoints.introspection import INTROSPECTION_SCOPE
 from oidc_provider.lib.utils.oauth2 import protected_resource_view
