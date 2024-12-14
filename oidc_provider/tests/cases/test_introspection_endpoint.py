@@ -110,8 +110,8 @@ class IntrospectionTestCase(TestCase):
         self._assert_active(response)
 
     @override_settings(
-        OIDC_INTROSPECTION_PROCESSING_HOOK="oidc_provider.tests.app.utils.fake_introspection_processing_hook"
-    )  # NOQA
+        OIDC_INTROSPECTION_PROCESSING_HOOK="oidc_provider.tests.app.utils.fake_introspection_processing_hook"  # noqa
+    )
     def test_custom_introspection_hook_called_on_valid_request(self):
         response = self._make_request()
         self._assert_active(response, test_introspection_processing_hook=FAKE_RANDOM_STRING)
