@@ -10,6 +10,7 @@ Unreleased
 
 * Changed: Django 5 added to test matrix.
 * Changed: ID Token JSON encoder improved using DjangoJSONEncoder.
+* Changed: Use unittest.mock in tests. Remove mock library.
 
 0.8.3
 =====

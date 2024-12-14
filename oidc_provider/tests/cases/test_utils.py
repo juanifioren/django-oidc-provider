@@ -2,7 +2,7 @@ import time
 from datetime import date
 from datetime import datetime
 from hashlib import sha224
-from unittest import mock
+from unittest.mock import Mock
 
 from django.http import HttpRequest
 from django.test import TestCase
@@ -146,12 +146,12 @@ class BrowserStateTest(TestCase):
     @override_settings(OIDC_UNAUTHENTICATED_SESSION_MANAGEMENT_KEY="my_static_key")
     def test_get_browser_state_uses_value_from_settings_to_calculate_browser_state(self):
         request = HttpRequest()
-        request.session = mock.Mock(session_key=None)
+        request.session = Mock(session_key=None)
         state = get_browser_state_or_default(request)
         self.assertEqual(state, sha224("my_static_key".encode("utf-8")).hexdigest())
 
     def test_get_browser_state_uses_session_key_to_calculate_browser_state_if_available(self):
         request = HttpRequest()
-        request.session = mock.Mock(session_key="my_session_key")
+        request.session = Mock(session_key="my_session_key")
         state = get_browser_state_or_default(request)
         self.assertEqual(state, sha224("my_session_key".encode("utf-8")).hexdigest())
