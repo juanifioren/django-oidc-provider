@@ -8,6 +8,8 @@ All notable changes to this project will be documented in this file.
 Unreleased
 ==========
 
+* Added: support of max_age parameter on authorization request.
+* Added: Passing Request Parameters as JWTs now returning request_not_supported error.
 * Changed: Django 5 added to test matrix.
 * Changed: ID Token JSON encoder improved using DjangoJSONEncoder.
 * Changed: Use unittest.mock in tests. Remove mock library.

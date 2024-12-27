@@ -26,6 +26,7 @@ FAKE_RANDOM_STRING = "".join(
 )
 FAKE_CODE_CHALLENGE = "YlYXEqXuRm-Xgi2BOUiK50JW1KsGTX6F1TDnZSC8VTg"
 FAKE_CODE_VERIFIER = "SmxGa0XueyNh5bDgTcSrqzAh2_FmXEqU8kDT6CuXicw"
+FAKE_USER_PASSWORD = "1234"
 
 
 def create_fake_user():
@@ -39,7 +40,7 @@ def create_fake_user():
     user.email = "johndoe@example.com"
     user.first_name = "John"
     user.last_name = "Doe"
-    user.set_password("1234")
+    user.set_password(FAKE_USER_PASSWORD)
 
     user.save()
 

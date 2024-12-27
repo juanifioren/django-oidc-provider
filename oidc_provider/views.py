@@ -4,9 +4,14 @@ import logging
 try:
     from urllib import urlencode
 
-    from urlparse import parse_qs, urlsplit, urlunsplit
+    from urlparse import parse_qs
+    from urlparse import urlsplit
+    from urlparse import urlunsplit
 except ImportError:
-    from urllib.parse import urlsplit, parse_qs, urlunsplit, urlencode
+    from urllib.parse import parse_qs
+    from urllib.parse import urlencode
+    from urllib.parse import urlsplit
+    from urllib.parse import urlunsplit
 
 from Cryptodome.PublicKey import RSA
 from django.contrib.auth.views import redirect_to_login
@@ -19,40 +24,41 @@ except ImportError:
 from django.contrib.auth import logout as django_user_logout
 from django.core.cache import cache
 from django.db import transaction
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from django.views.generic import TemplateView, View
+from django.views.generic import TemplateView
+from django.views.generic import View
 from jwkest import long_to_base64
 
-from oidc_provider import settings, signals
+from oidc_provider import settings
+from oidc_provider import signals
 from oidc_provider.compat import get_attr_or_callable
 from oidc_provider.lib.claims import StandardScopeClaims
 from oidc_provider.lib.endpoints.authorize import AuthorizeEndpoint
 from oidc_provider.lib.endpoints.introspection import TokenIntrospectionEndpoint
 from oidc_provider.lib.endpoints.token import TokenEndpoint
-from oidc_provider.lib.errors import (
-    AuthorizeError,
-    ClientIdError,
-    RedirectUriError,
-    TokenError,
-    TokenIntrospectionError,
-    UserAuthError,
-)
+from oidc_provider.lib.errors import AuthorizeError
+from oidc_provider.lib.errors import ClientIdError
+from oidc_provider.lib.errors import RedirectUriError
+from oidc_provider.lib.errors import TokenError
+from oidc_provider.lib.errors import TokenIntrospectionError
+from oidc_provider.lib.errors import UserAuthError
 from oidc_provider.lib.utils.authorize import strip_prompt_login
-from oidc_provider.lib.utils.common import (
-    cors_allow_any,
-    get_issuer,
-    get_site_url,
-    redirect,
-)
+from oidc_provider.lib.utils.common import cors_allow_any
+from oidc_provider.lib.utils.common import get_issuer
+from oidc_provider.lib.utils.common import get_site_url
+from oidc_provider.lib.utils.common import redirect
 from oidc_provider.lib.utils.oauth2 import protected_resource_view
 from oidc_provider.lib.utils.token import client_id_from_id_token
-from oidc_provider.models import Client, ResponseType, RSAKey
+from oidc_provider.models import Client
+from oidc_provider.models import ResponseType
+from oidc_provider.models import RSAKey
 
 logger = logging.getLogger(__name__)
 
@@ -104,6 +110,12 @@ class AuthorizeView(View):
                 if {"none", "consent"}.issubset(authorize.params["prompt"]):
                     raise AuthorizeError(
                         authorize.params["redirect_uri"], "consent_required", authorize.grant_type
+                    )
+
+                if authorize.is_authentication_age_is_greater_than_max_age():
+                    django_user_logout(request)
+                    return redirect_to_login(
+                        request.get_full_path(), settings.get("OIDC_LOGIN_URL")
                     )
 
                 if not authorize.client.require_consent and (
@@ -296,6 +308,8 @@ class ProviderInfoView(View):
         dic["subject_types_supported"] = ["public"]
 
         dic["token_endpoint_auth_methods_supported"] = ["client_secret_post", "client_secret_basic"]
+
+        dic["request_parameter_supported"] = False
 
         if settings.get("OIDC_SESSION_MANAGEMENT_ENABLE"):
             dic["check_session_iframe"] = site_url + reverse("oidc_provider:check-session-iframe")

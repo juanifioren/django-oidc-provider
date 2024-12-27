@@ -1,3 +1,5 @@
+from datetime import datetime
+
 try:
     from urllib.parse import quote
     from urllib.parse import urlencode
@@ -14,13 +16,14 @@ import uuid
 from unittest.mock import Mock
 from unittest.mock import patch
 
-from django.contrib.auth.models import AnonymousUser
-from django.core.management import call_command
+from freezegun import freeze_time
 
 try:
     from django.urls import reverse
 except ImportError:
     from django.core.urlresolvers import reverse
+from django.contrib.auth.models import AnonymousUser
+from django.core.management import call_command
 from django.test import RequestFactory
 from django.test import TestCase
 from django.test import override_settings
@@ -70,7 +73,7 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         call_command("creatersakey")
         self.factory = RequestFactory()
         self.user = create_fake_user()
-        self.client = create_fake_client(response_type="code")
+        self.client_code = create_fake_client(response_type="code")
         self.client_with_no_consent = create_fake_client(
             response_type="code", require_consent=False
         )
@@ -103,9 +106,9 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         """
         # Create an authorize request with an unsupported response_type.
         data = {
-            "client_id": self.client.client_id,
+            "client_id": self.client_code.client_id,
             "response_type": "something_wrong",
-            "redirect_uri": self.client.default_redirect_uri,
+            "redirect_uri": self.client_code.default_redirect_uri,
             "scope": "openid email",
             "state": self.state,
         }
@@ -118,6 +121,31 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         # Should be an 'error' component in query.
         self.assertIn("error=", response["Location"])
 
+    def test_passing_request_parameters_as_jwt_not_supported(self):
+        """
+        The OP MUST return the request_not_supported error if the parameter value is a
+        Request Object value.
+
+        See: https://openid.net/specs/openid-connect-core-1_0.html#JWTRequests
+        """
+        # Create an authorize request with an unsupported response_type.
+        data = {
+            "client_id": self.client_code.client_id,
+            "response_type": "code",
+            "redirect_uri": self.client_code.default_redirect_uri,
+            "scope": "openid email",
+            "state": self.state,
+            "request": "eyJhbGciOiJub25lIn0...",
+        }
+
+        response = self._auth_request("get", data)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.has_header("Location"), True)
+
+        # Should be an 'error' component in query.
+        self.assertIn("error=request_not_supported", response["Location"])
+
     def test_user_not_logged(self):
         """
         The Authorization Server attempts to Authenticate the End-User by
@@ -126,9 +154,9 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         See: http://openid.net/specs/openid-connect-core-1_0.html#Authenticates
         """
         data = {
-            "client_id": self.client.client_id,
+            "client_id": self.client_code.client_id,
             "response_type": "code",
-            "redirect_uri": self.client.default_redirect_uri,
+            "redirect_uri": self.client_code.default_redirect_uri,
             "scope": "openid email",
             "state": self.state,
         }
@@ -147,9 +175,9 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         See: http://openid.net/specs/openid-connect-core-1_0.html#Consent
         """
         data = {
-            "client_id": self.client.client_id,
+            "client_id": self.client_code.client_id,
             "response_type": "code",
-            "redirect_uri": self.client.default_redirect_uri,
+            "redirect_uri": self.client_code.default_redirect_uri,
             "scope": "openid email",
             "state": self.state,
             # PKCE parameters.
@@ -164,8 +192,8 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         input_html = '<input name="{0}" type="hidden" value="{1}" />'
 
         to_check = {
-            "client_id": self.client.client_id,
-            "redirect_uri": self.client.default_redirect_uri,
+            "client_id": self.client_code.client_id,
+            "redirect_uri": self.client_code.default_redirect_uri,
             "response_type": "code",
             "code_challenge": FAKE_CODE_CHALLENGE,
             "code_challenge_method": "S256",
@@ -188,8 +216,8 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         by adding them as query parameters to the redirect_uri.
         """
         data = {
-            "client_id": self.client.client_id,
-            "redirect_uri": self.client.default_redirect_uri,
+            "client_id": self.client_code.client_id,
+            "redirect_uri": self.client_code.default_redirect_uri,
             "response_type": "code",
             "scope": "openid email",
             "state": self.state,
@@ -212,7 +240,9 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
 
         response = self._auth_request("post", data, is_user_authenticated=True)
 
-        is_code_ok = is_code_valid(url=response["Location"], user=self.user, client=self.client)
+        is_code_ok = is_code_valid(
+            url=response["Location"], user=self.user, client=self.client_code
+        )
         self.assertEqual(is_code_ok, True, msg="Code returned is invalid.")
 
         # Check if the state is returned.
@@ -263,8 +293,8 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         Only 'state' and 'code' should be appended.
         """
         data = {
-            "client_id": self.client.client_id,
-            "redirect_uri": self.client.default_redirect_uri,
+            "client_id": self.client_code.client_id,
+            "redirect_uri": self.client_code.default_redirect_uri,
             "response_type": "code",
             "scope": "openid email",
             "state": self.state,
@@ -278,7 +308,9 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         state = params["state"][0]
         self.assertEqual(self.state, state, msg="State returned is invalid or missing")
 
-        is_code_ok = is_code_valid(url=response["Location"], user=self.user, client=self.client)
+        is_code_ok = is_code_valid(
+            url=response["Location"], user=self.user, client=self.client_code
+        )
         self.assertTrue(is_code_ok, msg="Code returned is invalid or missing")
 
         self.assertEqual(
@@ -288,7 +320,7 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         )
 
         self.assertTrue(
-            response["Location"].startswith(self.client.default_redirect_uri),
+            response["Location"].startswith(self.client_code.default_redirect_uri),
             msg="Different redirect_uri returned",
         )
 
@@ -298,7 +330,7 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         See http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest.
         """
         data = {
-            "client_id": self.client.client_id,
+            "client_id": self.client_code.client_id,
             "response_type": "code",
             "redirect_uri": "http://neverseenthis.com",
             "scope": "openid email",
@@ -316,9 +348,9 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         See http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest.
         """
         data = {
-            "client_id": self.client.client_id,
+            "client_id": self.client_code.client_id,
             "response_type": "code",
-            "redirect_uri": self.client.default_redirect_uri + "?some=query",
+            "redirect_uri": self.client_code.default_redirect_uri + "?some=query",
             "scope": "openid email",
             "state": self.state,
         }
@@ -352,9 +384,9 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         See: http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
         """
         data = {
-            "client_id": self.client.client_id,
-            "response_type": next(self.client.response_type_values()),
-            "redirect_uri": self.client.default_redirect_uri,
+            "client_id": self.client_code.client_id,
+            "response_type": next(self.client_code.response_type_values()),
+            "redirect_uri": self.client_code.default_redirect_uri,
             "scope": "openid email",
             "state": self.state,
             "prompt": "none",
@@ -372,16 +404,16 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         self.assertIn("consent_required", response["Location"])
 
     @patch("oidc_provider.views.django_user_logout")
-    def test_prompt_login_parameter(self, logout_function):
+    def test_prompt_login_parameter(self, logout_patched):
         """
         Specifies whether the Authorization Server prompts the End-User for
         reauthentication and consent.
         See: http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
         """
         data = {
-            "client_id": self.client.client_id,
-            "response_type": next(self.client.response_type_values()),
-            "redirect_uri": self.client.default_redirect_uri,
+            "client_id": self.client_code.client_id,
+            "response_type": next(self.client_code.response_type_values()),
+            "redirect_uri": self.client_code.default_redirect_uri,
             "scope": "openid email",
             "state": self.state,
             "prompt": "login",
@@ -392,18 +424,16 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         self.assertNotIn(
             quote("prompt=login"),
             response["Location"],
-            "Found prompt=login, this leads to infinite login loop. See "
-            "https://github.com/juanifioren/django-oidc-provider/issues/197.",
+            "Found prompt=login, this leads to infinite login loop.",
         )
 
         response = self._auth_request("get", data, is_user_authenticated=True)
         self.assertIn(settings.get("OIDC_LOGIN_URL"), response["Location"])
-        logout_function.assert_called_once()
+        logout_patched.assert_called_once()
         self.assertNotIn(
             quote("prompt=login"),
             response["Location"],
-            "Found prompt=login, this leads to infinite login loop. See "
-            "https://github.com/juanifioren/django-oidc-provider/issues/197.",
+            "Found prompt=login, this leads to infinite login loop.",
         )
 
     def test_prompt_login_none_parameter(self):
@@ -413,9 +443,9 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         See: http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
         """
         data = {
-            "client_id": self.client.client_id,
-            "response_type": next(self.client.response_type_values()),
-            "redirect_uri": self.client.default_redirect_uri,
+            "client_id": self.client_code.client_id,
+            "response_type": next(self.client_code.response_type_values()),
+            "redirect_uri": self.client_code.default_redirect_uri,
             "scope": "openid email",
             "state": self.state,
             "prompt": "login none",
@@ -435,9 +465,9 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         See: http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
         """
         data = {
-            "client_id": self.client.client_id,
-            "response_type": next(self.client.response_type_values()),
-            "redirect_uri": self.client.default_redirect_uri,
+            "client_id": self.client_code.client_id,
+            "response_type": next(self.client_code.response_type_values()),
+            "redirect_uri": self.client_code.default_redirect_uri,
             "scope": "openid email",
             "state": self.state,
             "prompt": "consent",
@@ -457,9 +487,9 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         See: http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
         """
         data = {
-            "client_id": self.client.client_id,
-            "response_type": next(self.client.response_type_values()),
-            "redirect_uri": self.client.default_redirect_uri,
+            "client_id": self.client_code.client_id,
+            "response_type": next(self.client_code.response_type_values()),
+            "redirect_uri": self.client_code.default_redirect_uri,
             "scope": "openid email",
             "state": self.state,
             "prompt": "consent none",
@@ -470,6 +500,59 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
 
         response = self._auth_request("get", data, is_user_authenticated=True)
         self.assertIn("consent_required", response["Location"])
+
+    @patch("oidc_provider.views.django_user_logout")
+    @freeze_time("2024-01-20 00:00:00", tz_offset=0, as_kwarg="frozen_time")
+    def test_max_age_should_re_authenticate_user(self, logout_patched, frozen_time):
+        """
+        Authentication age is greater than the max_age value present in the
+        Authorization request, the OP MUST attempt to actively re-authenticate the End-User.
+        See: https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
+        """
+        self.user.last_login = datetime.now()
+        self.user.save()
+
+        frozen_time.move_to("2024-01-20 00:15:00")
+
+        data = {
+            "client_id": self.client_code.client_id,
+            "response_type": next(self.client_code.response_type_values()),
+            "redirect_uri": self.client_code.default_redirect_uri,
+            "scope": "openid email",
+            "state": self.state,
+            "max_age": "600",
+        }
+
+        response = self._auth_request("get", data, is_user_authenticated=True)
+
+        self.assertIn(settings.get("OIDC_LOGIN_URL"), response["Location"])
+        logout_patched.assert_called_once()
+
+    @freeze_time("2024-01-20 00:00:00", tz_offset=0, as_kwarg="frozen_time")
+    @patch("oidc_provider.views.render")
+    @patch("oidc_provider.views.django_user_logout")
+    def test_max_age_should_not_re_authenticate_user(
+        self, logout_patched, render_patched, frozen_time
+    ):
+        self.user.last_login = datetime.now()
+        self.user.save()
+
+        frozen_time.move_to("2024-01-20 00:08:00")
+
+        data = {
+            "client_id": self.client_code.client_id,
+            "response_type": next(self.client_code.response_type_values()),
+            "redirect_uri": self.client_code.default_redirect_uri,
+            "scope": "openid email",
+            "state": self.state,
+            "max_age": "600",
+        }
+
+        self._auth_request("get", data, is_user_authenticated=True)
+
+        logout_patched.assert_not_called()
+        render_patched.assert_called_once()
+        self.assertTrue(render_patched.call_args[0][1], settings.get("OIDC_TEMPLATES")["authorize"])
 
     def test_strip_prompt_login(self):
         """
@@ -510,7 +593,7 @@ class AuthorizationImplicitFlowTestCase(TestCase, AuthorizeEndpointMixin):
         call_command("creatersakey")
         self.factory = RequestFactory()
         self.user = create_fake_user()
-        self.client = create_fake_client(response_type="id_token token")
+        self.client_code = create_fake_client(response_type="id_token token")
         self.client_public = create_fake_client(response_type="id_token token", is_public=True)
         self.client_public_no_consent = create_fake_client(
             response_type="id_token token", is_public=True, require_consent=False
@@ -528,9 +611,9 @@ class AuthorizationImplicitFlowTestCase(TestCase, AuthorizeEndpointMixin):
         The `nonce` parameter is REQUIRED if you use the Implicit Flow.
         """
         data = {
-            "client_id": self.client.client_id,
-            "response_type": next(self.client.response_type_values()),
-            "redirect_uri": self.client.default_redirect_uri,
+            "client_id": self.client_code.client_id,
+            "response_type": next(self.client_code.response_type_values()),
+            "redirect_uri": self.client_code.default_redirect_uri,
             "scope": "openid email",
             "state": self.state,
         }
@@ -545,9 +628,9 @@ class AuthorizationImplicitFlowTestCase(TestCase, AuthorizeEndpointMixin):
         and access token as the result of the authorization request.
         """
         data = {
-            "client_id": self.client.client_id,
-            "redirect_uri": self.client.default_redirect_uri,
-            "response_type": next(self.client.response_type_values()),
+            "client_id": self.client_code.client_id,
+            "redirect_uri": self.client_code.default_redirect_uri,
+            "response_type": next(self.client_code.response_type_values()),
             "scope": "openid email",
             "state": self.state,
             "nonce": self.nonce,
@@ -605,9 +688,9 @@ class AuthorizationImplicitFlowTestCase(TestCase, AuthorizeEndpointMixin):
         `at_hash` in `id_token`.
         """
         data = {
-            "client_id": self.client.client_id,
-            "redirect_uri": self.client.default_redirect_uri,
-            "response_type": next(self.client.response_type_values()),
+            "client_id": self.client_code.client_id,
+            "redirect_uri": self.client_code.default_redirect_uri,
+            "response_type": next(self.client_code.response_type_values()),
             "scope": "openid email",
             "state": self.state,
             "nonce": self.nonce,

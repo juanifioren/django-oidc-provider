@@ -33,6 +33,7 @@ from oidc_provider.tests.app.utils import FAKE_CODE_CHALLENGE
 from oidc_provider.tests.app.utils import FAKE_CODE_VERIFIER
 from oidc_provider.tests.app.utils import FAKE_NONCE
 from oidc_provider.tests.app.utils import FAKE_RANDOM_STRING
+from oidc_provider.tests.app.utils import FAKE_USER_PASSWORD
 from oidc_provider.tests.app.utils import create_fake_client
 from oidc_provider.tests.app.utils import create_fake_user
 from oidc_provider.views import JwksView
@@ -60,7 +61,7 @@ class TokenTestCase(TestCase):
     def _password_grant_post_data(self, scope=None):
         result = {
             "username": "johndoe",
-            "password": "1234",
+            "password": FAKE_USER_PASSWORD,
             "grant_type": "password",
             "scope": TokenTestCase.SCOPE,
         }
