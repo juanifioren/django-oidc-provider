@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from datetime import timedelta
 from hashlib import md5
 from hashlib import sha256
@@ -327,7 +328,7 @@ class AuthorizeEndpoint(object):
         auth_time = int(
             dateformat.format(self.request.user.last_login or self.request.user.date_joined, "U")
         )
-        max_allowed_time = int(dateformat.format(timezone.now(), "U")) - max_age
+        max_allowed_time = int(dateformat.format(datetime.now(), "U")) - max_age
 
         return auth_time < max_allowed_time
 
