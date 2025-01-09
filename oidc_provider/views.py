@@ -296,7 +296,14 @@ class ProviderInfoView(View):
 
         dic['jwks_uri'] = site_url + reverse('oidc_provider:jwks')
 
-        dic['id_token_signing_alg_values_supported'] = ['HS256', 'RS256']
+        dic['id_token_signing_alg_values_supported'] = [
+            # HS256 was showing up as a problem on pentests.
+            # So we intentionally don't advertize HS256 here, as it's not secure 
+            # and we're not allowing it anyway in our configurations. 
+            # TODO: Add a setting to advertize HS256, if needed.
+            # 'HS256',
+            'RS256',
+        ]
 
         # See: http://openid.net/specs/openid-connect-core-1_0.html#SubjectIDTypes
         dic['subject_types_supported'] = ['public']
