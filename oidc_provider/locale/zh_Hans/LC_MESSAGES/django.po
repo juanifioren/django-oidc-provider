@@ -1,0 +1,258 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#: admin.py:53
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-02-17 17:14+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: admin.py:58
+msgid "Credentials"
+msgstr "凭证"
+
+#: admin.py:61
+msgid "Information"
+msgstr "信息"
+
+#: admin.py:64
+msgid "Session Management"
+msgstr "会话管理"
+
+#: apps.py:8
+msgid "OpenID Connect Provider"
+msgstr "OIDC提供方"
+
+#: lib/claims.py:122
+msgid "Basic profile"
+msgstr "基础配置"
+
+#: lib/claims.py:123
+msgid ""
+"Access to your basic information. Includes names, gender, birthdate and "
+"other information."
+msgstr "获取你的基础信息，包含用户名、性别、生日和其他信息"
+
+#: lib/claims.py:150
+msgid "Email"
+msgstr "电子邮件"
+
+#: lib/claims.py:151
+msgid "Access to your email address."
+msgstr "获取你的电子邮件地址"
+
+#: lib/claims.py:163
+msgid "Phone number"
+msgstr "联系电话"
+
+#: lib/claims.py:164
+msgid "Access to your phone number."
+msgstr "获取你的联系电话"
+
+#: lib/claims.py:176
+msgid "Address information"
+msgstr "联系地址"
+
+#: lib/claims.py:177
+msgid ""
+"Access to your address. Includes country, locality, street and other "
+"information."
+msgstr "获取你的联系地址，包含国家、地理位置、街道和其他信息"
+
+#: models.py:44
+msgid "Response Type Value"
+msgstr "响应类型值"
+
+#: models.py:58
+msgid "Name"
+msgstr "名称"
+
+#: models.py:60
+msgid "Owner"
+msgstr "拥有者"
+
+#: models.py:66
+msgid "Client Type"
+msgstr "客户端类型"
+
+#: models.py:67
+msgid ""
+"<b>Confidential</b> clients are capable of maintaining the confidentiality "
+"of their credentials. <b>Public</b> clients are incapable."
+msgstr ""
+"<b>机密</b> 客户端能够保证凭证信息的机密性 <b>公共</b> 客户端无法保证凭证信息"
+"的机密性"
+
+#: models.py:69
+msgid "Client ID"
+msgstr "客户端ID"
+
+#: models.py:70
+msgid "Client SECRET"
+msgstr "客户端密钥"
+
+#: models.py:76
+msgid "JWT Algorithm"
+msgstr "JWT算法"
+
+#: models.py:77
+msgid "Algorithm used to encode ID Tokens."
+msgstr "用于加密身份令牌的算法"
+
+#: models.py:78
+msgid "Date Created"
+msgstr "创建日期"
+
+#: models.py:80
+msgid "Website URL"
+msgstr "网页URL"
+
+#: models.py:85
+msgid "Terms URL"
+msgstr "团队URL"
+
+#: models.py:86
+msgid "External reference to the privacy policy of the client."
+msgstr "额外的客户端隐私政策"
+
+#: models.py:88
+msgid "Contact Email"
+msgstr "联系邮件"
+
+#: models.py:90
+msgid "Logo Image"
+msgstr "Logo"
+
+#: models.py:93
+msgid "Reuse Consent?"
+msgstr "复用授权"
+
+#: models.py:94
+msgid ""
+"If enabled, server will save the user consent given to a specific client, so "
+"that user won't be prompted for the same authorization multiple times."
+msgstr "如果启用，服务器会记录用户对客户端的授权信息，用户不需要每次都授权"
+
+#: models.py:98
+msgid "Require Consent?"
+msgstr "需要用户授权？"
+
+#: models.py:99
+msgid "If disabled, the Server will NEVER ask the user for consent."
+msgstr "如果关闭，服务器将不会需要用户授权"
+
+#: models.py:101
+msgid "Redirect URIs"
+msgstr "重定向URI"
+
+#: models.py:102 models.py:107
+msgid "Enter each URI on a new line."
+msgstr "一行一个URI"
+
+#: models.py:106
+msgid "Post Logout Redirect URIs"
+msgstr "登出后的重定向URI"
+
+#: models.py:111 models.py:164
+msgid "Scopes"
+msgstr "授权范围"
+
+#: models.py:112
+msgid "Specifies the authorized scope values for the client app."
+msgstr "指定客户端的可用授权范围"
+
+#: models.py:115 models.py:162
+msgid "Client"
+msgstr "客户端"
+
+#: models.py:116
+msgid "Clients"
+msgstr "客户端"
+
+#: models.py:163
+msgid "Expiration Date"
+msgstr "失效日期"
+
+#: models.py:187 models.py:206 models.py:242
+msgid "User"
+msgstr "用户"
+
+#: models.py:188
+msgid "Code"
+msgstr "授权码"
+
+#: models.py:189
+msgid "Nonce"
+msgstr "随机字符串"
+
+#: models.py:190
+msgid "Is Authentication?"
+msgstr "是否为认证？"
+
+#: models.py:191
+msgid "Code Challenge"
+msgstr "授权码验证"
+
+#: models.py:193
+msgid "Code Challenge Method"
+msgstr "授权码验证方式"
+
+#: models.py:196
+msgid "Authorization Code"
+msgstr "授权码"
+
+#: models.py:197
+msgid "Authorization Codes"
+msgstr "授权码"
+
+#: models.py:207
+msgid "Access Token"
+msgstr "访问令牌"
+
+#: models.py:208
+msgid "Refresh Token"
+msgstr "刷新令牌"
+
+#: models.py:209
+msgid "ID Token"
+msgstr "身份令牌"
+
+#: models.py:212
+msgid "Token"
+msgstr "令牌"
+
+#: models.py:213
+msgid "Tokens"
+msgstr "令牌"
+
+#: models.py:243
+msgid "Date Given"
+msgstr "授予日期"
+
+#: models.py:252
+msgid "Key"
+msgstr "私钥"
+
+#: models.py:252
+msgid "Paste your private RSA Key here."
+msgstr "在此粘贴你的RSA私钥"
+
+#: models.py:256
+msgid "RSA Key"
+msgstr "RSA密钥"
+
+#: models.py:257
+msgid "RSA Keys"
+msgstr "RSA密钥"
