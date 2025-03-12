@@ -18,3 +18,7 @@ Support for Python 3 and latest versions of django.
 [Read documentation for more info.](http://django-oidc-provider.readthedocs.org/)
 
 [Do you want to contribute? Please read this.](http://django-oidc-provider.readthedocs.io/en/master/sections/contribute.html)
+
+## Projects using Django OpenID Connect Provider
+
+- [Django Liberty](https://github.com/roicort/django-liberty) Cookicutter template that uses Django OpenID Connect Provider to decouple django & cut (or not) the gap between Django and NextJS
