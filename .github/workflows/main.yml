@@ -7,10 +7,28 @@ on:
     branches: ["develop"]
 
 jobs:
+  formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/ruff-action@v3
+        with:
+          args: "--version"
+      - run: "ruff format --check --diff"
+  
+  linting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/ruff-action@v3
+        with:
+          args: "--version"
+      - run: "ruff check --diff"
+
   tests:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: actions/setup-python@v4
       with:
         python-version: |
@@ -25,4 +43,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install tox
     - name: Run tox
-      run: tox
+      # we skip the 'ruff' env here, because we are running it in a separate 
+      # parallel job already
+      run: tox --skip-env ruff
