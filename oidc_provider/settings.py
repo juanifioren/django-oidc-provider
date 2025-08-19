@@ -31,7 +31,7 @@ class DefaultSettings(object):
         OPTIONAL.  Provide a way to plug into the process after
         the user has logged in, typically to perform some business logic.
         """
-        return 'oidc_provider.lib.utils.common.default_after_userlogin_hook'
+        return "oidc_provider.lib.utils.common.default_after_userlogin_hook"
 
     @property
     def OIDC_AFTER_END_SESSION_HOOK(self):
@@ -39,14 +39,14 @@ class DefaultSettings(object):
         OPTIONAL.  Provide a way to plug into the end session process just before calling
          Django's logout function, typically to perform some business logic.
         """
-        return 'oidc_provider.lib.utils.common.default_after_end_session_hook'
+        return "oidc_provider.lib.utils.common.default_after_end_session_hook"
 
     @property
     def OIDC_CODE_EXPIRE(self):
         """
         OPTIONAL. Code expiration time expressed in seconds.
         """
-        return 60*10
+        return 60 * 10
 
     @property
     def OIDC_DISCOVERY_CACHE_ENABLE(self):
@@ -60,7 +60,7 @@ class DefaultSettings(object):
         """
         OPTIONAL. Discovery endpoint cache expiration time expressed in seconds.
         """
-        return 60*60*24
+        return 60 * 60 * 24
 
     @property
     def OIDC_EXTRA_SCOPE_CLAIMS(self):
@@ -75,7 +75,7 @@ class DefaultSettings(object):
         """
         OPTIONAL. Id token expiration time expressed in seconds.
         """
-        return 60*10
+        return 60 * 10
 
     @property
     def OIDC_IDTOKEN_SUB_GENERATOR(self):
@@ -84,7 +84,7 @@ class DefaultSettings(object):
         reassigned identifier within the Issuer for the End-User,
         which is intended to be consumed by the Client.
         """
-        return 'oidc_provider.lib.utils.common.default_sub_generator'
+        return "oidc_provider.lib.utils.common.default_sub_generator"
 
     @property
     def OIDC_IDTOKEN_INCLUDE_CLAIMS(self):
@@ -108,8 +108,9 @@ class DefaultSettings(object):
 
         # Memoize generated value
         if not self._unauthenticated_session_management_key:
-            self._unauthenticated_session_management_key = ''.join(
-                random.choice(string.ascii_uppercase + string.digits) for _ in range(100))
+            self._unauthenticated_session_management_key = "".join(
+                random.choice(string.ascii_uppercase + string.digits) for _ in range(100)
+            )
         return self._unauthenticated_session_management_key
 
     @property
@@ -117,7 +118,7 @@ class DefaultSettings(object):
         """
         OPTIONAL. User consent expiration after been granted.
         """
-        return 30*3
+        return 30 * 3
 
     @property
     def OIDC_TOKEN_EXPIRE(self):
@@ -125,7 +126,7 @@ class DefaultSettings(object):
         OPTIONAL. Token object expiration after been created.
         Expressed in seconds.
         """
-        return 60*60
+        return 60 * 60
 
     @property
     def OIDC_USERINFO(self):
@@ -133,7 +134,7 @@ class DefaultSettings(object):
         OPTIONAL. A string with the location of your function.
         Used to populate standard claims with your user information.
         """
-        return 'oidc_provider.lib.utils.common.default_userinfo'
+        return "oidc_provider.lib.utils.common.default_userinfo"
 
     @property
     def OIDC_IDTOKEN_PROCESSING_HOOK(self):
@@ -141,7 +142,7 @@ class DefaultSettings(object):
         OPTIONAL. A string with the location of your hook.
         Used to add extra dictionary values specific for your app into id_token.
         """
-        return 'oidc_provider.lib.utils.common.default_idtoken_processing_hook'
+        return "oidc_provider.lib.utils.common.default_idtoken_processing_hook"
 
     @property
     def OIDC_INTROSPECTION_PROCESSING_HOOK(self):
@@ -149,7 +150,7 @@ class DefaultSettings(object):
         OPTIONAL. A string with the location of your function.
         Used to update the response for a valid introspection token request.
         """
-        return 'oidc_provider.lib.utils.common.default_introspection_processing_hook'
+        return "oidc_provider.lib.utils.common.default_introspection_processing_hook"
 
     @property
     def OIDC_INTROSPECTION_VALIDATE_AUDIENCE_SCOPE(self):
@@ -177,10 +178,7 @@ class DefaultSettings(object):
 
     @property
     def OIDC_TEMPLATES(self):
-        return {
-            'authorize': 'oidc_provider/authorize.html',
-            'error': 'oidc_provider/error.html'
-        }
+        return {"authorize": "oidc_provider/authorize.html", "error": "oidc_provider/error.html"}
 
     @property
     def OIDC_INTROSPECTION_RESPONSE_SCOPE_ENABLE(self):
@@ -198,12 +196,12 @@ def import_from_str(value):
     Attempt to import a class from a string representation.
     """
     try:
-        parts = value.split('.')
-        module_path, class_name = '.'.join(parts[:-1]), parts[-1]
+        parts = value.split(".")
+        module_path, class_name = ".".join(parts[:-1]), parts[-1]
         module = importlib.import_module(module_path)
         return getattr(module, class_name)
     except ImportError as e:
-        msg = 'Could not import %s for settings. %s: %s.' % (value, e.__class__.__name__, e)
+        msg = "Could not import %s for settings. %s: %s." % (value, e.__class__.__name__, e)
         raise ImportError(msg)
 
 
@@ -218,7 +216,7 @@ def get(name, import_str=False):
         value = getattr(settings, name)
     except AttributeError:
         if name in default_settings.required_attrs:
-            raise Exception('You must set ' + name + ' in your settings.')
+            raise Exception("You must set " + name + " in your settings.")
 
     if isinstance(default_value, dict) and value:
         default_value.update(value)
