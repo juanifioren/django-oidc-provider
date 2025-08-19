@@ -1,22 +1,22 @@
-from datetime import timedelta
 import time
 import uuid
+from datetime import timedelta
 
 from Cryptodome.PublicKey.RSA import importKey
-from django.utils import dateformat, timezone
+from django.utils import dateformat
+from django.utils import timezone
 from jwkest.jwk import RSAKey as jwk_RSAKey
 from jwkest.jwk import SYMKey
 from jwkest.jws import JWS
 from jwkest.jwt import JWT
 
-from oidc_provider.lib.utils.common import get_issuer, run_processing_hook
-from oidc_provider.lib.claims import StandardScopeClaims
-from oidc_provider.models import (
-    Code,
-    RSAKey,
-    Token,
-)
 from oidc_provider import settings
+from oidc_provider.lib.claims import StandardScopeClaims
+from oidc_provider.lib.utils.common import get_issuer
+from oidc_provider.lib.utils.common import run_processing_hook
+from oidc_provider.models import Code
+from oidc_provider.models import RSAKey
+from oidc_provider.models import Token
 
 
 def create_id_token(token, user, aud, nonce="", at_hash="", request=None, scope=None):
