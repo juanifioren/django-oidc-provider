@@ -22,12 +22,12 @@ try:
     from django.urls import reverse
 except ImportError:
     from django.core.urlresolvers import reverse
+import jwt
 from django.contrib.auth.models import AnonymousUser
 from django.core.management import call_command
 from django.test import RequestFactory
 from django.test import TestCase
 from django.test import override_settings
-from jwkest.jwt import JWT
 
 from oidc_provider import settings
 from oidc_provider.lib.endpoints.authorize import AuthorizeEndpoint
@@ -724,7 +724,7 @@ class AuthorizationImplicitFlowTestCase(TestCase, AuthorizeEndpointMixin):
         # obtain `id_token` portion of Location
         components = urlsplit(response["Location"])
         fragment = parse_qs(components[4])
-        id_token = JWT().unpack(fragment["id_token"][0].encode("utf-8")).payload()
+        id_token = jwt.decode(fragment["id_token"][0], options={"verify_signature": False})
 
         self.assertIn("at_hash", id_token)
 
@@ -750,7 +750,7 @@ class AuthorizationImplicitFlowTestCase(TestCase, AuthorizeEndpointMixin):
         # obtain `id_token` portion of Location
         components = urlsplit(response["Location"])
         fragment = parse_qs(components[4])
-        id_token = JWT().unpack(fragment["id_token"][0].encode("utf-8")).payload()
+        id_token = jwt.decode(fragment["id_token"][0], options={"verify_signature": False})
 
         self.assertNotIn("at_hash", id_token)
 

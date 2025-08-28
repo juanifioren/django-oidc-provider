@@ -14,6 +14,12 @@ try:
 except ImportError:
     from django.core.urlresolvers import reverse
 
+import base64
+
+import jwt
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicNumbers
 from django.core.management import call_command
 from django.db import DatabaseError
 from django.http import JsonResponse
@@ -21,13 +27,15 @@ from django.test import RequestFactory
 from django.test import TestCase
 from django.test import override_settings
 from django.views.decorators.http import require_http_methods
-from jwkest.jwk import KEYS
-from jwkest.jws import JWS
-from jwkest.jwt import JWT
 
+import oidc_provider.lib.utils
 from oidc_provider.lib.endpoints.introspection import INTROSPECTION_SCOPE
 from oidc_provider.lib.utils.oauth2 import protected_resource_view
 from oidc_provider.lib.utils.token import create_code
+from oidc_provider.lib.utils.token import decode_id_token
+from oidc_provider.lib.utils.token import encode_id_token
+from oidc_provider.lib.utils.token import get_client_alg_keys
+from oidc_provider.models import RSAKey
 from oidc_provider.models import Token
 from oidc_provider.tests.app.utils import FAKE_CODE_CHALLENGE
 from oidc_provider.tests.app.utils import FAKE_CODE_VERIFIER
@@ -147,14 +155,11 @@ class TokenTestCase(TestCase):
 
     def _get_keys(self):
         """
-        Get public key from discovery.
+        Get RSA keys for JWT operations.
+        Returns the actual RSA private key that can be used with PyJWT directly.
         """
-        request = self.factory.get(reverse("oidc_provider:jwks"))
-        response = JwksView.as_view()(request)
-        jwks_dic = json.loads(response.content.decode("utf-8"))
-        SIGKEYS = KEYS()
-        SIGKEYS.load_dict(jwks_dic)
-        return SIGKEYS
+        keys = get_client_alg_keys(self.client)
+        return keys[0]["key"] if keys else None
 
     def _get_userinfo(self, access_token):
         url = reverse("oidc_provider:userinfo")
@@ -247,7 +252,7 @@ class TokenTestCase(TestCase):
         )
 
         response_dict = json.loads(response.content.decode("utf-8"))
-        id_token = JWS().verify_compact(response_dict["id_token"].encode("utf-8"), self._get_keys())
+        id_token = decode_id_token(response_dict["id_token"], self.client)
 
         token = Token.objects.get(user=self.user)
         self.assertEqual(response_dict["access_token"], token.access_token)
@@ -286,7 +291,6 @@ class TokenTestCase(TestCase):
         using the algorithm specified in the alg Header Parameter of
         the JOSE Header.
         """
-        SIGKEYS = self._get_keys()
         code = self._create_code()
 
         post_data = self._auth_code_post_data(code=code.code)
@@ -294,7 +298,7 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
         response_dic = json.loads(response.content.decode("utf-8"))
 
-        id_token = JWS().verify_compact(response_dic["id_token"].encode("utf-8"), SIGKEYS)
+        id_token = decode_id_token(response_dic["id_token"], self.client)
 
         token = Token.objects.get(user=self.user)
         self.assertEqual(response_dic["access_token"], token.access_token)
@@ -328,7 +332,6 @@ class TokenTestCase(TestCase):
         Scope is ignored for token respones to auth code grant type.
         This comes down to that the scopes requested in authorize are returned.
         """
-        SIGKEYS = self._get_keys()
         for code_scope in [["openid"], ["openid", "email"], ["openid", "profile"]]:
             code = self._create_code(code_scope)
 
@@ -339,7 +342,7 @@ class TokenTestCase(TestCase):
 
             self.assertEqual(response.status_code, 200)
 
-            id_token = JWS().verify_compact(response_dic["id_token"].encode("utf-8"), SIGKEYS)
+            id_token = decode_id_token(response_dic["id_token"], self.client)
 
             if "email" in code_scope:
                 self.assertIn("email", id_token)
@@ -382,8 +385,6 @@ class TokenTestCase(TestCase):
 
     @override_settings(OIDC_IDTOKEN_INCLUDE_CLAIMS=True)
     def do_refresh_token_check(self, scope=None):
-        SIGKEYS = self._get_keys()
-
         # Retrieve refresh token
         code = self._create_code()
         self.assertEqual(code.scope, TokenTestCase.SCOPE_LIST)
@@ -394,7 +395,7 @@ class TokenTestCase(TestCase):
             response = self._post_request(post_data)
 
         response_dic1 = json.loads(response.content.decode("utf-8"))
-        id_token1 = JWS().verify_compact(response_dic1["id_token"].encode("utf-8"), SIGKEYS)
+        id_token1 = decode_id_token(response_dic1["id_token"], self.client)
 
         # Use refresh token to obtain new token
         post_data = self._refresh_token_post_data(response_dic1["refresh_token"], scope)
@@ -410,7 +411,7 @@ class TokenTestCase(TestCase):
             self.assertEqual(response_dic2["error"], "invalid_scope")
             return  # No more checks
 
-        id_token2 = JWS().verify_compact(response_dic2["id_token"].encode("utf-8"), SIGKEYS)
+        id_token2 = decode_id_token(response_dic2["id_token"], self.client)
 
         if scope and "email" not in scope:  # narrowed scope The auth
             # The auth code request had email in scope, so it should be
@@ -584,7 +585,7 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
 
         response_dic = json.loads(response.content.decode("utf-8"))
-        id_token = JWT().unpack(response_dic["id_token"].encode("utf-8")).payload()
+        id_token = jwt.decode(response_dic["id_token"], options={"verify_signature": False})
 
         self.assertEqual(id_token.get("nonce"), FAKE_NONCE)
 
@@ -595,7 +596,7 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
         response_dic = json.loads(response.content.decode("utf-8"))
 
-        id_token = JWT().unpack(response_dic["id_token"].encode("utf-8")).payload()
+        id_token = jwt.decode(response_dic["id_token"], options={"verify_signature": False})
 
         self.assertEqual(id_token.get("nonce"), None)
 
@@ -610,7 +611,7 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
 
         response_dic = json.loads(response.content.decode("utf-8"))
-        id_token = JWT().unpack(response_dic["id_token"].encode("utf-8")).payload()
+        id_token = jwt.decode(response_dic["id_token"], options={"verify_signature": False})
 
         self.assertTrue(id_token.get("at_hash"))
 
@@ -620,9 +621,6 @@ class TokenTestCase(TestCase):
         using the algorithm specified in the alg Header Parameter of
         the JOSE Header.
         """
-        SIGKEYS = self._get_keys()
-        RSAKEYS = [k for k in SIGKEYS if k.kty == "RSA"]
-
         code = self._create_code()
 
         post_data = self._auth_code_post_data(code=code.code)
@@ -630,7 +628,14 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
         response_dic = json.loads(response.content.decode("utf-8"))
 
-        JWS().verify_compact(response_dic["id_token"].encode("utf-8"), RSAKEYS)
+        # This will raise an exception if verification fails
+        decode_id_token(response_dic["id_token"], self.client)
+
+    def test_idtoken_sign_validation_fail(self):
+        bad_id_token = jwt.encode({"some": "payload"}, "wrong_key", algorithm="HS256")
+
+        with self.assertRaises(expected_exception=jwt.InvalidTokenError):
+            decode_id_token(bad_id_token, self.client)
 
     @override_settings(
         OIDC_IDTOKEN_SUB_GENERATOR="oidc_provider.tests.app.utils.fake_sub_generator"
@@ -646,7 +651,7 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
 
         response_dic = json.loads(response.content.decode("utf-8"))
-        id_token = JWT().unpack(response_dic["id_token"].encode("utf-8")).payload()
+        id_token = jwt.decode(response_dic["id_token"], options={"verify_signature": False})
 
         self.assertEqual(id_token.get("sub"), self.user.email)
 
@@ -664,7 +669,7 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
 
         response_dic = json.loads(response.content.decode("utf-8"))
-        id_token = JWT().unpack(response_dic["id_token"].encode("utf-8")).payload()
+        id_token = jwt.decode(response_dic["id_token"], options={"verify_signature": False})
 
         self.assertEqual(id_token.get("test_idtoken_processing_hook"), FAKE_RANDOM_STRING)
         self.assertEqual(id_token.get("test_idtoken_processing_hook_user_email"), self.user.email)
@@ -685,7 +690,7 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
 
         response_dic = json.loads(response.content.decode("utf-8"))
-        id_token = JWT().unpack(response_dic["id_token"].encode("utf-8")).payload()
+        id_token = jwt.decode(response_dic["id_token"], options={"verify_signature": False})
 
         self.assertEqual(id_token.get("test_idtoken_processing_hook"), FAKE_RANDOM_STRING)
         self.assertEqual(id_token.get("test_idtoken_processing_hook_user_email"), self.user.email)
@@ -707,7 +712,7 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
 
         response_dic = json.loads(response.content.decode("utf-8"))
-        id_token = JWT().unpack(response_dic["id_token"].encode("utf-8")).payload()
+        id_token = jwt.decode(response_dic["id_token"], options={"verify_signature": False})
 
         self.assertEqual(id_token.get("test_idtoken_processing_hook"), FAKE_RANDOM_STRING)
         self.assertEqual(id_token.get("test_idtoken_processing_hook_user_email"), self.user.email)
@@ -732,7 +737,7 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
 
         response_dic = json.loads(response.content.decode("utf-8"))
-        id_token = JWT().unpack(response_dic["id_token"].encode("utf-8")).payload()
+        id_token = jwt.decode(response_dic["id_token"], options={"verify_signature": False})
 
         self.assertEqual(id_token.get("test_idtoken_processing_hook"), FAKE_RANDOM_STRING)
         self.assertEqual(id_token.get("test_idtoken_processing_hook_user_email"), self.user.email)
@@ -775,7 +780,7 @@ class TokenTestCase(TestCase):
         response = self._post_request(post_data)
 
         response_dic = json.loads(response.content.decode("utf-8"))
-        id_token = JWT().unpack(response_dic["id_token"].encode("utf-8")).payload()
+        id_token = jwt.decode(response_dic["id_token"], options={"verify_signature": False})
         return id_token
 
     def test_pkce_parameters(self):
@@ -974,3 +979,313 @@ class TokenTestCase(TestCase):
         response_dict = json.loads(response.content.decode("utf-8"))
         self.assertEqual(200, response.status_code)
         self.assertEqual("email openid", response_dict["scope"])
+
+
+class JwksTestCase(TestCase):
+    """
+    Test cases for the JSON Web Key Set (JWKS) endpoint.
+    This tests the discovery mechanism and key format validation
+    that was previously covered implicitly in token tests.
+    """
+
+    def setUp(self):
+        call_command("creatersakey")
+        self.factory = RequestFactory()
+        self.user = create_fake_user()
+        self.client = create_fake_client(response_type="code", is_public=True)
+
+    def test_jwks_endpoint_returns_valid_json(self):
+        """Test that the JWKS endpoint returns valid JSON."""
+        request = self.factory.get(reverse("oidc_provider:jwks"))
+        response = JwksView.as_view()(request)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/json")
+
+        # Should be able to parse as JSON
+        jwks_data = json.loads(response.content.decode("utf-8"))
+        self.assertIsInstance(jwks_data, dict)
+
+    def test_jwks_contains_required_fields(self):
+        """Test that JWKS response contains the required JWK fields."""
+        request = self.factory.get(reverse("oidc_provider:jwks"))
+        response = JwksView.as_view()(request)
+        jwks_data = json.loads(response.content.decode("utf-8"))
+
+        # Should have 'keys' array
+        self.assertIn("keys", jwks_data)
+        self.assertIsInstance(jwks_data["keys"], list)
+        self.assertGreater(len(jwks_data["keys"]), 0)
+
+        # Each key should have required JWK fields
+        for key in jwks_data["keys"]:
+            self.assertIn("kty", key)  # Key type
+            self.assertIn("use", key)  # Key use
+            self.assertIn("kid", key)  # Key ID
+            self.assertIn("n", key)  # RSA modulus
+            self.assertIn("e", key)  # RSA exponent
+            self.assertIn("alg", key)  # Algorithm
+
+            # Should be RSA key for signing
+            self.assertEqual(key["kty"], "RSA")
+            self.assertEqual(key["use"], "sig")
+
+    def test_jwks_keys_work_with_pyjwt(self):
+        """Test that keys from JWKS endpoint work with PyJWT for verification."""
+        # Get JWKS
+        request = self.factory.get(reverse("oidc_provider:jwks"))
+        response = JwksView.as_view()(request)
+        jwks_data = json.loads(response.content.decode("utf-8"))
+
+        # Get the first key
+        jwk = jwks_data["keys"][0]
+
+        # Convert JWK to RSA public key
+        n = int.from_bytes(base64.urlsafe_b64decode(jwk["n"] + "=="), byteorder="big")
+        e = int.from_bytes(base64.urlsafe_b64decode(jwk["e"] + "=="), byteorder="big")
+
+        public_key = RSAPublicNumbers(e, n).public_key()
+
+        # Create a test token using our encode function
+        test_payload = {
+            "iss": "test",
+            "sub": "123",
+            "aud": self.client.client_id,
+            "exp": int(time.time()) + 3600,
+            "iat": int(time.time()),
+        }
+
+        # Encode with our function
+        test_token = encode_id_token(test_payload, self.client)
+
+        # Should be able to verify with the public key from JWKS
+        decoded = jwt.decode(
+            test_token,
+            public_key,
+            algorithms=["RS256"],
+            options={
+                "verify_aud": False,
+                "verify_exp": False,
+                "verify_iat": False,
+                "verify_nbf": False,
+            },
+        )
+
+        self.assertEqual(decoded["sub"], "123")
+        self.assertEqual(decoded["aud"], self.client.client_id)
+
+    def test_jwks_integration_with_token_validation(self):
+        """Test that JWKS keys can be used to validate actual ID tokens."""
+        # Get keys using both methods
+        jwks_request = self.factory.get(reverse("oidc_provider:jwks"))
+        jwks_response = JwksView.as_view()(jwks_request)
+        jwks_data = json.loads(jwks_response.content.decode("utf-8"))
+
+        client_keys = get_client_alg_keys(self.client)
+
+        # Should have keys from both methods
+        self.assertGreater(len(jwks_data["keys"]), 0)
+        self.assertGreater(len(client_keys), 0)
+
+        # The kid should match between JWKS and client keys
+        jwks_kids = {key["kid"] for key in jwks_data["keys"]}
+        client_kids = {key["kid"] for key in client_keys}
+        self.assertEqual(jwks_kids, client_kids)
+
+
+class RSAKeyCachingTestCase(TestCase):
+    """
+    Test cases for RSA key caching functionality to ensure:
+    1. Keys are cached for performance
+    2. Cache is cleaned up when keys are removed
+    3. No memory leaks occur
+    """
+
+    def setUp(self):
+        self.token_utils = oidc_provider.lib.utils.token
+
+        call_command("creatersakey")
+        call_command("creatersakey")  # Create additional test data
+
+        # Start with clean cache
+        self.token_utils._rsa_key_cache.clear()
+
+        # Create test client using the correct pattern
+        self.factory = RequestFactory()
+        self.user = create_fake_user()
+        self.client = create_fake_client(response_type="code")
+        # Ensure it uses RS256 (default, but let's be explicit)
+        self.client.jwt_alg = "RS256"
+        self.client.save()
+
+    def test_rsa_key_caching_performance(self):
+        """Test that RSA key caching provides performance benefits."""
+        # Clear cache to start fresh
+        self.token_utils._rsa_key_cache.clear()
+
+        # Ensure cache is empty
+        self.assertEqual(len(self.token_utils._rsa_key_cache), 0)
+
+        # First call should populate cache (slower)
+        start_time = time.time()
+        keys1 = self.token_utils.get_client_alg_keys(self.client)
+        first_call_time = time.time() - start_time
+
+        # Cache should now have entries
+        self.assertGreater(len(self.token_utils._rsa_key_cache), 0)
+        self.assertGreater(len(keys1), 0)
+
+        # Second call should use cache (much faster)
+        start_time = time.time()
+        keys2 = self.token_utils.get_client_alg_keys(self.client)
+        second_call_time = time.time() - start_time
+
+        # Results should be identical
+        self.assertEqual(len(keys1), len(keys2))
+        self.assertEqual(keys1[0]["kid"], keys2[0]["kid"])
+        self.assertEqual(keys1[0]["algorithm"], keys2[0]["algorithm"])
+
+        # Second call should be significantly faster (cache hit)
+        # Note: This is a rough performance test, actual speedup is ~1000x
+        self.assertLess(second_call_time, first_call_time * 0.5)
+
+    def test_rsa_key_cache_cleanup_on_key_deletion(self):
+        """Test that cache is cleaned up when RSA keys are deleted from DB."""
+        # Load keys into cache
+        keys_before = self.token_utils.get_client_alg_keys(self.client)
+        initial_cache_size = len(self.token_utils._rsa_key_cache)
+        initial_key_count = len(keys_before)
+
+        self.assertGreater(initial_cache_size, 0)
+        self.assertGreater(initial_key_count, 0)
+
+        # Manually add a fake cache entry to simulate a deleted key
+        fake_cache_key = "rsa_key_fake_deleted_key"
+        self.token_utils._rsa_key_cache[fake_cache_key] = {
+            "private_key": "fake_private_key",
+            "public_key": "fake_public_key",
+        }
+
+        # Cache should now have the fake entry
+        self.assertEqual(len(self.token_utils._rsa_key_cache), initial_cache_size + 1)
+        self.assertIn(fake_cache_key, self.token_utils._rsa_key_cache)
+
+        # Call get_client_alg_keys again - should clean up the fake entry
+        keys_after = self.token_utils.get_client_alg_keys(self.client)
+
+        # Cache should be cleaned up
+        self.assertEqual(len(self.token_utils._rsa_key_cache), initial_cache_size)
+        self.assertNotIn(fake_cache_key, self.token_utils._rsa_key_cache)
+
+        # Key results should be unchanged
+        self.assertEqual(len(keys_after), initial_key_count)
+
+    def test_rsa_key_cache_cleanup_on_all_keys_deleted(self):
+        """Test that cache is completely cleaned when all RSA keys are deleted."""
+        # Load keys into cache
+        self.token_utils.get_client_alg_keys(self.client)
+        self.assertGreater(len(self.token_utils._rsa_key_cache), 0)
+
+        # Delete all RSA keys from database
+        RSAKey.objects.all().delete()
+
+        # Calling get_client_alg_keys should raise exception and clean cache
+        with self.assertRaises(Exception) as context:
+            self.token_utils.get_client_alg_keys(self.client)
+
+        self.assertIn("You must add at least one RSA Key", str(context.exception))
+
+        # Cache should be completely empty
+        self.assertEqual(len(self.token_utils._rsa_key_cache), 0)
+
+    def test_rsa_key_cache_with_multiple_keys(self):
+        """Test caching behavior with multiple RSA keys."""
+        # Create additional RSA keys
+        call_command("creatersakey")
+        call_command("creatersakey")
+
+        # Should now have multiple keys
+        all_keys = RSAKey.objects.all()
+        self.assertGreater(len(all_keys), 1)
+
+        # Load keys into cache
+        client_keys = self.token_utils.get_client_alg_keys(self.client)
+
+        # Cache should have entries for all keys
+        self.assertEqual(len(self.token_utils._rsa_key_cache), len(all_keys))
+        self.assertEqual(len(client_keys), len(all_keys))
+
+        # All keys should be properly structured
+        for key_info in client_keys:
+            self.assertIn("key", key_info)  # private key
+            self.assertIn("public_key", key_info)  # public key
+            self.assertIn("kid", key_info)
+            self.assertIn("algorithm", key_info)
+            self.assertEqual(key_info["algorithm"], "RS256")
+
+    def test_rsa_key_cache_clear_function(self):
+        """Test the manual cache clear function."""
+        # Load keys into cache
+        self.token_utils.get_client_alg_keys(self.client)
+
+        self.assertGreater(len(self.token_utils._rsa_key_cache), 0)
+
+        # Clear cache manually
+        self.token_utils._rsa_key_cache.clear()
+
+        # Cache should be empty
+        self.assertEqual(len(self.token_utils._rsa_key_cache), 0)
+
+        # Should be able to load keys again
+        keys = self.token_utils.get_client_alg_keys(self.client)
+        self.assertGreater(len(keys), 0)
+        self.assertGreater(len(self.token_utils._rsa_key_cache), 0)
+
+    def test_rsa_key_cache_contains_correct_key_types(self):
+        """Test that cached keys contain the correct cryptography key objects."""
+        # Load keys into cache
+        client_keys = self.token_utils.get_client_alg_keys(self.client)
+
+        # Check that cache contains proper key objects
+        for cache_key, key_pair in self.token_utils._rsa_key_cache.items():
+            self.assertIn("private_key", key_pair)
+            self.assertIn("public_key", key_pair)
+
+            # Should be actual cryptography key objects
+            self.assertIsInstance(key_pair["private_key"], RSAPrivateKey)
+            self.assertIsInstance(key_pair["public_key"], RSAPublicKey)
+
+        # Check that client keys reference the same objects
+        for key_info in client_keys:
+            cache_key = f"rsa_key_{key_info['kid']}"
+            cached_pair = self.token_utils._rsa_key_cache[cache_key]
+
+            # Should be the exact same objects (not copies)
+            self.assertIs(key_info["key"], cached_pair["private_key"])
+            self.assertIs(key_info["public_key"], cached_pair["public_key"])
+
+    def test_hs256_no_caching(self):
+        """Test that HS256 clients don't use RSA key caching."""
+        # Create HS256 client
+        hs256_client = create_fake_client(response_type="code")
+        hs256_client.jwt_alg = "HS256"
+        hs256_client.save()
+
+        # Clear cache
+        self.token_utils._rsa_key_cache.clear()
+
+        # Get keys for HS256 client
+        hs256_keys = self.token_utils.get_client_alg_keys(hs256_client)
+
+        # Should have keys but no cache entries (HS256 doesn't use caching)
+        self.assertEqual(len(hs256_keys), 1)
+        self.assertEqual(hs256_keys[0]["algorithm"], "HS256")
+
+        self.assertEqual(len(self.token_utils._rsa_key_cache), 0)  # No RSA caching for HS256
+
+        # Get keys for RS256 client
+        rs256_keys = self.token_utils.get_client_alg_keys(self.client)
+
+        # Now should have cache entries for RS256
+        self.assertEqual(rs256_keys[0]["algorithm"], "RS256")
+        self.assertGreater(len(self.token_utils._rsa_key_cache), 0)

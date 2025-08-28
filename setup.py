@@ -42,9 +42,11 @@ setup(
     ],
     test_suite="runtests.runtests",
     tests_require=[
-        "pyjwkest>=1.3.0",
+        "PyJWT>=2.8.0",
+        "cryptography>=3.4.0",
     ],
     install_requires=[
-        "pyjwkest>=1.3.0",
+        "PyJWT>=2.8.0",
+        "cryptography>=3.4.0",
     ],
 )

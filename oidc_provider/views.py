@@ -13,7 +13,8 @@ except ImportError:
     from urllib.parse import urlsplit
     from urllib.parse import urlunsplit
 
-from Cryptodome.PublicKey import RSA
+import jwt.utils
+from cryptography.hazmat.primitives import serialization
 from django.contrib.auth.views import redirect_to_login
 
 try:
@@ -34,7 +35,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView
 from django.views.generic import View
-from jwkest import long_to_base64
 
 from oidc_provider import settings
 from oidc_provider import signals
@@ -347,15 +347,21 @@ class JwksView(View):
         dic = dict(keys=[])
 
         for rsakey in RSAKey.objects.all():
-            public_key = RSA.importKey(rsakey.key).publickey()
+            # Load the private key and extract the public key components
+            private_key = serialization.load_pem_private_key(
+                rsakey.key.encode("utf-8"), password=None
+            )
+            public_key = private_key.public_key()
+            public_numbers = public_key.public_numbers()
+
             dic["keys"].append(
                 {
                     "kty": "RSA",
                     "alg": "RS256",
                     "use": "sig",
                     "kid": rsakey.kid,
-                    "n": long_to_base64(public_key.n),
-                    "e": long_to_base64(public_key.e),
+                    "n": jwt.utils.to_base64url_uint(public_numbers.n).decode("ascii"),
+                    "e": jwt.utils.to_base64url_uint(public_numbers.e).decode("ascii"),
                 }
             )
 
