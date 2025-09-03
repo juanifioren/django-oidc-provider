@@ -58,4 +58,4 @@ jobs:
       with:
         python-version: ${{ matrix.python }}
     - name: Run tox
-      run: tox run -e py$(echo "${{ matrix.python }}" | tr -d '.')-django$(echo "${{ matrix.django }}" | tr -d '.')
+      run: tox run --skip-missing-interpreters=false -e py$(echo "${{ matrix.python }}" | tr -d '.')-django$(echo "${{ matrix.django }}" | tr -d '.')
