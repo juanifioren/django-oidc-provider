@@ -11,11 +11,10 @@ $ docker build -t django-oidc-provider .
 $ docker run -p 8000:8000 --name django-oidc-provider-app django-oidc-provider
 ```
 
-Go to http://localhost:8000/ and create your Client.
+Go to http://localhost:8000/ and create your Client. Use `admin:admin` to login.
 
 ## Install package for development
 
-After you run `pip install -r requirements.txt`.
 ```bash
 # Remove pypi package.
 $ pip uninstall django-oidc-provider
