@@ -3,7 +3,7 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 SECRET_KEY = "c14d549c574e4d8cf162404ef0b04598"
 

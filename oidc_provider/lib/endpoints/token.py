@@ -27,7 +27,7 @@ class TokenEndpoint(object):
         self._extract_params()
 
     def _encode_id_token(self, *args):
-        return settings.import_hook('OIDC_IDTOKEN_ENCODE_HOOK')(*args)
+        return settings.import_hook("OIDC_IDTOKEN_ENCODE_HOOK")(*args)
 
     def _extract_params(self):
         client_id, client_secret = extract_client_auth(self.request)

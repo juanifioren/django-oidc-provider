@@ -11,10 +11,14 @@ except ImportError:
     from django.core.urlresolvers import reverse
 
 import mock
-from django.test import TestCase, override_settings
+from django.test import TestCase
+from django.test import override_settings
 
-from oidc_provider.lib.utils.token import create_id_token, create_token, encode_id_token
-from oidc_provider.tests.app.utils import create_fake_client, create_fake_user
+from oidc_provider.lib.utils.token import create_id_token
+from oidc_provider.lib.utils.token import create_token
+from oidc_provider.lib.utils.token import encode_id_token
+from oidc_provider.tests.app.utils import create_fake_client
+from oidc_provider.tests.app.utils import create_fake_user
 
 
 class EndSessionTestCase(TestCase):
@@ -41,20 +45,19 @@ class EndSessionTestCase(TestCase):
         self.url = reverse("oidc_provider:end-session")
         self.url_prompt = reverse("oidc_provider:end-session-prompt")
 
-    @override_settings(OIDC_LOGOUT_URL='/post-logout/')
+    @override_settings(OIDC_LOGOUT_URL="/post-logout/")
     def test_redirects_when_aud_is_str(self):
-        query_params = {'post_logout_redirect_uri': self.url_logout}
+        query_params = {"post_logout_redirect_uri": self.url_logout}
         response = self.client.get(self.url, query_params)
         # With no id_token the OP MUST NOT redirect to the requested
         # redirect_uri.
         self.assertEqual(response.headers["Location"], self.url_prompt)
 
         token = create_token(self.user, self.oidc_client, [])
-        id_token_dic = create_id_token(
-            token=token, user=self.user, aud=self.oidc_client.client_id)
+        id_token_dic = create_id_token(token=token, user=self.user, aud=self.oidc_client.client_id)
         id_token = encode_id_token(id_token_dic, self.oidc_client)
 
-        query_params['id_token_hint'] = id_token
+        query_params["id_token_hint"] = id_token
 
         response = self.client.get(self.url, query_params)
         self.assertEqual(response.headers["Location"], self.url_logout)

@@ -188,14 +188,10 @@ class AuthorizeEndpoint(object):
                     if "access_token" in query_fragment:
                         kwargs["at_hash"] = token.at_hash
 
-                    create_id_token_hook = settings.import_hook(
-                        "OIDC_IDTOKEN_CREATE_HOOK"
-                    )
+                    create_id_token_hook = settings.import_hook("OIDC_IDTOKEN_CREATE_HOOK")
                     id_token_dic = create_id_token_hook(**kwargs)
 
-                    encode_id_token = settings.import_hook(
-                        "OIDC_IDTOKEN_ENCODE_HOOK"
-                    )
+                    encode_id_token = settings.import_hook("OIDC_IDTOKEN_ENCODE_HOOK")
 
                     # Check if response_type must include id_token in the response.
                     if self.params["response_type"] in [

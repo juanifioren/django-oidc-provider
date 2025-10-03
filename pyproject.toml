@@ -1,5 +1,13 @@
 [tool.ruff]
 line-length = 100
 
+[tool.ruff.lint]
+select = [
+    # Pyflakes
+    "F",
+    # isort
+    "I",
+]
+
 [tool.ruff.lint.isort]
 force-single-line = true

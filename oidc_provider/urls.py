@@ -1,10 +1,8 @@
 from django.urls import re_path
 from django.views.decorators.csrf import csrf_exempt
 
-from oidc_provider import (
-    settings,
-    views,
-)
+from oidc_provider import settings
+from oidc_provider import views
 
 app_name = "oidc_provider"
 urlpatterns = [
