@@ -6,6 +6,7 @@ from django.contrib import admin
 from django.forms import ModelForm
 from django.utils.translation import gettext_lazy as _
 
+from oidc_provider.lib.utils.sanitization import sanitize_client_id
 from oidc_provider.models import Client
 from oidc_provider.models import Code
 from oidc_provider.models import RSAKey
@@ -23,12 +24,15 @@ class ClientForm(ModelForm):
         self.fields["client_id"].widget.attrs["disabled"] = "true"
         self.fields["client_secret"].required = False
         self.fields["client_secret"].widget.attrs["disabled"] = "true"
+        self.fields["jwt_alg"].required = False
 
     def clean_client_id(self):
         instance = getattr(self, "instance", None)
         if instance and instance.pk:
-            return instance.client_id
+            # Sanitize existing client_id to remove any problematic characters
+            return sanitize_client_id(instance.client_id)
         else:
+            # Generate new client_id (digits only)
             return str(randint(1, 999999)).zfill(6)
 
     def clean_client_secret(self):

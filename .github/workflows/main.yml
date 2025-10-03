@@ -1,26 +1,61 @@
-name: Django Tests CI
-
+name: "CI"
 on:
   push:
     branches: ["master", "develop"]
   pull_request:
-    branches: ["develop"]
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  tests:
+  formatting:
+    name: "Check Code Formatting"
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: astral-sh/ruff-action@v3
+        with:
+          args: "--version"
+      - run: "ruff format --check --diff"
+  
+  linting:
+    name: "Check Code Linting"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/ruff-action@v3
+        with:
+          args: "--version"
+      - run: "ruff check --diff"
+
+  test_matrix_prep:
+    name: "Prepare Test Matrix"
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: "${{ steps.set-matrix.outputs.matrix }}"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - run: uv tool install tox
+      - id: set-matrix
+        run: |
+          matrix=$(tox -l | jq -Rc 'select(test("^py\\d+.*django\\d+")) | capture("^py(?<python>\\d+).*django(?<django>\\d+)") | {"python": (.python | tostring | .[0:1] + "." + .[1:]), "django": (.django | tostring | .[0:1] + "." + .[1:])}' | jq -sc '{include: .}')
+          echo "matrix=$matrix" >> $GITHUB_OUTPUT
+
+  test:
+    name: "Test Django ${{ matrix.django }} | Python ${{ matrix.python }}"
+    needs: test_matrix_prep
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.test_matrix_prep.outputs.matrix) }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: astral-sh/setup-uv@v3
+    - run: uv tool install tox
     - uses: actions/setup-python@v4
       with:
-        python-version: |
-            3.8
-            3.9
-            3.10
-            3.11
-    - name: Install tox
-      run: |
-        python -m pip install --upgrade pip
-        pip install tox
+        python-version: ${{ matrix.python }}
     - name: Run tox
-      run: tox
+      run: tox run --skip-missing-interpreters=false -e py$(echo "${{ matrix.python }}" | tr -d '.')-django$(echo "${{ matrix.django }}" | tr -d '.')

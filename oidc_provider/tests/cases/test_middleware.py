@@ -1,4 +1,5 @@
-import mock
+from unittest.mock import patch
+
 from django.test import TestCase
 from django.test import override_settings
 from django.urls import re_path
@@ -26,7 +27,7 @@ MW_CLASSES = (
 )
 class MiddlewareTestCase(TestCase):
     def setUp(self):
-        patcher = mock.patch("oidc_provider.middleware.get_browser_state_or_default")
+        patcher = patch("oidc_provider.middleware.get_browser_state_or_default")
         self.mock_get_state = patcher.start()
 
     def test_session_management_middleware_sets_cookie_on_response(self):

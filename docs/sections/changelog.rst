@@ -8,7 +8,28 @@ All notable changes to this project will be documented in this file.
 Unreleased
 ==========
 
-None
+0.9.0
+=====
+
+*2025-09-23*
+
+* Changed: Use PyJWT+cryptography instead of jwkest+Cryptodrome.
+* Added: Translation to Russian.
+* Changed: Ruff as a fast Python linter and code formatter.
+* Fixed: client_id sanitization to prevent database errors.
+
+0.8.4
+=====
+
+*2025-05-24*
+
+* Added: test package against Python 3.12 and 3.13.
+* Added: test package against Django 5.
+* Added: support of max_age parameter on authorization request.
+* Added: Passing Request Parameters as JWTs now returning request_not_supported error.
+* Added: Simplified chinese translation.
+* Changed: ID Token JSON encoder improved using DjangoJSONEncoder.
+* Changed: Use unittest.mock in tests. Remove mock library.
 
 0.8.3
 =====

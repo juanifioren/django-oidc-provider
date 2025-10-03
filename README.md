@@ -1,7 +1,7 @@
 # Django OpenID Connect Provider
 
 [![Python Versions](https://img.shields.io/pypi/pyversions/django-oidc-provider.svg)](https://pypi.python.org/pypi/django-oidc-provider)
-[![Django Versions](https://img.shields.io/badge/Django-3.2%20%7C%204.2-green)](https://pypi.python.org/pypi/django-oidc-provider)
+[![Django Versions](https://img.shields.io/badge/Django-3.2%20%7C%204.2%20%7C%205.2-green)](https://pypi.python.org/pypi/django-oidc-provider)
 [![PyPI Versions](https://img.shields.io/pypi/v/django-oidc-provider.svg)](https://pypi.python.org/pypi/django-oidc-provider)
 [![Documentation Status](https://readthedocs.org/projects/django-oidc-provider/badge/?version=master)](http://django-oidc-provider.readthedocs.io/)
 
@@ -18,3 +18,7 @@ Support for Python 3 and latest versions of django.
 [Read documentation for more info.](http://django-oidc-provider.readthedocs.org/)
 
 [Do you want to contribute? Please read this.](http://django-oidc-provider.readthedocs.io/en/master/sections/contribute.html)
+
+## Thanks to our sponsors
+
+[![Agilentia](https://avatars.githubusercontent.com/u/1707212?s=60&v=4)](https://github.com/agilentia)

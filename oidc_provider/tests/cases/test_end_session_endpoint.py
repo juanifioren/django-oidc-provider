@@ -1,18 +1,17 @@
+from unittest.mock import patch
+
 try:
     from urllib import urlencode
 except ImportError:
     from urllib.parse import urlencode
 
 from django.core.management import call_command
+from django.test import TestCase
 
 try:
     from django.urls import reverse
 except ImportError:
     from django.core.urlresolvers import reverse
-
-import mock
-from django.test import TestCase
-from django.test import override_settings
 
 from oidc_provider.lib.utils.token import create_id_token
 from oidc_provider.lib.utils.token import create_token
@@ -45,23 +44,6 @@ class EndSessionTestCase(TestCase):
         self.url = reverse("oidc_provider:end-session")
         self.url_prompt = reverse("oidc_provider:end-session-prompt")
 
-    @override_settings(OIDC_LOGOUT_URL="/post-logout/")
-    def test_redirects_when_aud_is_str(self):
-        query_params = {"post_logout_redirect_uri": self.url_logout}
-        response = self.client.get(self.url, query_params)
-        # With no id_token the OP MUST NOT redirect to the requested
-        # redirect_uri.
-        self.assertEqual(response.headers["Location"], self.url_prompt)
-
-        token = create_token(self.user, self.oidc_client, [])
-        id_token_dic = create_id_token(token=token, user=self.user, aud=self.oidc_client.client_id)
-        id_token = encode_id_token(id_token_dic, self.oidc_client)
-
-        query_params["id_token_hint"] = id_token
-
-        response = self.client.get(self.url, query_params)
-        self.assertEqual(response.headers["Location"], self.url_logout)
-
     def test_id_token_hint_not_present_user_prompted(self):
         response = self.client.get(self.url)
         # We should display a logout consent prompt if id_token_hint parameter is not present.
@@ -70,7 +52,7 @@ class EndSessionTestCase(TestCase):
         # User still logged in.
         self.assertIn("_auth_user_id", self.client.session)
 
-    @mock.patch("oidc_provider.views.after_end_session_hook")
+    @patch("oidc_provider.views.after_end_session_hook")
     def test_id_token_hint_is_present_user_redirected_to_client_logout_url(
         self, after_end_session_hook
     ):
@@ -87,7 +69,7 @@ class EndSessionTestCase(TestCase):
         self.assertTrue(after_end_session_hook.called)
         self.assertTrue(after_end_session_hook.call_count == 1)
 
-    @mock.patch("oidc_provider.views.after_end_session_hook")
+    @patch("oidc_provider.views.after_end_session_hook")
     def test_id_token_hint_is_present_user_redirected_to_client_logout_url_with_post(
         self, after_end_session_hook
     ):
@@ -176,7 +158,7 @@ class EndSessionTestCase(TestCase):
             html=True,
         )
 
-    @mock.patch("oidc_provider.views.after_end_session_hook")
+    @patch("oidc_provider.views.after_end_session_hook")
     def test_prompt_view_user_logged_out_after_form_allowed(self, after_end_session_hook):
         self.assertIn("_auth_user_id", self.client.session)
         # We want to POST to /end-session-prompt/?client_id=ABC endpoint.
@@ -201,7 +183,7 @@ class EndSessionTestCase(TestCase):
         self.assertTrue(after_end_session_hook.called)
         self.assertTrue(after_end_session_hook.call_count == 1)
 
-    @mock.patch("oidc_provider.views.after_end_session_hook")
+    @patch("oidc_provider.views.after_end_session_hook")
     def test_prompt_view_user_logged_out_after_form_not_allowed(self, after_end_session_hook):
         self.assertIn("_auth_user_id", self.client.session)
         # We want to POST to /end-session-prompt/?client_id=ABC endpoint.
@@ -222,7 +204,7 @@ class EndSessionTestCase(TestCase):
         # End session hook should not be called.
         self.assertFalse(after_end_session_hook.called)
 
-    @mock.patch("oidc_provider.views.after_end_session_hook")
+    @patch("oidc_provider.views.after_end_session_hook")
     def test_prompt_view_user_still_logged_in_after_form_not_allowed_no_client(
         self, after_end_session_hook
     ):

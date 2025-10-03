@@ -5,6 +5,7 @@ from hashlib import md5
 from hashlib import sha256
 
 from django.conf import settings
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -238,7 +239,7 @@ class Token(BaseCodeTokenModel):
 
     @id_token.setter
     def id_token(self, value):
-        self._id_token = json.dumps(value)
+        self._id_token = json.dumps(value, cls=DjangoJSONEncoder, skipkeys=True, default=str)
 
     def __str__(self):
         return "{0} - {1}".format(self.client, self.access_token)
