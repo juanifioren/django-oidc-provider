@@ -1,6 +1,10 @@
 import logging
+from datetime import datetime
 from datetime import timedelta
+from hashlib import md5
 from hashlib import sha256
+
+from oidc_provider.compat import get_attr_or_callable
 
 try:
     from urllib import urlencode
@@ -15,7 +19,9 @@ except ImportError:
     from urllib.parse import urlunsplit
 
 from secrets import token_hex
+from uuid import uuid4
 
+from django.utils import dateformat
 from django.utils import timezone
 
 from oidc_provider import settings
@@ -24,8 +30,11 @@ from oidc_provider.lib.errors import AuthorizeError
 from oidc_provider.lib.errors import ClientIdError
 from oidc_provider.lib.errors import RedirectUriError
 from oidc_provider.lib.utils.common import get_browser_state_or_default
+from oidc_provider.lib.utils.sanitization import sanitize_client_id
 from oidc_provider.lib.utils.token import create_code
+from oidc_provider.lib.utils.token import create_id_token
 from oidc_provider.lib.utils.token import create_token
+from oidc_provider.lib.utils.token import encode_id_token
 from oidc_provider.models import Client
 from oidc_provider.models import UserConsent
 
@@ -66,17 +75,18 @@ class AuthorizeEndpoint(object):
         # and POST request.
         query_dict = self.request.POST if self.request.method == "POST" else self.request.GET
 
-        self.params["client_id"] = query_dict.get("client_id", "")
+        self.params["client_id"] = sanitize_client_id(query_dict.get("client_id", ""))
         self.params["redirect_uri"] = query_dict.get("redirect_uri", "")
         self.params["response_type"] = query_dict.get("response_type", "")
         self.params["scope"] = query_dict.get("scope", "").split()
         self.params["state"] = query_dict.get("state", "")
         self.params["nonce"] = query_dict.get("nonce", "")
-
+        # https://openid.net/specs/openid-connect-core-1_0.html#RequestObject
+        self.params["request"] = query_dict.get("request", "")
         self.params["prompt"] = self._allowed_prompt_params.intersection(
             set(query_dict.get("prompt", "").split())
         )
-
+        self.params["max_age"] = query_dict.get("max_age", "")
         self.params["code_challenge"] = query_dict.get("code_challenge", "")
         self.params["code_challenge_method"] = query_dict.get("code_challenge_method", "")
 
@@ -101,6 +111,12 @@ class AuthorizeEndpoint(object):
             logger.debug("[Authorize] Invalid response type: %s", self.params["response_type"])
             raise AuthorizeError(
                 self.params["redirect_uri"], "unsupported_response_type", self.grant_type
+            )
+
+        # Passing Request Parameters as JWT not supported.
+        if self.params["request"]:
+            raise AuthorizeError(
+                self.params["redirect_uri"], "request_not_supported", self.grant_type
             )
 
         if not self.is_authentication and (
@@ -303,6 +319,25 @@ class AuthorizeEndpoint(object):
             self.client.client_type != "public"
             or self.params["response_type"] in implicit_flow_resp_types
         )
+
+    def is_authentication_age_is_greater_than_max_age(self):
+        """
+        If the End-User authentication age is greater than the max_age value present in the
+        Authorization request, the OP MUST attempt to actively re-authenticate the End-User.
+        """
+        if not get_attr_or_callable(self.request.user, "is_authenticated"):
+            return False
+        try:
+            max_age = int(self.params["max_age"])
+        except ValueError:
+            return False
+
+        auth_time = int(
+            dateformat.format(self.request.user.last_login or self.request.user.date_joined, "U")
+        )
+        max_allowed_time = int(dateformat.format(datetime.now(), "U")) - max_age
+
+        return auth_time < max_allowed_time
 
     def get_scopes_information(self):
         """

@@ -1,0 +1,192 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Sinyawskiy Aleksey <sinyawskiy@gmail.com>, 2025.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-02-20 13:01+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Sinyawskiy Aleksey <sinyawskiy@gmail.com>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
+"|| n%100>=20) ? 1 : 2);\n"
+
+#: lib/claims.py:95
+msgid "Basic profile"
+msgstr "Базовый профиль"
+
+#: lib/claims.py:96
+msgid ""
+"Access to your basic information. Includes names, gender, birthdate and "
+"other information."
+msgstr ""
+"Доступ к персональным данным. Включающим имя, пол, дата рождения "
+"и другую информацию."
+
+#: lib/claims.py:119
+msgid "Email"
+msgstr ""
+
+#: lib/claims.py:120
+msgid "Access to your email address."
+msgstr "Доступ к вашему Email адресу."
+
+#: lib/claims.py:131
+msgid "Phone number"
+msgstr "Номер телефона"
+
+#: lib/claims.py:132
+msgid "Access to your phone number."
+msgstr "Доступ к вашему номеру телефона."
+
+#: lib/claims.py:143
+msgid "Address information"
+msgstr "Адресная информация."
+
+#: lib/claims.py:144
+msgid ""
+"Access to your address. Includes country, locality, street and other "
+"information."
+msgstr ""
+"Доступ к вашему адресу. Включая страну, город, улицу и другие "
+"данные."
+
+#: models.py:32
+msgid "Name"
+msgstr "Название"
+
+#: models.py:33
+msgid "Client Type"
+msgstr "Тип клиента"
+
+#: models.py:33
+msgid ""
+"<b>Confidential</b> clients are capable of maintaining the confidentiality "
+"of their credentials. <b>Public</b> clients are incapable."
+msgstr ""
+"<b>Конфиденциальные</b> клиенты способны сохранить конфиденциальность "
+"своих учетных данных. <b>Публичные</b> не способны."
+
+#: models.py:34
+msgid "Client ID"
+msgstr ""
+
+#: models.py:35
+msgid "Client SECRET"
+msgstr ""
+
+#: models.py:36
+msgid "Response Type"
+msgstr ""
+
+#: models.py:37
+msgid "JWT Algorithm"
+msgstr ""
+
+#: models.py:38
+msgid "Date Created"
+msgstr "Дата создания"
+
+#: models.py:40
+msgid "Redirect URIs"
+msgstr "Список доверенных Redirect URI"
+
+#: models.py:40
+msgid "Enter each URI on a new line."
+msgstr "Каждый URI с новой строки."
+
+#: models.py:43 models.py:70
+msgid "Client"
+msgstr "Клиентская ИС"
+
+#: models.py:44
+msgid "Clients"
+msgstr "КИС"
+
+#: models.py:69
+msgid "User"
+msgstr "Пользователь"
+
+#: models.py:71
+msgid "Expiration Date"
+msgstr "Срок действия"
+
+#: models.py:72
+msgid "Scopes"
+msgstr "Области данных"
+
+#: models.py:99
+msgid "Code"
+msgstr ""
+
+#: models.py:100
+msgid "Nonce"
+msgstr ""
+
+#: models.py:101
+msgid "Is Authentication?"
+msgstr "Это аутентификация?"
+
+#: models.py:102
+msgid "Code Challenge"
+msgstr ""
+
+#: models.py:103
+msgid "Code Challenge Method"
+msgstr ""
+
+#: models.py:106
+msgid "Authorization Code"
+msgstr "Код авторизации"
+
+#: models.py:107
+msgid "Authorization Codes"
+msgstr "Коды авторизации"
+
+#: models.py:112
+msgid "Access Token"
+msgstr ""
+
+#: models.py:113
+msgid "Refresh Token"
+msgstr ""
+
+#: models.py:114
+msgid "ID Token"
+msgstr ""
+
+#: models.py:128
+msgid "Token"
+msgstr ""
+
+#: models.py:129
+msgid "Tokens"
+msgstr "Токены"
+
+#: models.py:146
+msgid "Date Given"
+msgstr "Дата выдачи"
+
+#: models.py:154
+msgid "Key"
+msgstr "Ключ"
+
+#: models.py:154
+msgid "Paste your private RSA Key here."
+msgstr "Добавь сюда приватный ключ RSA."
+
+#: models.py:157
+msgid "RSA Key"
+msgstr "Ключ RSA"
+
+#: models.py:158
+msgid "RSA Keys"
+msgstr "Ключи RSA"
