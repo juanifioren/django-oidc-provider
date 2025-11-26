@@ -35,7 +35,21 @@ class ResponseTypeManager(models.Manager):
         return self.get(value=value)
 
 
-class ResponseType(models.Model):
+class BaseModel(models.Model):
+    """
+    Abstract base model with a BigAutoField primary key (64 bits).
+    Makes sure compatibility with modern Django projects (+3.2) that use BigAutoField as default.
+    """
+
+    id = models.BigAutoField(
+        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+    )
+
+    class Meta:
+        abstract = True
+
+
+class ResponseType(BaseModel):
     objects = ResponseTypeManager()
 
     value = models.CharField(
@@ -55,7 +69,7 @@ class ResponseType(models.Model):
         return "{0}".format(self.description)
 
 
-class Client(models.Model):
+class Client(BaseModel):
     name = models.CharField(max_length=100, default="", verbose_name=_("Name"))
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -178,7 +192,7 @@ class Client(models.Model):
         return self.redirect_uris[0] if self.redirect_uris else ""
 
 
-class BaseCodeTokenModel(models.Model):
+class BaseCodeTokenModel(BaseModel):
     client = models.ForeignKey(Client, verbose_name=_("Client"), on_delete=models.CASCADE)
     expires_at = models.DateTimeField(verbose_name=_("Expiration Date"))
     _scope = models.TextField(default="", verbose_name=_("Scopes"))
@@ -267,7 +281,7 @@ class UserConsent(BaseCodeTokenModel):
         unique_together = ("user", "client")
 
 
-class RSAKey(models.Model):
+class RSAKey(BaseModel):
     key = models.TextField(verbose_name=_("Key"), help_text=_("Paste your private RSA Key here."))
 
     class Meta:
