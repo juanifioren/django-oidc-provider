@@ -1,6 +1,0 @@
-include LICENSE
-include README.md
-recursive-include oidc_provider/static *
-recursive-include oidc_provider/templates *
-recursive-include oidc_provider/tests/templates *
-recursive-include oidc_provider/locale *

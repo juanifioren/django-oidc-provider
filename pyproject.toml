@@ -1,3 +1,51 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "django-oidc-provider"
+dynamic = ["version"]
+description = "OpenID Connect Provider implementation for Django."
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "Juan Ignacio Fiorentino", email = "juanifioren@gmail.com" },
+]
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+]
+dependencies = [
+    "cryptography>=3.4.0",
+    "PyJWT>=2.8.0",
+]
+
+[project.urls]
+Homepage = "http://github.com/juanifioren/django-oidc-provider"
+
+[tool.hatch.version]
+path = "oidc_provider/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+include = [
+    "/oidc_provider",
+]
+
 [tool.ruff]
 line-length = 100
 
