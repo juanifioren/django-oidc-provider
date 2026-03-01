@@ -4,8 +4,6 @@ from datetime import timedelta
 from hashlib import md5
 from hashlib import sha256
 
-from oidc_provider.compat import get_attr_or_callable
-
 try:
     from urllib import urlencode
 
@@ -312,7 +310,7 @@ class AuthorizeEndpoint:
         If the End-User authentication age is greater than the max_age value present in the
         Authorization request, the OP MUST attempt to actively re-authenticate the End-User.
         """
-        if not get_attr_or_callable(self.request.user, "is_authenticated"):
+        if not self.request.user.is_authenticated:
             return False
         try:
             max_age = int(self.params["max_age"])

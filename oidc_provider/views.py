@@ -38,7 +38,6 @@ from django.views.generic import View
 
 from oidc_provider import settings
 from oidc_provider import signals
-from oidc_provider.compat import get_attr_or_callable
 from oidc_provider.lib.claims import StandardScopeClaims
 from oidc_provider.lib.endpoints.authorize import AuthorizeEndpoint
 from oidc_provider.lib.endpoints.introspection import TokenIntrospectionEndpoint
@@ -75,7 +74,7 @@ class AuthorizeView(View):
         try:
             authorize.validate_params()
 
-            if get_attr_or_callable(request.user, "is_authenticated"):
+            if request.user.is_authenticated:
                 # Check if there's a hook setted.
                 hook_resp = settings.get("OIDC_AFTER_USERLOGIN_HOOK", import_str=True)(
                     request=request, user=request.user, client=authorize.client
@@ -469,7 +468,7 @@ class EndSessionPromptView(TemplateView):
     def get(self, request, *args, **kwargs):
         # If user is not authenticated, we should redirect to client post logout uri if exists,
         # otherwhise, just raise a not found error.
-        if not get_attr_or_callable(request.user, "is_authenticated"):
+        if not request.user.is_authenticated:
             if self.client and self.client.post_logout_redirect_uris:
                 return redirect(self.client.post_logout_redirect_uris[0])
             else:
