@@ -1,8 +1,4 @@
-try:
-    # https://docs.djangoproject.com/en/1.10/topics/http/middleware/#upgrading-pre-django-1-10-style-middleware
-    from django.utils.deprecation import MiddlewareMixin
-except ImportError:
-    MiddlewareMixin = object
+from django.utils.deprecation import MiddlewareMixin
 
 from oidc_provider import settings
 from oidc_provider.lib.utils.common import get_browser_state_or_default
