@@ -1,8 +1,8 @@
-import importlib
 import random
 import string
 
 from django.conf import settings
+from django.utils.module_loading import import_string
 
 
 class DefaultSettings:
@@ -191,18 +191,7 @@ class DefaultSettings:
 default_settings = DefaultSettings()
 
 
-def import_from_str(value):
-    """
-    Attempt to import a class from a string representation.
-    """
-    try:
-        parts = value.split(".")
-        module_path, class_name = ".".join(parts[:-1]), parts[-1]
-        module = importlib.import_module(module_path)
-        return getattr(module, class_name)
-    except ImportError as e:
-        msg = "Could not import %s for settings. %s: %s." % (value, e.__class__.__name__, e)
-        raise ImportError(msg)
+import_from_str = import_string  # Kept around for legacy compatibility
 
 
 def get(name, import_str=False):
