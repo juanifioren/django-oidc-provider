@@ -1,34 +1,21 @@
 import hashlib
 import logging
-
-try:
-    from urllib import urlencode
-
-    from urlparse import parse_qs
-    from urlparse import urlsplit
-    from urlparse import urlunsplit
-except ImportError:
-    from urllib.parse import parse_qs
-    from urllib.parse import urlencode
-    from urllib.parse import urlsplit
-    from urllib.parse import urlunsplit
+from urllib.parse import parse_qs
+from urllib.parse import urlencode
+from urllib.parse import urlsplit
+from urllib.parse import urlunsplit
 
 import jwt.utils
 from cryptography.hazmat.primitives import serialization
-from django.contrib.auth.views import redirect_to_login
-
-try:
-    from django.urls import reverse
-except ImportError:
-    from django.core.urlresolvers import reverse
-
 from django.contrib.auth import logout as django_user_logout
+from django.contrib.auth.views import redirect_to_login
 from django.core.cache import cache
 from django.db import transaction
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
@@ -38,7 +25,6 @@ from django.views.generic import View
 
 from oidc_provider import settings
 from oidc_provider import signals
-from oidc_provider.compat import get_attr_or_callable
 from oidc_provider.lib.claims import StandardScopeClaims
 from oidc_provider.lib.endpoints.authorize import AuthorizeEndpoint
 from oidc_provider.lib.endpoints.introspection import TokenIntrospectionEndpoint
@@ -75,7 +61,7 @@ class AuthorizeView(View):
         try:
             authorize.validate_params()
 
-            if get_attr_or_callable(request.user, "is_authenticated"):
+            if request.user.is_authenticated:
                 # Check if there's a hook setted.
                 hook_resp = settings.get("OIDC_AFTER_USERLOGIN_HOOK", import_str=True)(
                     request=request, user=request.user, client=authorize.client
@@ -411,13 +397,7 @@ class EndSessionView(View):
                 if self.post_logout_redirect_uri:
                     if self.post_logout_redirect_uri not in self.client.post_logout_redirect_uris:
                         return redirect(
-                            reverse("oidc_provider:end-session-prompt")
-                            + "?"
-                            + urlencode(
-                                {
-                                    "client_id": client_id,
-                                }
-                            )
+                            f"{reverse('oidc_provider:end-session-prompt')}?{urlencode({'client_id': client_id})}"
                         )
                 elif self.client.post_logout_redirect_uris:
                     self.post_logout_redirect_uri = self.client.post_logout_redirect_uris[0]
@@ -464,12 +444,12 @@ class EndSessionPromptView(TemplateView):
     def dispatch(self, request, *args, **kwargs):
         self.client_id = request.GET.get("client_id")
         self.client = Client.objects.filter(client_id=self.client_id).first()
-        return super(EndSessionPromptView, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         # If user is not authenticated, we should redirect to client post logout uri if exists,
         # otherwhise, just raise a not found error.
-        if not get_attr_or_callable(request.user, "is_authenticated"):
+        if not request.user.is_authenticated:
             if self.client and self.client.post_logout_redirect_uris:
                 return redirect(self.client.post_logout_redirect_uris[0])
             else:
@@ -477,19 +457,15 @@ class EndSessionPromptView(TemplateView):
                     request, "oidc_provider/end_session_completed.html", {"client": self.client}
                 )
 
-        return super(EndSessionPromptView, self).get(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(EndSessionPromptView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["client"] = self.client
 
         end_session_prompt_url = reverse("oidc_provider:end-session-prompt")
         if self.client_id:
-            end_session_prompt_url += "?" + urlencode(
-                {
-                    "client_id": self.client_id,
-                }
-            )
+            end_session_prompt_url += f"?{urlencode({'client_id': self.client_id})}"
         context["end_session_prompt_url"] = end_session_prompt_url
 
         return context
@@ -520,7 +496,7 @@ class EndSessionPromptView(TemplateView):
 class CheckSessionIframeView(View):
     @method_decorator(xframe_options_exempt)
     def dispatch(self, request, *args, **kwargs):
-        return super(CheckSessionIframeView, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         return render(request, "oidc_provider/check_session_iframe.html", kwargs)
@@ -531,7 +507,7 @@ class TokenIntrospectionView(View):
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
-        return super(TokenIntrospectionView, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         introspection = self.token_instrospection_endpoint_class(request)

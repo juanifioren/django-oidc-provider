@@ -34,7 +34,7 @@ STANDARD_CLAIMS = {
 }
 
 
-class ScopeClaims(object):
+class ScopeClaims:
     def __init__(self, token):
         self.user = token.user
         claims = copy.deepcopy(STANDARD_CLAIMS)
@@ -53,7 +53,7 @@ class ScopeClaims(object):
 
         for scope in self.scopes:
             if scope in self._scopes_registered():
-                dic.update(getattr(self, "scope_" + scope)())
+                dic.update(getattr(self, f"scope_{scope}")())
 
         dic = self._clean_dic(dic)
 

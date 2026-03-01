@@ -19,7 +19,7 @@ class ClientForm(ModelForm):
         exclude = []
 
     def __init__(self, *args, **kwargs):
-        super(ClientForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["client_id"].required = False
         self.fields["client_id"].widget.attrs["disabled"] = "true"
         self.fields["client_secret"].required = False

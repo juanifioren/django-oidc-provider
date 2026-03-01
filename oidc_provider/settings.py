@@ -1,11 +1,11 @@
-import importlib
 import random
 import string
 
 from django.conf import settings
+from django.utils.module_loading import import_string
 
 
-class DefaultSettings(object):
+class DefaultSettings:
     required_attrs = ()
 
     def __init__(self):
@@ -191,18 +191,7 @@ class DefaultSettings(object):
 default_settings = DefaultSettings()
 
 
-def import_from_str(value):
-    """
-    Attempt to import a class from a string representation.
-    """
-    try:
-        parts = value.split(".")
-        module_path, class_name = ".".join(parts[:-1]), parts[-1]
-        module = importlib.import_module(module_path)
-        return getattr(module, class_name)
-    except ImportError as e:
-        msg = "Could not import %s for settings. %s: %s." % (value, e.__class__.__name__, e)
-        raise ImportError(msg)
+import_from_str = import_string  # Kept around for legacy compatibility
 
 
 def get(name, import_str=False):
@@ -216,7 +205,7 @@ def get(name, import_str=False):
         value = getattr(settings, name)
     except AttributeError:
         if name in default_settings.required_attrs:
-            raise Exception("You must set " + name + " in your settings.")
+            raise Exception(f"You must set {name} in your settings.")
 
     if isinstance(default_value, dict) and value:
         default_value.update(value)

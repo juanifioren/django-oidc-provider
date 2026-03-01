@@ -25,6 +25,6 @@ class Command(BaseCommand):
 
             rsakey = RSAKey(key=key_pem)
             rsakey.save()
-            self.stdout.write("RSA key successfully created with kid: {0}".format(rsakey.kid))
+            self.stdout.write(f"RSA key successfully created with kid: {rsakey.kid}")
         except Exception as e:
-            self.stdout.write("Something goes wrong: {0}".format(e))
+            self.stdout.write(f"Something goes wrong: {e}")

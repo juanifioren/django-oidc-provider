@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 INTROSPECTION_SCOPE = "token_introspection"
 
 
-class TokenIntrospectionEndpoint(object):
+class TokenIntrospectionEndpoint:
     def __init__(self, request):
         self.request = request
         self.params = {}

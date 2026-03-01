@@ -52,7 +52,7 @@ class ResponseType(models.Model):
         return (self.value,)  # natural_key must return tuple
 
     def __str__(self):
-        return "{0}".format(self.description)
+        return f"{self.description}"
 
 
 class Client(models.Model):
@@ -137,10 +137,7 @@ class Client(models.Model):
         verbose_name_plural = _("Clients")
 
     def __str__(self):
-        return "{0}".format(self.name)
-
-    def __unicode__(self):
-        return self.__str__()
+        return f"{self.name}"
 
     def response_type_values(self):
         return (response_type.value for response_type in self.response_types.all())
@@ -194,9 +191,6 @@ class BaseCodeTokenModel(models.Model):
     def scope(self, value):
         self._scope = " ".join(value)
 
-    def __unicode__(self):
-        return self.__str__()
-
     def has_expired(self):
         return timezone.now() >= self.expires_at
 
@@ -218,7 +212,7 @@ class Code(BaseCodeTokenModel):
         verbose_name_plural = _("Authorization Codes")
 
     def __str__(self):
-        return "{0} - {1}".format(self.client, self.code)
+        return f"{self.client} - {self.code}"
 
 
 class Token(BaseCodeTokenModel):
@@ -242,7 +236,7 @@ class Token(BaseCodeTokenModel):
         self._id_token = json.dumps(value, cls=DjangoJSONEncoder, skipkeys=True, default=str)
 
     def __str__(self):
-        return "{0} - {1}".format(self.client, self.access_token)
+        return f"{self.client} - {self.access_token}"
 
     @property
     def at_hash(self):
@@ -276,11 +270,10 @@ class RSAKey(models.Model):
         verbose_name_plural = _("RSA Keys")
 
     def __str__(self):
-        return "{0}".format(self.kid)
-
-    def __unicode__(self):
-        return self.__str__()
+        return f"{self.kid}"
 
     @property
     def kid(self):
-        return "{0}".format(md5(self.key.encode("utf-8")).hexdigest() if self.key else "")
+        if self.key:
+            return md5(self.key.encode("utf-8")).hexdigest()
+        return ""

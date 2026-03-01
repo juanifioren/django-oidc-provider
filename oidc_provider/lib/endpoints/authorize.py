@@ -3,20 +3,10 @@ from datetime import datetime
 from datetime import timedelta
 from hashlib import md5
 from hashlib import sha256
-
-from oidc_provider.compat import get_attr_or_callable
-
-try:
-    from urllib import urlencode
-
-    from urlparse import parse_qs
-    from urlparse import urlsplit
-    from urlparse import urlunsplit
-except ImportError:
-    from urllib.parse import parse_qs
-    from urllib.parse import urlencode
-    from urllib.parse import urlsplit
-    from urllib.parse import urlunsplit
+from urllib.parse import parse_qs
+from urllib.parse import urlencode
+from urllib.parse import urlsplit
+from urllib.parse import urlunsplit
 from uuid import uuid4
 
 from django.utils import dateformat
@@ -39,7 +29,7 @@ from oidc_provider.models import UserConsent
 logger = logging.getLogger(__name__)
 
 
-class AuthorizeEndpoint(object):
+class AuthorizeEndpoint:
     _allowed_prompt_params = {"none", "login", "consent", "select_account"}
     client_class = Client
 
@@ -231,9 +221,7 @@ class AuthorizeEndpoint(object):
             if settings.get("OIDC_SESSION_MANAGEMENT_ENABLE"):
                 # Generate client origin URI from the redirect_uri param.
                 redirect_uri_parsed = urlsplit(self.params["redirect_uri"])
-                client_origin = "{0}://{1}".format(
-                    redirect_uri_parsed.scheme, redirect_uri_parsed.netloc
-                )
+                client_origin = f"{redirect_uri_parsed.scheme}://{redirect_uri_parsed.netloc}"
 
                 # Create random salt.
                 salt = md5(uuid4().hex.encode()).hexdigest()
@@ -241,14 +229,9 @@ class AuthorizeEndpoint(object):
                 # The generation of suitable Session State values is based
                 # on a salted cryptographic hash of Client ID, origin URL,
                 # and OP browser state.
-                session_state = "{client_id} {origin} {browser_state} {salt}".format(
-                    client_id=self.client.client_id,
-                    origin=client_origin,
-                    browser_state=get_browser_state_or_default(self.request),
-                    salt=salt,
-                )
+                session_state = f"{self.client.client_id} {client_origin} {get_browser_state_or_default(self.request)} {salt}"
                 session_state = sha256(session_state.encode("utf-8")).hexdigest()
-                session_state += "." + salt
+                session_state += f".{salt}"
                 if self.grant_type == "authorization_code":
                     query_params["session_state"] = session_state
                 elif self.grant_type in ["implicit", "hybrid"]:
@@ -319,7 +302,7 @@ class AuthorizeEndpoint(object):
         If the End-User authentication age is greater than the max_age value present in the
         Authorization request, the OP MUST attempt to actively re-authenticate the End-User.
         """
-        if not get_attr_or_callable(self.request.user, "is_authenticated"):
+        if not self.request.user.is_authenticated:
             return False
         try:
             max_age = int(self.params["max_age"])

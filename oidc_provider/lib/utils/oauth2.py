@@ -81,8 +81,8 @@ def protected_resource_view(scopes=None):
                     raise BearerTokenError("insufficient_scope")
             except BearerTokenError as error:
                 response = HttpResponse(status=error.status)
-                response["WWW-Authenticate"] = 'error="{0}", error_description="{1}"'.format(
-                    error.code, error.description
+                response["WWW-Authenticate"] = (
+                    f'error="{error.code}", error_description="{error.description}"'
                 )
                 return response
 

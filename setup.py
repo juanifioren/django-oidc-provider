@@ -48,5 +48,6 @@ setup(
     install_requires=[
         "PyJWT>=2.8.0",
         "cryptography>=3.4.0",
+        "django>=3.2",
     ],
 )

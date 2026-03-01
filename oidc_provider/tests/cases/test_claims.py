@@ -1,8 +1,5 @@
-from __future__ import unicode_literals
-
 from django.test import TestCase
 from django.utils.translation import override as override_language
-from six import text_type
 
 from oidc_provider.lib.claims import STANDARD_CLAIMS
 from oidc_provider.lib.claims import ScopeClaims
@@ -64,7 +61,7 @@ class ClaimsTestCase(TestCase):
 
     def test_locale(self):
         with override_language("fr"):
-            self.assertEqual(text_type(StandardScopeClaims.info_profile[0]), "Profil de base")
+            self.assertEqual(str(StandardScopeClaims.info_profile[0]), "Profil de base")
 
     def test_scopeclaims_class_inheritance(self):
         # Generate example class that will be used for `OIDC_EXTRA_SCOPE_CLAIMS` setting.

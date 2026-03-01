@@ -1,33 +1,20 @@
-from datetime import datetime
-
-try:
-    from urllib.parse import quote
-    from urllib.parse import urlencode
-except ImportError:
-    from urllib import quote
-    from urllib import urlencode
-try:
-    from urllib.parse import parse_qs
-    from urllib.parse import urlsplit
-except ImportError:
-    from urlparse import parse_qs
-    from urlparse import urlsplit
 import uuid
+from datetime import datetime
 from unittest.mock import Mock
 from unittest.mock import patch
+from urllib.parse import parse_qs
+from urllib.parse import quote
+from urllib.parse import urlencode
+from urllib.parse import urlsplit
 
-from freezegun import freeze_time
-
-try:
-    from django.urls import reverse
-except ImportError:
-    from django.core.urlresolvers import reverse
 import jwt
 from django.contrib.auth.models import AnonymousUser
 from django.core.management import call_command
 from django.test import RequestFactory
 from django.test import TestCase
 from django.test import override_settings
+from django.urls import reverse
+from freezegun import freeze_time
 
 from oidc_provider import settings
 from oidc_provider.lib.endpoints.authorize import AuthorizeEndpoint
@@ -40,7 +27,7 @@ from oidc_provider.tests.app.utils import is_code_valid
 from oidc_provider.views import AuthorizeView
 
 
-class AuthorizeEndpointMixin(object):
+class AuthorizeEndpointMixin:
     def _auth_request(self, method, data=None, is_user_authenticated=False):
         if data is None:
             data = {}
@@ -49,7 +36,7 @@ class AuthorizeEndpointMixin(object):
         if method.lower() == "get":
             query_str = urlencode(data).replace("+", "%20")
             if query_str:
-                url += "?" + query_str
+                url += f"?{query_str}"
             request = self.factory.get(url)
         elif method.lower() == "post":
             request = self.factory.post(url, data=data)
@@ -201,7 +188,7 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
 
         for key, value in iter(to_check.items()):
             is_input_ok = input_html.format(key, value) in response.content.decode("utf-8")
-            self.assertEqual(is_input_ok, True, msg='Hidden input for "' + key + '" fails.')
+            self.assertEqual(is_input_ok, True, msg=f'Hidden input for "{key}" fails.')
 
     def test_user_consent_response(self):
         """
@@ -350,7 +337,7 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         data = {
             "client_id": self.client_code.client_id,
             "response_type": "code",
-            "redirect_uri": self.client_code.default_redirect_uri + "?some=query",
+            "redirect_uri": f"{self.client_code.default_redirect_uri}?some=query",
             "scope": "openid email",
             "state": self.state,
         }
@@ -561,12 +548,8 @@ class AuthorizationCodeFlowTestCase(TestCase, AuthorizeEndpointMixin):
         # Original paths
         path0 = "http://idp.com/?prompt=login"
         path1 = "http://idp.com/?prompt=consent login none"
-        path2 = "http://idp.com/?response_type=code&client" + "_id=112233&prompt=consent login"
-        path3 = (
-            "http://idp.com/?response_type=code&client"
-            + "_id=112233&prompt=login none&redirect_uri"
-            + "=http://localhost:8000"
-        )
+        path2 = "http://idp.com/?response_type=code&client_id=112233&prompt=consent login"
+        path3 = "http://idp.com/?response_type=code&client_id=112233&prompt=login none&redirect_uri=http://localhost:8000"
 
         self.assertNotIn("prompt", strip_prompt_login(path0))
 
