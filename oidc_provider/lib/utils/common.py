@@ -34,7 +34,7 @@ def get_site_url(site_url=None, request=None):
     if site_url:
         return site_url
     elif request:
-        return "{}://{}".format(request.scheme, request.get_host())
+        return f"{request.scheme}://{request.get_host()}"
     else:
         raise Exception(
             "Either pass `site_url`, or set `SITE_URL` in settings, or pass `request` object."

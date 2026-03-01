@@ -3,10 +3,9 @@ line-length = 100
 
 [tool.ruff.lint]
 select = [
-    # Pyflakes
-    "F",
-    # isort
-    "I",
+    "F", # Pyflakes
+    "I", # isort
+    "UP", # pyupgrade
 ]
 
 [tool.ruff.lint.isort]

@@ -52,7 +52,7 @@ class ResponseType(models.Model):
         return (self.value,)  # natural_key must return tuple
 
     def __str__(self):
-        return "{0}".format(self.description)
+        return f"{self.description}"
 
 
 class Client(models.Model):
@@ -137,7 +137,7 @@ class Client(models.Model):
         verbose_name_plural = _("Clients")
 
     def __str__(self):
-        return "{0}".format(self.name)
+        return f"{self.name}"
 
     def __unicode__(self):
         return self.__str__()
@@ -218,7 +218,7 @@ class Code(BaseCodeTokenModel):
         verbose_name_plural = _("Authorization Codes")
 
     def __str__(self):
-        return "{0} - {1}".format(self.client, self.code)
+        return f"{self.client} - {self.code}"
 
 
 class Token(BaseCodeTokenModel):
@@ -242,7 +242,7 @@ class Token(BaseCodeTokenModel):
         self._id_token = json.dumps(value, cls=DjangoJSONEncoder, skipkeys=True, default=str)
 
     def __str__(self):
-        return "{0} - {1}".format(self.client, self.access_token)
+        return f"{self.client} - {self.access_token}"
 
     @property
     def at_hash(self):
@@ -276,7 +276,7 @@ class RSAKey(models.Model):
         verbose_name_plural = _("RSA Keys")
 
     def __str__(self):
-        return "{0}".format(self.kid)
+        return f"{self.kid}"
 
     def __unicode__(self):
         return self.__str__()

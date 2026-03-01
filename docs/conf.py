@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # django-oidc-provider documentation build configuration file, created by
 # sphinx-quickstart on Thu Feb 11 14:26:17 2016.
 #

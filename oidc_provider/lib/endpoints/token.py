@@ -22,7 +22,7 @@ from oidc_provider.models import Token
 logger = logging.getLogger(__name__)
 
 
-class TokenEndpoint(object):
+class TokenEndpoint:
     def __init__(self, request):
         self.request = request
         self.params = {}

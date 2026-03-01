@@ -18,7 +18,7 @@ from oidc_provider.tests.app.utils import create_fake_client
 from oidc_provider.tests.app.utils import create_fake_user
 
 
-class Request(object):
+class Request:
     """
     Mock request object.
     """
@@ -149,13 +149,13 @@ class BrowserStateTest(TestCase):
         request = HttpRequest()
         request.session = Mock(session_key=None)
         state = get_browser_state_or_default(request)
-        self.assertEqual(state, sha224("my_static_key".encode("utf-8")).hexdigest())
+        self.assertEqual(state, sha224(b"my_static_key").hexdigest())
 
     def test_get_browser_state_uses_session_key_to_calculate_browser_state_if_available(self):
         request = HttpRequest()
         request.session = Mock(session_key="my_session_key")
         state = get_browser_state_or_default(request)
-        self.assertEqual(state, sha224("my_session_key".encode("utf-8")).hexdigest())
+        self.assertEqual(state, sha224(b"my_session_key").hexdigest())
 
 
 class SanitizationTest(TestCase):

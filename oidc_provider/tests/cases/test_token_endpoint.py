@@ -860,7 +860,7 @@ class TokenTestCase(TestCase):
             return JsonResponse({"protected": "information"}, status=200)
 
         # Deploy view on some url. So, base url could be anything.
-        request = self.factory.get("/api/protected/?access_token={0}".format(access_token))
+        request = self.factory.get(f"/api/protected/?access_token={access_token}")
         response = protected_api(request)
         response_dict = json.loads(response.content.decode("utf-8"))
 

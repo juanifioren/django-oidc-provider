@@ -464,7 +464,7 @@ class EndSessionPromptView(TemplateView):
     def dispatch(self, request, *args, **kwargs):
         self.client_id = request.GET.get("client_id")
         self.client = Client.objects.filter(client_id=self.client_id).first()
-        return super(EndSessionPromptView, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         # If user is not authenticated, we should redirect to client post logout uri if exists,
@@ -477,10 +477,10 @@ class EndSessionPromptView(TemplateView):
                     request, "oidc_provider/end_session_completed.html", {"client": self.client}
                 )
 
-        return super(EndSessionPromptView, self).get(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(EndSessionPromptView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["client"] = self.client
 
         end_session_prompt_url = reverse("oidc_provider:end-session-prompt")
@@ -520,7 +520,7 @@ class EndSessionPromptView(TemplateView):
 class CheckSessionIframeView(View):
     @method_decorator(xframe_options_exempt)
     def dispatch(self, request, *args, **kwargs):
-        return super(CheckSessionIframeView, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         return render(request, "oidc_provider/check_session_iframe.html", kwargs)
@@ -531,7 +531,7 @@ class TokenIntrospectionView(View):
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
-        return super(TokenIntrospectionView, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         introspection = self.token_instrospection_endpoint_class(request)

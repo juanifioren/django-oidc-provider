@@ -40,7 +40,7 @@ from oidc_provider.tests.app.utils import is_code_valid
 from oidc_provider.views import AuthorizeView
 
 
-class AuthorizeEndpointMixin(object):
+class AuthorizeEndpointMixin:
     def _auth_request(self, method, data=None, is_user_authenticated=False):
         if data is None:
             data = {}

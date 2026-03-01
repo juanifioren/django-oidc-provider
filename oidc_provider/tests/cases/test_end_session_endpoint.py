@@ -109,7 +109,7 @@ class EndSessionTestCase(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.headers["Location"],
-            "{0}?client_id={1}".format(self.url_prompt, self.oidc_client.client_id),
+            f"{self.url_prompt}?client_id={self.oidc_client.client_id}",
         )
 
     def test_prompt_view_redirecting_to_client_post_logout_since_user_unauthenticated(self):

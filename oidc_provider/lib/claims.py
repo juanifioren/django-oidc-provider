@@ -34,7 +34,7 @@ STANDARD_CLAIMS = {
 }
 
 
-class ScopeClaims(object):
+class ScopeClaims:
     def __init__(self, token):
         self.user = token.user
         claims = copy.deepcopy(STANDARD_CLAIMS)

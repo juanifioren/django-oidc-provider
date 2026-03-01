@@ -5,7 +5,7 @@ import string
 from django.conf import settings
 
 
-class DefaultSettings(object):
+class DefaultSettings:
     required_attrs = ()
 
     def __init__(self):
