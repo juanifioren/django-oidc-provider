@@ -283,4 +283,6 @@ class RSAKey(models.Model):
 
     @property
     def kid(self):
-        return "{0}".format(md5(self.key.encode("utf-8")).hexdigest() if self.key else "")
+        if self.key:
+            return md5(self.key.encode("utf-8")).hexdigest()
+        return ""

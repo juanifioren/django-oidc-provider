@@ -54,7 +54,7 @@ class UserInfoTestCase(TestCase):
 
         request = self.factory.post(url, data={}, content_type="multipart/form-data")
 
-        request.META["HTTP_AUTHORIZATION"] = schema + " " + access_token
+        request.META["HTTP_AUTHORIZATION"] = f"{schema} {access_token}"
 
         response = userinfo(request)
 
@@ -122,13 +122,7 @@ class UserInfoTestCase(TestCase):
         token = self._create_token()
 
         url = (
-            reverse("oidc_provider:userinfo")
-            + "?"
-            + urlencode(
-                {
-                    "access_token": token.access_token,
-                }
-            )
+            f"{reverse('oidc_provider:userinfo')}?{urlencode({'access_token': token.access_token})}"
         )
 
         request = self.factory.get(url)

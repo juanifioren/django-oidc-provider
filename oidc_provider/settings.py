@@ -205,7 +205,7 @@ def get(name, import_str=False):
         value = getattr(settings, name)
     except AttributeError:
         if name in default_settings.required_attrs:
-            raise Exception("You must set " + name + " in your settings.")
+            raise Exception(f"You must set {name} in your settings.")
 
     if isinstance(default_value, dict) and value:
         default_value.update(value)

@@ -86,9 +86,7 @@ class EndSessionTestCase(TestCase):
         response = self.client.get(self.url, query_params)
         # Let's ensure state is being passed to the logout url.
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(
-            response.headers["Location"], "{0}?state={1}".format(self.url_logout, "ABCDE")
-        )
+        self.assertEqual(response.headers["Location"], f"{self.url_logout}?state=ABCDE")
 
     def test_post_logout_uri_not_in_client_urls(self):
         query_params = {
@@ -155,13 +153,7 @@ class EndSessionTestCase(TestCase):
         self.assertIn("_auth_user_id", self.client.session)
         # We want to POST to /end-session-prompt/?client_id=ABC endpoint.
         url_prompt_with_client = (
-            self.url_prompt
-            + "?"
-            + urlencode(
-                {
-                    "client_id": self.oidc_client.client_id,
-                }
-            )
+            f"{self.url_prompt}?{urlencode({'client_id': self.oidc_client.client_id})}"
         )
         data = {
             "allow": "Anything",  # This means user allowed being logged out.
@@ -180,13 +172,7 @@ class EndSessionTestCase(TestCase):
         self.assertIn("_auth_user_id", self.client.session)
         # We want to POST to /end-session-prompt/?client_id=ABC endpoint.
         url_prompt_with_client = (
-            self.url_prompt
-            + "?"
-            + urlencode(
-                {
-                    "client_id": self.oidc_client.client_id,
-                }
-            )
+            f"{self.url_prompt}?{urlencode({'client_id': self.oidc_client.client_id})}"
         )
         response = self.client.post(url_prompt_with_client)  # No data.
         # Ensure user is still logged in and redirected to client post logout uri.

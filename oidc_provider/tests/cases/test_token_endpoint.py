@@ -155,12 +155,12 @@ class TokenTestCase(TestCase):
     def _get_userinfo(self, access_token):
         url = reverse("oidc_provider:userinfo")
         request = self.factory.get(url)
-        request.META["HTTP_AUTHORIZATION"] = "Bearer " + access_token
+        request.META["HTTP_AUTHORIZATION"] = f"Bearer {access_token}"
 
         return userinfo(request)
 
     def _password_grant_auth_header(self):
-        user_pass = self.client.client_id + ":" + self.client.client_secret
+        user_pass = f"{self.client.client_id}:{self.client.client_secret}"
         auth = b"Basic " + b64encode(user_pass.encode("utf-8"))
         auth_header = {"HTTP_AUTHORIZATION": auth.decode("utf-8")}
         return auth_header
@@ -462,7 +462,7 @@ class TokenTestCase(TestCase):
         self.assertIn("invalid_client", response.content.decode("utf-8"))
 
         # Registered URI, but with query string appended
-        post_data["redirect_uri"] = self.client.default_redirect_uri + "?foo=bar"
+        post_data["redirect_uri"] = f"{self.client.default_redirect_uri}?foo=bar"
 
         response = self._post_request(post_data)
         self.assertIn("invalid_client", response.content.decode("utf-8"))
@@ -492,7 +492,7 @@ class TokenTestCase(TestCase):
             self.assertEqual(
                 response.status_code,
                 405,
-                msg=request.method + " request does not return a 405 status.",
+                msg=f"{request.method} request does not return a 405 status.",
             )
 
         request = self.factory.post(url)
@@ -500,7 +500,7 @@ class TokenTestCase(TestCase):
         response = TokenView.as_view()(request)
 
         self.assertEqual(
-            response.status_code, 400, msg=request.method + " request does not return a 400 status."
+            response.status_code, 400, msg=f"{request.method} request does not return a 400 status."
         )
 
     def test_client_authentication(self):
@@ -1032,8 +1032,8 @@ class JwksTestCase(TestCase):
         jwk = jwks_data["keys"][0]
 
         # Convert JWK to RSA public key
-        n = int.from_bytes(base64.urlsafe_b64decode(jwk["n"] + "=="), byteorder="big")
-        e = int.from_bytes(base64.urlsafe_b64decode(jwk["e"] + "=="), byteorder="big")
+        n = int.from_bytes(base64.urlsafe_b64decode(f"{jwk['n']}=="), byteorder="big")
+        e = int.from_bytes(base64.urlsafe_b64decode(f"{jwk['e']}=="), byteorder="big")
 
         public_key = RSAPublicNumbers(e, n).public_key()
 

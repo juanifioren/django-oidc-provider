@@ -397,13 +397,7 @@ class EndSessionView(View):
                 if self.post_logout_redirect_uri:
                     if self.post_logout_redirect_uri not in self.client.post_logout_redirect_uris:
                         return redirect(
-                            reverse("oidc_provider:end-session-prompt")
-                            + "?"
-                            + urlencode(
-                                {
-                                    "client_id": client_id,
-                                }
-                            )
+                            f"{reverse('oidc_provider:end-session-prompt')}?{urlencode({'client_id': client_id})}"
                         )
                 elif self.client.post_logout_redirect_uris:
                     self.post_logout_redirect_uri = self.client.post_logout_redirect_uris[0]
@@ -471,11 +465,7 @@ class EndSessionPromptView(TemplateView):
 
         end_session_prompt_url = reverse("oidc_provider:end-session-prompt")
         if self.client_id:
-            end_session_prompt_url += "?" + urlencode(
-                {
-                    "client_id": self.client_id,
-                }
-            )
+            end_session_prompt_url += f"?{urlencode({'client_id': self.client_id})}"
         context["end_session_prompt_url"] = end_session_prompt_url
 
         return context

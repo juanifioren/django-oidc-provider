@@ -231,7 +231,7 @@ class AuthorizeEndpoint:
                 # and OP browser state.
                 session_state = f"{self.client.client_id} {client_origin} {get_browser_state_or_default(self.request)} {salt}"
                 session_state = sha256(session_state.encode("utf-8")).hexdigest()
-                session_state += "." + salt
+                session_state += f".{salt}"
                 if self.grant_type == "authorization_code":
                     query_params["session_state"] = session_state
                 elif self.grant_type in ["implicit", "hybrid"]:

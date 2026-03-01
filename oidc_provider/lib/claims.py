@@ -53,7 +53,7 @@ class ScopeClaims:
 
         for scope in self.scopes:
             if scope in self._scopes_registered():
-                dic.update(getattr(self, "scope_" + scope)())
+                dic.update(getattr(self, f"scope_{scope}")())
 
         dic = self._clean_dic(dic)
 
