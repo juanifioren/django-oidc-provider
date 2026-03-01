@@ -139,9 +139,6 @@ class Client(models.Model):
     def __str__(self):
         return f"{self.name}"
 
-    def __unicode__(self):
-        return self.__str__()
-
     def response_type_values(self):
         return (response_type.value for response_type in self.response_types.all())
 
@@ -193,9 +190,6 @@ class BaseCodeTokenModel(models.Model):
     @scope.setter
     def scope(self, value):
         self._scope = " ".join(value)
-
-    def __unicode__(self):
-        return self.__str__()
 
     def has_expired(self):
         return timezone.now() >= self.expires_at
@@ -277,9 +271,6 @@ class RSAKey(models.Model):
 
     def __str__(self):
         return f"{self.kid}"
-
-    def __unicode__(self):
-        return self.__str__()
 
     @property
     def kid(self):
