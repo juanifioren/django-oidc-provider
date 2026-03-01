@@ -1,33 +1,20 @@
-from datetime import datetime
-
-try:
-    from urllib.parse import quote
-    from urllib.parse import urlencode
-except ImportError:
-    from urllib import quote
-    from urllib import urlencode
-try:
-    from urllib.parse import parse_qs
-    from urllib.parse import urlsplit
-except ImportError:
-    from urlparse import parse_qs
-    from urlparse import urlsplit
 import uuid
+from datetime import datetime
 from unittest.mock import Mock
 from unittest.mock import patch
+from urllib.parse import parse_qs
+from urllib.parse import quote
+from urllib.parse import urlencode
+from urllib.parse import urlsplit
 
-from freezegun import freeze_time
-
-try:
-    from django.urls import reverse
-except ImportError:
-    from django.core.urlresolvers import reverse
 import jwt
 from django.contrib.auth.models import AnonymousUser
 from django.core.management import call_command
 from django.test import RequestFactory
 from django.test import TestCase
 from django.test import override_settings
+from django.urls import reverse
+from freezegun import freeze_time
 
 from oidc_provider import settings
 from oidc_provider.lib.endpoints.authorize import AuthorizeEndpoint

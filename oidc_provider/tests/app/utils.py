@@ -1,16 +1,10 @@
 import random
 import string
+from urllib.parse import parse_qs
+from urllib.parse import urlsplit
 
 import django
 from django.contrib.auth.backends import ModelBackend
-
-try:
-    from urlparse import parse_qs
-    from urlparse import urlsplit
-except ImportError:
-    from urllib.parse import parse_qs
-    from urllib.parse import urlsplit
-
 from django.contrib.auth.models import User
 from django.utils import timezone
 

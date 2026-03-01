@@ -1,17 +1,10 @@
 import json
 from datetime import timedelta
+from urllib.parse import urlencode
 
-try:
-    from urllib.parse import urlencode
-except ImportError:
-    from urllib import urlencode
-
-try:
-    from django.urls import reverse
-except ImportError:
-    from django.core.urlresolvers import reverse
 from django.test import RequestFactory
 from django.test import TestCase
+from django.urls import reverse
 from django.utils import timezone
 
 from oidc_provider.lib.utils.token import create_id_token

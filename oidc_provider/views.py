@@ -1,34 +1,21 @@
 import hashlib
 import logging
-
-try:
-    from urllib import urlencode
-
-    from urlparse import parse_qs
-    from urlparse import urlsplit
-    from urlparse import urlunsplit
-except ImportError:
-    from urllib.parse import parse_qs
-    from urllib.parse import urlencode
-    from urllib.parse import urlsplit
-    from urllib.parse import urlunsplit
+from urllib.parse import parse_qs
+from urllib.parse import urlencode
+from urllib.parse import urlsplit
+from urllib.parse import urlunsplit
 
 import jwt.utils
 from cryptography.hazmat.primitives import serialization
-from django.contrib.auth.views import redirect_to_login
-
-try:
-    from django.urls import reverse
-except ImportError:
-    from django.core.urlresolvers import reverse
-
 from django.contrib.auth import logout as django_user_logout
+from django.contrib.auth.views import redirect_to_login
 from django.core.cache import cache
 from django.db import transaction
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt

@@ -1,23 +1,15 @@
 import random
 import time
 from unittest.mock import patch
-
-try:
-    from urllib.parse import urlencode
-except ImportError:
-    from urllib import urlencode
+from urllib.parse import urlencode
 
 from django.core.management import call_command
 from django.test import RequestFactory
 from django.test import TestCase
 from django.test import override_settings
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.encoding import force_str
-
-try:
-    from django.urls import reverse
-except ImportError:
-    from django.core.urlresolvers import reverse
 
 from oidc_provider.lib.utils.token import create_id_token
 from oidc_provider.tests.app.utils import FAKE_RANDOM_STRING

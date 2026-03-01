@@ -3,18 +3,10 @@ from datetime import datetime
 from datetime import timedelta
 from hashlib import md5
 from hashlib import sha256
-
-try:
-    from urllib import urlencode
-
-    from urlparse import parse_qs
-    from urlparse import urlsplit
-    from urlparse import urlunsplit
-except ImportError:
-    from urllib.parse import parse_qs
-    from urllib.parse import urlencode
-    from urllib.parse import urlsplit
-    from urllib.parse import urlunsplit
+from urllib.parse import parse_qs
+from urllib.parse import urlencode
+from urllib.parse import urlsplit
+from urllib.parse import urlunsplit
 from uuid import uuid4
 
 from django.utils import dateformat

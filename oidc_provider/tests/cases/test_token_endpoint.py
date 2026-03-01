@@ -1,20 +1,10 @@
+import base64
 import json
 import time
 import uuid
 from base64 import b64encode
 from unittest.mock import patch
-
-try:
-    from urllib.parse import urlencode
-except ImportError:
-    from urllib import urlencode
-
-try:
-    from django.urls import reverse
-except ImportError:
-    from django.core.urlresolvers import reverse
-
-import base64
+from urllib.parse import urlencode
 
 import jwt
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
@@ -26,6 +16,7 @@ from django.http import JsonResponse
 from django.test import RequestFactory
 from django.test import TestCase
 from django.test import override_settings
+from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
 import oidc_provider.lib.utils
