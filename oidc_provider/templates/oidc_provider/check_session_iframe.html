@@ -4,11 +4,17 @@
     <head>
         <meta charset="utf-8">
         <title>OP Iframe</title>
-        <script src="{% static 'oidc_provider/js/sha256.min.js' %}"></script>
         <script language="JavaScript" type="text/javascript">
             window.addEventListener("message", receiveMessage, false);
 
-            function receiveMessage(e) {
+            async function sha256(message) {
+                const msgUint8 = new TextEncoder().encode(message);
+                const hashBuffer = await window.crypto.subtle.digest("SHA-256", msgUint8);
+                const hashHex = new Uint8Array(hashBuffer).toHex();
+                return hashHex;
+            }
+
+            async function receiveMessage(e) {
                 if (!e.data || typeof e.data != 'string' || e.data == 'error') {
                     return;
                 }
@@ -21,7 +27,7 @@
 
                     var browserState = getOpBrowserState();
 
-                    var sessionStateCalculated = sha256(clientId + ' ' + e.origin + ' ' + browserState + ' ' + salt) + '.' + salt;
+                    var sessionStateCalculated = await sha256(clientId + ' ' + e.origin + ' ' + browserState + ' ' + salt) + '.' + salt;
 
                     if (sessionState == sessionStateCalculated) {
                         status = 'unchanged';
