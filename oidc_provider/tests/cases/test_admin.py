@@ -1,3 +1,5 @@
+import uuid
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
@@ -21,7 +23,7 @@ class ClientFormTest(TestCase):
         )
 
     def test_creates_client_without_client_id_generates_random_one(self):
-        """Test that creating a client without client_id generates a random 6-digit one."""
+        """Test that creating a client without client_id generates a random one."""
         form_data = {
             "name": "Test Client",
             "owner": self.user.pk,
@@ -36,9 +38,7 @@ class ClientFormTest(TestCase):
         # The form should generate a client_id
         client_id = form.clean_client_id()
         self.assertIsNotNone(client_id)
-        self.assertEqual(len(client_id), 6)
-        self.assertTrue(client_id.isdigit())
-        self.assertTrue(1 <= int(client_id) <= 999999)
+        self.assertTrue(uuid.UUID(client_id))
 
     def test_creates_client_with_custom_client_id_preserves_it(self):
         """Test that providing a custom client_id preserves it for new clients."""
