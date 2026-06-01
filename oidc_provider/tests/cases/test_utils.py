@@ -9,6 +9,8 @@ from django.test import TestCase
 from django.test import override_settings
 from django.utils import timezone
 
+from oidc_provider.lib.utils.client_credentials import generate_client_id
+from oidc_provider.lib.utils.client_credentials import generate_client_secret
 from oidc_provider.lib.utils.common import get_browser_state_or_default
 from oidc_provider.lib.utils.common import get_issuer
 from oidc_provider.lib.utils.sanitization import sanitize_client_id
@@ -215,3 +217,21 @@ class SanitizationTest(TestCase):
         client_id = "valid\x00client\x01-\x7f123\tabc"
         result = sanitize_client_id(client_id)
         self.assertEqual(result, "validclient-123abc")
+
+
+class ClientCredentialsTest(TestCase):
+    def test_generate_client_id_returns_unique_string(self):
+        """Test that generate_client_id returns a unique string."""
+        client_ids = set()
+        for _ in range(100):
+            client_id = generate_client_id()
+            self.assertNotIn(client_id, client_ids)
+            client_ids.add(client_id)
+
+    def test_generate_client_secret_returns_secure_string(self):
+        """Test that generate_client_secret returns a unique string."""
+        secrets = set()
+        for _ in range(100):
+            secret = generate_client_secret()
+            self.assertNotIn(secret, secrets)
+            secrets.add(secret)

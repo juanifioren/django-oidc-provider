@@ -6,6 +6,8 @@ from django.contrib import admin
 from django.forms import ModelForm
 from django.utils.translation import gettext_lazy as _
 
+from oidc_provider.lib.utils.client_credentials import generate_client_id
+from oidc_provider.lib.utils.client_credentials import generate_client_secret
 from oidc_provider.lib.utils.sanitization import sanitize_client_id
 from oidc_provider.models import Client
 from oidc_provider.models import Code
@@ -32,8 +34,8 @@ class ClientForm(ModelForm):
             # Sanitize existing client_id to remove any problematic characters
             return sanitize_client_id(instance.client_id)
         else:
-            # Generate new client_id (digits only)
-            return str(randint(1, 999999)).zfill(6)
+            # Generate new client_id
+            return generate_client_id()
 
     def clean_client_secret(self):
         instance = getattr(self, "instance", None)
@@ -42,12 +44,12 @@ class ClientForm(ModelForm):
 
         if instance and instance.pk:
             if (self.cleaned_data["client_type"] == "confidential") and not instance.client_secret:
-                secret = sha224(uuid4().hex.encode()).hexdigest()
+                secret = generate_client_secret()
             elif (self.cleaned_data["client_type"] == "confidential") and instance.client_secret:
                 secret = instance.client_secret
         else:
             if self.cleaned_data["client_type"] == "confidential":
-                secret = sha224(uuid4().hex.encode()).hexdigest()
+                secret = generate_client_secret()
 
         return secret
 
