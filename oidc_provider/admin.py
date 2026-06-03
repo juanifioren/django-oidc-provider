@@ -3,9 +3,12 @@ from random import randint
 from uuid import uuid4
 
 from django.contrib import admin
+from django.contrib import messages
 from django.forms import ModelForm
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
+from oidc_provider.lib.utils.client_credentials import hash_secret
 from oidc_provider.lib.utils.sanitization import sanitize_client_id
 from oidc_provider.models import Client
 from oidc_provider.models import Code
@@ -36,19 +39,26 @@ class ClientForm(ModelForm):
             return str(randint(1, 999999)).zfill(6)
 
     def clean_client_secret(self):
-        instance = getattr(self, "instance", None)
+        """
+        Generate and hash a new secret when creating a confidential client.
 
+        The plaintext is stashed on the form so ``save_model`` can display it once
+        via a one-time admin message. On update the existing hash is preserved.
+        """
+        instance = getattr(self, "instance", None)
+        self._plaintext_secret = ""
         secret = ""
 
         if instance and instance.pk:
             if (self.cleaned_data["client_type"] == "confidential") and not instance.client_secret:
-                secret = sha224(uuid4().hex.encode()).hexdigest()
+                self._plaintext_secret = sha224(uuid4().hex.encode()).hexdigest()
             elif (self.cleaned_data["client_type"] == "confidential") and instance.client_secret:
                 secret = instance.client_secret
         else:
             if self.cleaned_data["client_type"] == "confidential":
-                secret = sha224(uuid4().hex.encode()).hexdigest()
+                self._plaintext_secret = sha224(uuid4().hex.encode()).hexdigest()
 
+        secret = hash_secret(self._plaintext_secret) if self._plaintext_secret else secret
         return secret
 
 
@@ -94,6 +104,20 @@ class ClientAdmin(admin.ModelAdmin):
     readonly_fields = ["date_created"]
     search_fields = ["name"]
     raw_id_fields = ["owner"]
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        plaintext = getattr(form, "_plaintext_secret", None)
+        if plaintext:
+            self.message_user(
+                request,
+                format_html(
+                    "<strong>Client secret (copy now — this will not be shown again):</strong>"
+                    "<br><code style='font-size:1.1em; user-select:all;'>{}</code>",
+                    plaintext,
+                ),
+                level=messages.WARNING,
+            )
 
 
 @admin.register(Code)

@@ -4,6 +4,7 @@ from django.http import JsonResponse
 
 from oidc_provider import settings
 from oidc_provider.lib.errors import TokenIntrospectionError
+from oidc_provider.lib.utils.client_credentials import verify_secret
 from oidc_provider.lib.utils.common import run_processing_hook
 from oidc_provider.lib.utils.oauth2 import extract_client_auth
 from oidc_provider.lib.utils.sanitization import sanitize_client_id
@@ -48,12 +49,14 @@ class TokenIntrospectionEndpoint(object):
             raise TokenIntrospectionError()
 
         try:
-            self.client = Client.objects.get(
-                client_id=self.params["client_id"], client_secret=self.params["client_secret"]
-            )
+            client = Client.objects.get(client_id=self.params["client_id"])
         except Client.DoesNotExist:
             logger.debug("[Introspection] No valid client for id: %s", self.params["client_id"])
             raise TokenIntrospectionError()
+        if not verify_secret(self.params["client_secret"], client.client_secret):
+            logger.debug("[Introspection] Invalid client secret for client: %s", self.params["client_id"])
+            raise TokenIntrospectionError()
+        self.client = client
         if INTROSPECTION_SCOPE not in self.client.scope:
             logger.debug(
                 "[Introspection] Client %s does not have introspection scope",

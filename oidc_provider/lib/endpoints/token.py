@@ -10,6 +10,7 @@ from django.http import JsonResponse
 from oidc_provider import settings
 from oidc_provider.lib.errors import TokenError
 from oidc_provider.lib.errors import UserAuthError
+from oidc_provider.lib.utils.client_credentials import verify_secret
 from oidc_provider.lib.utils.oauth2 import extract_client_auth
 from oidc_provider.lib.utils.sanitization import sanitize_client_id
 from oidc_provider.lib.utils.token import create_id_token
@@ -54,9 +55,9 @@ class TokenEndpoint(object):
             raise TokenError("invalid_client")
 
         if self.client.client_type == "confidential":
-            if not (self.client.client_secret == self.params["client_secret"]):
+            if not verify_secret(self.params["client_secret"], self.client.client_secret):
                 logger.debug(
-                    "[Token] Invalid client secret: client %s do not have secret %s",
+                    "[Token] Invalid client secret: client %s does not have secret %s",
                     self.client.client_id,
                     self.client.client_secret,
                 )

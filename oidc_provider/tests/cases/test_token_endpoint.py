@@ -37,6 +37,7 @@ from oidc_provider.lib.utils.token import encode_id_token
 from oidc_provider.lib.utils.token import get_client_alg_keys
 from oidc_provider.models import RSAKey
 from oidc_provider.models import Token
+from oidc_provider.tests.app.utils import FAKE_CLIENT_SECRET
 from oidc_provider.tests.app.utils import FAKE_CODE_CHALLENGE
 from oidc_provider.tests.app.utils import FAKE_CODE_VERIFIER
 from oidc_provider.tests.app.utils import FAKE_NONCE
@@ -83,7 +84,7 @@ class TokenTestCase(TestCase):
         """
         post_data = {
             "client_id": self.client.client_id,
-            "client_secret": self.client.client_secret,
+            "client_secret": FAKE_CLIENT_SECRET,
             "redirect_uri": self.client.default_redirect_uri,
             "grant_type": "authorization_code",
             "code": code,
@@ -100,7 +101,7 @@ class TokenTestCase(TestCase):
         """
         post_data = {
             "client_id": self.client.client_id,
-            "client_secret": self.client.client_secret,
+            "client_secret": FAKE_CLIENT_SECRET,
             "grant_type": "refresh_token",
             "refresh_token": refresh_token,
         }
@@ -112,7 +113,7 @@ class TokenTestCase(TestCase):
     def _client_credentials_post_data(self, scope=None):
         post_data = {
             "client_id": self.client.client_id,
-            "client_secret": self.client.client_secret,
+            "client_secret": FAKE_CLIENT_SECRET,
             "grant_type": "client_credentials",
         }
         if scope is not None:
@@ -169,7 +170,7 @@ class TokenTestCase(TestCase):
         return userinfo(request)
 
     def _password_grant_auth_header(self):
-        user_pass = self.client.client_id + ":" + self.client.client_secret
+        user_pass = self.client.client_id + ":" + FAKE_CLIENT_SECRET
         auth = b"Basic " + b64encode(user_pass.encode("utf-8"))
         auth_header = {"HTTP_AUTHORIZATION": auth.decode("utf-8")}
         return auth_header
@@ -979,6 +980,22 @@ class TokenTestCase(TestCase):
         response_dict = json.loads(response.content.decode("utf-8"))
         self.assertEqual(200, response.status_code)
         self.assertEqual("email openid", response_dict["scope"])
+
+    def test_auth_code_grant_wrong_secret_returns_invalid_client(self):
+        code = self._create_code()
+        post_data = self._auth_code_post_data(code=code.code)
+        post_data["client_secret"] = "wrong-secret"
+        response = self._post_request(post_data)
+        response_dict = json.loads(response.content.decode("utf-8"))
+        self.assertEqual(400, response.status_code)
+        self.assertEqual("invalid_client", response_dict["error"])
+
+    def test_auth_code_grant_correct_secret_succeeds(self):
+        code = self._create_code()
+        response = self._post_request(self._auth_code_post_data(code=code.code))
+        response_dict = json.loads(response.content.decode("utf-8"))
+        self.assertEqual(200, response.status_code)
+        self.assertIn("access_token", response_dict)
 
 
 class JwksTestCase(TestCase):

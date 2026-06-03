@@ -1,7 +1,15 @@
+from unittest.mock import MagicMock
+
+from django.contrib import messages
+from django.contrib.admin.sites import AdminSite
 from django.contrib.auth import get_user_model
+from django.contrib.messages.storage.fallback import FallbackStorage
+from django.test import RequestFactory
 from django.test import TestCase
 
+from oidc_provider.admin import ClientAdmin
 from oidc_provider.admin import ClientForm
+from oidc_provider.lib.utils.client_credentials import verify_secret
 from oidc_provider.models import Client
 from oidc_provider.models import ResponseType
 from oidc_provider.tests.app.utils import create_fake_user
@@ -96,3 +104,118 @@ class ClientFormTest(TestCase):
         # Should return sanitized client_id
         client_id = form.clean_client_id()
         self.assertEqual(client_id, "clienttest")  # Control characters removed
+
+
+class ClientFormSecretTest(TestCase):
+    def setUp(self):
+        self.user = create_fake_user()
+        self.code_response_type, _ = ResponseType.objects.get_or_create(
+            value="code", defaults={"description": "code (Authorization Code Flow)"}
+        )
+        self.base_form_data = {
+            "name": "Test Client",
+            "owner": self.user.pk,
+            "response_types": [self.code_response_type.pk],
+            "_redirect_uris": "http://example.com/callback",
+        }
+
+    def _make_form(self, client_type, instance=None):
+        data = {**self.base_form_data, "client_type": client_type}
+        return ClientForm(data=data, instance=instance)
+
+    def test_new_confidential_client_stores_hash_not_plaintext(self):
+        form = self._make_form("confidential")
+        self.assertTrue(form.is_valid(), form.errors)
+        stored = form.cleaned_data["client_secret"]
+        self.assertTrue(
+            stored.startswith("pbkdf2") or stored.startswith("bcrypt") or "$" in stored
+        )  # Hashing algoritm is dependent on settings and Django version, so we check for common patterns
+        self.assertNotEqual(stored, form._plaintext_secret)
+
+    def test_new_confidential_client_stashes_plaintext_on_form(self):
+        form = self._make_form("confidential")
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertTrue(form._plaintext_secret)
+        self.assertTrue(verify_secret(form._plaintext_secret, form.cleaned_data["client_secret"]))
+
+    def test_new_public_client_has_no_secret(self):
+        form = self._make_form("public")
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data["client_secret"], "")
+        self.assertEqual(form._plaintext_secret, "")
+
+    def test_existing_confidential_client_with_secret_preserves_it(self):
+        client = Client.objects.create(
+            name="Existing",
+            owner=self.user,
+            client_type="confidential",
+            client_secret="already-hashed-value",
+        )
+        client.response_types.add(self.code_response_type)
+        form = self._make_form("confidential", instance=client)
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data["client_secret"], "already-hashed-value")
+        self.assertEqual(form._plaintext_secret, "")
+
+    def test_existing_confidential_client_without_secret_generates_new_hash(self):
+        client = Client.objects.create(
+            name="Existing No Secret",
+            owner=self.user,
+            client_type="confidential",
+            client_secret="",
+        )
+        client.response_types.add(self.code_response_type)
+        form = self._make_form("confidential", instance=client)
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertTrue(form._plaintext_secret)
+        self.assertTrue(verify_secret(form._plaintext_secret, form.cleaned_data["client_secret"]))
+
+
+class ClientAdminSaveModelTest(TestCase):
+    def setUp(self):
+        self.user = create_fake_user()
+        self.site = AdminSite()
+        self.admin = ClientAdmin(Client, self.site)
+        self.factory = RequestFactory()
+        self.code_response_type, _ = ResponseType.objects.get_or_create(
+            value="code", defaults={"description": "code (Authorization Code Flow)"}
+        )
+
+    def _make_request(self):
+        request = self.factory.post("/")
+        request.user = self.user
+        request.session = "session"
+        request._messages = FallbackStorage(request)
+        return request
+
+    def _make_form_with_plaintext(self, plaintext):
+        form = MagicMock()
+        form._plaintext_secret = plaintext
+        return form
+
+    def test_save_model_shows_warning_message_with_plaintext_for_confidential_client(self):
+        obj = Client.objects.create(
+            name="New Confidential",
+            owner=self.user,
+            client_type="confidential",
+            client_secret="hashed-value",
+        )
+        request = self._make_request()
+        self.admin.save_model(request, obj, self._make_form_with_plaintext("the-plain-secret"), change=False)
+
+        stored = list(request._messages)
+        self.assertEqual(len(stored), 1)
+        self.assertEqual(stored[0].level, messages.WARNING)
+        self.assertIn("the-plain-secret", stored[0].message)
+
+    def test_save_model_shows_no_message_for_public_client(self):
+        obj = Client.objects.create(
+            name="New Public",
+            owner=self.user,
+            client_type="public",
+            client_secret="",
+        )
+        request = self._make_request()
+        self.admin.save_model(request, obj, self._make_form_with_plaintext(""), change=False)
+
+        self.assertEqual(list(request._messages), [])
