@@ -4,6 +4,8 @@ import string
 import django
 from django.contrib.auth.backends import ModelBackend
 
+from oidc_provider.lib.utils.client_credentials import hash_secret
+
 try:
     from urlparse import parse_qs
     from urlparse import urlsplit
@@ -21,6 +23,7 @@ from oidc_provider.models import ResponseType
 from oidc_provider.models import Token
 
 FAKE_NONCE = "cb584e44c43ed6bd0bc2d9c7e242837d"
+FAKE_CLIENT_SECRET = "test-client-secret"
 FAKE_RANDOM_STRING = "".join(
     random.choice(string.ascii_uppercase + string.digits) for _ in range(32)
 )
@@ -61,7 +64,7 @@ def create_fake_client(response_type, is_public=False, require_consent=True):
         client.client_type = "public"
         client.client_secret = ""
     else:
-        client.client_secret = str(random.randint(1, 999999)).zfill(6)
+        client.client_secret = hash_secret(FAKE_CLIENT_SECRET)
     client.redirect_uris = ["http://example.com/"]
     client.require_consent = require_consent
     client.scope = ["openid", "email"]
