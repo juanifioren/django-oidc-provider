@@ -20,6 +20,7 @@ except ImportError:
     from django.core.urlresolvers import reverse
 
 from oidc_provider.lib.utils.token import create_id_token
+from oidc_provider.tests.app.utils import FAKE_CLIENT_SECRET
 from oidc_provider.tests.app.utils import FAKE_RANDOM_STRING
 from oidc_provider.tests.app.utils import create_fake_client
 from oidc_provider.tests.app.utils import create_fake_token
@@ -67,7 +68,7 @@ class IntrospectionTestCase(TestCase):
         url = reverse("oidc_provider:token-introspection")
         data = {
             "client_id": kwargs.get("client_id", self.resource.client_id),
-            "client_secret": kwargs.get("client_secret", self.resource.client_secret),
+            "client_secret": kwargs.get("client_secret", FAKE_CLIENT_SECRET),
             "token": kwargs.get("access_token", self.token.access_token),
         }
 
