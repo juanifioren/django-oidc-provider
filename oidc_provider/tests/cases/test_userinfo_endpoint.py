@@ -163,3 +163,19 @@ class UserInfoTestCase(TestCase):
         self.assertIn(
             "country", response_dic["address"], msg='"country" claim should be in response.'
         )
+
+    def test_options_request_without_token(self):
+        url = reverse("oidc_provider:userinfo")
+        request = self.factory.options(url)
+        request.META["HTTP_ORIGIN"] = "test.example.com"
+        response = userinfo(request)
+
+        expected_headers = {
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Origin": "test.example.com",
+        }
+
+        self.assertEqual(response.status_code, 200)
+        for key, value in expected_headers.items():
+            self.assertEqual(response[key], value)
